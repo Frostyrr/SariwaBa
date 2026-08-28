@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '../ui/Button';
-import { Sparkles, Menu, X, LogIn } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "../ui/Button";
+import { Sparkles, Menu, X, LogIn } from "lucide-react";
 
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,27 +12,28 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
 
     const performScroll = () => {
-      if (id === 'hero') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (id === "hero") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
 
       const element = document.getElementById(id);
       if (element) {
-        const navbar = document.querySelector('header');
+        const navbar = document.querySelector("header");
         const navbarHeight = navbar ? navbar.offsetHeight : 70;
-        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+        const elementPosition =
+          element.getBoundingClientRect().top + window.scrollY;
         const offsetPosition = elementPosition - navbarHeight;
 
         window.scrollTo({
           top: Math.max(0, offsetPosition),
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }
     };
 
-    if (location.pathname !== '/') {
-      navigate('/');
+    if (location.pathname !== "/") {
+      navigate("/");
       setTimeout(performScroll, 120);
     } else {
       performScroll();
@@ -42,12 +43,11 @@ export const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-[#fbfbfb]/85 backdrop-blur-md border-b border-slate-200/80">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-        
         {/* Brand Logo & Title */}
         <Link
           to="/"
           className="flex items-center gap-3 cursor-pointer select-none group"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <img
             src="/SariwaBaLogo.png"
@@ -67,17 +67,27 @@ export const Navbar: React.FC = () => {
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('hero');
+              scrollToSection("hero");
             }}
             className="hover:text-[#0066ff] transition-colors"
           >
             Home
           </a>
           <a
+            href="#history"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection("history");
+            }}
+            className="hover:text-[#0066ff] transition-colors"
+          >
+            History
+          </a>
+          <a
             href="#features"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('features');
+              scrollToSection("features");
             }}
             className="hover:text-[#0066ff] transition-colors"
           >
@@ -87,32 +97,18 @@ export const Navbar: React.FC = () => {
             href="#how-it-works"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('how-it-works');
+              scrollToSection("how-it-works");
             }}
             className="hover:text-[#0066ff] transition-colors"
           >
             How It Works
-          </a>
-          <a
-            href="#history"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('history');
-            }}
-            className="hover:text-[#0066ff] transition-colors"
-          >
-            History
           </a>
         </div>
 
         {/* Action Buttons: Log In & Try Classifier */}
         <div className="hidden md:flex items-center gap-3">
           <Link to="/login">
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<LogIn size={15} />}
-            >
+            <Button variant="ghost" size="sm" icon={<LogIn size={15} />}>
               Log In
             </Button>
           </Link>
@@ -120,7 +116,7 @@ export const Navbar: React.FC = () => {
             variant="primary"
             size="sm"
             icon={<Sparkles size={14} />}
-            onClick={() => scrollToSection('hero')}
+            onClick={() => scrollToSection("hero")}
           >
             Try Classifier
           </Button>
@@ -143,7 +139,7 @@ export const Navbar: React.FC = () => {
             href="#hero"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('hero');
+              scrollToSection("hero");
             }}
             className="text-xs font-bold uppercase tracking-wider text-slate-800 py-2 border-b border-slate-100"
           >
@@ -153,7 +149,7 @@ export const Navbar: React.FC = () => {
             href="#features"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('features');
+              scrollToSection("features");
             }}
             className="text-xs font-bold uppercase tracking-wider text-slate-800 py-2 border-b border-slate-100"
           >
@@ -163,7 +159,7 @@ export const Navbar: React.FC = () => {
             href="#how-it-works"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('how-it-works');
+              scrollToSection("how-it-works");
             }}
             className="text-xs font-bold uppercase tracking-wider text-slate-800 py-2 border-b border-slate-100"
           >
@@ -173,7 +169,7 @@ export const Navbar: React.FC = () => {
             href="#history"
             onClick={(e) => {
               e.preventDefault();
-              scrollToSection('history');
+              scrollToSection("history");
             }}
             className="text-xs font-bold uppercase tracking-wider text-slate-800 py-2 border-b border-slate-100"
           >
@@ -195,7 +191,7 @@ export const Navbar: React.FC = () => {
               size="md"
               fullWidth
               icon={<Sparkles size={15} />}
-              onClick={() => scrollToSection('hero')}
+              onClick={() => scrollToSection("hero")}
             >
               Try Classifier
             </Button>
@@ -205,6 +201,3 @@ export const Navbar: React.FC = () => {
     </header>
   );
 };
-
-
-
