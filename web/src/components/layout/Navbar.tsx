@@ -10,19 +10,32 @@ export const Navbar: React.FC = () => {
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    } else {
+
+    const performScroll = () => {
+      if (id === 'hero') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        const navbar = document.querySelector('header');
+        const navbarHeight = navbar ? navbar.offsetHeight : 70;
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - navbarHeight;
+
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: 'smooth',
+        });
       }
+    };
+
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(performScroll, 120);
+    } else {
+      performScroll();
     }
   };
 

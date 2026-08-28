@@ -86,7 +86,7 @@ export const History: React.FC = () => {
     <section
       id="history"
       ref={sectionRef}
-      className="py-24 md:py-32 bg-white/75 backdrop-blur-md relative border-b border-slate-200/80 overflow-hidden"
+      className="min-h-[calc(100vh-73px)] flex flex-col justify-center py-20 md:py-28 bg-white/75 backdrop-blur-md relative border-b border-slate-200/80 overflow-hidden scroll-mt-16"
     >
       {/* Ambient Blur Backdrop */}
       <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -z-10 animate-ambient-glow" />

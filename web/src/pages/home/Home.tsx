@@ -3,6 +3,7 @@ import { Hero } from './sections/Hero';
 import { Features } from './sections/Features';
 import { HowItWorks } from './sections/HowItWorks';
 import { History } from './sections/History';
+import { CommunityCTA } from './sections/CommunityCTA';
 
 export const Home: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ export const Home: React.FC = () => {
       <Features />
       <HowItWorks />
       <History />
+      <CommunityCTA />
     </main>
   );
 };

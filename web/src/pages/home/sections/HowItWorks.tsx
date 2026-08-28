@@ -42,7 +42,7 @@ export const HowItWorks: React.FC = () => {
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="py-24 md:py-32 bg-white/80 backdrop-blur-md border-t border-b border-slate-200/80 relative overflow-hidden transition-colors duration-500"
+      className="min-h-[calc(100vh-73px)] flex flex-col justify-center py-20 md:py-28 bg-white/80 backdrop-blur-md border-t border-b border-slate-200/80 relative overflow-hidden transition-colors duration-500 scroll-mt-16"
     >
       {/* Ambient Blur Backdrop Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[650px] h-[340px] bg-blue-500/6 rounded-full blur-3xl pointer-events-none -z-10 animate-ambient-glow" />
