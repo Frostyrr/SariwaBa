@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { History as HistoryIcon, Clock, Filter, Eye, CheckCircle2, AlertTriangle, XCircle, RotateCcw } from 'lucide-react';
+import { useScrollReveal } from '../../../hooks/useScrollReveal';
 
 interface ScanLogItem {
   id: string;
@@ -12,6 +13,10 @@ interface ScanLogItem {
 
 export const History: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'Fresh' | 'Moderate' | 'Spoiled'>('all');
+  const { ref: sectionRef, isVisible } = useScrollReveal<HTMLElement>({
+    threshold: 0.15,
+    rootMargin: '0px 0px -40px 0px',
+  });
 
   // Sample placeholder log data
   const sampleLogs: ScanLogItem[] = [
@@ -78,13 +83,26 @@ export const History: React.FC = () => {
   };
 
   return (
-    <section id="history" className="py-20 md:py-28 bg-white relative border-b border-slate-200/80">
+    <section
+      id="history"
+      ref={sectionRef}
+      className="py-24 md:py-32 bg-white/75 backdrop-blur-md relative border-b border-slate-200/80 overflow-hidden"
+    >
+      {/* Ambient Blur Backdrop */}
+      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -z-10 animate-ambient-glow" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        {/* Section Header with Welcoming Blur Transition */}
+        <div
+          className={`flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 transition-all duration-700 ease-out ${
+            isVisible
+              ? 'opacity-100 filter-none translate-y-0'
+              : 'opacity-0 filter blur-md translate-y-8'
+          }`}
+        >
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0066ff] text-xs font-bold uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50/90 backdrop-blur-xs border border-blue-200 text-[#0066ff] text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
               <HistoryIcon size={14} />
               <span>Session History</span>
             </div>
@@ -108,7 +126,7 @@ export const History: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   filter === grade
                     ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                    : 'bg-slate-100/80 hover:bg-slate-200 text-slate-600'
                 }`}
               >
                 {grade === 'all' ? 'All Tries' : grade}
@@ -117,56 +135,75 @@ export const History: React.FC = () => {
           </div>
         </div>
 
-        {/* Logs Table / Cards */}
-        <div className="bg-[#fbfbfb] rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-          
-          <div className="divide-y divide-slate-200">
-            {filteredLogs.map((log) => (
-              <div
-                key={log.id}
-                className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white transition-colors"
-              >
-                {/* Left Info */}
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-[#0066ff] shrink-0 mt-0.5 sm:mt-0">
-                    <Eye size={22} />
+        {/* Logs Table / Cards with Staggered Entrance Container */}
+        <div
+          style={{
+            transitionDelay: isVisible ? '200ms' : '0ms',
+          }}
+          className={`bg-[#fbfbfb]/95 backdrop-blur-md rounded-3xl border border-slate-200 overflow-hidden shadow-xs transition-all duration-700 ease-out ${
+            isVisible
+              ? 'opacity-100 filter-none translate-y-0 scale-100'
+              : 'opacity-0 filter blur-sm translate-y-12 scale-[0.98]'
+          }`}
+        >
+          <div className="divide-y divide-slate-200/80">
+            {filteredLogs.map((log, index) => {
+              const delays = ['100ms', '200ms', '300ms', '400ms'];
+              const delay = delays[index % delays.length];
+              return (
+                <div
+                  key={log.id}
+                  style={{
+                    transitionDelay: isVisible ? delay : '0ms',
+                  }}
+                  className={`p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/95 transition-all duration-500 ease-out ${
+                    isVisible
+                      ? 'opacity-100 filter-none translate-x-0'
+                      : 'opacity-0 filter blur-xs -translate-x-4'
+                  }`}
+                >
+                  {/* Left Info */}
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-[#0066ff] shrink-0 mt-0.5 sm:mt-0 transition-transform group-hover:scale-105">
+                      <Eye size={22} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="font-heading font-black text-sm sm:text-base text-slate-900 uppercase tracking-tight">
+                          {log.species}
+                        </span>
+                        <span className="text-[11px] font-semibold text-slate-400 font-mono">
+                          {log.id}
+                        </span>
+                      </div>
+                      <p className="font-sans text-xs sm:text-sm text-slate-500">
+                        {log.indicators}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className="font-heading font-black text-sm sm:text-base text-slate-900 uppercase tracking-tight">
-                        {log.species}
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-400 font-mono">
-                        {log.id}
+
+                  {/* Right Badges & Confidence */}
+                  <div className="flex items-center gap-4 sm:gap-6 self-end sm:self-center">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <Clock size={13} />
+                      <span>{log.timestamp}</span>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="font-heading font-bold text-xs text-slate-700 block">
+                        {log.confidence}% AI Confidence
                       </span>
                     </div>
-                    <p className="font-sans text-xs sm:text-sm text-slate-500">
-                      {log.indicators}
-                    </p>
+
+                    <div>{getGradeBadge(log.grade)}</div>
                   </div>
                 </div>
-
-                {/* Right Badges & Confidence */}
-                <div className="flex items-center gap-4 sm:gap-6 self-end sm:self-center">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                    <Clock size={13} />
-                    <span>{log.timestamp}</span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="font-heading font-bold text-xs text-slate-700 block">
-                      {log.confidence}% AI Confidence
-                    </span>
-                  </div>
-
-                  <div>{getGradeBadge(log.grade)}</div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Footer Bar */}
-          <div className="p-4 sm:p-5 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+          <div className="p-4 sm:p-5 bg-white/95 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
             <span>Showing {filteredLogs.length} recent scan sessions (UI Placeholder)</span>
             <button
               onClick={() => setFilter('all')}
@@ -176,7 +213,6 @@ export const History: React.FC = () => {
               Reset Logs
             </button>
           </div>
-
         </div>
 
       </div>

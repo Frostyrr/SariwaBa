@@ -136,11 +136,11 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner / Welcome */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-8 animate-blur-in">
+      {/* Top Banner / Welcome with Blur Resolution */}
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 animate-blur-in-up">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0066ff] text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/90 backdrop-blur-xs border border-blue-200 text-[#0066ff] text-xs font-bold uppercase tracking-wider mb-2">
             <Sparkles size={13} />
             <span>AI Operations Center</span>
           </div>
@@ -163,39 +163,42 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
         </div>
       </div>
 
-      {/* KPI Cards Grid */}
+      {/* KPI Cards Grid with Staggered Delays */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {statCards.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-md hover:border-slate-300 group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-heading text-xs font-bold uppercase tracking-wider text-slate-500">
-                {stat.title}
-              </span>
-              <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.border} border`}>
-                {stat.icon}
+        {statCards.map((stat, i) => {
+          const delays = ['delay-100', 'delay-200', 'delay-300', 'delay-400'];
+          return (
+            <div
+              key={i}
+              className={`bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-xl hover:shadow-blue-600/5 hover:border-slate-300 hover:-translate-y-1 group animate-blur-in-up ${delays[i]}`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-heading text-xs font-bold uppercase tracking-wider text-slate-500">
+                  {stat.title}
+                </span>
+                <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.border} border shadow-xs transition-transform group-hover:scale-105`}>
+                  {stat.icon}
+                </div>
+              </div>
+              <div>
+                <div className="font-heading font-black text-3xl text-slate-950 tracking-tight">
+                  {stat.value}
+                </div>
+                <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
+                  <TrendingUp size={13} />
+                  <span>{stat.change}</span>
+                </div>
               </div>
             </div>
-            <div>
-              <div className="font-heading font-black text-3xl text-slate-950 tracking-tight">
-                {stat.value}
-              </div>
-              <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-600">
-                <TrendingUp size={13} />
-                <span>{stat.change}</span>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* 2-Column: Live Feed & Model Health */}
+      {/* 2-Column: Live Feed & Model Health with Staggered Delays */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left 8 Cols: Recent Inferences Live Feed */}
-        <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-xs">
+        <div className="lg:col-span-8 bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-xs animate-blur-in-up delay-250">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="font-heading font-black text-lg text-slate-950 uppercase tracking-tight">
@@ -226,7 +229,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans text-xs">
                 {recentScans.map((scan) => (
-                  <tr key={scan.id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr key={scan.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-3.5 pl-2 font-mono font-bold text-slate-900">{scan.id}</td>
                     <td className="py-3.5 font-heading font-bold text-slate-800">{scan.species}</td>
                     <td className="py-3.5">{getGradePill(scan.grade)}</td>
@@ -241,10 +244,10 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
         </div>
 
         {/* Right 4 Cols: Model Health & Quick Stats */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-6 animate-blur-in-up delay-350">
           
           {/* Hardware & Latency Telemetry */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs">
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200 p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading font-black text-sm uppercase tracking-tight text-slate-900">
                 Inference Telemetry
@@ -259,7 +262,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
                   <span className="font-mono text-slate-900">38%</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full bg-[#0066ff] rounded-full" style={{ width: '38%' }} />
+                  <div className="h-full bg-[#0066ff] rounded-full transition-all duration-500" style={{ width: '38%' }} />
                 </div>
               </div>
 
@@ -269,7 +272,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
                   <span className="font-mono text-emerald-600">208 ms</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '22%' }} />
+                  <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: '22%' }} />
                 </div>
               </div>
 
@@ -279,7 +282,7 @@ export const Overview: React.FC<OverviewProps> = ({ onNavigateTab }) => {
                   <span className="font-mono text-blue-600">96.8%</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                  <div className="h-full bg-blue-600 rounded-full" style={{ width: '96.8%' }} />
+                  <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: '96.8%' }} />
                 </div>
               </div>
             </div>

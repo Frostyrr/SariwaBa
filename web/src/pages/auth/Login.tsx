@@ -12,17 +12,21 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 w-full flex items-center justify-center p-4 sm:p-6 lg:p-12 py-12 md:py-16">
-      <div className="w-full max-w-md">
-        {/* Main Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl shadow-blue-600/5 p-8 sm:p-10 transition-all">
+    <div className="flex-1 w-full flex items-center justify-center p-4 sm:p-6 lg:p-12 py-12 md:py-16 relative overflow-hidden">
+      
+      {/* Ambient Blur Optical Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[360px] bg-blue-500/12 rounded-full blur-3xl pointer-events-none -z-10 animate-ambient-glow" />
+
+      <div className="w-full max-w-md animate-blur-in-up">
+        {/* Main Card with Glassmorphism */}
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/90 shadow-2xl shadow-blue-600/10 p-8 sm:p-10 transition-all hover:border-[#0066ff]/40">
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-6">
-            <Link to="/" className="flex items-center gap-2 mb-3">
+            <Link to="/" className="flex items-center gap-2 mb-3 group">
               <img
                 src="/SariwaBaLogo.png"
                 alt="SariwaBa Logo"
-                className="w-10 h-10 object-contain rounded-lg"
+                className="w-10 h-10 object-contain rounded-lg transition-transform group-hover:scale-105"
               />
               <span className="font-heading font-black text-xl text-slate-950 uppercase tracking-tight">
                 Sariwa<span className="text-[#0066ff]">Ba?</span>
@@ -38,12 +42,12 @@ export const Login: React.FC = () => {
             </p>
           </div>
 
-          {/* Direct OAuth Login Options */}
+          {/* Direct OAuth Login Options with Staggered Delays */}
           <div className="flex flex-col gap-3">
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-slate-50 border border-slate-300 hover:border-[#0066ff]/60 rounded-2xl font-heading text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 transition-all shadow-xs hover:shadow-md cursor-pointer group"
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white/90 backdrop-blur-xs hover:bg-slate-50 border border-slate-300 hover:border-[#0066ff]/60 rounded-2xl font-heading text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 transition-all shadow-xs hover:shadow-md cursor-pointer group animate-blur-in-up delay-150"
             >
               <svg
                 className="w-4 h-4 transition-transform group-hover:scale-110"
@@ -72,7 +76,7 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={handleGithubLogin}
-              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-heading text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-xs hover:shadow-md cursor-pointer group"
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-slate-900 hover:bg-black text-white rounded-2xl font-heading text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-xs hover:shadow-md cursor-pointer group animate-blur-in-up delay-250"
             >
               <svg
                 className="w-4 h-4 fill-current transition-transform group-hover:scale-110"
@@ -85,7 +89,7 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Key Benefits Bullet Points */}
-          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col gap-2 text-xs text-slate-500">
+          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col gap-2 text-xs text-slate-500 animate-blur-in-up delay-350">
             <div className="flex items-center gap-2">
               <ShieldCheck size={14} className="text-[#0066ff]" />
               <span>Unlimited cloud storage for classification reports</span>
@@ -97,7 +101,7 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Switch to Register */}
-          <div className="mt-7 text-center text-xs font-medium text-slate-500">
+          <div className="mt-7 text-center text-xs font-medium text-slate-500 animate-blur-in-up delay-400">
             <span>Don&apos;t have an account? </span>
             <Link
               to="/register"
@@ -113,3 +117,4 @@ export const Login: React.FC = () => {
 };
 
 export default Login;
+

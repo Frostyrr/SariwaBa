@@ -1,75 +1,75 @@
-# React + TypeScript + Vite
+# 🌐 SariwaBa? Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The modern web client for the **SariwaBa? Fish Freshness Classification System**, built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Vite**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ⚡ Features
 
-## React Compiler
+- **Symph-Inspired Visual Interface:** Clean graph grid paper texture (`#fbfbfb`), bold grotesque typography (`Plus Jakarta Sans`), and vibrant electric blue accents (`#0066ff`).
+- **Landing Page Experience:**
+  - 2-Column Hero section with camera & image upload viewfinder scaffold.
+  - Interactive Features showcase highlighting AI capabilities.
+  - 3-Step "How It Works" workflow guide.
+  - Interactive Scan History log cards with sensory indicator breakdowns.
+- **Direct Social Authentication:**
+  - Direct 1-click **Google OAuth** & **GitHub OAuth** sign-in and sign-up flows.
+  - Value callout for lifetime scan history preservation over temporary guest logs.
+- **Interactive Admin Dashboard (`/admin`):**
+  - **Overview:** Real-time KPI cards, live inference feed, and GPU/latency telemetry.
+  - **Analytics:** Weekly scan volume visualizer, freshness distribution metrics, sensory model precision, and species breakdown.
+  - **Classifications:** Searchable database with grade filters and deep inspection modal.
+  - **Users Directory:** Role-based identity management (Inspectors, Vendors, Consumers, Admins).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📦 Scripts
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Command | Description |
+| :--- | :--- |
+| `npm run dev` | Starts the Vite development server with Hot Module Replacement (HMR) |
+| `npm run build` | Compiles TypeScript and builds production-ready bundles in `dist/` |
+| `npm run lint` | Runs ESLint over all `.ts` and `.tsx` source files |
+| `npm run preview` | Locally serves the production `dist/` build |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📂 Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+web/
+├── public/
+│   └── SariwaBaLogo.png
+├── src/
+│   ├── admin/
+│   │   └── dashboard/
+│   │       └── pages/
+│   │           ├── Dashboard.tsx        # Admin shell & sidebar
+│   │           └── sections/
+│   │               ├── Overview.tsx     # KPI metrics & live feed
+│   │               ├── Analytics.tsx    # Charts & sensory precision
+│   │               ├── Classifications.tsx # Scan database & inspector modal
+│   │               └── Users.tsx        # User directory
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Navbar.tsx               # Header with section links & auth CTAs
+│   │   │   └── Footer.tsx               # Footer with brand & navigation
+│   │   └── ui/
+│   │       └── Button.tsx               # Reusable styled button component
+│   ├── pages/
+│   │   ├── auth/
+│   │   │   ├── Login.tsx                # Social login page
+│   │   │   └── Register.tsx             # Social signup page
+│   │   └── home/
+│   │       ├── Home.tsx                 # Landing container
+│   │       └── sections/
+│   │           ├── Hero.tsx             # 2-column hero & viewfinder
+│   │           ├── Features.tsx         # Capabilities grid
+│   │           ├── HowItWorks.tsx       # 3-step process guide
+│   │           └── History.tsx          # Scan session logs
+│   ├── App.tsx                          # React Router routes configuration
+│   ├── index.css                        # Tailwind CSS v4 & theme definitions
+│   └── main.tsx                         # App bootstrap
+├── package.json
+└── vite.config.ts
 ```
