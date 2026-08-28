@@ -1,10 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Navbar } from './components/layout/Navbar';
-import { Footer } from './components/layout/Footer';
-import { Home } from './pages/home/Home';
-import { Login } from './pages/auth/Login';
-import { Register } from './pages/auth/Register';
-import { Dashboard as AdminDashboard } from './admin/dashboard/pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Navbar } from "./components/layout/Navbar";
+import { Footer } from "./components/layout/Footer";
+import { Home } from "./pages/home/Home";
+import { Login } from "./pages/auth/Login";
+import { Register } from "./pages/auth/Register";
+import { Dashboard as AdminDashboard } from "./admin/dashboard/pages/Dashboard";
 
 function App() {
   return (
@@ -36,9 +36,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
