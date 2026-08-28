@@ -137,7 +137,11 @@
 }
 
 .animate-laser {
-  animation: laserScan 2.4s ease-in-out infinite alternate;
+  animation: laserScan 2.6s ease-in-out infinite alternate;
+}
+
+.animate-laser-fast {
+  animation: laserScan 1.1s ease-in-out infinite alternate;
 }
 
 .animate-ambient-glow {

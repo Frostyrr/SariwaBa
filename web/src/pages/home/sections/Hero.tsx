@@ -159,14 +159,16 @@ export const Hero: React.FC = () => {
                 <div className={`absolute bottom-5 left-5 w-7 h-7 border-b-2 border-l-2 rounded-bl-lg pointer-events-none transition-all duration-300 ${scanState === 'scanning' ? 'border-[#0066ff] scale-110' : 'border-[#0066ff]'}`} />
                 <div className={`absolute bottom-5 right-5 w-7 h-7 border-b-2 border-r-2 rounded-br-lg pointer-events-none transition-all duration-300 ${scanState === 'scanning' ? 'border-[#0066ff] scale-110' : 'border-[#0066ff]'}`} />
 
-                {/* Laser Scan line overlay */}
-                <div
-                  className={`absolute inset-x-4 h-0.5 bg-gradient-to-r from-transparent via-[#0066ff] to-transparent shadow-[0_0_16px_#0066ff] pointer-events-none transition-opacity duration-300 ${
-                    scanState === 'scanning'
-                      ? 'opacity-100 animate-laser'
-                      : 'opacity-40 animate-pulse'
-                  }`}
-                />
+                {/* Laser Scan line overlay: Visible & sweeping in idle/scanning, disappears when complete */}
+                {scanState !== 'complete' && (
+                  <div
+                    className={`absolute inset-x-4 bg-gradient-to-r from-transparent via-[#0066ff] to-transparent pointer-events-none transition-all duration-500 ${
+                      scanState === 'scanning'
+                        ? 'h-1 opacity-100 shadow-[0_0_24px_#0066ff] animate-laser-fast'
+                        : 'h-0.5 opacity-75 shadow-[0_0_14px_#0066ff] animate-laser'
+                    }`}
+                  />
+                )}
 
                 {/* STATE 1: SCANNING ACTIVE SIMULATION */}
                 {scanState === 'scanning' && (
