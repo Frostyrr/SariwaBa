@@ -6,13 +6,13 @@
 
 ## System Highlights
 
-- **Instant AI Inference:** Rapid image evaluation in under 300ms.
+- **Instant AI Inference:** Rapid image evaluation
 - **Sensory Detection:** Multi-feature inspection assessing eye cloudiness, gill redness, and scale sheen.
 - **Standardized Grading:** Clear, objective classification metrics:
   - 🟢 **Grade A (Fresh)**
   - 🟡 **Grade B (Moderate)**
   - 🔴 **Grade C (Spoiled)**
-- **Direct Social Authentication:** 1-click authentication with Google and GitHub OAuth.
+- **Direct Social Authentication:** 1-click authentication with Google
 - **Permanent Scan Archive:** Account holders maintain complete lifetime scan histories, quality trends, and exportable audit logs (with instant guest access for trial evaluations).
 - **Admin Dashboard:** Full monitoring suite featuring live telemetry, volume analytics, sensory precision benchmarks, and a user directory.
 
