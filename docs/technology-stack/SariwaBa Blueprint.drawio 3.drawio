@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net">
+<mxfile host="app.diagrams.net" scale="1" border="0">
   <diagram name="Page-1" id="hTVT7l77keG3Hd1gY9Dh">
-    <mxGraphModel dx="1030" dy="630" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1178" dy="624" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -54,7 +54,7 @@
           <mxGeometry height="460" width="273.75" x="736.25" y="230" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-12" parent="1VULZbZnNLz7aTzVeWMt-37" style="swimlane;whiteSpace=wrap;html=1;rounded=1;" value="API Routers / Controllers" vertex="1">
-          <mxGeometry height="90" width="250" x="11.88" y="170" as="geometry" />
+          <mxGeometry height="90" width="250" x="11.870000000000001" y="40" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-13" parent="LqC-LtFiHcnOaytfjGs8-12" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;ul style=&quot;padding-left: 20px;&quot;&gt;&lt;li&gt;Fish Freshness Classification&lt;/li&gt;&lt;li&gt;Google Authentication&lt;/li&gt;&lt;li&gt;Classification History&lt;/li&gt;&lt;/ul&gt;" vertex="1">
           <mxGeometry height="40" width="190" x="10" y="35" as="geometry" />
@@ -71,11 +71,11 @@
         <mxCell id="LqC-LtFiHcnOaytfjGs8-22" parent="LqC-LtFiHcnOaytfjGs8-21" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;ul style=&quot;padding-left: 20px;&quot;&gt;&lt;li&gt;Image Preprocessing Pipeline&lt;br&gt;&lt;/li&gt;&lt;li&gt;Classification Service&lt;br&gt;&lt;/li&gt;&lt;li&gt;History Service&lt;/li&gt;&lt;li&gt;Django ORM&lt;/li&gt;&lt;/ul&gt;" vertex="1">
           <mxGeometry height="155" width="97.5" y="15" as="geometry" />
         </mxCell>
-        <mxCell id="YX0r2Ra88gLHyKlR_ZLX-1" parent="1VULZbZnNLz7aTzVeWMt-37" style="swimlane;whiteSpace=wrap;html=1;rounded=1;" value="Tech Stack" vertex="1">
-          <mxGeometry height="135" width="250" x="11.88" y="28" as="geometry" />
+        <mxCell id="pwCaiV6HkUfveDqoRgeG-2" parent="1VULZbZnNLz7aTzVeWMt-37" style="swimlane;whiteSpace=wrap;html=1;startSize=30;rounded=1;" value="ML Classification Component" vertex="1">
+          <mxGeometry height="123" width="241" x="16.370000000000005" y="141" as="geometry" />
         </mxCell>
-        <mxCell id="YX0r2Ra88gLHyKlR_ZLX-2" parent="YX0r2Ra88gLHyKlR_ZLX-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;ul style=&quot;padding-left: 20px;&quot;&gt;&lt;li&gt;&lt;strong&gt;Backend Framework:&lt;/strong&gt; Django REST Framework&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Backend Language:&amp;nbsp;&lt;/strong&gt;Python&lt;/li&gt;&lt;li&gt;&lt;b&gt;ML Mode&lt;/b&gt;l: MobileNetV3-based Image Classification Model&lt;/li&gt;&lt;li&gt;&lt;b&gt;Auth:&lt;/b&gt;&amp;nbsp;Google OAuth&lt;/li&gt;&lt;/ul&gt;" vertex="1">
-          <mxGeometry height="40" width="230" x="10" y="52" as="geometry" />
+        <mxCell id="pwCaiV6HkUfveDqoRgeG-3" parent="pwCaiV6HkUfveDqoRgeG-2" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;ul style=&quot;padding-left: 20px;&quot;&gt;&lt;li&gt;Trained MobileNetV3 Model  &lt;/li&gt;&lt;li&gt;Image Preprocessing  &lt;/li&gt;&lt;li&gt;Model Inference  &lt;/li&gt;&lt;li&gt;Fresh/Not Fresh Label  &lt;/li&gt;&lt;li&gt;Confidence Score&lt;/li&gt;&lt;/ul&gt;" vertex="1">
+          <mxGeometry height="90" width="218.38" x="14.93" y="33" as="geometry" />
         </mxCell>
         <mxCell id="1VULZbZnNLz7aTzVeWMt-55" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fillColor=#008a00;strokeColor=#00CC00;strokeWidth=2;" target="1VULZbZnNLz7aTzVeWMt-30" value="">
           <mxGeometry relative="1" as="geometry">
@@ -129,45 +129,16 @@
           <mxGeometry height="60" width="140" x="590" y="520" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-69" parent="1" style="swimlane;whiteSpace=wrap;html=1;rounded=1;" value="External Services" vertex="1">
-          <mxGeometry height="135" width="390" x="660" y="740" as="geometry" />
+          <mxGeometry height="135" width="260" x="710" y="740" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-4" parent="LqC-LtFiHcnOaytfjGs8-69" style="rounded=1;whiteSpace=wrap;html=1;" value="Google OAuth" vertex="1">
-          <mxGeometry height="60" width="140" x="30" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-5" parent="LqC-LtFiHcnOaytfjGs8-69" style="rounded=1;whiteSpace=wrap;html=1;" value="ML Classification" vertex="1">
-          <mxGeometry height="60" width="170" x="190" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-77" edge="1" parent="1" source="LqC-LtFiHcnOaytfjGs8-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#0000FF;strokeWidth=2;" target="LqC-LtFiHcnOaytfjGs8-4">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="811" y="710" />
-              <mxPoint x="760" y="710" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-79" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;color: rgb(0, 0, 255);&quot;&gt;Send Image&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="45.25" x="880" y="680" as="geometry" />
+          <mxGeometry height="60" width="199" x="30" y="40" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-80" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;color: rgb(0, 0, 255);&quot;&gt;Verify Token&lt;/span&gt;" vertex="1">
-          <mxGeometry height="30" width="45.25" x="710" y="700" as="geometry" />
+          <mxGeometry height="30" width="45.25" x="830" y="700" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-83" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;color: rgb(0, 0, 255);&quot;&gt;Sign in Request&lt;/span&gt;" vertex="1">
           <mxGeometry height="30" width="120" x="390" y="760" as="geometry" />
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-89" edge="1" parent="1" source="LqC-LtFiHcnOaytfjGs8-22" style="endArrow=classic;html=1;rounded=0;exitX=0.408;exitY=1.004;exitDx=0;exitDy=0;exitPerimeter=0;strokeColor=#0000FF;strokeWidth=2;" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="920" y="650" as="sourcePoint" />
-            <mxPoint x="920" y="778.02" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-90" edge="1" parent="1" source="LqC-LtFiHcnOaytfjGs8-5" style="endArrow=classic;html=1;rounded=0;entryX=0.72;entryY=1.004;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.595;exitY=-0.027;exitDx=0;exitDy=0;exitPerimeter=0;strokeColor=#00CC00;strokeWidth=2;" target="LqC-LtFiHcnOaytfjGs8-22" value="">
-          <mxGeometry height="50" relative="1" width="50" as="geometry">
-            <mxPoint x="950" y="770" as="sourcePoint" />
-            <mxPoint x="930" y="832.02" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="LqC-LtFiHcnOaytfjGs8-91" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;Return Freshness&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 153, 0);&quot;&gt;&amp;amp; Confidence Score&lt;/span&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="70" width="120" x="960" y="670" as="geometry" />
         </mxCell>
         <mxCell id="LqC-LtFiHcnOaytfjGs8-92" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" value="&lt;h1 style=&quot;margin-top: 0px; margin-bottom: 10px;&quot;&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;SariwaBa?: Fish Freshness Classification System using Machine Learning and Mobile Computer Vision&lt;/font&gt;&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;System Blueprint&lt;/span&gt;&lt;/p&gt;" vertex="1">
           <mxGeometry height="123" width="380" x="60" y="40" as="geometry" />
@@ -215,6 +186,9 @@
         </mxCell>
         <mxCell id="nITXMz_lfuA3XzjNFTPz-12" parent="nITXMz_lfuA3XzjNFTPz-11" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="Vercel • Render Web Service • Render PostgreSQL" vertex="1">
           <mxGeometry height="30" width="280.37" x="9.629999999999995" y="29" as="geometry" />
+        </mxCell>
+        <mxCell id="pwCaiV6HkUfveDqoRgeG-7" edge="1" parent="1" source="LqC-LtFiHcnOaytfjGs8-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.141;entryY=-0.029;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeWidth=2;fillColor=#0050ef;strokeColor=#0020FF;" target="LqC-LtFiHcnOaytfjGs8-4">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
