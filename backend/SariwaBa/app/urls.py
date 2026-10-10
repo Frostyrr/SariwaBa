@@ -9,4 +9,11 @@ urlpatterns = [
         views.google_auth,
         name="google_auth",
     ),
+
+    path(
+        "api/v1/profile/",
+        views.profile,
+        name="profile",
+    ),
+
 ]
