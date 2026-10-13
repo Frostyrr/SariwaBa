@@ -23,5 +23,6 @@ def verify_google_token(token):
             "email_verified": user_info.get("email_verified"),
         }
 
-    except ValueError:
+    except ValueError as error:
+        print("GOOGLE TOKEN ERROR: ", error)
         return None
