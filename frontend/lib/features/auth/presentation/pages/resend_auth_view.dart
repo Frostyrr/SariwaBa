@@ -1,29 +1,17 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/google_auth_button.dart';
 
-class ResendAuthView extends ConsumerStatefulWidget {
+class ResendAuthView extends ConsumerWidget {
   const ResendAuthView({super.key});
 
   @override
-  ConsumerState<ResendAuthView> createState() => _ResendAuthViewState();
-}
-
-class _ResendAuthViewState extends ConsumerState<ResendAuthView> {
-  final TextEditingController _emailController = TextEditingController();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final authController = ref.read(authControllerProvider.notifier);
     final authState = ref.watch(authControllerProvider);
 
@@ -68,9 +56,12 @@ class _ResendAuthViewState extends ConsumerState<ResendAuthView> {
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 32.0,
+                  ),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 360.0),
+                    constraints: const BoxConstraints(maxWidth: 380.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
@@ -97,64 +88,68 @@ class _ResendAuthViewState extends ConsumerState<ResendAuthView> {
 
                         // Title
                         const Text(
-                          'Log in to SariwaBa',
+                          'Sign in to SariwaBa',
                           style: AppTypography.authTitle,
                         ),
 
                         const SizedBox(height: 8),
 
-                        // Subtitle: "Don't have an account? Sign up."
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            const Text(
-                              "Don't have an account? ",
-                              style: AppTypography.authSubtitle,
-                            ),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: () => authController.continueWithGoogle(),
-                                child: const Text(
-                                  'Sign up.',
-                                  style: AppTypography.authSubtitleLink,
-                                ),
-                              ),
-                            ),
-                          ],
+                        const Text(
+                          'Continue with your Google account to access fish grading and scan histories.',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.authSubtitle,
                         ),
 
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
 
-                        // Button 1: "Log in with Google" with "Last used" pill badge
-                        AppButton.secondary(
-                          label: 'Log in with Google',
-                          isLoading: authState.isLoading,
-                          icon: SvgPicture.asset(
-                            'assets/icons/google.svg',
-                            width: 18,
-                            height: 18,
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        // Error Banner if present
+                        if (authState.errorMessage != null) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppColors.badgeBg,
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: AppColors.borderSubtle, width: 0.8),
+                              color: Colors.red.shade900.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.red.shade700,
+                                width: 0.8,
+                              ),
                             ),
-                            child: const Text(
-                              'Last used',
-                              style: AppTypography.badgeText,
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Colors.redAccent,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    authState.errorMessage!,
+                                    style: const TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          width: double.infinity,
-                          height: 46,
-                          borderRadius: 10,
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Google Authentication Button (adaptive web / native)
+                        GoogleAuthButton(
+                          label: 'Continue with Google',
+                          isLoading: authState.isLoading,
                           onPressed: () => authController.continueWithGoogle(),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
 
                         // Button 2: "Continue as Guest"
                         AppButton.secondary(
@@ -165,102 +160,19 @@ class _ResendAuthViewState extends ConsumerState<ResendAuthView> {
                             color: AppColors.textSecondary,
                           ),
                           width: double.infinity,
-                          height: 46,
+                          height: 48,
                           borderRadius: 10,
                           onPressed: () => authController.continueAsGuest(),
                         ),
 
-                        const SizedBox(height: 20),
-
-                        // "or" Divider
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 1,
-                                color: AppColors.border,
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 14),
-                              child: Text(
-                                'or',
-                                style: TextStyle(
-                                  fontFamily: AppTypography.fontFamily,
-                                  fontSize: 13,
-                                  color: AppColors.textMuted,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                height: 1,
-                                color: AppColors.border,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Email Field
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Email',
-                              style: AppTypography.inputLabel,
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: AppColors.border,
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: TextFormField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                style: AppTypography.inputField,
-                                cursorColor: Colors.white,
-                                decoration: const InputDecoration(
-                                  hintText: 'fisherman@sariwaba.ph',
-                                  hintStyle: AppTypography.inputHint,
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 13,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // White Primary "Log In" Button
-                        AppButton.primary(
-                          label: 'Log In',
-                          isLoading: authState.isLoading,
-                          width: double.infinity,
-                          height: 46,
-                          borderRadius: 10,
-                          onPressed: () => authController.continueWithGoogle(),
-                        ),
-
                         const SizedBox(height: 32),
 
-                        // Footer: "By signing in, you agree to our Terms and Privacy Policy."
+                        // Footer: Terms & Privacy
                         Wrap(
                           alignment: WrapAlignment.center,
                           children: [
                             const Text(
-                              'By signing in, you agree to our ',
+                              'By continuing, you agree to our ',
                               style: AppTypography.caption,
                             ),
                             Text(

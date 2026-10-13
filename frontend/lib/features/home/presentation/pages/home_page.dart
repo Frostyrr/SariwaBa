@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -27,18 +27,20 @@ class HomePage extends ConsumerWidget {
             final isDesktop = constraints.maxWidth >= 800;
 
             return Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: isDesktop ? 1080.0 : 440.0,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 36.0 : 22.0,
-                    vertical: isDesktop ? 24.0 : 16.0,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isDesktop ? 1080.0 : 440.0,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isDesktop ? 36.0 : 22.0,
+                      vertical: isDesktop ? 24.0 : 16.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       // Top App Bar
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -120,11 +122,14 @@ class HomePage extends ConsumerWidget {
                                           size: 19,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text(
-                                          'Guest Evaluation Mode',
+                                        Expanded(
+                                          child: Text(
+                                            'Guest Evaluation Mode',
+                                            overflow: TextOverflow.ellipsis,
                                           style: AppTypography.buttonSecondary.copyWith(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -174,7 +179,7 @@ class HomePage extends ConsumerWidget {
 
                       // Greeting
                       Text(
-                        'Hello, ${user?.displayName ?? 'Guest'} 👋',
+                        'Hello, ${user?.displayName ?? 'Guest'} Ã°Å¸â€˜â€¹',
                         style: AppTypography.authTitle.copyWith(fontSize: 24),
                       ),
                       const SizedBox(height: 4),
@@ -247,7 +252,7 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
 
-                      const Spacer(),
+                      const SizedBox(height: 32),
 
                       // Return to Landing Screen
                       Center(
@@ -265,8 +270,9 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
               ),
-            );
-          },
+            ),
+          );
+        },
         ),
       ),
     );

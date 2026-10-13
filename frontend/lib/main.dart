@@ -37,6 +37,17 @@ class SariwaBaApp extends ConsumerWidget {
 
     Widget getRootScreen() {
       switch (authState.viewStatus) {
+        case AuthViewStatus.initializing:
+          return const Scaffold(
+            key: ValueKey('splash_loading'),
+            backgroundColor: Color(0xFF060B12),
+            body: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white70,
+              ),
+            ),
+          );
         case AuthViewStatus.landing:
           return const LandingPage(key: ValueKey('landing_page'));
         case AuthViewStatus.login:

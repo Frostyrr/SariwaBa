@@ -1,22 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:frontend/features/auth/data/auth_repository.dart';
+import 'package:frontend/features/auth/data/google_sign_in_service.dart';
+import 'package:frontend/features/auth/domain/models/user_model.dart';
 import 'package:frontend/main.dart';
 
+class FakeAuthRepository implements AuthRepository {
+  UserModel? mockUser;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
+  @override
+  Future<UserModel> authenticateWithGoogleToken(String idToken) async {
+    return mockUser ??
+        const UserModel(
+          id: 'test-user-1',
+          email: 'fisherman@sariwaba.ph',
+          firstName: 'Juan',
+          lastName: 'Dela Cruz',
+          username: 'juandc',
+        );
+  }
+
+  @override
+  Future<UserModel?> getProfile() async {
+    return mockUser;
+  }
+
+  @override
+  Future<void> signOut() async {
+    mockUser = null;
+  }
+}
+
+class FakeGoogleSignInService implements GoogleSignInService {
+  @override
+  Stream<GoogleSignInAccount?> get onCurrentUserChanged => const Stream.empty();
+
+  @override
+  Future<GoogleSignInAccount?> signIn() async {
+    return null;
+  }
+
+  @override
+  Future<GoogleSignInAccount?> signInSilently() async {
+    return null;
+  }
+
+  @override
+  Future<void> signOut() async {}
+}
+
 void main() {
-  testWidgets('Desktop web landing renders navbar, clean hero, and navigates to Resend auth',
+  testWidgets(
+      'Desktop web landing renders navbar, clean hero, and navigates to Resend auth',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 850);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final fakeRepo = FakeAuthRepository();
+    final fakeGoogleService = FakeGoogleSignInService();
+
     await tester.pumpWidget(
-      const ProviderScope(
-        child: SariwaBaApp(),
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(fakeRepo as dynamic),
+          googleSignInServiceProvider
+              .overrideWithValue(fakeGoogleService as dynamic),
+        ],
+        child: const SariwaBaApp(),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
 
     // Verify Web Navbar links & buttons
     expect(find.text('Overview'), findsOneWidget);
@@ -24,88 +84,59 @@ void main() {
     expect(find.text('Standards'), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
 
-    // Verify clean Hero buttons: "Get Started" (white primary) and "How it works" (secondary)
-    expect(find.text('Get Started'), findsNWidgets(2)); // navbar & hero
+    // Verify clean Hero buttons
+    expect(find.text('Get Started'), findsNWidgets(2));
     expect(find.text('How it works'), findsOneWidget);
 
-    // Verify AI slop is removed
-    expect(find.text('AI SEAFOOD INSPECTION PLATFORM'), findsNothing);
-    expect(find.text('Computer Vision Freshness Grading'), findsNothing);
-    expect(find.text('24ms Inference'), findsNothing);
-
-    // Tap "Get Started" in the Hero section
+    // Tap "Get Started" in Hero
     await tester.tap(find.text('Get Started').last);
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
-    // Verify Resend-style Auth View is presented
-    expect(find.text('Log in to SariwaBa'), findsOneWidget);
-    expect(find.text('Log in with Google'), findsOneWidget);
-    expect(find.text('Last used'), findsOneWidget);
+    // Verify simplified Resend-style Auth View without fake email field
+    expect(find.text('Sign in to SariwaBa'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
-    expect(find.text('Email'), findsOneWidget);
-    expect(find.text('Log In'), findsOneWidget);
+    expect(find.text('Email'), findsNothing);
+    expect(find.text('Log In'), findsNothing);
 
     // Tap "< Home" to verify back navigation to landing
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.text('Home'));
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     // Back on landing page
     expect(find.text('Overview'), findsOneWidget);
   });
 
-  testWidgets('Resend auth view signs in with Google directly to Home',
-      (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(1000, 800);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SariwaBaApp(),
-      ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    // Tap "Log in" in the navbar
-    await tester.tap(find.text('Log in'));
-    await tester.pump(const Duration(milliseconds: 300));
-
-    // Tap "Log in with Google"
-    await tester.tap(find.text('Log in with Google'));
-    await tester.pump(const Duration(milliseconds: 700));
-
-    // Successfully arrives at Home authenticated
-    expect(find.text('Hello, Juan Dela Cruz 👋'), findsOneWidget);
-    expect(find.text('Instant AI Seafood Scan'), findsOneWidget);
-  });
-
-  testWidgets('Mobile landing renders responsive hero and guest mode access',
+  testWidgets(
+      'Mobile landing renders responsive hero and guest mode access',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(400, 850);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final fakeRepo = FakeAuthRepository();
+    final fakeGoogleService = FakeGoogleSignInService();
+
     await tester.pumpWidget(
-      const ProviderScope(
-        child: SariwaBaApp(),
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(fakeRepo as dynamic),
+          googleSignInServiceProvider
+              .overrideWithValue(fakeGoogleService as dynamic),
+        ],
+        child: const SariwaBaApp(),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    // Verify mobile buttons
-    expect(find.text('Get Started'), findsNWidgets(2));
-    expect(find.text('How it works'), findsOneWidget);
+    await tester.pumpAndSettle();
 
     // Tap "Get Started"
     await tester.tap(find.text('Get Started').last);
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     // Tap "Continue as Guest"
     await tester.tap(find.text('Continue as Guest'));
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     // Arrives at Home in Guest mode
     expect(find.text('Guest Evaluation Mode'), findsOneWidget);

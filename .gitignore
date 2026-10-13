@@ -1,2 +1,7 @@
 .agent/
 .env
+*.env
+*.sqlite3
+backend/media/
+.venv/
+__pycache__/

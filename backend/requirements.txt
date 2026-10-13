@@ -4,8 +4,9 @@ cffi==2.1.1
 charset-normalizer==3.5.2
 cryptography==50.0.2
 Django==6.1
-django-allauth==65.19.7
+django-cors-headers==4.9.0
 djangorestframework==3.18.3
+djangorestframework-simplejwt==5.5.1
 google-auth==2.60.0
 idna==3.20
 pillow==12.3.0

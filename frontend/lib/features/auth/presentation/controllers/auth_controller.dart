@@ -1,14 +1,77 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../../data/auth_repository.dart';
+import '../../data/google_sign_in_service.dart';
 import '../../domain/models/user_model.dart';
 import 'auth_state.dart';
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController();
+  final repository = ref.watch(authRepositoryProvider);
+  final googleService = ref.watch(googleSignInServiceProvider);
+  return AuthController(
+    repository: repository,
+    googleService: googleService,
+  );
 });
 
 class AuthController extends StateNotifier<AuthState> {
-  AuthController() : super(const AuthState());
+  final AuthRepository repository;
+  final GoogleSignInService googleService;
+  StreamSubscription<GoogleSignInAccount?>? _eventSub;
+
+  AuthController({
+    required this.repository,
+    required this.googleService,
+  }) : super(const AuthState(viewStatus: AuthViewStatus.initializing)) {
+    _init();
+  }
+
+  void _init() {
+    _eventSub = googleService.onCurrentUserChanged.listen(
+      _handleUserChanged,
+      onError: (err) {
+        debugPrint('Google Sign-In stream error: $err');
+      },
+    );
+    bootstrap();
+  }
+
+  Future<void> _handleUserChanged(GoogleSignInAccount? account) async {
+    if (account != null) {
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken != null && idToken.isNotEmpty) {
+        await _exchangeGoogleIdToken(idToken);
+      }
+    }
+  }
+
+  /// Bootstrap app: check if saved tokens are valid
+  Future<void> bootstrap() async {
+    state = state.copyWith(isLoading: true, viewStatus: AuthViewStatus.initializing);
+    try {
+      final user = await repository.getProfile();
+      if (user != null) {
+        state = state.copyWith(
+          viewStatus: AuthViewStatus.authenticated,
+          user: user,
+          isLoading: false,
+        );
+        return;
+      }
+    } catch (_) {
+      // Fallback to landing if network/token check fails
+    }
+
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.landing,
+      user: null,
+      isLoading: false,
+    );
+  }
 
   /// Open Resend-style Auth / Login view
   void goToLogin() {
@@ -20,27 +83,56 @@ class AuthController extends StateNotifier<AuthState> {
 
   /// Return to Landing
   void goToLanding() {
-    state = const AuthState();
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.landing,
+      clearError: true,
+    );
   }
 
-  /// Tapping "Log in with Google"
+  /// Tapping "Log in with Google" (Android native sign-in or manual invocation)
   Future<void> continueWithGoogle() async {
     state = state.copyWith(isLoading: true, clearError: true);
-    await Future.delayed(const Duration(milliseconds: 600));
+    try {
+      final account = await googleService.signIn();
+      if (account != null) {
+        final auth = await account.authentication;
+        final idToken = auth.idToken;
+        if (idToken != null && idToken.isNotEmpty) {
+          await _exchangeGoogleIdToken(idToken);
+          return;
+        } else {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Could not obtain Google ID token.',
+          );
+          return;
+        }
+      }
+      // Cancelled by user
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Google Sign-In failed: ${e.toString()}',
+      );
+    }
+  }
 
-    state = state.copyWith(
-      isLoading: false,
-      viewStatus: AuthViewStatus.authenticated,
-      user: const UserModel(
-        id: 'usr-google-8821',
-        email: 'seafood.grader@gmail.com',
-        firstName: 'Juan',
-        lastName: 'Dela Cruz',
-        username: 'juandc',
-        isGuest: false,
-        isRegistered: true,
-      ),
-    );
+  Future<void> _exchangeGoogleIdToken(String idToken) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final user = await repository.authenticateWithGoogleToken(idToken);
+      state = state.copyWith(
+        isLoading: false,
+        viewStatus: AuthViewStatus.authenticated,
+        user: user,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Authentication failed. Please try again.',
+      );
+    }
   }
 
   /// Tapping "Continue as Guest"
@@ -60,7 +152,15 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   /// Sign out
-  void signOut() {
-    state = const AuthState();
+  Future<void> signOut() async {
+    state = state.copyWith(isLoading: true);
+    await repository.signOut();
+    state = const AuthState(viewStatus: AuthViewStatus.landing);
+  }
+
+  @override
+  void dispose() {
+    _eventSub?.cancel();
+    super.dispose();
   }
 }
