@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// Minimalist Dark Ambient Background
-/// Inspired by Resend: Deep true black (#0A0A0A) with subtle diagonal
+/// Deep true black (#0A0A0A) with subtle diagonal
 /// lighting sheen and delicate ambient highlight.
 class AmbientGlowBackground extends StatelessWidget {
   final Widget child;
@@ -22,7 +22,7 @@ class AmbientGlowBackground extends StatelessWidget {
       color: AppColors.background,
       child: Stack(
         children: [
-          // Subtle diagonal lighting sheen (Resend style)
+          // Subtle diagonal lighting sheen
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(

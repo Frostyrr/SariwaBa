@@ -73,7 +73,7 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  /// Open Resend-style Auth / Login view
+  /// Open Auth / Login view
   void goToLogin() {
     state = state.copyWith(
       viewStatus: AuthViewStatus.login,

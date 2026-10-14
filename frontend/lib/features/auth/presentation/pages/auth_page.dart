@@ -7,8 +7,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../controllers/auth_controller.dart';
 import '../widgets/google_auth_button.dart';
 
-class ResendAuthView extends ConsumerWidget {
-  const ResendAuthView({super.key});
+class AuthPage extends ConsumerWidget {
+  const AuthPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,7 +51,7 @@ class ResendAuthView extends ConsumerWidget {
               ),
             ),
 
-            // Center: Resend-Styled Auth Card
+            // Center: Minimalist Dark Auth Card
             Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),

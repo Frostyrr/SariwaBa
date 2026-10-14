@@ -5,7 +5,7 @@ import '../theme/app_typography.dart';
 enum _AppButtonVariant { primary, secondary }
 
 /// Reusable AppButton Widget
-/// Clean, minimalist button modeled after Resend & Vercel design systems:
+/// Clean, minimalist button modeled after modern monochrome design systems:
 /// - [AppButton.primary]: Solid White background with Black text.
 /// - [AppButton.secondary]: Dark charcoal background with subtle border and White text.
 class AppButton extends StatefulWidget {

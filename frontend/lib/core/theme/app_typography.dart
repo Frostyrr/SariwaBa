@@ -33,7 +33,7 @@ class AppTypography {
     color: AppColors.textSecondary,
   );
 
-  // Auth / Resend Headings
+  // Auth Headings
   static const TextStyle authTitle = TextStyle(
     fontFamily: fontFamily,
     fontSize: 26,

@@ -56,7 +56,7 @@ class FakeGoogleSignInService implements GoogleSignInService {
 
 void main() {
   testWidgets(
-      'Desktop web landing renders navbar, clean hero, and navigates to Resend auth',
+      'Desktop web landing renders navbar, clean hero, and navigates to auth page',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 850);
     tester.view.devicePixelRatio = 1.0;
@@ -92,7 +92,7 @@ void main() {
     await tester.tap(find.text('Get Started').last);
     await tester.pumpAndSettle();
 
-    // Verify simplified Resend-style Auth View without fake email field
+    // Verify simplified Auth Page without fake email field
     expect(find.text('Sign in to SariwaBa'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
     expect(find.text('Email'), findsNothing);

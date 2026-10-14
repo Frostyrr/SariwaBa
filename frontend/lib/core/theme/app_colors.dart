@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Application Color Palette
-/// Clean, minimalist monochrome dark theme inspired by Resend/Vercel.
+/// Clean, minimalist monochrome dark theme design system.
 class AppColors {
   // Pure / Deep Blacks
   static const Color background = Color(0xFF0A0A0A);
