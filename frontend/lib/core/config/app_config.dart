@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
 class AppConfig {
   static String get defaultApiUrl {
@@ -16,6 +16,6 @@ class AppConfig {
 
   static const String googleWebClientId = String.fromEnvironment(
     'GOOGLE_WEB_CLIENT_ID',
-    defaultValue: '',
+    defaultValue: '104697469786-jjf8bei38i7c535in3fgc4vppifv8aem.apps.googleusercontent.com',
   );
 }
