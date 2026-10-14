@@ -1,6 +1,6 @@
 # 🐟 SariwaBa? — Fish Freshness Classification System
 
-> **SariwaBa?** (*"Is it fresh?"*) is an intelligent seafood quality assessment platform powered by deep learning and computer vision. The system provides instantaneous, standardized freshness ratings by analyzing visual cues such as eye cornea clarity, branchial gill pigmentation, and body surface texture.
+> **SariwaBa?** (_"Is it fresh?"_) is an intelligent seafood quality assessment platform powered by deep learning and computer vision. The system provides instantaneous, standardized freshness ratings by analyzing visual cues such as eye cornea clarity, branchial gill pigmentation, and body surface texture.
 
 ---
 
@@ -18,14 +18,26 @@
 
 ---
 
+## To run locally
+
+Backend:
+
+- cd backend
+- .\.venv\Scripts\Activate
+- python manage.py runserver
+
+Frontend:
+
+- cd frontend
+- flutter run -d chrome --web-port 7357
 
 ## Technology Stack
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Web Frontend** | Flutter Dart |
-| **Mobile App** | Flutter, Dart |
-| **Authentication** | Google OAuth |
-| **Backend & ML** | Django, Computer Vision, Deep Learning (Eye/Gill Classification) |
+| Layer              | Technologies                                                     |
+| :----------------- | :--------------------------------------------------------------- |
+| **Web Frontend**   | Flutter Dart                                                     |
+| **Mobile App**     | Flutter, Dart                                                    |
+| **Authentication** | Google OAuth                                                     |
+| **Backend & ML**   | Django, Computer Vision, Deep Learning (Eye/Gill Classification) |
 
 ---

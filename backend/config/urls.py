@@ -20,10 +20,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from authentication.views import profile
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('app.urls')),
+
+    # Authentication & User Profile routes (/api/v1/auth/...)
+    path('api/v1/auth/', include('authentication.urls')),
+    path('api/v1/profile/', profile, name='profile'),
+
+    # Fish Classification routes (/api/v1/classify/...)
+    path('api/v1/classify/', include('classification.urls')),
 ]
 
 
