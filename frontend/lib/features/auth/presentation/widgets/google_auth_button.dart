@@ -11,26 +11,17 @@ class GoogleAuthButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.isLoading = false,
-    this.label = 'Sign in With Google',
+    this.label = 'Sign in with Google',
   });
 
   @override
   Widget build(BuildContext context) {
     return AppButton.primary(
       label: label,
-      icon: Container(
-        width: 22,
-        height: 22,
-        padding: const EdgeInsets.all(2),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: SvgPicture.asset(
-          'assets/icons/google.svg',
-          width: 18,
-          height: 18,
-        ),
+      icon: SvgPicture.asset(
+        'assets/icons/google.svg',
+        width: 18,
+        height: 18,
       ),
       isLoading: isLoading,
       width: double.infinity,

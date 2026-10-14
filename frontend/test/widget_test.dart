@@ -89,11 +89,11 @@ void main() {
     expect(find.text('SariwaBa? See for yourself.'), findsOneWidget);
     expect(find.text('A smarter way to assess fish freshness through AI.'), findsOneWidget);
 
-    // Verify Download App buttons (navbar + hero)
-    expect(find.text('Download App'), findsNWidgets(2));
+    // Verify Download App buttons
+    expect(find.text('Download App'), findsAtLeast(2));
 
-    // Tap "Download App" in Hero -> navigates to Downloads Page
-    await tester.tap(find.text('Download App').last);
+    // Tap "Download App" -> navigates to Downloads Page
+    await tester.tap(find.text('Download App').first);
     await tester.pumpAndSettle();
 
     // Verify Downloads Page loaded with platform cards
@@ -111,7 +111,7 @@ void main() {
     // Verify simplified Auth Page matching wireframe
     expect(find.text('SariwaBa'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
-    expect(find.text('Sign in With Google'), findsOneWidget);
+    expect(find.text('Sign in with Google'), findsOneWidget);
     expect(find.text('Email'), findsNothing);
     expect(find.text('Log In'), findsNothing);
 

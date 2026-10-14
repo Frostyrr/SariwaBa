@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -24,7 +24,8 @@ class AuthPage extends ConsumerWidget {
       body: AmbientGlowBackground(
         showTopRightGlow: true,
         showBottomGlow: true,
-        useBlurredAsset: true, // Soft cinematic depth over underwater background
+        useBlurredAsset:
+            true, // Soft cinematic depth over underwater background
         child: Stack(
           children: [
             // Top Left: "< Home" Navigation Link
@@ -36,7 +37,10 @@ class AuthPage extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: () => authController.goToLanding(),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: SariwaColors.surfaceGlass,
                       borderRadius: BorderRadius.circular(20),
@@ -132,7 +136,9 @@ class AuthPage extends ConsumerWidget {
                               vertical: 10,
                             ),
                             decoration: BoxDecoration(
-                              color: SariwaColors.statusSpoiled.withValues(alpha: 0.2),
+                              color: SariwaColors.statusSpoiled.withValues(
+                                alpha: 0.2,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: SariwaColors.statusSpoiled,
@@ -179,31 +185,9 @@ class AuthPage extends ConsumerWidget {
 
                         // Wireframe Button 2: "Sign in With Google" (Teal / Dark Pill)
                         GoogleAuthButton(
-                          label: 'Sign in With Google',
+                          label: 'Sign in with Google',
                           isLoading: authState.isLoading,
                           onPressed: () => authController.continueWithGoogle(),
-                        ),
-
-                        const SizedBox(height: 40),
-
-                        // Footer note: Sea-glass pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: SariwaColors.bgAbyssDark.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: SariwaColors.borderGlass,
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            'Strictly for Quality Inspection & Sensory Evaluation',
-                            style: AppTypography.caption.copyWith(
-                              fontSize: 11,
-                              color: SariwaColors.brandLight.withValues(alpha: 0.75),
-                            ),
-                          ),
                         ),
                       ],
                     ),

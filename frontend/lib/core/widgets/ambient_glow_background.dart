@@ -101,11 +101,9 @@ class AmbientGlowBackground extends StatelessWidget {
             ),
           ),
 
-        // Layer 5: Foreground Child
-        Positioned.fill(
-          child: SafeArea(
-            child: child,
-          ),
+        // Layer 5: Foreground Child (Sizes the Stack in any layout context)
+        SafeArea(
+          child: child,
         ),
       ],
     );
