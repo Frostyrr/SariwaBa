@@ -85,11 +85,11 @@ void main() {
     expect(find.text('Log in'), findsOneWidget);
 
     // Verify clean Hero buttons
-    expect(find.text('Get Started'), findsNWidgets(2));
+    expect(find.text('Download App'), findsNWidgets(2));
     expect(find.text('How it works'), findsOneWidget);
 
-    // Tap "Get Started" in Hero
-    await tester.tap(find.text('Get Started').last);
+    // Tap "Download App" in Hero
+    await tester.tap(find.text('Download App').last);
     await tester.pumpAndSettle();
 
     // Verify simplified Auth Page matching wireframe
@@ -131,8 +131,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Tap "Get Started"
-    await tester.tap(find.text('Get Started').last);
+    // Tap "Download App"
+    await tester.tap(find.text('Download App').last);
     await tester.pumpAndSettle();
 
     // Tap "Continue as Guest"

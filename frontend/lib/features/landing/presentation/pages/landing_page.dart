@@ -124,13 +124,18 @@ class LandingPage extends ConsumerWidget {
 
               const SizedBox(height: 32),
 
-              // Action Buttons: Teal "Get Started" + Glass "How it works"
+              // Action Buttons: Teal "Download App" + Glass "How it works"
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AppButton.primary(
-                    label: 'Get Started',
-                    width: 150,
+                    label: 'Download App',
+                    icon: const Icon(
+                      Icons.download_rounded,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    width: 170,
                     height: 48,
                     borderRadius: 24, // Squircle pill
                     onPressed: () => authController.goToLogin(),
@@ -193,7 +198,12 @@ class LandingPage extends ConsumerWidget {
           children: [
             Expanded(
               child: AppButton.primary(
-                label: 'Get Started',
+                label: 'Download App',
+                icon: const Icon(
+                  Icons.download_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 height: 48,
                 borderRadius: 24,
                 onPressed: () => authController.goToLogin(),

@@ -21,7 +21,7 @@ class WebNavbar extends StatelessWidget {
 
         return Container(
           height: 72,
-          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 12),
           decoration: BoxDecoration(
             color: SariwaColors.bgAbyssDark.withValues(alpha: 0.5),
             border: const Border(
@@ -35,30 +35,33 @@ class WebNavbar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Left: Brand Logo with Text asset
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    'assets/images/SariwaBa with Text.png',
-                    height: 42,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/SariwaBa logo.png',
-                            height: 36,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'SariwaBa',
-                            style: AppTypography.brandLogo,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/SariwaBa with Text.png',
+                      height: isDesktop ? 42 : 36,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 32,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'SariwaBa',
+                              style: AppTypography.brandLogo,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
 
               // Center: Nav Links for Desktop
@@ -80,6 +83,11 @@ class WebNavbar extends StatelessWidget {
                 children: [
                   TextButton(
                     onPressed: onLogIn,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                     child: Text(
                       'Log in',
                       style: AppTypography.navLink.copyWith(
@@ -88,12 +96,12 @@ class WebNavbar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   AppButton.primary(
-                    label: 'Get Started',
-                    height: 40,
-                    width: isDesktop ? 130 : 110,
-                    borderRadius: 20, // Rounded pill
+                    label: 'Download App',
+                    height: 38,
+                    width: isDesktop ? 140 : 112,
+                    borderRadius: 19, // Rounded pill
                     onPressed: onGetStarted,
                   ),
                 ],
