@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -87,14 +87,14 @@ class ResendAuthView extends ConsumerWidget {
                         const SizedBox(height: 24),
 
                         // Title
-                        const Text(
+                        const SelectableText(
                           'Sign in to SariwaBa',
                           style: AppTypography.authTitle,
                         ),
 
                         const SizedBox(height: 8),
 
-                        const Text(
+                        const SelectableText(
                           'Continue with your Google account to access fish grading and scan histories.',
                           textAlign: TextAlign.center,
                           style: AppTypography.authSubtitle,

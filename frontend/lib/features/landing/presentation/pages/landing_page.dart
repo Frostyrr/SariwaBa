@@ -75,7 +75,7 @@ class LandingPage extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Clean Headline
-              const Text(
+              const SelectableText(
                 'Seafood freshness grading.\nStandardized with AI.',
                 style: AppTypography.heroHeadlineDesktop,
               ),
@@ -83,7 +83,7 @@ class LandingPage extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Concise Subtitle
-              const Text(
+              const SelectableText(
                 'Instant quality assessment analyzing cornea clarity, branchial gill pigmentation, and surface texture.',
                 style: AppTypography.heroSubtitle,
               ),
@@ -139,7 +139,7 @@ class LandingPage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Headline
-        const Text(
+        const SelectableText(
           'Seafood freshness grading.\nStandardized with AI.',
           style: AppTypography.heroHeadlineMobile,
         ),
@@ -147,7 +147,7 @@ class LandingPage extends ConsumerWidget {
         const SizedBox(height: 14),
 
         // Subtitle
-        const Text(
+        const SelectableText(
           'Instant quality assessment analyzing cornea clarity, gill redness, and texture.',
           style: AppTypography.heroSubtitle,
         ),
