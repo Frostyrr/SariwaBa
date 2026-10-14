@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -18,10 +18,11 @@ class HomePage extends ConsumerWidget {
     final isGuest = authState.isGuest;
 
     return Scaffold(
-      backgroundColor: AppColors.oceanAbyss,
+      backgroundColor: SariwaColors.bgAbyssDark,
       body: AmbientGlowBackground(
         showTopRightGlow: true,
         showBottomGlow: true,
+        useBlurredAsset: true, // Frosted dynamic sea glass backdrop
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isDesktop = constraints.maxWidth >= 800;
@@ -41,238 +42,236 @@ class HomePage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      // Top App Bar
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/icons/logo.svg',
-                                width: 28,
-                                height: 28,
-                              ),
-                              const SizedBox(width: 8),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Sariwa',
-                                      style: AppTypography.brandLogo,
-                                    ),
-                                    TextSpan(
-                                      text: 'Ba?',
-                                      style: TextStyle(
-                                        fontFamily: AppTypography.fontFamily,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: -0.6,
-                                        color: AppColors.bioluminescentCyan,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.logout_rounded,
-                              color: AppColors.textSecondary,
-                              size: 22,
-                            ),
-                            tooltip: 'Sign Out',
-                            onPressed: () => authController.signOut(),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Guest Upgrade Banner (if guest mode)
-                      if (isGuest) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: AppColors.oceanSurfaceLight,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColors.bioluminescentCyan.withValues(alpha: 0.4),
-                              width: 1.2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.bioluminescentCyan.withValues(alpha: 0.12),
-                                blurRadius: 16,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.info_outline_rounded,
-                                          color: AppColors.bioluminescentCyan,
-                                          size: 19,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'Guest Evaluation Mode',
-                                            overflow: TextOverflow.ellipsis,
-                                          style: AppTypography.buttonSecondary.copyWith(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
-                                      style: AppTypography.caption.copyWith(
-                                        fontSize: 12.5,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (isDesktop) const SizedBox(width: 20),
-                              if (isDesktop)
-                                AppButton.primary(
-                                  label: 'Connect with Google',
-                                  icon: SvgPicture.asset(
-                                    'assets/icons/google.svg',
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                  height: 44,
-                                  width: 210,
-                                  onPressed: () => authController.continueWithGoogle(),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (!isDesktop) const SizedBox(height: 12),
-                        if (!isDesktop)
-                          AppButton.primary(
-                            label: 'Connect with Google',
-                            icon: SvgPicture.asset(
-                              'assets/icons/google.svg',
-                              width: 18,
-                              height: 18,
-                            ),
-                            height: 46,
-                            width: double.infinity,
-                            onPressed: () => authController.continueWithGoogle(),
-                          ),
-                        const SizedBox(height: 24),
-                      ],
-
-                      // Greeting
-                      Text(
-                        'Hello, ${user?.displayName ?? 'Guest'} Ã°Å¸â€˜â€¹',
-                        style: AppTypography.authTitle.copyWith(fontSize: 24),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isGuest
-                            ? 'Run a trial computer vision evaluation below.'
-                            : 'Sensory classification telemetry ready.',
-                        style: AppTypography.heroSubtitle,
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // Instant AI Seafood Scan Card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: AppColors.oceanSurface,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: AppColors.border,
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
+                        // Top App Bar
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: 68,
-                              height: 68,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.bioluminescentCyan.withValues(alpha: 0.15),
-                                border: Border.all(
-                                  color: AppColors.bioluminescentCyan.withValues(alpha: 0.4),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt_outlined,
-                                color: AppColors.bioluminescentCyan,
-                                size: 32,
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            const Text(
-                              'Instant AI Seafood Scan',
-                              style: AppTypography.buttonSecondary,
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Capture eye cornea or gill area to get instant Grade A/B/C freshness classification.',
-                              textAlign: TextAlign.center,
-                              style: AppTypography.caption,
-                            ),
-                            const SizedBox(height: 22),
-                            AppButton.primary(
-                              label: 'Start Camera Scan',
-                              height: 48,
-                              width: isDesktop ? 260 : double.infinity,
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Camera scanner ready for classification.'),
-                                    duration: Duration(seconds: 2),
+                            Row(
+                              children: [
+                                Image.asset(
+                                  'assets/images/SariwaBa with Text.png',
+                                  height: 38,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                                    'assets/images/SariwaBa logo.png',
+                                    height: 32,
                                   ),
-                                );
-                              },
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.logout_rounded,
+                                color: SariwaColors.textSecondaryLight,
+                                size: 22,
+                              ),
+                              tooltip: 'Sign Out',
+                              onPressed: () => authController.signOut(),
                             ),
                           ],
                         ),
-                      ),
 
-                      const SizedBox(height: 32),
+                        const SizedBox(height: 24),
 
-                      // Return to Landing Screen
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () => authController.goToLanding(),
-                          icon: const Icon(Icons.arrow_back, size: 16, color: AppColors.textMuted),
-                          label: Text(
-                            'Return to Landing Screen',
-                            style: AppTypography.caption.copyWith(color: AppColors.textMuted),
+                        // Guest Upgrade Banner (if guest mode)
+                        if (isGuest) ...[
+                          SariwaGlassCard(
+                            padding: const EdgeInsets.all(20),
+                            borderRadius: 20,
+                            surfaceColor: SariwaColors.bgLagoonMid.withValues(alpha: 0.8),
+                            borderColor: SariwaColors.brandLight.withValues(alpha: 0.4),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.info_outline_rounded,
+                                            color: SariwaColors.brandLight,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Guest Evaluation Mode',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTypography.titleMedium.copyWith(
+                                                fontSize: 15,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
+                                        style: AppTypography.caption.copyWith(
+                                          fontSize: 12.5,
+                                          color: SariwaColors.textSecondaryLight,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (isDesktop) const SizedBox(width: 20),
+                                if (isDesktop)
+                                  AppButton.primary(
+                                    label: 'Connect with Google',
+                                    icon: Container(
+                                      width: 20,
+                                      height: 20,
+                                      padding: const EdgeInsets.all(2),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Image.network(
+                                        'https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png',
+                                        errorBuilder: (context, error, stackTrace) => const Icon(
+                                          Icons.g_mobiledata_rounded,
+                                          color: SariwaColors.bgAbyssDark,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                    height: 44,
+                                    width: 230,
+                                    borderRadius: 22,
+                                    onPressed: () => authController.continueWithGoogle(),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (!isDesktop) const SizedBox(height: 12),
+                          if (!isDesktop)
+                            AppButton.primary(
+                              label: 'Connect with Google',
+                              icon: Container(
+                                width: 20,
+                                height: 20,
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Image.network(
+                                  'https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png',
+                                  errorBuilder: (context, error, stackTrace) => const Icon(
+                                    Icons.g_mobiledata_rounded,
+                                    color: SariwaColors.bgAbyssDark,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                              height: 48,
+                              width: double.infinity,
+                              borderRadius: 24,
+                              onPressed: () => authController.continueWithGoogle(),
+                            ),
+                          const SizedBox(height: 24),
+                        ],
+
+                        // Greeting
+                        Text(
+                          'Hello, ${user?.displayName ?? 'Guest'} ðŸ‘‹',
+                          style: AppTypography.headlineLarge.copyWith(
+                            fontSize: 26,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
+                        const SizedBox(height: 6),
+                        Text(
+                          isGuest
+                              ? 'Run a trial computer vision evaluation below.'
+                              : 'Sensory classification telemetry ready.',
+                          style: AppTypography.heroSubtitle,
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // Instant AI Seafood Scan Card
+                        SariwaGlassCard(
+                          padding: const EdgeInsets.all(28),
+                          borderRadius: 28,
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 84,
+                                height: 84,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: SariwaColors.bgAbyssDark.withValues(alpha: 0.5),
+                                  border: Border.all(
+                                    color: SariwaColors.brandLight.withValues(alpha: 0.4),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/SariwaBa logo.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                'Instant AI Seafood Scan',
+                                style: AppTypography.titleMedium.copyWith(
+                                  fontSize: 18,
+                                  color: SariwaColors.textPrimaryLight,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Capture eye cornea or gill area to get instant Grade A/B/C freshness classification.',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.caption.copyWith(
+                                  fontSize: 13,
+                                  color: SariwaColors.textSecondaryLight,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              AppButton.primary(
+                                label: 'Start Camera Scan',
+                                height: 50,
+                                width: isDesktop ? 260 : double.infinity,
+                                borderRadius: 25,
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Camera scanner ready for classification.'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Return to Landing Screen
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => authController.goToLanding(),
+                            icon: const Icon(Icons.arrow_back, size: 16, color: SariwaColors.textMutedLight),
+                            label: Text(
+                              'Return to Landing Screen',
+                              style: AppTypography.caption.copyWith(color: SariwaColors.textMutedLight),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
         ),
       ),
     );

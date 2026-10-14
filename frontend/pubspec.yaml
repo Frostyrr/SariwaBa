@@ -1,4 +1,4 @@
-﻿name: frontend
+name: frontend
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -22,6 +22,7 @@ dependencies:
   google_sign_in: ^6.2.2
   dio: ^5.11.1
   flutter_secure_storage: ^11.2.0
+  google_fonts: ^9.0.0
 
 dev_dependencies:
   flutter_test:

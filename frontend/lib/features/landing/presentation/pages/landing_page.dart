@@ -16,10 +16,11 @@ class LandingPage extends ConsumerWidget {
     final authController = ref.read(authControllerProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: SariwaColors.bgAbyssDark,
       body: AmbientGlowBackground(
         showTopRightGlow: true,
-        showBottomGlow: false,
+        showBottomGlow: true,
+        useBlurredAsset: false, // Crystal-clear underwater illustration backdrop
         child: Column(
           children: [
             // Top Web Navbar
@@ -67,15 +68,48 @@ class LandingPage extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Left Column: Headline, Subtitle, White "Get Started" & Dark "How it works"
+        // Left Column: Headline, Subtitle, Teal "Get Started" & Aquatic "How it works"
         Expanded(
           flex: 6,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Clean Headline
-              const SelectableText(
+              // Badge Pill
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: SariwaColors.surfaceGlass,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: SariwaColors.borderGlass,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 15,
+                      color: SariwaColors.brandLight,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'AI Computer Vision for Seafood Freshness',
+                      style: AppTypography.caption.copyWith(
+                        color: SariwaColors.brandLight,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // Clean Fredoka Headline
+              SelectableText(
                 'Seafood freshness grading.\nStandardized with AI.',
                 style: AppTypography.heroHeadlineDesktop,
               ),
@@ -83,30 +117,30 @@ class LandingPage extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Concise Subtitle
-              const SelectableText(
-                'Instant quality assessment analyzing cornea clarity, branchial gill pigmentation, and surface texture.',
+              SelectableText(
+                'Instant quality assessment analyzing cornea clarity, branchial gill pigmentation, and surface texture using deep learning.',
                 style: AppTypography.heroSubtitle,
               ),
 
               const SizedBox(height: 32),
 
-              // Action Buttons: White "Get Started" + Dark "How it works"
+              // Action Buttons: Teal "Get Started" + Glass "How it works"
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AppButton.primary(
                     label: 'Get Started',
-                    width: 140,
-                    height: 44,
-                    borderRadius: 8,
+                    width: 150,
+                    height: 48,
+                    borderRadius: 24, // Squircle pill
                     onPressed: () => authController.goToLogin(),
                   ),
                   const SizedBox(width: 14),
                   AppButton.secondary(
                     label: 'How it works',
-                    width: 140,
-                    height: 44,
-                    borderRadius: 8,
+                    width: 150,
+                    height: 48,
+                    borderRadius: 24,
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -139,7 +173,7 @@ class LandingPage extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Headline
-        const SelectableText(
+        SelectableText(
           'Seafood freshness grading.\nStandardized with AI.',
           style: AppTypography.heroHeadlineMobile,
         ),
@@ -147,7 +181,7 @@ class LandingPage extends ConsumerWidget {
         const SizedBox(height: 14),
 
         // Subtitle
-        const SelectableText(
+        SelectableText(
           'Instant quality assessment analyzing cornea clarity, gill redness, and texture.',
           style: AppTypography.heroSubtitle,
         ),
@@ -160,8 +194,8 @@ class LandingPage extends ConsumerWidget {
             Expanded(
               child: AppButton.primary(
                 label: 'Get Started',
-                height: 46,
-                borderRadius: 8,
+                height: 48,
+                borderRadius: 24,
                 onPressed: () => authController.goToLogin(),
               ),
             ),
@@ -169,8 +203,8 @@ class LandingPage extends ConsumerWidget {
             Expanded(
               child: AppButton.secondary(
                 label: 'How it works',
-                height: 46,
-                borderRadius: 8,
+                height: 48,
+                borderRadius: 24,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

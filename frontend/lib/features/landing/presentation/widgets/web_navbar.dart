@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -21,12 +20,13 @@ class WebNavbar extends StatelessWidget {
         final isDesktop = constraints.maxWidth >= 768;
 
         return Container(
-          height: 64,
-          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 28 : 16),
-          decoration: const BoxDecoration(
-            border: Border(
+          height: 72,
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
+          decoration: BoxDecoration(
+            color: SariwaColors.bgAbyssDark.withValues(alpha: 0.5),
+            border: const Border(
               bottom: BorderSide(
-                color: AppColors.borderSubtle,
+                color: SariwaColors.borderGlass,
                 width: 1.0,
               ),
             ),
@@ -34,85 +34,66 @@ class WebNavbar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Left: Brand Logo
+              // Left: Brand Logo with Text asset
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.border,
-                        width: 1,
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(5),
-                    child: SvgPicture.asset(
-                      'assets/icons/logo.svg',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'SariwaBa',
-                    style: AppTypography.brandLogo,
+                  Image.asset(
+                    'assets/images/SariwaBa with Text.png',
+                    height: 42,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/SariwaBa logo.png',
+                            height: 36,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'SariwaBa',
+                            style: AppTypography.brandLogo,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
 
-              // Center: Desktop Navigation Links
+              // Center: Nav Links for Desktop
               if (isDesktop)
-                Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildNavItem('Overview'),
-                          const SizedBox(width: 20),
-                          _buildNavItem('Methodology'),
-                          const SizedBox(width: 20),
-                          _buildNavItem('Standards'),
-                          const SizedBox(width: 20),
-                          _buildNavItem('Documentation'),
-                        ],
-                      ),
-                    ),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildNavItem('Overview', isActive: true),
+                    const SizedBox(width: 24),
+                    _buildNavItem('Methodology'),
+                    const SizedBox(width: 24),
+                    _buildNavItem('Standards'),
+                  ],
                 ),
 
-              // Right: Log In (on Desktop) & Get Started
+              // Right: Auth Action Buttons
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (isDesktop) ...[
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: onLogIn,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          child: Text(
-                            'Log in',
-                            style: AppTypography.navLink.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                  TextButton(
+                    onPressed: onLogIn,
+                    child: Text(
+                      'Log in',
+                      style: AppTypography.navLink.copyWith(
+                        color: SariwaColors.textPrimaryLight,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                  ],
+                  ),
+                  const SizedBox(width: 12),
                   AppButton.primary(
                     label: 'Get Started',
-                    height: 36,
-                    width: isDesktop ? 100 : 92,
-                    borderRadius: 8,
+                    height: 40,
+                    width: isDesktop ? 130 : 110,
+                    borderRadius: 20, // Rounded pill
                     onPressed: onGetStarted,
                   ),
                 ],
@@ -124,12 +105,15 @@ class WebNavbar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(String label) {
+  Widget _buildNavItem(String label, {bool isActive = false}) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: Text(
-        label,
-        style: AppTypography.navLink,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+        child: Text(
+          label,
+          style: isActive ? AppTypography.navLinkActive : AppTypography.navLink,
+        ),
       ),
     );
   }

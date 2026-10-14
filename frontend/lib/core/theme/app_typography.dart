@@ -1,135 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Typography configuration using Vercel's Geist font
+/// Typography configuration using Google Fonts (Fredoka + Plus Jakarta Sans + JetBrains Mono)
+/// Specified in SariwaBa UI Design System.
 class AppTypography {
-  static const String fontFamily = 'Geist';
+  // Brand & Heading Font (Approachability & Soft Curves)
+  static TextStyle get displayLarge => GoogleFonts.fredoka(
+        fontSize: 36,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+        color: SariwaColors.textPrimaryLight,
+      );
 
-  // Desktop Hero Headline
-  static const TextStyle heroHeadlineDesktop = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 52,
-    fontWeight: FontWeight.w700,
-    height: 1.08,
-    letterSpacing: -1.8,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get headlineLarge => GoogleFonts.fredoka(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        color: SariwaColors.textPrimaryLight,
+      );
 
-  // Mobile Hero Headline
-  static const TextStyle heroHeadlineMobile = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 34,
-    fontWeight: FontWeight.w700,
-    height: 1.12,
-    letterSpacing: -1.0,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get titleLarge => GoogleFonts.fredoka(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.textPrimaryLight,
+      );
 
-  static const TextStyle heroSubtitle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 16,
-    fontWeight: FontWeight.w400,
-    height: 1.5,
-    color: AppColors.textSecondary,
-  );
+  static TextStyle get titleMedium => GoogleFonts.fredoka(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.textPrimaryLight,
+      );
+
+  // Desktop & Mobile Hero Headlines
+  static TextStyle get heroHeadlineDesktop => GoogleFonts.fredoka(
+        fontSize: 52,
+        fontWeight: FontWeight.w700,
+        height: 1.1,
+        color: SariwaColors.textPrimaryLight,
+      );
+
+  static TextStyle get heroHeadlineMobile => GoogleFonts.fredoka(
+        fontSize: 34,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+        color: SariwaColors.textPrimaryLight,
+      );
+
+  // Body & Descriptions (Plus Jakarta Sans)
+  static TextStyle get bodyLarge => GoogleFonts.plusJakartaSans(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        color: SariwaColors.textPrimaryLight,
+      );
+
+  static TextStyle get bodyMedium => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+        color: SariwaColors.textSecondaryLight,
+      );
+
+  static TextStyle get heroSubtitle => GoogleFonts.plusJakartaSans(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        color: SariwaColors.textSecondaryLight,
+      );
 
   // Auth Headings
-  static const TextStyle authTitle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 26,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.6,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get authTitle => GoogleFonts.fredoka(
+        fontSize: 28,
+        fontWeight: FontWeight.w700,
+        color: SariwaColors.textPrimaryLight,
+      );
 
-  static const TextStyle authSubtitle = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textMuted,
-  );
-
-  static const TextStyle authSubtitleLink = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-  );
-
-  // Form Label & Input
-  static const TextStyle inputLabel = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textSecondary,
-  );
-
-  static const TextStyle inputField = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textPrimary,
-  );
-
-  static const TextStyle inputHint = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w400,
-    color: Color(0xFF52525B),
-  );
+  static TextStyle get authSubtitle => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: SariwaColors.textSecondaryLight,
+      );
 
   // Buttons
-  static const TextStyle buttonPrimary = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.1,
-    color: Colors.black,
-  );
+  static TextStyle get buttonPrimary => GoogleFonts.fredoka(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      );
 
-  static const TextStyle buttonSecondary = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.1,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get buttonSecondary => GoogleFonts.plusJakartaSans(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.textPrimaryLight,
+      );
 
   // Nav Links
-  static const TextStyle navLink = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 13.5,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textSecondary,
-  );
+  static TextStyle get navLink => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: SariwaColors.textSecondaryLight,
+      );
 
-  static const TextStyle navLinkActive = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 13.5,
-    fontWeight: FontWeight.w500,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get navLinkActive => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.brandLight,
+      );
 
   // Badges & Captions
-  static const TextStyle badgeText = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 11,
-    fontWeight: FontWeight.w500,
-    color: AppColors.badgeText,
-  );
+  static TextStyle get caption => GoogleFonts.plusJakartaSans(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: SariwaColors.textMutedLight,
+      );
 
-  static const TextStyle caption = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 12,
-    fontWeight: FontWeight.w400,
-    color: AppColors.textMuted,
-  );
+  static TextStyle get labelMedium => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.textPrimaryLight,
+      );
 
-  static const TextStyle brandLogo = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 17,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.5,
-    color: AppColors.textPrimary,
-  );
+  static TextStyle get brandLogo => GoogleFonts.fredoka(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.2,
+        color: SariwaColors.textPrimaryLight,
+      );
+
+  // Monospace (Metrics & AI Confidence)
+  static TextStyle get monoMetric => GoogleFonts.jetBrainsMono(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: SariwaColors.brandLight,
+      );
 }

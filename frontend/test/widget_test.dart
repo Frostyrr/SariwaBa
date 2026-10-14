@@ -92,9 +92,10 @@ void main() {
     await tester.tap(find.text('Get Started').last);
     await tester.pumpAndSettle();
 
-    // Verify simplified Auth Page without fake email field
-    expect(find.text('Sign in to SariwaBa'), findsOneWidget);
+    // Verify simplified Auth Page matching wireframe
+    expect(find.text('SariwaBa'), findsOneWidget);
     expect(find.text('Continue as Guest'), findsOneWidget);
+    expect(find.text('Sign in With Google'), findsOneWidget);
     expect(find.text('Email'), findsNothing);
     expect(find.text('Log In'), findsNothing);
 
