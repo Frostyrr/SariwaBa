@@ -6,6 +6,9 @@ import 'features/auth/presentation/controllers/auth_controller.dart';
 import 'features/auth/presentation/controllers/auth_state.dart';
 import 'features/auth/presentation/pages/auth_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'features/landing/presentation/pages/downloads_page.dart';
+import 'features/landing/presentation/pages/features_page.dart';
+import 'features/landing/presentation/pages/how_it_works_page.dart';
 import 'features/landing/presentation/pages/landing_page.dart';
 
 void main() {
@@ -50,6 +53,12 @@ class SariwaBaApp extends ConsumerWidget {
           );
         case AuthViewStatus.landing:
           return const LandingPage(key: ValueKey('landing_page'));
+        case AuthViewStatus.features:
+          return const FeaturesPage(key: ValueKey('features_page'));
+        case AuthViewStatus.howItWorks:
+          return const HowItWorksPage(key: ValueKey('how_it_works_page'));
+        case AuthViewStatus.downloads:
+          return const DownloadsPage(key: ValueKey('downloads_page'));
         case AuthViewStatus.login:
           return const AuthPage(key: ValueKey('auth_page'));
         case AuthViewStatus.authenticated:

@@ -25,7 +25,12 @@ class LandingPage extends ConsumerWidget {
           children: [
             // Top Web Navbar
             WebNavbar(
-              onGetStarted: () => authController.goToLogin(),
+              activeTab: 'Home',
+              onHome: () => authController.goToLanding(),
+              onFeatures: () => authController.goToFeatures(),
+              onHowItWorks: () => authController.goToHowItWorks(),
+              onDownloads: () => authController.goToDownloads(),
+              onGetStarted: () => authController.goToDownloads(),
               onLogIn: () => authController.goToLogin(),
             ),
 
@@ -68,7 +73,7 @@ class LandingPage extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Left Column: Headline, Subtitle, Teal "Get Started" & Aquatic "How it works"
+        // Left Column: Headline, Subtitle, Teal "Download App" & Aquatic "How it works"
         Expanded(
           flex: 6,
           child: Column(
@@ -108,18 +113,18 @@ class LandingPage extends ConsumerWidget {
 
               const SizedBox(height: 18),
 
-              // Clean Fredoka Headline
+              // Requested Headline
               SelectableText(
-                'Seafood freshness grading.\nStandardized with AI.',
+                'SariwaBa? See for yourself.',
                 style: AppTypography.heroHeadlineDesktop,
               ),
 
               const SizedBox(height: 18),
 
-              // Concise Subtitle
+              // Requested Subtitle
               SelectableText(
-                'Instant quality assessment analyzing cornea clarity, branchial gill pigmentation, and surface texture using deep learning.',
-                style: AppTypography.heroSubtitle,
+                'A smarter way to assess fish freshness through AI.',
+                style: AppTypography.heroSubtitle.copyWith(fontSize: 17),
               ),
 
               const SizedBox(height: 32),
@@ -138,7 +143,7 @@ class LandingPage extends ConsumerWidget {
                     width: 170,
                     height: 48,
                     borderRadius: 24, // Squircle pill
-                    onPressed: () => authController.goToLogin(),
+                    onPressed: () => authController.goToDownloads(),
                   ),
                   const SizedBox(width: 14),
                   AppButton.secondary(
@@ -146,14 +151,7 @@ class LandingPage extends ConsumerWidget {
                     width: 150,
                     height: 48,
                     borderRadius: 24,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Methodology and camera inspection guide.'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
+                    onPressed: () => authController.goToHowItWorks(),
                   ),
                 ],
               ),
@@ -179,7 +177,7 @@ class LandingPage extends ConsumerWidget {
       children: [
         // Headline
         SelectableText(
-          'Seafood freshness grading.\nStandardized with AI.',
+          'SariwaBa? See for yourself.',
           style: AppTypography.heroHeadlineMobile,
         ),
 
@@ -187,8 +185,8 @@ class LandingPage extends ConsumerWidget {
 
         // Subtitle
         SelectableText(
-          'Instant quality assessment analyzing cornea clarity, gill redness, and texture.',
-          style: AppTypography.heroSubtitle,
+          'A smarter way to assess fish freshness through AI.',
+          style: AppTypography.heroSubtitle.copyWith(fontSize: 16),
         ),
 
         const SizedBox(height: 24),
@@ -206,7 +204,7 @@ class LandingPage extends ConsumerWidget {
                 ),
                 height: 48,
                 borderRadius: 24,
-                onPressed: () => authController.goToLogin(),
+                onPressed: () => authController.goToDownloads(),
               ),
             ),
             const SizedBox(width: 12),
@@ -215,14 +213,7 @@ class LandingPage extends ConsumerWidget {
                 label: 'How it works',
                 height: 48,
                 borderRadius: 24,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Methodology and camera inspection guide.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
+                onPressed: () => authController.goToHowItWorks(),
               ),
             ),
           ],

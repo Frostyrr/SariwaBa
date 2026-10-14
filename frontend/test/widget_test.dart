@@ -79,17 +79,32 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Web Navbar links & buttons
-    expect(find.text('Overview'), findsOneWidget);
-    expect(find.text('Methodology'), findsOneWidget);
-    expect(find.text('Standards'), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Features'), findsOneWidget);
+    expect(find.text('How it Works'), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
 
-    // Verify clean Hero buttons
-    expect(find.text('Download App'), findsNWidgets(2));
-    expect(find.text('How it works'), findsOneWidget);
+    // Verify hero text
+    expect(find.text('SariwaBa? See for yourself.'), findsOneWidget);
+    expect(find.text('A smarter way to assess fish freshness through AI.'), findsOneWidget);
 
-    // Tap "Download App" in Hero
+    // Verify Download App buttons (navbar + hero)
+    expect(find.text('Download App'), findsNWidgets(2));
+
+    // Tap "Download App" in Hero -> navigates to Downloads Page
     await tester.tap(find.text('Download App').last);
+    await tester.pumpAndSettle();
+
+    // Verify Downloads Page loaded with platform cards
+    expect(find.text('Get SariwaBa.'), findsOneWidget);
+    expect(find.text('iPhone & iPad'), findsOneWidget);
+    expect(find.text('Android'), findsOneWidget);
+    expect(find.text('Web'), findsOneWidget);
+
+    // From downloads, tap "Open the web app" to go to Auth Page
+    await tester.ensureVisible(find.text('Open the web app'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Open the web app'));
     await tester.pumpAndSettle();
 
     // Verify simplified Auth Page matching wireframe
@@ -105,7 +120,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Back on landing page
-    expect(find.text('Overview'), findsOneWidget);
+    expect(find.text('Features'), findsOneWidget);
   });
 
   testWidgets(
@@ -131,8 +146,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Tap "Download App"
-    await tester.tap(find.text('Download App').last);
+    // Tap "Log in" in mobile navbar
+    await tester.tap(find.text('Log in'));
     await tester.pumpAndSettle();
 
     // Tap "Continue as Guest"

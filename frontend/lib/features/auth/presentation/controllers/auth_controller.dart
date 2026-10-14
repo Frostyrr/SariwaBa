@@ -81,10 +81,34 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  /// Return to Landing
+  /// Return to Landing (Home)
   void goToLanding() {
     state = state.copyWith(
       viewStatus: AuthViewStatus.landing,
+      clearError: true,
+    );
+  }
+
+  /// Navigate to Features page
+  void goToFeatures() {
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.features,
+      clearError: true,
+    );
+  }
+
+  /// Navigate to How it Works page
+  void goToHowItWorks() {
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.howItWorks,
+      clearError: true,
+    );
+  }
+
+  /// Navigate to Downloads page
+  void goToDownloads() {
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.downloads,
       clearError: true,
     );
   }

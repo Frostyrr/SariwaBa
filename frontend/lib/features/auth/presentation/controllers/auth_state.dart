@@ -3,6 +3,9 @@ import '../../domain/models/user_model.dart';
 enum AuthViewStatus {
   initializing,
   landing,
+  features,
+  howItWorks,
+  downloads,
   login,
   authenticated,
   guestMode,
