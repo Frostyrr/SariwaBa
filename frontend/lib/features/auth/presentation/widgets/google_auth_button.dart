@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_typography.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/widgets/app_button.dart';
 
 class GoogleAuthButton extends StatelessWidget {
@@ -27,13 +26,10 @@ class GoogleAuthButton extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: Image.network(
-          'https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png',
-          errorBuilder: (context, error, stackTrace) => const Icon(
-            Icons.g_mobiledata_rounded,
-            color: SariwaColors.bgAbyssDark,
-            size: 18,
-          ),
+        child: SvgPicture.asset(
+          'assets/icons/google.svg',
+          width: 18,
+          height: 18,
         ),
       ),
       isLoading: isLoading,

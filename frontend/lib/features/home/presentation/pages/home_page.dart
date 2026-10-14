@@ -129,13 +129,10 @@ class HomePage extends ConsumerWidget {
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Image.network(
-                                        'https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png',
-                                        errorBuilder: (context, error, stackTrace) => const Icon(
-                                          Icons.g_mobiledata_rounded,
-                                          color: SariwaColors.bgAbyssDark,
-                                          size: 16,
-                                        ),
+                                      child: SvgPicture.asset(
+                                        'assets/icons/google.svg',
+                                        width: 16,
+                                        height: 16,
                                       ),
                                     ),
                                     height: 44,
@@ -158,13 +155,10 @@ class HomePage extends ConsumerWidget {
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Image.network(
-                                  'https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png',
-                                  errorBuilder: (context, error, stackTrace) => const Icon(
-                                    Icons.g_mobiledata_rounded,
-                                    color: SariwaColors.bgAbyssDark,
-                                    size: 16,
-                                  ),
+                                child: SvgPicture.asset(
+                                  'assets/icons/google.svg',
+                                  width: 16,
+                                  height: 16,
                                 ),
                               ),
                               height: 48,
