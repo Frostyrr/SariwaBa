@@ -18,78 +18,143 @@ class WebFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: SariwaColors.bgAbyssDark.withValues(alpha: 0.85),
-        border: const Border(
-          top: BorderSide(
-            color: SariwaColors.borderGlass,
-            width: 1.0,
-          ),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1120.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Logo + Tagline
-                  Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/SariwaBa logo.png',
-                        height: 36,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'SariwaBa',
-                        style: AppTypography.brandLogo.copyWith(fontSize: 20),
-                      ),
-                    ],
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 768;
 
-                  // Footer Quick Links
-                  Wrap(
-                    spacing: 24,
-                    children: [
-                      _buildFooterLink('Home', onHome),
-                      _buildFooterLink('Features', onFeatures),
-                      _buildFooterLink('How it Works', onHowItWorks),
-                      _buildFooterLink('Downloads', onDownloads),
-                    ],
-                  ),
-                ],
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: SariwaColors.bgAbyssDark.withValues(alpha: 0.85),
+            border: const Border(
+              top: BorderSide(
+                color: SariwaColors.borderGlass,
+                width: 1.0,
               ),
-              const SizedBox(height: 28),
-              const Divider(color: SariwaColors.borderGlass, height: 1),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '© 2026 SariwaBa. All rights reserved.',
-                    style: AppTypography.caption.copyWith(
-                      color: SariwaColors.textMutedLight,
-                    ),
-                  ),
-                  Text(
-                    'Standardized AI Fish Freshness Grading',
-                    style: AppTypography.caption.copyWith(
-                      color: SariwaColors.textSecondaryLight,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 24 : 16,
+            vertical: isDesktop ? 40 : 28,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1120.0),
+              child: Column(
+                children: [
+                  if (isDesktop)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Logo + Tagline
+                        Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 36,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'SariwaBa',
+                              style: AppTypography.brandLogo.copyWith(fontSize: 20),
+                            ),
+                          ],
+                        ),
+
+                        // Footer Quick Links
+                        Wrap(
+                          spacing: 24,
+                          children: [
+                            _buildFooterLink('Home', onHome),
+                            _buildFooterLink('Features', onFeatures),
+                            _buildFooterLink('How it Works', onHowItWorks),
+                            _buildFooterLink('Downloads', onDownloads),
+                          ],
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 32,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'SariwaBa',
+                              style: AppTypography.brandLogo.copyWith(fontSize: 19),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 18,
+                          runSpacing: 10,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            _buildFooterLink('Home', onHome),
+                            _buildFooterLink('Features', onFeatures),
+                            _buildFooterLink('How it Works', onHowItWorks),
+                            _buildFooterLink('Downloads', onDownloads),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  const SizedBox(height: 24),
+                  const Divider(color: SariwaColors.borderGlass, height: 1),
+                  const SizedBox(height: 20),
+
+                  if (isDesktop)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '© 2026 SariwaBa. All rights reserved.',
+                          style: AppTypography.caption.copyWith(
+                            color: SariwaColors.textMutedLight,
+                          ),
+                        ),
+                        Text(
+                          'Standardized AI Fish Freshness Grading',
+                          style: AppTypography.caption.copyWith(
+                            color: SariwaColors.textSecondaryLight,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        Text(
+                          'Standardized AI Fish Freshness Grading',
+                          style: AppTypography.caption.copyWith(
+                            color: SariwaColors.textSecondaryLight,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '© 2026 SariwaBa. All rights reserved.',
+                          style: AppTypography.caption.copyWith(
+                            color: SariwaColors.textMutedLight,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

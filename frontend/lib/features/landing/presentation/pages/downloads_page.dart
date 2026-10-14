@@ -6,6 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
+import '../widgets/web_footer.dart';
 import '../widgets/web_navbar.dart';
 
 /// Downloads Page
@@ -42,117 +43,129 @@ class DownloadsPage extends ConsumerWidget {
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1120.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Eyebrow Tag: "DOWNLOAD"
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: SariwaColors.surfaceGlass,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: SariwaColors.brandGlow.withValues(alpha: 0.4),
-                                width: 1.0,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1120.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Eyebrow Tag: "DOWNLOAD"
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: SariwaColors.surfaceGlass,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: SariwaColors.brandGlow.withValues(alpha: 0.4),
+                                    width: 1.0,
+                                  ),
+                                ),
+                                child: Text(
+                                  'DOWNLOAD',
+                                  style: AppTypography.caption.copyWith(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.2,
+                                    color: SariwaColors.brandGlow,
+                                  ),
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              'DOWNLOAD',
-                              style: AppTypography.caption.copyWith(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
-                                color: SariwaColors.brandGlow,
+
+                              const SizedBox(height: 16),
+
+                              // Heading: "Get SariwaBa."
+                              Text(
+                                'Get SariwaBa.',
+                                style: AppTypography.displayLarge.copyWith(
+                                  fontSize: 46,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -1.2,
+                                ),
                               ),
-                            ),
-                          ),
 
-                          const SizedBox(height: 16),
+                              const SizedBox(height: 14),
 
-                          // Heading: "Get SariwaBa."
-                          Text(
-                            'Get SariwaBa.',
-                            style: AppTypography.displayLarge.copyWith(
-                              fontSize: 46,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -1.2,
-                            ),
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          // Subtitle
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 620),
-                            child: Text(
-                              'Free on Android and iOS. Evaluate seafood freshness on your phone with zero delay. Or launch directly in your browser without installing anything.',
-                              textAlign: TextAlign.center,
-                              style: AppTypography.bodyLarge.copyWith(
-                                fontSize: 16,
-                                color: SariwaColors.textSecondaryLight,
-                                height: 1.5,
+                              // Subtitle
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 620),
+                                child: Text(
+                                  'Free on Android and iOS. Evaluate seafood freshness on your phone with zero delay. Or launch directly in your browser without installing anything.',
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.bodyLarge.copyWith(
+                                    fontSize: 16,
+                                    color: SariwaColors.textSecondaryLight,
+                                    height: 1.5,
+                                  ),
+                                ),
                               ),
-                            ),
+
+                              const SizedBox(height: 48),
+
+                              // Platform Cards Grid (iOS, Android, Web)
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final isDesktop = constraints.maxWidth >= 900;
+
+                                  if (isDesktop) {
+                                    return Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: _buildIosCard(context),
+                                        ),
+                                        const SizedBox(width: 24),
+                                        Expanded(
+                                          child: _buildAndroidCard(context),
+                                        ),
+                                        const SizedBox(width: 24),
+                                        Expanded(
+                                          child: _buildWebCard(context, authController),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return Column(
+                                      children: [
+                                        _buildIosCard(context),
+                                        const SizedBox(height: 20),
+                                        _buildAndroidCard(context),
+                                        const SizedBox(height: 20),
+                                        _buildWebCard(context, authController),
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+
+                              const SizedBox(height: 60),
+
+                              // Bottom Disclaimer Note
+                              Text(
+                                'SariwaBa runs on-device inference using MobileNetV3. An internet connection is only needed to sync inspection audit history.',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.caption.copyWith(
+                                  fontSize: 12.5,
+                                  color: SariwaColors.textMutedLight,
+                                ),
+                              ),
+
+                              const SizedBox(height: 64),
+                            ],
                           ),
-
-                          const SizedBox(height: 48),
-
-                          // Platform Cards Grid (iOS, Android, Web)
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final isDesktop = constraints.maxWidth >= 900;
-
-                              if (isDesktop) {
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: _buildIosCard(context),
-                                    ),
-                                    const SizedBox(width: 24),
-                                    Expanded(
-                                      child: _buildAndroidCard(context),
-                                    ),
-                                    const SizedBox(width: 24),
-                                    Expanded(
-                                      child: _buildWebCard(context, authController),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return Column(
-                                  children: [
-                                    _buildIosCard(context),
-                                    const SizedBox(height: 20),
-                                    _buildAndroidCard(context),
-                                    const SizedBox(height: 20),
-                                    _buildWebCard(context, authController),
-                                  ],
-                                );
-                              }
-                            },
-                          ),
-
-                          const SizedBox(height: 60),
-
-                          // Bottom Disclaimer Note
-                          Text(
-                            'SariwaBa runs on-device inference using MobileNetV3. An internet connection is only needed to sync inspection audit history.',
-                            textAlign: TextAlign.center,
-                            style: AppTypography.caption.copyWith(
-                              fontSize: 12.5,
-                              color: SariwaColors.textMutedLight,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                    WebFooter(
+                      onHome: () => authController.goToLanding(),
+                      onFeatures: () => authController.goToLanding(),
+                      onHowItWorks: () => authController.goToLanding(),
+                      onDownloads: () {},
+                    ),
+                  ],
                 ),
               ),
             ),

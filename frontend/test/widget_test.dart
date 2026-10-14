@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:frontend/features/auth/data/auth_repository.dart';
 import 'package:frontend/features/auth/data/google_sign_in_service.dart';
 import 'package:frontend/features/auth/domain/models/user_model.dart';
+import 'package:frontend/features/landing/presentation/widgets/web_navbar.dart';
 import 'package:frontend/main.dart';
 
 class FakeAuthRepository implements AuthRepository {
@@ -79,9 +80,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Web Navbar links & buttons
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Features'), findsOneWidget);
-    expect(find.text('How it Works'), findsOneWidget);
+    expect(find.descendant(of: find.byType(WebNavbar), matching: find.text('Home')), findsOneWidget);
+    expect(find.descendant(of: find.byType(WebNavbar), matching: find.text('Features')), findsOneWidget);
+    expect(find.descendant(of: find.byType(WebNavbar), matching: find.text('How it Works')), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
 
     // Verify hero text
@@ -119,8 +120,8 @@ void main() {
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
 
-    // Back on landing page
-    expect(find.text('Features'), findsOneWidget);
+    // Back on landing page (Features is in WebNavbar and WebFooter)
+    expect(find.descendant(of: find.byType(WebNavbar), matching: find.text('Features')), findsOneWidget);
   });
 
   testWidgets(
