@@ -1,5 +1,4 @@
-import logging
-from django.shortcuts import HttpResponse
+﻿import logging
 from django.contrib.auth.models import User
 from django.db import transaction
 
@@ -8,15 +7,11 @@ from rest_framework import status
 from rest_framework.decorators import (
     api_view,
     permission_classes,
-    parser_classes,
 )
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from PIL import Image, UnidentifiedImageError
-
-from .models import UserProfile, ClassificationHistory
+from .models import UserProfile
 from .services.google_auth_service import verify_google_token
 
 logger = logging.getLogger(__name__)
@@ -36,10 +31,6 @@ def _serialize_user(user, profile=None):
         "is_guest": False,
         "is_registered": True,
     }
-
-
-def home(request):
-    return HttpResponse("SariwaBa Backend is running!")
 
 
 # Google Authentication Endpoint
@@ -198,109 +189,3 @@ def logout(request):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-@parser_classes([MultiPartParser, FormParser])
-def classify_fish(request):
-    image_file = request.FILES.get("image")
-
-    # 1. Image is required
-    if image_file is None:
-        return Response(
-            {
-                "error": {
-                    "code": "MISSING_IMAGE",
-                    "message": "Fish image is required."
-                }
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 2. Maximum file size is 5MB
-    max_size = 5 * 1024 * 1024  # 5MB
-
-    if image_file.size > max_size:
-        return Response(
-            {
-                "error": {
-                    "code": "IMAGE_TOO_LARGE",
-                    "message": "Image must not exceed 5 MB."
-                }
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 3. Only JPEG and PNG
-    allowed_content_types = [
-        "image/jpeg",
-        "image/png",
-    ]
-
-
-    if image_file.content_type not in allowed_content_types:
-        return Response(
-            {
-                "error": {
-                    "code": "UNSUPPORTED_IMAGE_TYPE",
-                    "message": "Only JPEG and PNG images are allowed."
-                }
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # 4. Verify that the uploaded file is actually an image
-    try:
-        image = Image.open(image_file)
-        image.verify()
-
-        #Reset file pointer after Pillow reads it
-        image_file.seek(0)
-
-    except (UnidentifiedImageError, OSError):
-        return Response(
-            {
-                "error": {
-                    "code": "INVALID_IMAGE",
-                    "message": "The uploaded file could not be decoded as an image."
-                }
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-
-    #------------------------------------
-    #TEMPORARY RESULT FOR CLASSIFICATION
-    #BEFORE APPLYING MobileNetV3 Model
-    #------------------------------------
-
-    label = "Fresh"
-    confidence = 0.95
-
-    #------------------------------------
-    #Authenticated User -> Save History
-    #Guest User -> result only
-    #------------------------------------
-
-    scan_id = None
-
-    if request.user.is_authenticated:
-        classification = ClassificationHistory.objects.create(
-            user=request.user,
-            image=image_file,
-            label=label,
-            confidence=confidence
-        )
-
-        scan_id = classification.scan_id
-
-    return Response(
-        {
-            "label": label,
-            "confidence": confidence,
-            "scan_id": scan_id,
-            "saved": request.user.is_authenticated,
-        },
-        status=status.HTTP_200_OK
-    )

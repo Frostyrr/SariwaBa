@@ -1,4 +1,4 @@
-from unittest.mock import patch
+﻿from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
@@ -20,14 +20,14 @@ class GoogleAuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"]["code"], "MISSING_TOKEN")
 
-    @patch("app.views.verify_google_token")
+    @patch("authentication.views.verify_google_token")
     def test_invalid_token_returns_401(self, mock_verify):
         mock_verify.return_value = None
         response = self.client.post(self.auth_url, {"id_token": "invalid"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data["error"]["code"], "INVALID_TOKEN")
 
-    @patch("app.views.verify_google_token")
+    @patch("authentication.views.verify_google_token")
     def test_unverified_email_returns_401(self, mock_verify):
         mock_verify.return_value = {
             "google_id": "12345",
@@ -40,7 +40,7 @@ class GoogleAuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data["error"]["code"], "EMAIL_NOT_VERIFIED")
 
-    @patch("app.views.verify_google_token")
+    @patch("authentication.views.verify_google_token")
     def test_successful_auth_creates_user_and_returns_tokens(self, mock_verify):
         mock_verify.return_value = {
             "google_id": "google_sub_123",
