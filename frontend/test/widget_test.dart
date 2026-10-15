@@ -47,7 +47,7 @@ class FakeGoogleSignInService implements GoogleSignInService {
   }
 
   @override
-  Future<GoogleSignInAccount?> signInSilently() async {
+  Future<GoogleSignInAccount?> signInSilently({bool reAuthenticate = false}) async {
     return null;
   }
 
