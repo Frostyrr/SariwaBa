@@ -117,10 +117,20 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> continueWithGoogle() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final account = await googleService.signIn();
+      var account = await googleService.signIn();
       if (account != null) {
-        final auth = await account.authentication;
-        final idToken = auth.idToken;
+        var auth = await account.authentication;
+        var idToken = auth.idToken;
+
+        // Web fallback: GIS sometimes populates tokens after silent refresh
+        if (kIsWeb && (idToken == null || idToken.isEmpty)) {
+          account = await googleService.signInSilently(reAuthenticate: true);
+          if (account != null) {
+            auth = await account.authentication;
+            idToken = auth.idToken;
+          }
+        }
+
         if (idToken != null && idToken.isNotEmpty) {
           await _exchangeGoogleIdToken(idToken);
           return;

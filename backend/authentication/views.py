@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from django.contrib.auth.models import User
 from django.db import transaction
 
@@ -28,6 +28,8 @@ def _serialize_user(user, profile=None):
         "last_name": user.last_name,
         "username": user.username,
         "profile_picture": profile.profile_picture if profile else None,
+        "role": profile.role if profile else "user",
+        "is_admin": profile.is_admin if profile else (user.is_staff or user.is_superuser),
         "is_guest": False,
         "is_registered": True,
     }

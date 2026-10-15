@@ -1,4 +1,4 @@
-﻿from rest_framework.response import Response
+from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import (
     api_view,
@@ -6,10 +6,11 @@ from rest_framework.decorators import (
     parser_classes,
 )
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from PIL import Image, UnidentifiedImageError
 
 from .models import ClassificationHistory
+from .serializers import ClassificationHistorySerializer
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -90,3 +91,65 @@ def classify_fish(request):
         },
         status=status.HTTP_200_OK
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_history(request):
+    """
+    Retrieve classification history records belonging to the authenticated user.
+    """
+    history = ClassificationHistory.objects.filter(user=request.user)
+    serializer = ClassificationHistorySerializer(
+        history,
+        many=True,
+        context={"request": request}
+    )
+    return Response(
+        {
+            "count": history.count(),
+            "history": serializer.data,
+        },
+        status=status.HTTP_200_OK
+    )
+
+
+@api_view(["GET", "DELETE"])
+@permission_classes([IsAuthenticated])
+def history_detail(request, scan_id):
+    """
+    Retrieve or delete an individual classification history record owned by the authenticated user.
+    """
+    record = ClassificationHistory.objects.filter(
+        scan_id=scan_id,
+        user=request.user
+    ).first()
+
+    if record is None:
+        return Response(
+            {
+                "error": {
+                    "code": "SCAN_NOT_FOUND",
+                    "message": "Classification scan record not found or access denied."
+                }
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if request.method == "GET":
+        serializer = ClassificationHistorySerializer(
+            record,
+            context={"request": request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    if request.method == "DELETE":
+        # Delete image from storage if present
+        if record.image:
+            try:
+                record.image.delete(save=False)
+            except Exception:
+                pass
+        record.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

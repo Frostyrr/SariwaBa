@@ -18,18 +18,59 @@
 
 ---
 
-## To run locally
+## How to Run the Project
 
-Backend:
+You can run the backend either using **Docker** (recommended for quick team onboarding) or **manually via Python virtualenv**.
 
-- cd backend
-- .\.venv\Scripts\Activate
-- python manage.py runserver
+### Option A: Using Docker (Recommended for Teammates)
 
-Frontend:
+With Docker Desktop installed, you do not need to install Python, PostgreSQL, or any dependencies manually.
 
-- cd frontend
-- flutter run -d chrome --web-port 7357
+```bash
+# 1. Start both PostgreSQL and Django Backend
+docker compose up --build
+
+# (Optional) Run in background / detached mode:
+docker compose up -d
+
+# Stop containers:
+docker compose down
+```
+
+> For full Docker commands, administrative tasks, and troubleshooting, refer to [DOCKER_README.md](DOCKER_README.md).
+
+---
+
+### Option B: Running Locally (Manual Setup)
+
+#### 1. Backend (Django + PostgreSQL):
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Activate virtual environment (Windows PowerShell)
+.\.venv\Scripts\Activate
+
+# Apply database migrations to PostgreSQL
+python manage.py migrate
+
+# Run Django development server
+python manage.py runserver
+```
+
+#### 2. Frontend (Flutter Web):
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Install Flutter dependencies
+flutter pub get
+
+# Run on Chrome with standard port
+flutter run -d chrome --web-port 7357
+```
 
 ## Technology Stack
 

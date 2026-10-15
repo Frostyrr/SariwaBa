@@ -18,6 +18,7 @@ def verify_google_token(token):
             token,
             requests.Request(),
             google_client_id,
+            clock_skew_in_seconds=300,
         )
 
         return {

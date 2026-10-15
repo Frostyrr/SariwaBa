@@ -22,6 +22,8 @@ from django.contrib import admin
 from django.urls import path, include
 from authentication.views import profile
 
+from classification.views import list_history, history_detail
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -31,6 +33,10 @@ urlpatterns = [
 
     # Fish Classification routes (/api/v1/classify/...)
     path('api/v1/classify/', include('classification.urls')),
+
+    # Direct History routes (/api/v1/history/...)
+    path('api/v1/history/', list_history, name='history-list-root'),
+    path('api/v1/history/<int:scan_id>/', history_detail, name='history-detail-root'),
 ]
 
 
