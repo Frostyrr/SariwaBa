@@ -5,6 +5,8 @@ class UserModel {
   final String? lastName;
   final String? username;
   final String? profilePicture;
+  final String role;
+  final bool isAdmin;
   final bool isGuest;
   final bool isRegistered;
 
@@ -15,6 +17,8 @@ class UserModel {
     this.lastName,
     this.username,
     this.profilePicture,
+    this.role = 'user',
+    this.isAdmin = false,
     this.isGuest = false,
     this.isRegistered = true,
   });
@@ -27,6 +31,8 @@ class UserModel {
       lastName: json['last_name'] as String?,
       username: json['username'] as String?,
       profilePicture: json['profile_picture'] as String?,
+      role: json['role'] as String? ?? 'user',
+      isAdmin: json['is_admin'] as bool? ?? false,
       isGuest: json['is_guest'] as bool? ?? false,
       isRegistered: json['is_registered'] as bool? ?? true,
     );
@@ -40,6 +46,8 @@ class UserModel {
       'last_name': lastName,
       'username': username,
       'profile_picture': profilePicture,
+      'role': role,
+      'is_admin': isAdmin,
       'is_guest': isGuest,
       'is_registered': isRegistered,
     };
@@ -66,6 +74,8 @@ class UserModel {
     String? lastName,
     String? username,
     String? profilePicture,
+    String? role,
+    bool? isAdmin,
     bool? isGuest,
     bool? isRegistered,
   }) {
@@ -76,6 +86,8 @@ class UserModel {
       lastName: lastName ?? this.lastName,
       username: username ?? this.username,
       profilePicture: profilePicture ?? this.profilePicture,
+      role: role ?? this.role,
+      isAdmin: isAdmin ?? this.isAdmin,
       isGuest: isGuest ?? this.isGuest,
       isRegistered: isRegistered ?? this.isRegistered,
     );

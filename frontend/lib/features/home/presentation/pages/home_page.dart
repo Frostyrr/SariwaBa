@@ -57,12 +57,15 @@ class _HomePageState extends ConsumerState<HomePage> {
             LandingSection(
               key: _homeKey,
               isGuest: isGuest,
+              user: authState.user,
               onConnectGoogle: () => authController.continueWithGoogle(),
               onHome: () => _scrollToKey(_homeKey),
               onFeatures: () => _scrollToKey(_featuresKey),
               onHowItWorks: () => _scrollToKey(_howItWorksKey),
               onDownloads: () => authController.goToDownloads(),
               onLogIn: () => authController.goToLogin(),
+              onDashboard: () => authController.goToDashboard(),
+              onSignOut: () => authController.signOut(),
             ),
 
             // Section 2: Features Section (Off-white leaning primary teal #F0F7F6)

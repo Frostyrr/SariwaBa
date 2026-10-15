@@ -18,6 +18,7 @@ class DownloadsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
 
     return Scaffold(
@@ -31,9 +32,12 @@ class DownloadsPage extends ConsumerWidget {
             // Top Web Navbar
             WebNavbar(
               activeTab: 'Downloads',
+              user: authState.user,
               onHome: () => authController.goToLanding(),
               onFeatures: () => authController.goToFeatures(),
               onHowItWorks: () => authController.goToHowItWorks(),
+              onDashboard: () => authController.goToDashboard(),
+              onSignOut: () => authController.signOut(),
               onDownloads: () {},
               onGetStarted: () {},
               onLogIn: () => authController.goToLogin(),

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../auth/domain/models/user_model.dart';
 import '../../../landing/presentation/widgets/hero_scanner_card.dart';
 import '../../../landing/presentation/widgets/web_navbar.dart';
 
@@ -16,6 +17,9 @@ class LandingSection extends StatelessWidget {
   final VoidCallback onHowItWorks;
   final VoidCallback onDownloads;
   final VoidCallback onLogIn;
+  final VoidCallback? onDashboard;
+  final VoidCallback? onSignOut;
+  final UserModel? user;
   final bool isGuest;
   final VoidCallback? onConnectGoogle;
 
@@ -26,6 +30,9 @@ class LandingSection extends StatelessWidget {
     required this.onHowItWorks,
     required this.onDownloads,
     required this.onLogIn,
+    this.onDashboard,
+    this.onSignOut,
+    this.user,
     this.isGuest = false,
     this.onConnectGoogle,
   });
@@ -43,12 +50,15 @@ class LandingSection extends StatelessWidget {
           // Top Web Navbar
           WebNavbar(
             activeTab: 'Home',
+            user: user,
             onHome: onHome,
             onFeatures: onFeatures,
             onHowItWorks: onHowItWorks,
             onDownloads: onDownloads,
             onGetStarted: onDownloads,
             onLogIn: onLogIn,
+            onDashboard: onDashboard,
+            onSignOut: onSignOut,
           ),
 
           // Guest Evaluation Mode Banner (if guest mode active)

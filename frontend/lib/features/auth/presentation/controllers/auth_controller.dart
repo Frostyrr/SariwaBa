@@ -113,6 +113,14 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
+  /// Navigate to Dashboard view
+  void goToDashboard() {
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.authenticated,
+      clearError: true,
+    );
+  }
+
   /// Tapping "Log in with Google" (Android native sign-in or manual invocation)
   Future<void> continueWithGoogle() async {
     state = state.copyWith(isLoading: true, clearError: true);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../auth/domain/models/user_model.dart';
 
 class WebNavbar extends StatelessWidget {
   final VoidCallback onGetStarted;
@@ -10,6 +11,10 @@ class WebNavbar extends StatelessWidget {
   final VoidCallback? onFeatures;
   final VoidCallback? onHowItWorks;
   final VoidCallback? onDownloads;
+  final VoidCallback? onDashboard;
+  final VoidCallback? onSignOut;
+  final UserModel? user;
+  final bool isLight;
   final String activeTab;
 
   const WebNavbar({
@@ -20,6 +25,10 @@ class WebNavbar extends StatelessWidget {
     this.onFeatures,
     this.onHowItWorks,
     this.onDownloads,
+    this.onDashboard,
+    this.onSignOut,
+    this.user,
+    this.isLight = false,
     this.activeTab = 'Home',
   });
 
@@ -29,20 +38,29 @@ class WebNavbar extends StatelessWidget {
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 768;
 
+        final bgColor = isLight
+            ? Colors.white.withValues(alpha: 0.95)
+            : SariwaColors.bgAbyssDark.withValues(alpha: 0.65);
+
+        final borderColor =
+            isLight ? SariwaColors.borderLightTeal : SariwaColors.borderGlass;
+
+        final linkColor =
+            isLight ? SariwaColors.textSecondaryDark : SariwaColors.textSecondaryLight;
+
         return Container(
           height: 72,
           decoration: BoxDecoration(
-            color: SariwaColors.bgAbyssDark.withValues(alpha: 0.65),
-            border: const Border(
+            color: bgColor,
+            border: Border(
               bottom: BorderSide(
-                color: SariwaColors.borderGlass,
+                color: borderColor,
                 width: 1.0,
               ),
             ),
           ),
           child: Center(
             child: ConstrainedBox(
-              // Inset inward to align with page margin
               constraints: const BoxConstraints(maxWidth: 1120.0),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 16),
@@ -69,7 +87,11 @@ class WebNavbar extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   'SariwaBa',
-                                  style: AppTypography.brandLogo,
+                                  style: AppTypography.brandLogo.copyWith(
+                                    color: isLight
+                                        ? SariwaColors.brandPrimary
+                                        : Colors.white,
+                                  ),
                                 ),
                               ],
                             );
@@ -78,7 +100,7 @@ class WebNavbar extends StatelessWidget {
                       ),
                     ),
 
-                    // Center: Nav Links for Desktop (Home, Features, How it Works)
+                    // Center: Nav Links for Desktop (Home, Features, How it Works, Downloads, Dashboard)
                     if (isDesktop)
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -86,56 +108,75 @@ class WebNavbar extends StatelessWidget {
                           _buildNavItem(
                             'Home',
                             isActive: activeTab == 'Home',
+                            linkColor: linkColor,
                             onTap: onHome,
                           ),
-                          const SizedBox(width: 28),
+                          const SizedBox(width: 18),
                           _buildNavItem(
                             'Features',
                             isActive: activeTab == 'Features',
+                            linkColor: linkColor,
                             onTap: onFeatures,
                           ),
-                          const SizedBox(width: 28),
+                          const SizedBox(width: 18),
                           _buildNavItem(
                             'How it Works',
                             isActive: activeTab == 'How it Works',
+                            linkColor: linkColor,
                             onTap: onHowItWorks,
                           ),
-                          const SizedBox(width: 28),
+                          const SizedBox(width: 18),
                           _buildNavItem(
                             'Downloads',
                             isActive: activeTab == 'Downloads',
+                            linkColor: linkColor,
                             onTap: onDownloads ?? onGetStarted,
                           ),
+                          if (user != null) ...[
+                            const SizedBox(width: 18),
+                            _buildNavItem(
+                              'Dashboard',
+                              isActive: activeTab == 'Dashboard',
+                              linkColor: linkColor,
+                              onTap: onDashboard,
+                            ),
+                          ],
                         ],
                       ),
 
-                    // Right: Auth Action Buttons
+                    // Right: User Profile (when authenticated) or Log In + CTA
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextButton(
-                          onPressed: onLogIn,
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Log in',
-                            style: AppTypography.navLink.copyWith(
-                              color: SariwaColors.textPrimaryLight,
-                              fontWeight: FontWeight.w600,
+                        if (user != null)
+                          _buildUserMenu(context, isDesktop)
+                        else ...[
+                          TextButton(
+                            onPressed: onLogIn,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Log in',
+                              style: AppTypography.navLink.copyWith(
+                                color: isLight
+                                    ? SariwaColors.textPrimaryDark
+                                    : SariwaColors.textPrimaryLight,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        AppButton.primary(
-                          label: 'Download App',
-                          height: 38,
-                          width: isDesktop ? 144 : 116,
-                          borderRadius: 19, // Rounded pill
-                          onPressed: onDownloads ?? onGetStarted,
-                        ),
+                          const SizedBox(width: 12),
+                          AppButton.primary(
+                            label: 'Download App',
+                            height: 38,
+                            width: isDesktop ? 144 : 116,
+                            borderRadius: 19,
+                            onPressed: onDownloads ?? onGetStarted,
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -148,7 +189,15 @@ class WebNavbar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(String label, {bool isActive = false, VoidCallback? onTap}) {
+  Widget _buildNavItem(
+    String label, {
+    bool isActive = false,
+    required Color linkColor,
+    VoidCallback? onTap,
+  }) {
+    final activeColor =
+        isLight ? SariwaColors.brandPrimary : SariwaColors.brandLight;
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -157,7 +206,238 @@ class WebNavbar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
           child: Text(
             label,
-            style: isActive ? AppTypography.navLinkActive : AppTypography.navLink,
+            style: isActive
+                ? AppTypography.navLinkActive.copyWith(color: activeColor)
+                : AppTypography.navLink.copyWith(color: linkColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserMenu(BuildContext context, bool isDesktop) {
+    final currentUser = user!;
+    final pictureUrl = currentUser.profilePicture;
+
+    return PopupMenuButton<String>(
+      tooltip: 'Account details',
+      offset: const Offset(0, 48),
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: SariwaColors.borderLightTeal, width: 1),
+      ),
+      onSelected: (value) {
+        if (value == 'dashboard' && onDashboard != null) {
+          onDashboard!();
+        } else if (value == 'home' && onHome != null) {
+          onHome!();
+        } else if (value == 'logout' && onSignOut != null) {
+          onSignOut!();
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildAvatar(size: 36),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentUser.displayName,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: SariwaColors.textPrimaryDark,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          currentUser.email,
+                          style: AppTypography.caption.copyWith(
+                            color: SariwaColors.textSecondaryDark,
+                            fontSize: 11,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: currentUser.isAdmin
+                      ? SariwaColors.statusModerate.withValues(alpha: 0.15)
+                      : SariwaColors.brandPrimary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  currentUser.isAdmin ? 'Role: Administrator' : 'Role: Verified User',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: currentUser.isAdmin
+                        ? SariwaColors.statusModerate
+                        : SariwaColors.brandPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem<String>(
+          value: 'dashboard',
+          child: Row(
+            children: [
+              const Icon(Icons.dashboard_outlined, size: 18, color: SariwaColors.brandPrimary),
+              const SizedBox(width: 10),
+              Text(
+                'Dashboard',
+                style: TextStyle(
+                  color: SariwaColors.textPrimaryDark,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'home',
+          child: Row(
+            children: [
+              const Icon(Icons.home_outlined, size: 18, color: SariwaColors.textSecondaryDark),
+              const SizedBox(width: 10),
+              Text(
+                'Home Page',
+                style: TextStyle(
+                  color: SariwaColors.textPrimaryDark,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            children: const [
+              Icon(Icons.logout_rounded, size: 18, color: SariwaColors.statusSpoiled),
+              SizedBox(width: 10),
+              Text(
+                'Sign out',
+                style: TextStyle(
+                  color: SariwaColors.statusSpoiled,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: isLight
+                ? SariwaColors.bgDashboardSubtle
+                : SariwaColors.surfaceGlass,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isLight ? SariwaColors.borderLightTeal : SariwaColors.borderGlass,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAvatar(size: 32),
+              if (isDesktop) ...[
+                const SizedBox(width: 8),
+                Text(
+                  currentUser.displayName.split(' ').first,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isLight
+                        ? SariwaColors.textPrimaryDark
+                        : SariwaColors.textPrimaryLight,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 16,
+                  color: isLight
+                      ? SariwaColors.textSecondaryDark
+                      : SariwaColors.textSecondaryLight,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatar({required double size}) {
+    final pictureUrl = user?.profilePicture;
+    final initial = (user?.displayName.isNotEmpty ?? false)
+        ? user!.displayName[0].toUpperCase()
+        : 'U';
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: SariwaColors.brandPrimary, width: 1.5),
+      ),
+      child: ClipOval(
+        child: pictureUrl != null && pictureUrl.isNotEmpty
+            ? Image.network(
+                pictureUrl,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildAvatarFallback(size, initial);
+                },
+              )
+            : _buildAvatarFallback(size, initial),
+      ),
+    );
+  }
+
+  Widget _buildAvatarFallback(double size, String initial) {
+    return Container(
+      width: size,
+      height: size,
+      color: SariwaColors.brandPrimary,
+      child: Center(
+        child: Text(
+          initial,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: size * 0.45,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
