@@ -15,7 +15,7 @@ class GoogleSignInService {
               serverClientId: !kIsWeb && AppConfig.googleWebClientId.isNotEmpty
                   ? AppConfig.googleWebClientId
                   : null,
-              scopes: const ['email', 'profile'],
+              scopes: const ['openid', 'email', 'profile'],
             );
 
   Stream<GoogleSignInAccount?> get onCurrentUserChanged =>
@@ -25,8 +25,8 @@ class GoogleSignInService {
     return await _googleSignIn.signIn();
   }
 
-  Future<GoogleSignInAccount?> signInSilently() async {
-    return await _googleSignIn.signInSilently();
+  Future<GoogleSignInAccount?> signInSilently({bool reAuthenticate = false}) async {
+    return await _googleSignIn.signInSilently(reAuthenticate: reAuthenticate);
   }
 
   Future<void> signOut() async {
