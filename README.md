@@ -36,6 +36,7 @@ docker compose up -d
 # Stop containers:
 docker compose down
 ```
+
 > For full Docker commands, administrative tasks, and troubleshooting, refer to [DOCKER_README.md](DOCKER_README.md).
 
 ---
@@ -43,6 +44,7 @@ docker compose down
 ### Option B: Running Locally (Manual Setup)
 
 #### 1. Backend (Django + PostgreSQL):
+
 ```bash
 # Navigate to backend directory
 cd backend
@@ -58,6 +60,7 @@ python manage.py runserver
 ```
 
 #### 2. Frontend (Flutter Web):
+
 ```bash
 # Navigate to frontend directory
 cd frontend
