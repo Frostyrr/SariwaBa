@@ -4,16 +4,18 @@ services:
     image: postgres:16-alpine
     container_name: sariwaba_db
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
     environment:
-      POSTGRES_DB: sariwaba_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${DB_NAME:-sariwaba_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d sariwaba_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-sariwaba_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -34,17 +36,11 @@ services:
       - ./backend/media:/app/media
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
-      - SECRET_KEY=django-insecure-sariwaba-dev-secret-key-change-in-prod
-      - DEBUG=True
-      - ALLOWED_HOSTS=localhost,127.0.0.1,backend,10.0.2.2
-      - DB_NAME=sariwaba_db
-      - DB_USER=postgres
-      - DB_PASSWORD=admin
+      # Inside Docker container network, Django reaches PostgreSQL via service name 'db'
       - DB_HOST=db
-      - DB_PORT=5432
-      - GOOGLE_CLIENT_ID=104697469786-jjf8bei38i7c535in3fgc4vppifv8aem.apps.googleusercontent.com
-      - CORS_ALLOWED_ORIGINS=http://localhost:7357,http://127.0.0.1:7357
     depends_on:
       db:
         condition: service_healthy
