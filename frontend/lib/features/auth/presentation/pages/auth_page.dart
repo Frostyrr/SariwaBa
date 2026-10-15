@@ -117,7 +117,7 @@ class AuthPage extends ConsumerWidget {
                         const SizedBox(height: 8),
 
                         Text(
-                          'AI-Powered Seafood Freshness Grading',
+                          'A smarter way to assess fish freshness through AI.',
                           textAlign: TextAlign.center,
                           style: AppTypography.heroSubtitle.copyWith(
                             fontSize: 15,
