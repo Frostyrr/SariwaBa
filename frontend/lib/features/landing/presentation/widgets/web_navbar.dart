@@ -89,7 +89,9 @@ class WebNavbar extends StatelessWidget {
                     // Left: Brand Logo with Text asset
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
+                      hitTestBehavior: HitTestBehavior.opaque,
                       child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: onHome,
                         child: Image.asset(
                           'assets/images/SariwaBa with Text.png',
@@ -130,21 +132,21 @@ class WebNavbar extends StatelessWidget {
                             linkColor: linkColor,
                             onTap: onHome,
                           ),
-                          const SizedBox(width: 18),
+                          const SizedBox(width: 14),
                           _buildNavItem(
                             'Features',
                             isActive: activeTab == 'Features',
                             linkColor: linkColor,
                             onTap: onFeatures,
                           ),
-                          const SizedBox(width: 18),
+                          const SizedBox(width: 14),
                           _buildNavItem(
                             'How it Works',
                             isActive: activeTab == 'How it Works',
                             linkColor: linkColor,
                             onTap: onHowItWorks,
                           ),
-                          const SizedBox(width: 18),
+                          const SizedBox(width: 14),
                           _buildNavItem(
                             'Downloads',
                             isActive: activeTab == 'Downloads',
@@ -152,7 +154,7 @@ class WebNavbar extends StatelessWidget {
                             onTap: onDownloads ?? onGetStarted,
                           ),
                           if (user != null) ...[
-                            const SizedBox(width: 18),
+                            const SizedBox(width: 14),
                             _buildNavItem(
                               'Dashboard',
                               isActive: activeTab == 'Dashboard',
@@ -170,20 +172,30 @@ class WebNavbar extends StatelessWidget {
                         if (user != null)
                           _buildUserMenu(context, isDesktop)
                         else ...[
-                          TextButton(
-                            onPressed: onLogIn,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              'Log in',
-                              style: AppTypography.navLink.copyWith(
-                                color: isLight
-                                    ? SariwaColors.textPrimaryDark
-                                    : SariwaColors.textPrimaryLight,
-                                fontWeight: FontWeight.w600,
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: TextButton(
+                              onPressed: onLogIn,
+                              style: TextButton.styleFrom(
+                                enabledMouseCursor: SystemMouseCursors.click,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                foregroundColor: isLight
+                                    ? SariwaColors.brandPrimary
+                                    : SariwaColors.brandLight,
+                              ),
+                              child: Text(
+                                'Log in',
+                                style: AppTypography.navLink.copyWith(
+                                  color: isLight
+                                      ? SariwaColors.textPrimaryDark
+                                      : SariwaColors.textPrimaryLight,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -216,23 +228,12 @@ class WebNavbar extends StatelessWidget {
     required Color linkColor,
     VoidCallback? onTap,
   }) {
-    final activeColor =
-        isLight ? SariwaColors.brandPrimary : SariwaColors.brandLight;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-          child: Text(
-            label,
-            style: isActive
-                ? AppTypography.navLinkActive.copyWith(color: activeColor)
-                : AppTypography.navLink.copyWith(color: linkColor),
-          ),
-        ),
-      ),
+    return _NavLinkItem(
+      label: label,
+      isActive: isActive,
+      isLight: isLight,
+      linkColor: linkColor,
+      onTap: onTap,
     );
   }
 
@@ -465,3 +466,77 @@ class WebNavbar extends StatelessWidget {
     );
   }
 }
+
+class _NavLinkItem extends StatefulWidget {
+  final String label;
+  final bool isActive;
+  final bool isLight;
+  final Color linkColor;
+  final VoidCallback? onTap;
+
+  const _NavLinkItem({
+    required this.label,
+    required this.isActive,
+    required this.isLight,
+    required this.linkColor,
+    this.onTap,
+  });
+
+  @override
+  State<_NavLinkItem> createState() => _NavLinkItemState();
+}
+
+class _NavLinkItemState extends State<_NavLinkItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final activeColor =
+        widget.isLight ? SariwaColors.brandPrimary : SariwaColors.brandLight;
+
+    final hoverColor =
+        widget.isLight ? SariwaColors.brandPrimary : Colors.white;
+
+    final effectiveTextColor = widget.isActive
+        ? activeColor
+        : (_isHovered ? hoverColor : widget.linkColor);
+
+    final pillBgColor = _isHovered
+        ? (widget.isLight
+            ? SariwaColors.brandPrimary.withValues(alpha: 0.08)
+            : Colors.white.withValues(alpha: 0.08))
+        : (widget.isActive
+            ? (widget.isLight
+                ? SariwaColors.brandPrimary.withValues(alpha: 0.06)
+                : SariwaColors.brandLight.withValues(alpha: 0.10))
+            : Colors.transparent);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      hitTestBehavior: HitTestBehavior.opaque,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
+          decoration: BoxDecoration(
+            color: pillBgColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            widget.label,
+            style: (widget.isActive
+                    ? AppTypography.navLinkActive
+                    : AppTypography.navLink)
+                .copyWith(color: effectiveTextColor),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

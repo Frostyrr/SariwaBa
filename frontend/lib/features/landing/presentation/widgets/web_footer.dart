@@ -159,18 +159,50 @@ class WebFooter extends StatelessWidget {
   }
 
   Widget _buildFooterLink(String label, VoidCallback onTap) {
+    return _FooterLinkItem(label: label, onTap: onTap);
+  }
+}
+
+class _FooterLinkItem extends StatefulWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _FooterLinkItem({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  State<_FooterLinkItem> createState() => _FooterLinkItemState();
+}
+
+class _FooterLinkItemState extends State<_FooterLinkItem> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+      hitTestBehavior: HitTestBehavior.opaque,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
-        onTap: onTap,
-        child: Text(
-          label,
-          style: AppTypography.navLink.copyWith(
-            fontSize: 13.5,
-            color: SariwaColors.textSecondaryLight,
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          child: Text(
+            widget.label,
+            style: AppTypography.navLink.copyWith(
+              fontSize: 13.5,
+              color: _isHovered
+                  ? SariwaColors.brandLight
+                  : SariwaColors.textSecondaryLight,
+            ),
           ),
         ),
       ),
     );
   }
 }
+
