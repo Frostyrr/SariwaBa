@@ -1,5 +1,7 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
 import '../theme/app_colors.dart';
 
 /// Underwater Background Stack with Dynamic Frosted Glass overlay
@@ -102,9 +104,7 @@ class AmbientGlowBackground extends StatelessWidget {
           ),
 
         // Layer 5: Foreground Child (Sizes the Stack in any layout context)
-        SafeArea(
-          child: child,
-        ),
+        SafeArea(child: child),
       ],
     );
   }

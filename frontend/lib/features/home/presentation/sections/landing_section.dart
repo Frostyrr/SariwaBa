@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
@@ -44,7 +45,7 @@ class LandingSection extends StatelessWidget {
     return AmbientGlowBackground(
       showTopRightGlow: true,
       showBottomGlow: true,
-      useBlurredAsset: false, // Crisp underwater illustration backdrop
+      useBlurredAsset: true, // Crisp underwater illustration backdrop
       child: Column(
         children: [
           // Top Web Navbar
@@ -69,7 +70,10 @@ class LandingSection extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -205,9 +209,7 @@ class LandingSection extends StatelessWidget {
                   : null;
 
               return Container(
-                constraints: BoxConstraints(
-                  minHeight: heroMinHeight ?? 0,
-                ),
+                constraints: BoxConstraints(minHeight: heroMinHeight ?? 0),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1140.0),
@@ -284,10 +286,7 @@ class LandingSection extends StatelessWidget {
         const SizedBox(width: 48),
 
         // Right Column: Dedicated Classification Placeholder
-        const Expanded(
-          flex: 5,
-          child: HeroScannerCard(),
-        ),
+        const Expanded(flex: 5, child: HeroScannerCard()),
       ],
     );
   }
