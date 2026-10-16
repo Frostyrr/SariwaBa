@@ -1,11 +1,14 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:frontend/features/auth/data/auth_repository.dart';
-import 'package:frontend/features/auth/data/google_sign_in_service.dart';
-import 'package:frontend/features/auth/domain/models/user_model.dart';
-import 'package:frontend/features/landing/presentation/widgets/web_navbar.dart';
+import 'package:frontend/services/auth/auth_service.dart';
+import 'package:frontend/services/auth/google_sign_in_service.dart';
+import 'package:frontend/models/auth/user_model.dart';
+import 'package:frontend/services/classification/classification_service.dart';
+import 'package:frontend/models/classification/classification_result.dart';
+import 'package:frontend/widgets/navigation/web_navbar.dart';
 import 'package:frontend/main.dart';
 
 class FakeAuthRepository implements AuthRepository {
@@ -53,6 +56,33 @@ class FakeGoogleSignInService implements GoogleSignInService {
 
   @override
   Future<void> signOut() async {}
+}
+
+class FakeClassificationRepository implements ClassificationRepository {
+  List<ClassificationResult> mockHistory = [];
+
+  @override
+  Future<ClassificationResult> classifyImage({
+    required Uint8List bytes,
+    required String filename,
+  }) async {
+    return const ClassificationResult(
+      scanId: 101,
+      label: 'Fresh',
+      confidence: 0.96,
+      saved: true,
+    );
+  }
+
+  @override
+  Future<List<ClassificationResult>> fetchHistory() async {
+    return mockHistory;
+  }
+
+  @override
+  Future<void> deleteScan(int scanId) async {
+    mockHistory.removeWhere((s) => s.scanId == scanId);
+  }
 }
 
 void main() {
@@ -158,5 +188,50 @@ void main() {
     // Arrives at Home in Guest mode
     expect(find.text('Guest Evaluation Mode'), findsOneWidget);
     expect(find.text('Connect with Google'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Authenticated user is redirected to Dashboard with off-white background, avatar, and classification workstation',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 850);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final fakeRepo = FakeAuthRepository();
+    fakeRepo.mockUser = const UserModel(
+      id: 'usr-42',
+      email: 'fisherman@sariwaba.ph',
+      firstName: 'Juan',
+      lastName: 'Dela Cruz',
+      username: 'juandc',
+      role: 'user',
+      profilePicture: 'https://example.com/avatar.jpg',
+    );
+    final fakeGoogleService = FakeGoogleSignInService();
+    final fakeClassRepo = FakeClassificationRepository();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(fakeRepo as dynamic),
+          googleSignInServiceProvider
+              .overrideWithValue(fakeGoogleService as dynamic),
+          classificationRepositoryProvider
+              .overrideWithValue(fakeClassRepo as dynamic),
+        ],
+        child: const SariwaBaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Authenticated user should see the Dashboard greeting and not "Log in"
+    expect(find.text('Welcome back, Juan!'), findsOneWidget);
+    expect(find.text('Live Freshness Inspection'), findsOneWidget);
+    expect(find.text('Audit History'), findsOneWidget);
+    expect(find.text('Log in'), findsNothing);
+
+    // Navbar shows user avatar with name
+    expect(find.text('Juan'), findsOneWidget);
   });
 }
