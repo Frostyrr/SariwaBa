@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
@@ -191,7 +192,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   // Header Section
-  Widget _buildDashboardHeader(dynamic user, ClassificationController controller) {
+  Widget _buildDashboardHeader(
+    dynamic user,
+    ClassificationController controller,
+  ) {
     final name = (user?.displayName ?? 'Evaluator').toString().split(' ').first;
 
     return Row(
@@ -205,12 +209,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: SariwaColors.brandPrimary.withValues(alpha: 0.25),
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: 0.25,
+                        ),
                         width: 1,
                       ),
                     ),
@@ -266,10 +275,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           label: const Text('Sync History'),
           style: OutlinedButton.styleFrom(
             foregroundColor: SariwaColors.brandPrimary,
-            side: const BorderSide(color: SariwaColors.borderLightTeal, width: 1.2),
+            side: const BorderSide(
+              color: SariwaColors.borderLightTeal,
+              width: 1.2,
+            ),
             backgroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       ],
@@ -333,10 +347,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               (i) => Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: StaggeredReveal(
-                    staggerIndex: i + 1,
-                    child: cards[i],
-                  ),
+                  child: StaggeredReveal(staggerIndex: i + 1, child: cards[i]),
                 ),
               ),
             ),
@@ -349,10 +360,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               cards.length,
               (i) => SizedBox(
                 width: (constraints.maxWidth - 12) / 2,
-                child: StaggeredReveal(
-                  staggerIndex: i + 1,
-                  child: cards[i],
-                ),
+                child: StaggeredReveal(staggerIndex: i + 1, child: cards[i]),
               ),
             ),
           );
@@ -424,10 +432,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 11.5,
-              color: SariwaColors.textMutedDark,
-            ),
+            style: TextStyle(fontSize: 11.5, color: SariwaColors.textMutedDark),
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -467,7 +472,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: 0.12,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -506,11 +513,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: SariwaColors.bgDashboardSubtle,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: SariwaColors.borderLightTeal, width: 1),
+                  border: Border.all(
+                    color: SariwaColors.borderLightTeal,
+                    width: 1,
+                  ),
                 ),
                 child: const Text(
                   'MobileNetV3',
@@ -542,8 +555,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               isLoading: state.isClassifying,
               height: 48,
               borderRadius: 14,
-              icon: const Icon(Icons.auto_awesome, size: 18, color: Colors.white),
-              onPressed: state.isClassifying ? () {} : () => controller.classify(),
+              icon: const Icon(
+                Icons.auto_awesome,
+                size: 18,
+                color: Colors.white,
+              ),
+              onPressed: state.isClassifying
+                  ? () {}
+                  : () => controller.classify(),
             ),
 
           // Live Result Breakdown (when available)
@@ -616,8 +635,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   backgroundColor: SariwaColors.brandPrimary,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -629,8 +653,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   foregroundColor: SariwaColors.brandPrimary,
                   side: const BorderSide(color: SariwaColors.borderLightTeal),
                   backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ],
@@ -659,10 +688,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             child: SizedBox(
               height: 220,
               width: double.infinity,
-              child: Image.memory(
-                state.selectedImageBytes!,
-                fit: BoxFit.cover,
-              ),
+              child: Image.memory(state.selectedImageBytes!, fit: BoxFit.cover),
             ),
           ),
           const SizedBox(height: 12),
@@ -672,7 +698,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.image_outlined, size: 18, color: SariwaColors.brandPrimary),
+                    const Icon(
+                      Icons.image_outlined,
+                      size: 18,
+                      color: SariwaColors.brandPrimary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -690,7 +720,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
               TextButton.icon(
                 onPressed: () => controller.clearSelection(),
-                icon: const Icon(Icons.close_rounded, size: 16, color: SariwaColors.statusSpoiled),
+                icon: const Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: SariwaColors.statusSpoiled,
+                ),
                 label: const Text(
                   'Remove',
                   style: TextStyle(
@@ -718,7 +752,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           decoration: BoxDecoration(
             color: result.statusColor.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: result.statusColor.withValues(alpha: 0.35), width: 1.5),
+            border: Border.all(
+              color: result.statusColor.withValues(alpha: 0.35),
+              width: 1.5,
+            ),
           ),
           child: Row(
             children: [
@@ -754,11 +791,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: result.statusColor, width: 1),
+                            border: Border.all(
+                              color: result.statusColor,
+                              width: 1,
+                            ),
                           ),
                           child: Text(
                             result.grade,
@@ -839,7 +882,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline_rounded, size: 18, color: SariwaColors.brandPrimary),
+              const Icon(
+                Icons.info_outline_rounded,
+                size: 18,
+                color: SariwaColors.brandPrimary,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -866,7 +913,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.check_circle, size: 15, color: SariwaColors.statusFresh),
+                const Icon(
+                  Icons.check_circle,
+                  size: 15,
+                  color: SariwaColors.statusFresh,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Archived in PostgreSQL History — Scan ID #${result.scanId}',
@@ -971,7 +1022,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: 0.12,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -1032,7 +1085,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       _historyFilter = filter;
                     });
                   },
-                  selectedColor: SariwaColors.brandPrimary.withValues(alpha: 0.15),
+                  selectedColor: SariwaColors.brandPrimary.withValues(
+                    alpha: 0.15,
+                  ),
                   backgroundColor: SariwaColors.bgDashboard,
                   side: BorderSide(
                     color: isSelected
@@ -1057,7 +1112,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator(color: SariwaColors.brandPrimary),
+                child: CircularProgressIndicator(
+                  color: SariwaColors.brandPrimary,
+                ),
               ),
             )
           else if (filtered.isEmpty)
@@ -1180,7 +1237,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1.5,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
@@ -1243,7 +1303,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: const Text('Delete Scan Record?'),
-        content: Text('Are you sure you want to permanently delete Scan #$scanId from PostgreSQL history?'),
+        content: Text(
+          'Are you sure you want to permanently delete Scan #$scanId from PostgreSQL history?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
@@ -1269,7 +1331,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required String message,
     required bool isError,
   }) {
-    final color = isError ? SariwaColors.statusSpoiled : SariwaColors.statusFresh;
+    final color = isError
+        ? SariwaColors.statusSpoiled
+        : SariwaColors.statusFresh;
 
     return Container(
       width: double.infinity,
@@ -1282,7 +1346,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       child: Row(
         children: [
           Icon(
-            isError ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
+            isError
+                ? Icons.error_outline_rounded
+                : Icons.check_circle_outline_rounded,
             color: color,
             size: 20,
           ),
@@ -1306,10 +1372,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Center(
       child: Text(
         '© ${DateTime.now().year} SariwaBa — Intelligent Fish Freshness Classification System. All rights reserved.',
-        style: TextStyle(
-          fontSize: 12,
-          color: SariwaColors.textMutedDark,
-        ),
+        style: TextStyle(fontSize: 12, color: SariwaColors.textMutedDark),
       ),
     );
   }
