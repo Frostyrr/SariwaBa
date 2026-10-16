@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/auth/presentation/controllers/auth_state.dart';
-import 'features/auth/presentation/pages/auth_page.dart';
-import 'features/home/presentation/pages/home_page.dart';
-import 'features/landing/presentation/pages/downloads_page.dart';
+import 'constants/theme/app_theme.dart';
+import 'controllers/auth/auth_controller.dart';
+import 'routes/app_routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,32 +32,6 @@ class SariwaBaApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
 
-    Widget getRootScreen() {
-      switch (authState.viewStatus) {
-        case AuthViewStatus.initializing:
-          return const Scaffold(
-            key: ValueKey('splash_loading'),
-            backgroundColor: Color(0xFF060B12),
-            body: Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white70,
-              ),
-            ),
-          );
-        case AuthViewStatus.landing:
-        case AuthViewStatus.features:
-        case AuthViewStatus.howItWorks:
-        case AuthViewStatus.authenticated:
-        case AuthViewStatus.guestMode:
-          return const HomePage(key: ValueKey('home_page'));
-        case AuthViewStatus.downloads:
-          return const DownloadsPage(key: ValueKey('downloads_page'));
-        case AuthViewStatus.login:
-          return const AuthPage(key: ValueKey('auth_page'));
-      }
-    }
-
     return MaterialApp(
       title: 'SariwaBa? — Fish Freshness Classification',
       debugShowCheckedModeBanner: false,
@@ -82,7 +53,7 @@ class SariwaBaApp extends ConsumerWidget {
               ),
             );
           },
-          child: getRootScreen(),
+          child: AppRoutes.resolveScreen(authState.viewStatus),
         ),
       ),
     );
