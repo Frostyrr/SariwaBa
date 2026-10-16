@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:frontend/features/auth/data/auth_repository.dart';
-import 'package:frontend/features/auth/data/google_sign_in_service.dart';
-import 'package:frontend/features/auth/domain/models/user_model.dart';
-import 'package:frontend/features/classification/data/classification_repository.dart';
-import 'package:frontend/features/classification/domain/models/classification_result.dart';
-import 'package:frontend/features/landing/presentation/widgets/web_navbar.dart';
+import 'package:frontend/services/auth/auth_service.dart';
+import 'package:frontend/services/auth/google_sign_in_service.dart';
+import 'package:frontend/models/auth/user_model.dart';
+import 'package:frontend/services/classification/classification_service.dart';
+import 'package:frontend/models/classification/classification_result.dart';
+import 'package:frontend/widgets/navigation/web_navbar.dart';
 import 'package:frontend/main.dart';
 
 class FakeAuthRepository implements AuthRepository {
