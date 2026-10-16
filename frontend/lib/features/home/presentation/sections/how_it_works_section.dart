@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 
 /// How It Works Section Widget
 /// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
@@ -27,24 +28,28 @@ class HowItWorksSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Eyebrow Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2F3F0),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFBBE5DF),
-                    width: 1.0,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2F3F0),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFBBE5DF),
+                      width: 1.0,
+                    ),
                   ),
-                ),
-                child: Text(
-                  'SEAFOOD QUALITY WORKFLOW',
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                    color: SariwaColors.brandPrimaryDark,
+                  child: Text(
+                    'SEAFOOD QUALITY WORKFLOW',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                      color: SariwaColors.brandPrimaryDark,
+                    ),
                   ),
                 ),
               ),
@@ -52,31 +57,39 @@ class HowItWorksSection extends StatelessWidget {
               const SizedBox(height: 18),
 
               // Title (Deep Ocean Slate #0A2229)
-              Text(
-                'Three Steps to Quality Assurance',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 38,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -1.0,
-                  color: const Color(0xFF0A2229),
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 1,
+                child: Text(
+                  'Three Steps to Quality Assurance',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 38,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -1.0,
+                    color: const Color(0xFF0A2229),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 14),
 
               // Subtitle
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 620),
-                child: Text(
-                  'Eliminate subjective guesswork with real-time sensory classification aligned with international seafood grading standards.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 16,
-                    height: 1.5,
-                    color: const Color(0xFF475569),
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 2,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 620),
+                  child: Text(
+                    'Eliminate subjective guesswork with real-time sensory classification aligned with international seafood grading standards.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 16,
+                      height: 1.5,
+                      color: const Color(0xFF475569),
+                    ),
                   ),
                 ),
               ),
@@ -84,48 +97,64 @@ class HowItWorksSection extends StatelessWidget {
               const SizedBox(height: 48),
 
               // 3 Clinical Workflow Step Cards
-              _buildStepCard(
-                stepNumber: '01',
-                title: 'Capture Seafood Specimen',
-                description:
-                    'Position the fish eye cornea or gill arch directly in the camera viewfinder under natural lighting, or upload high-resolution images.',
-                icon: Icons.camera_alt_outlined,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 1,
+                child: _buildStepCard(
+                  stepNumber: '01',
+                  title: 'Capture Seafood Specimen',
+                  description:
+                      'Position the fish eye cornea or gill arch directly in the camera viewfinder under natural lighting, or upload high-resolution images.',
+                  icon: Icons.camera_alt_outlined,
+                ),
               ),
 
               const SizedBox(height: 20),
 
-              _buildStepCard(
-                stepNumber: '02',
-                title: 'Multi-Spectral AI Analysis',
-                description:
-                    'Our edge MobileNetV3 neural model segments optical cornea cloudiness, measures RGB branchial redness, and evaluates tissue degradation.',
-                icon: Icons.memory_outlined,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 2,
+                child: _buildStepCard(
+                  stepNumber: '02',
+                  title: 'Multi-Spectral AI Analysis',
+                  description:
+                      'Our edge MobileNetV3 neural model segments optical cornea cloudiness, measures RGB branchial redness, and evaluates tissue degradation.',
+                  icon: Icons.memory_outlined,
+                ),
               ),
 
               const SizedBox(height: 20),
 
-              _buildStepCard(
-                stepNumber: '03',
-                title: 'Standardized Grading & Telemetry Sync',
-                description:
-                    'Receive an immediate freshness confidence score (Grade A Sariwa, Grade B Katamtaman, Grade C Spoiled) and synchronize records with PostgreSQL.',
-                icon: Icons.task_alt_outlined,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 3,
+                child: _buildStepCard(
+                  stepNumber: '03',
+                  title: 'Standardized Grading & Telemetry Sync',
+                  description:
+                      'Receive an immediate freshness confidence score (Grade A Sariwa, Grade B Katamtaman, Grade C Spoiled) and synchronize records with PostgreSQL.',
+                  icon: Icons.task_alt_outlined,
+                ),
               ),
 
               const SizedBox(height: 52),
 
               // CTA Button: Primary Teal
-              AppButton.primary(
-                label: 'Download App',
-                icon: const Icon(
-                  Icons.download_rounded,
-                  color: Colors.white,
-                  size: 18,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 4,
+                child: AppButton.primary(
+                  label: 'Download App',
+                  icon: const Icon(
+                    Icons.download_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  width: 180,
+                  height: 48,
+                  borderRadius: 24,
+                  onPressed: onDownload,
                 ),
-                width: 180,
-                height: 48,
-                borderRadius: 24,
-                onPressed: onDownload,
               ),
             ],
           ),

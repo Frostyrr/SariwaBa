@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -15,6 +16,7 @@ class WebNavbar extends StatelessWidget {
   final VoidCallback? onSignOut;
   final UserModel? user;
   final bool isLight;
+  final bool isScrolled;
   final String activeTab;
 
   const WebNavbar({
@@ -29,6 +31,7 @@ class WebNavbar extends StatelessWidget {
     this.onSignOut,
     this.user,
     this.isLight = false,
+    this.isScrolled = false,
     this.activeTab = 'Home',
   });
 
@@ -39,8 +42,8 @@ class WebNavbar extends StatelessWidget {
         final isDesktop = constraints.maxWidth >= 768;
 
         final bgColor = isLight
-            ? Colors.white.withValues(alpha: 0.95)
-            : SariwaColors.bgAbyssDark.withValues(alpha: 0.65);
+            ? Colors.white.withValues(alpha: isScrolled ? 0.92 : 0.96)
+            : SariwaColors.bgAbyssDark.withValues(alpha: isScrolled ? 0.85 : 0.65);
 
         final borderColor =
             isLight ? SariwaColors.borderLightTeal : SariwaColors.borderGlass;
@@ -48,20 +51,36 @@ class WebNavbar extends StatelessWidget {
         final linkColor =
             isLight ? SariwaColors.textSecondaryDark : SariwaColors.textSecondaryLight;
 
-        return Container(
-          height: 72,
-          decoration: BoxDecoration(
-            color: bgColor,
-            border: Border(
-              bottom: BorderSide(
-                color: borderColor,
-                width: 1.0,
+        return ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              height: 72,
+              decoration: BoxDecoration(
+                color: bgColor,
+                border: Border(
+                  bottom: BorderSide(
+                    color: borderColor,
+                    width: 1.0,
+                  ),
+                ),
+                boxShadow: isScrolled
+                    ? [
+                        BoxShadow(
+                          color: isLight
+                              ? const Color(0x0F0A2229)
+                              : const Color(0x38000000),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : const [],
               ),
-            ),
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1120.0),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1120.0),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 16),
                 child: Row(
@@ -184,6 +203,8 @@ class WebNavbar extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
         );
       },
     );

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../classification/domain/models/classification_result.dart';
 import '../../../classification/presentation/controllers/classification_controller.dart';
@@ -18,15 +19,33 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolled = false;
   String _historyFilter = 'All'; // 'All', 'Fresh', 'Non-Fresh'
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     // Load fresh history when dashboard opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(classificationControllerProvider.notifier).loadHistory();
     });
+  }
+
+  void _onScroll() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final scrolled = _scrollController.offset > 12;
+    if (scrolled != _isScrolled) {
+      setState(() => _isScrolled = scrolled);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -41,10 +60,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       backgroundColor: SariwaColors.bgDashboard,
       body: Column(
         children: [
-          // Persistent Web Navbar configured for Off-White Light Mode
+          // Sticky Web Navbar configured for Off-White Light Mode
           WebNavbar(
             user: user,
             isLight: true,
+            isScrolled: _isScrolled,
             activeTab: 'Dashboard',
             onHome: () => authController.goToLanding(),
             onDashboard: () => authController.goToDashboard(),
@@ -57,6 +77,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           // Main Scrollable Dashboard Content
           Expanded(
             child: SingleChildScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Center(
                 child: ConstrainedBox(
@@ -65,10 +87,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header Greetings & Actions
-                      _buildDashboardHeader(user, classController),
+                      StaggeredReveal(
+                        staggerIndex: 0,
+                        child: _buildDashboardHeader(user, classController),
+                      ),
                       const SizedBox(height: 24),
 
-                      // KPI Metric Summary Cards
+                      // KPI Metric Summary Cards (staggered 1..4)
                       _buildKpiMetrics(classState.history),
                       const SizedBox(height: 28),
 
@@ -99,9 +124,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 // Left 55%: Interactive Scanner Station
                                 Expanded(
                                   flex: 11,
-                                  child: _buildScannerCard(
-                                    classState,
-                                    classController,
+                                  child: StaggeredReveal(
+                                    staggerIndex: 5,
+                                    child: _buildScannerCard(
+                                      classState,
+                                      classController,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 24),
@@ -109,9 +137,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 // Right 45%: Classification History
                                 Expanded(
                                   flex: 9,
-                                  child: _buildHistoryCard(
-                                    classState,
-                                    classController,
+                                  child: StaggeredReveal(
+                                    staggerIndex: 6,
+                                    child: _buildHistoryCard(
+                                      classState,
+                                      classController,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -120,9 +151,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             // Mobile / Tablet stacked column
                             return Column(
                               children: [
-                                _buildScannerCard(classState, classController),
+                                StaggeredReveal(
+                                  staggerIndex: 5,
+                                  child: _buildScannerCard(
+                                    classState,
+                                    classController,
+                                  ),
+                                ),
                                 const SizedBox(height: 24),
-                                _buildHistoryCard(classState, classController),
+                                StaggeredReveal(
+                                  revealOnScroll: true,
+                                  staggerIndex: 1,
+                                  child: _buildHistoryCard(
+                                    classState,
+                                    classController,
+                                  ),
+                                ),
                               ],
                             );
                           }
@@ -131,7 +175,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       const SizedBox(height: 48),
 
                       // Light Footer
-                      _buildSimpleFooter(),
+                      StaggeredReveal(
+                        revealOnScroll: true,
+                        staggerIndex: 1,
+                        child: _buildSimpleFooter(),
+                      ),
                     ],
                   ),
                 ),
@@ -281,25 +329,33 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
         if (isDesktop) {
           return Row(
-            children: cards
-                .map((card) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: card,
-                      ),
-                    ))
-                .toList(),
+            children: List.generate(
+              cards.length,
+              (i) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: StaggeredReveal(
+                    staggerIndex: i + 1,
+                    child: cards[i],
+                  ),
+                ),
+              ),
+            ),
           );
         } else {
           return Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: cards
-                .map((card) => SizedBox(
-                      width: (constraints.maxWidth - 12) / 2,
-                      child: card,
-                    ))
-                .toList(),
+            children: List.generate(
+              cards.length,
+              (i) => SizedBox(
+                width: (constraints.maxWidth - 12) / 2,
+                child: StaggeredReveal(
+                  staggerIndex: i + 1,
+                  child: cards[i],
+                ),
+              ),
+            ),
           );
         }
       },

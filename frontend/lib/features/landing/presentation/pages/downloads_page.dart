@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../widgets/web_footer.dart';
 import '../widgets/web_navbar.dart';
@@ -29,7 +30,7 @@ class DownloadsPage extends ConsumerWidget {
         useBlurredAsset: true,
         child: Column(
           children: [
-            // Top Web Navbar
+            // Sticky Top Web Navbar
             WebNavbar(
               activeTab: 'Downloads',
               user: authState.user,
@@ -58,23 +59,26 @@ class DownloadsPage extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // Eyebrow Tag: "DOWNLOAD"
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: SariwaColors.surfaceGlass,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: SariwaColors.brandGlow.withValues(alpha: 0.4),
-                                    width: 1.0,
+                              StaggeredReveal(
+                                staggerIndex: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: SariwaColors.surfaceGlass,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: SariwaColors.brandGlow.withValues(alpha: 0.4),
+                                      width: 1.0,
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  'DOWNLOAD',
-                                  style: AppTypography.caption.copyWith(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.2,
-                                    color: SariwaColors.brandGlow,
+                                  child: Text(
+                                    'DOWNLOAD',
+                                    style: AppTypography.caption.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.2,
+                                      color: SariwaColors.brandGlow,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -82,27 +86,33 @@ class DownloadsPage extends ConsumerWidget {
                               const SizedBox(height: 16),
 
                               // Heading: "Get SariwaBa."
-                              Text(
-                                'Get SariwaBa.',
-                                style: AppTypography.displayLarge.copyWith(
-                                  fontSize: 46,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -1.2,
+                              StaggeredReveal(
+                                staggerIndex: 1,
+                                child: Text(
+                                  'Get SariwaBa.',
+                                  style: AppTypography.displayLarge.copyWith(
+                                    fontSize: 46,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -1.2,
+                                  ),
                                 ),
                               ),
 
                               const SizedBox(height: 14),
 
                               // Subtitle
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 620),
-                                child: Text(
-                                  'Free on Android and iOS. Evaluate seafood freshness on your phone with zero delay. Or launch directly in your browser without installing anything.',
-                                  textAlign: TextAlign.center,
-                                  style: AppTypography.bodyLarge.copyWith(
-                                    fontSize: 16,
-                                    color: SariwaColors.textSecondaryLight,
-                                    height: 1.5,
+                              StaggeredReveal(
+                                staggerIndex: 2,
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 620),
+                                  child: Text(
+                                    'Free on Android and iOS. Evaluate seafood freshness on your phone with zero delay. Or launch directly in your browser without installing anything.',
+                                    textAlign: TextAlign.center,
+                                    style: AppTypography.bodyLarge.copyWith(
+                                      fontSize: 16,
+                                      color: SariwaColors.textSecondaryLight,
+                                      height: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -119,26 +129,44 @@ class DownloadsPage extends ConsumerWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Expanded(
-                                          child: _buildIosCard(context),
+                                          child: StaggeredReveal(
+                                            staggerIndex: 3,
+                                            child: _buildIosCard(context),
+                                          ),
                                         ),
                                         const SizedBox(width: 24),
                                         Expanded(
-                                          child: _buildAndroidCard(context),
+                                          child: StaggeredReveal(
+                                            staggerIndex: 4,
+                                            child: _buildAndroidCard(context),
+                                          ),
                                         ),
                                         const SizedBox(width: 24),
                                         Expanded(
-                                          child: _buildWebCard(context, authController),
+                                          child: StaggeredReveal(
+                                            staggerIndex: 5,
+                                            child: _buildWebCard(context, authController),
+                                          ),
                                         ),
                                       ],
                                     );
                                   } else {
                                     return Column(
                                       children: [
-                                        _buildIosCard(context),
+                                        StaggeredReveal(
+                                          staggerIndex: 3,
+                                          child: _buildIosCard(context),
+                                        ),
                                         const SizedBox(height: 20),
-                                        _buildAndroidCard(context),
+                                        StaggeredReveal(
+                                          staggerIndex: 4,
+                                          child: _buildAndroidCard(context),
+                                        ),
                                         const SizedBox(height: 20),
-                                        _buildWebCard(context, authController),
+                                        StaggeredReveal(
+                                          staggerIndex: 5,
+                                          child: _buildWebCard(context, authController),
+                                        ),
                                       ],
                                     );
                                   }
@@ -148,12 +176,15 @@ class DownloadsPage extends ConsumerWidget {
                               const SizedBox(height: 60),
 
                               // Bottom Disclaimer Note
-                              Text(
-                                'SariwaBa runs on-device inference using MobileNetV3. An internet connection is only needed to sync inspection audit history.',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 12.5,
-                                  color: SariwaColors.textMutedLight,
+                              StaggeredReveal(
+                                staggerIndex: 6,
+                                child: Text(
+                                  'SariwaBa runs on-device inference using MobileNetV3. An internet connection is only needed to sync inspection audit history.',
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.caption.copyWith(
+                                    fontSize: 12.5,
+                                    color: SariwaColors.textMutedLight,
+                                  ),
                                 ),
                               ),
 

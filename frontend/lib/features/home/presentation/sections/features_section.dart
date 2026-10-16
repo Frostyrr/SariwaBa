@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 
 /// Features Section Widget
 /// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
@@ -21,24 +22,28 @@ class FeaturesSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Eyebrow Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE2F3F0),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFBBE5DF),
-                    width: 1.0,
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2F3F0),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFBBE5DF),
+                      width: 1.0,
+                    ),
                   ),
-                ),
-                child: Text(
-                  'PRECISION GRADING',
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                    color: SariwaColors.brandPrimaryDark,
+                  child: Text(
+                    'PRECISION GRADING',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                      color: SariwaColors.brandPrimaryDark,
+                    ),
                   ),
                 ),
               ),
@@ -46,31 +51,39 @@ class FeaturesSection extends StatelessWidget {
               const SizedBox(height: 18),
 
               // Section Heading (Deep Ocean Slate #0A2229)
-              Text(
-                'Engineered for Precision Grading',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 38,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -1.0,
-                  color: const Color(0xFF0A2229),
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 1,
+                child: Text(
+                  'Engineered for Precision Grading',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 38,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -1.0,
+                    color: const Color(0xFF0A2229),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 14),
 
               // Subtitle
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 640),
-                child: Text(
-                  'Standardize seafood inspection across markets, harbors, and cold storage with clinical computer vision.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 16,
-                    height: 1.5,
-                    color: const Color(0xFF475569),
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 2,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: Text(
+                    'Standardize seafood inspection across markets, harbors, and cold storage with clinical computer vision.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 16,
+                      height: 1.5,
+                      color: const Color(0xFF475569),
+                    ),
                   ),
                 ),
               ),
@@ -88,34 +101,50 @@ class FeaturesSection extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: _buildFeatureCard(
-                          icon: Icons.remove_red_eye_outlined,
-                          title: 'Cornea Optical Clarity',
-                          desc: 'Analyzes pupil transparency and lens convexity to detect post-mortem cloudiness within milliseconds.',
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 1,
+                          child: _buildFeatureCard(
+                            icon: Icons.remove_red_eye_outlined,
+                            title: 'Cornea Optical Clarity',
+                            desc: 'Analyzes pupil transparency and lens convexity to detect post-mortem cloudiness within milliseconds.',
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: _buildFeatureCard(
-                          icon: Icons.bloodtype_outlined,
-                          title: 'Branchial Gill Pigmentation',
-                          desc: 'Measures RGB redness variance and discoloration across gill arches to separate fresh catch from oxidized fish.',
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 2,
+                          child: _buildFeatureCard(
+                            icon: Icons.bloodtype_outlined,
+                            title: 'Branchial Gill Pigmentation',
+                            desc: 'Measures RGB redness variance and discoloration across gill arches to separate fresh catch from oxidized fish.',
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: _buildFeatureCard(
-                          icon: Icons.offline_bolt_outlined,
-                          title: 'Offline Edge Inference',
-                          desc: 'Runs lightweight MobileNetV3 quantized neural networks locally on your mobile device without internet.',
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 3,
+                          child: _buildFeatureCard(
+                            icon: Icons.offline_bolt_outlined,
+                            title: 'Offline Edge Inference',
+                            desc: 'Runs lightweight MobileNetV3 quantized neural networks locally on your mobile device without internet.',
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: _buildFeatureCard(
-                          icon: Icons.history_edu_outlined,
-                          title: 'Quality Audit Trails',
-                          desc: 'Seamlessly synchronizes inspection records and classification telemetry with PostgreSQL and Google Auth.',
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 4,
+                          child: _buildFeatureCard(
+                            icon: Icons.history_edu_outlined,
+                            title: 'Quality Audit Trails',
+                            desc: 'Seamlessly synchronizes inspection records and classification telemetry with PostgreSQL and Google Auth.',
+                          ),
                         ),
                       ),
                     ],

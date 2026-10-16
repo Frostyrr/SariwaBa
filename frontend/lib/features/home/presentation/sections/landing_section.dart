@@ -5,13 +5,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/ambient_glow_background.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../landing/presentation/widgets/hero_scanner_card.dart';
-import '../../../landing/presentation/widgets/web_navbar.dart';
 
 /// Landing / Hero Section
 /// Features 100vh full-screen immersive underwater illustration backdrop
-/// with navbar, headline, and the classification model placeholder on the right.
+/// with headline and the classification model placeholder on the right.
 class LandingSection extends StatelessWidget {
   final VoidCallback onHome;
   final VoidCallback onFeatures;
@@ -48,19 +48,8 @@ class LandingSection extends StatelessWidget {
       useBlurredAsset: true, // Crisp underwater illustration backdrop
       child: Column(
         children: [
-          // Top Web Navbar
-          WebNavbar(
-            activeTab: 'Home',
-            user: user,
-            onHome: onHome,
-            onFeatures: onFeatures,
-            onHowItWorks: onHowItWorks,
-            onDownloads: onDownloads,
-            onGetStarted: onDownloads,
-            onLogIn: onLogIn,
-            onDashboard: onDashboard,
-            onSignOut: onSignOut,
-          ),
+          // Top spacer compensating for sticky 72px WebNavbar
+          const SizedBox(height: 72),
 
           // Guest Evaluation Mode Banner (if guest mode active)
           if (isGuest)
@@ -244,40 +233,49 @@ class LandingSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SelectableText(
-                'SariwaBa? See for yourself.',
-                style: AppTypography.heroHeadlineDesktop,
+              StaggeredReveal(
+                staggerIndex: 0,
+                child: SelectableText(
+                  'SariwaBa? See for yourself.',
+                  style: AppTypography.heroHeadlineDesktop,
+                ),
               ),
               const SizedBox(height: 18),
-              SelectableText(
-                'A smarter way to assess fish freshness through AI.',
-                style: AppTypography.heroSubtitle.copyWith(fontSize: 17),
+              StaggeredReveal(
+                staggerIndex: 1,
+                child: SelectableText(
+                  'A smarter way to assess fish freshness through AI.',
+                  style: AppTypography.heroSubtitle.copyWith(fontSize: 17),
+                ),
               ),
               const SizedBox(height: 32),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppButton.primary(
-                    label: 'Download App',
-                    icon: const Icon(
-                      Icons.download_rounded,
-                      size: 18,
-                      color: Colors.white,
+              StaggeredReveal(
+                staggerIndex: 2,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppButton.primary(
+                      label: 'Download App',
+                      icon: const Icon(
+                        Icons.download_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      width: 170,
+                      height: 48,
+                      borderRadius: 24,
+                      onPressed: onDownloads,
                     ),
-                    width: 170,
-                    height: 48,
-                    borderRadius: 24,
-                    onPressed: onDownloads,
-                  ),
-                  const SizedBox(width: 14),
-                  AppButton.secondary(
-                    label: 'How it works',
-                    width: 150,
-                    height: 48,
-                    borderRadius: 24,
-                    onPressed: onHowItWorks,
-                  ),
-                ],
+                    const SizedBox(width: 14),
+                    AppButton.secondary(
+                      label: 'How it works',
+                      width: 150,
+                      height: 48,
+                      borderRadius: 24,
+                      onPressed: onHowItWorks,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -286,7 +284,14 @@ class LandingSection extends StatelessWidget {
         const SizedBox(width: 48),
 
         // Right Column: Dedicated Classification Placeholder
-        const Expanded(flex: 5, child: HeroScannerCard()),
+        const Expanded(
+          flex: 5,
+          child: StaggeredReveal(
+            staggerIndex: 3,
+            slideOffset: Offset(0, 32),
+            child: HeroScannerCard(),
+          ),
+        ),
       ],
     );
   }
@@ -296,44 +301,56 @@ class LandingSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SelectableText(
-          'SariwaBa? See for yourself.',
-          style: AppTypography.heroHeadlineMobile,
+        StaggeredReveal(
+          staggerIndex: 0,
+          child: SelectableText(
+            'SariwaBa? See for yourself.',
+            style: AppTypography.heroHeadlineMobile,
+          ),
         ),
         const SizedBox(height: 14),
-        SelectableText(
-          'A smarter way to assess fish freshness through AI.',
-          style: AppTypography.heroSubtitle.copyWith(fontSize: 16),
+        StaggeredReveal(
+          staggerIndex: 1,
+          child: SelectableText(
+            'A smarter way to assess fish freshness through AI.',
+            style: AppTypography.heroSubtitle.copyWith(fontSize: 16),
+          ),
         ),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: AppButton.primary(
-                label: 'Download App',
-                icon: const Icon(
-                  Icons.download_rounded,
-                  size: 18,
-                  color: Colors.white,
+        StaggeredReveal(
+          staggerIndex: 2,
+          child: Row(
+            children: [
+              Expanded(
+                child: AppButton.primary(
+                  label: 'Download App',
+                  icon: const Icon(
+                    Icons.download_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  height: 48,
+                  borderRadius: 24,
+                  onPressed: onDownloads,
                 ),
-                height: 48,
-                borderRadius: 24,
-                onPressed: onDownloads,
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppButton.secondary(
-                label: 'How it works',
-                height: 48,
-                borderRadius: 24,
-                onPressed: onHowItWorks,
+              const SizedBox(width: 12),
+              Expanded(
+                child: AppButton.secondary(
+                  label: 'How it works',
+                  height: 48,
+                  borderRadius: 24,
+                  onPressed: onHowItWorks,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 36),
-        const HeroScannerCard(),
+        const StaggeredReveal(
+          staggerIndex: 3,
+          child: HeroScannerCard(),
+        ),
       ],
     );
   }
