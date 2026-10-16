@@ -134,10 +134,11 @@ class _AppButtonState extends State<AppButton> {
 
     final isInteractive = widget.onPressed != null && !widget.isLoading;
 
-    return MouseRegion(
-      cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: isInteractive ? widget.onPressed : null,
         child: AnimatedContainer(
@@ -196,6 +197,7 @@ class _AppButtonState extends State<AppButton> {
                   ),
           ),
         ),
+      ),
       ),
     );
   }

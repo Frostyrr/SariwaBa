@@ -51,10 +51,11 @@ class WebNavbar extends StatelessWidget {
         final linkColor =
             isLight ? SariwaColors.textSecondaryDark : SariwaColors.textSecondaryLight;
 
-        return ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-            child: AnimatedContainer(
+        return SelectionContainer.disabled(
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeOutCubic,
               height: 72,
@@ -217,6 +218,7 @@ class WebNavbar extends StatelessWidget {
           ),
         ),
       ),
+        ),
         );
       },
     );
@@ -511,28 +513,33 @@ class _NavLinkItemState extends State<_NavLinkItem> {
                 : SariwaColors.brandLight.withValues(alpha: 0.10))
             : Colors.transparent);
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      hitTestBehavior: HitTestBehavior.opaque,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
-          decoration: BoxDecoration(
-            color: pillBgColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            widget.label,
-            style: (widget.isActive
-                    ? AppTypography.navLinkActive
-                    : AppTypography.navLink)
-                .copyWith(color: effectiveTextColor),
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        hitTestBehavior: HitTestBehavior.opaque,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
+            decoration: BoxDecoration(
+              color: pillBgColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Text(
+                widget.label,
+                style: (widget.isActive
+                        ? AppTypography.navLinkActive
+                        : AppTypography.navLink)
+                    .copyWith(color: effectiveTextColor),
+              ),
+            ),
           ),
         ),
       ),

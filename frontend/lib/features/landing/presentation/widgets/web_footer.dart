@@ -181,23 +181,25 @@ class _FooterLinkItemState extends State<_FooterLinkItem> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      hitTestBehavior: HitTestBehavior.opaque,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-          child: Text(
-            widget.label,
-            style: AppTypography.navLink.copyWith(
-              fontSize: 13.5,
-              color: _isHovered
-                  ? SariwaColors.brandLight
-                  : SariwaColors.textSecondaryLight,
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        hitTestBehavior: HitTestBehavior.opaque,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+            child: Text(
+              widget.label,
+              style: AppTypography.navLink.copyWith(
+                fontSize: 13.5,
+                color: _isHovered
+                    ? SariwaColors.brandLight
+                    : SariwaColors.textSecondaryLight,
+              ),
             ),
           ),
         ),
