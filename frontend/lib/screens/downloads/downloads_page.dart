@@ -75,7 +75,7 @@ class DownloadsPage extends ConsumerWidget {
                                     'DOWNLOAD',
                                     style: AppTypography.caption.copyWith(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w600,
                                       letterSpacing: 1.2,
                                       color: SariwaColors.brandGlow,
                                     ),
@@ -92,7 +92,7 @@ class DownloadsPage extends ConsumerWidget {
                                   'Get SariwaBa.',
                                   style: AppTypography.displayLarge.copyWith(
                                     fontSize: 46,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w600,
                                     letterSpacing: -1.2,
                                   ),
                                 ),
@@ -179,7 +179,7 @@ class DownloadsPage extends ConsumerWidget {
                               StaggeredReveal(
                                 staggerIndex: 6,
                                 child: Text(
-                                  'SariwaBa runs on-device inference using MobileNetV3. An internet connection is only needed to sync inspection audit history.',
+                                  'SariwaBa scans fish freshness directly on your device. An internet connection is only needed to sync your saved scan history.',
                                   textAlign: TextAlign.center,
                                   style: AppTypography.caption.copyWith(
                                     fontSize: 12.5,
@@ -230,7 +230,7 @@ class DownloadsPage extends ConsumerWidget {
         ),
       ),
       title: 'iPhone & iPad',
-      description: 'One universal app with live camera viewfinder and offline AI inference.',
+      description: 'One universal app with a live camera scanner and offline freshness checking.',
       features: const [
         'iOS 16.0 or later',
         'iPhone and iPad supported',
@@ -268,9 +268,9 @@ class DownloadsPage extends ConsumerWidget {
         ),
       ),
       title: 'Android',
-      description: 'Phones and tablets with instant TFLite neural grading and Google Sign-in.',
+      description: 'Phones and tablets with instant AI freshness grading and Google Sign-in.',
       features: const [
-        'Android 8.0 (API 26) or later',
+        'Android 8.0 or later',
         'Google Play Services',
         'Google Sign-in integrated',
       ],
@@ -359,7 +359,7 @@ class _PlatformCard extends StatelessWidget {
             title,
             style: AppTypography.titleLarge.copyWith(
               fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),

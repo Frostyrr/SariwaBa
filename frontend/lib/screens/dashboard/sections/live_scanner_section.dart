@@ -87,8 +87,10 @@ class LiveScannerSection extends StatelessWidget {
                           Text(
                             'Live Freshness Inspection',
                             style: TextStyle(
-                              fontSize: 16.5,
-                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Geist',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.3,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -96,7 +98,10 @@ class LiveScannerSection extends StatelessWidget {
                           Text(
                             'Multi-cue analysis of cornea, gills & dermal sheen',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.15,
                               color: SariwaColors.textSecondaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -119,10 +124,12 @@ class LiveScannerSection extends StatelessWidget {
                   border: Border.all(color: SariwaColors.borderLightTeal),
                 ),
                 child: const Text(
-                  'MobileNetV3',
+                  'AI Scanner',
                   style: TextStyle(
+                    fontFamily: 'Geist',
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.15,
                     color: SariwaColors.brandPrimary,
                   ),
                 ),
@@ -268,8 +275,10 @@ class LiveScannerSection extends StatelessWidget {
           const Text(
             'Select or capture a fish image',
             style: TextStyle(
+              fontFamily: 'Geist',
               fontSize: 14.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.25,
               color: SariwaColors.textPrimaryDark,
             ),
             textAlign: TextAlign.center,
@@ -278,7 +287,10 @@ class LiveScannerSection extends StatelessWidget {
           const Text(
             'Supports JPEG or PNG formats up to 5 MB per inspection',
             style: TextStyle(
+              fontFamily: 'Geist',
               fontSize: 11.5,
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.15,
               color: SariwaColors.textSecondaryDark,
             ),
             textAlign: TextAlign.center,
@@ -337,10 +349,12 @@ class LiveScannerSection extends StatelessWidget {
               SizedBox(width: 10),
               Flexible(
                 child: Text(
-                  'Analyzing Tissue & Cornea (MobileNetV3 • INT8)...',
+                  'Analyzing fish eyes, gills, and skin freshness...',
                   style: TextStyle(
+                    fontFamily: 'Geist',
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.2,
                     color: SariwaColors.textPrimaryDark,
                   ),
                 ),
@@ -480,7 +494,8 @@ class LiveScannerSection extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.35,
                             color: result.statusColor,
                           ),
                         ),
@@ -500,8 +515,10 @@ class LiveScannerSection extends StatelessWidget {
                           child: Text(
                             result.grade,
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.15,
                               color: result.statusColor,
                             ),
                           ),
@@ -512,7 +529,10 @@ class LiveScannerSection extends StatelessWidget {
                     Text(
                       result.recommendation,
                       style: const TextStyle(
+                        fontFamily: 'Geist',
                         fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.15,
                         color: SariwaColors.textSecondaryDark,
                       ),
                     ),
@@ -527,8 +547,10 @@ class LiveScannerSection extends StatelessWidget {
         const Text(
           'Sensory Biomarkers Analysis',
           style: TextStyle(
+            fontFamily: 'Geist',
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.2,
             color: SariwaColors.textPrimaryDark,
           ),
         ),
@@ -601,8 +623,10 @@ class LiveScannerSection extends StatelessWidget {
                     Text(
                       'Saved to Log (#${result.scanId})',
                       style: const TextStyle(
+                        fontFamily: 'Geist',
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
                         color: SariwaColors.statusFresh,
                       ),
                     ),
@@ -657,8 +681,10 @@ class LiveScannerSection extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
@@ -667,8 +693,10 @@ class LiveScannerSection extends StatelessWidget {
                 child: Text(
                   indicatorText,
                   style: const TextStyle(
+                    fontFamily: 'Geist',
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.15,
                     color: SariwaColors.textSecondaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,

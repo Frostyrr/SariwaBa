@@ -41,74 +41,58 @@ class DashboardSidebar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Brand Header Card
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: SariwaColors.bgDashboard,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: SariwaColors.borderLightTeal),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          SariwaColors.brandPrimary,
-                          SariwaColors.bgLagoonMid,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+            // Brand Header (Logo + "SariwaBa" Text)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: onOpenHome,
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/SariwaBa logo.png',
+                        width: 38,
+                        height: 38,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                SariwaColors.brandPrimary,
+                                SariwaColors.bgLagoonMid,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.waves_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Image.asset(
-                      'assets/images/SariwaBa logo.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Icon(
-                        Icons.waves_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'SariwaBa AI',
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'SariwaBa',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 17.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.4,
                             color: SariwaColors.textPrimaryDark,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                          'Fish Freshness OS',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: SariwaColors.textMutedDark,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const Icon(
-                    Icons.unfold_more_rounded,
-                    size: 18,
-                    color: SariwaColors.textMutedDark,
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -235,7 +219,8 @@ class DashboardSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
                       color: Colors.white,
                     ),
                   ),
@@ -243,8 +228,10 @@ class DashboardSidebar extends StatelessWidget {
                   Text(
                     'Upload a fish photo for instant freshness grading.',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 11,
                       height: 1.35,
+                      letterSpacing: -0.1,
                       color: Colors.white.withValues(alpha: 0.85),
                     ),
                   ),
@@ -266,7 +253,8 @@ class DashboardSidebar extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
                               color: SariwaColors.textPrimaryDark,
                             ),
                           ),
@@ -303,8 +291,10 @@ class DashboardSidebar extends StatelessWidget {
                           Text(
                             user!.displayName,
                             style: const TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             maxLines: 1,
@@ -313,7 +303,9 @@ class DashboardSidebar extends StatelessWidget {
                           Text(
                             user!.email,
                             style: const TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 10.5,
+                              letterSpacing: -0.1,
                               color: SariwaColors.textMutedDark,
                             ),
                             maxLines: 1,
@@ -368,8 +360,10 @@ class DashboardSidebar extends StatelessWidget {
                           Text(
                             'Browsing as Guest',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.2,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             maxLines: 1,
@@ -378,7 +372,9 @@ class DashboardSidebar extends StatelessWidget {
                           Text(
                             'History not saved',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 10.5,
+                              letterSpacing: -0.1,
                               color: SariwaColors.textMutedDark,
                             ),
                             maxLines: 1,
@@ -412,10 +408,11 @@ class DashboardSidebar extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
+          fontFamily: 'Geist',
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: SariwaColors.textMutedDark,
-          letterSpacing: 0.3,
+          letterSpacing: -0.1,
         ),
       ),
     );
@@ -456,8 +453,10 @@ class DashboardSidebar extends StatelessWidget {
                   child: Text(
                     label,
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 13,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                      letterSpacing: -0.2,
                       color: isActive
                           ? SariwaColors.textPrimaryDark
                           : SariwaColors.textSecondaryDark,

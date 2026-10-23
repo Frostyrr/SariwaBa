@@ -99,7 +99,7 @@ class LandingSection extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: AppTypography.fontFamily,
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w600,
                                         color: Color(0xFF0A2229),
                                       ),
                                     ),
@@ -149,7 +149,7 @@ class LandingSection extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w600,
                                       color: Color(0xFF0A2229),
                                     ),
                                   ),

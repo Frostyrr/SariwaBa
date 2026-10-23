@@ -40,7 +40,7 @@ class FeaturesSection extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                       color: SariwaColors.brandPrimaryDark,
                     ),
@@ -60,7 +60,7 @@ class FeaturesSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: -1.0,
                     color: const Color(0xFF0A2229),
                   ),
@@ -130,8 +130,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 3,
                           child: _buildFeatureCard(
                             icon: Icons.offline_bolt_outlined,
-                            title: 'Offline Edge Inference',
-                            desc: 'Runs lightweight MobileNetV3 quantized neural networks locally on your mobile device without internet.',
+                            title: 'Offline Smart Scanning',
+                            desc: 'Assess fish freshness anytime on your mobile device, even in markets or ports without an internet connection.',
                           ),
                         ),
                       ),
@@ -142,8 +142,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 4,
                           child: _buildFeatureCard(
                             icon: Icons.history_edu_outlined,
-                            title: 'Quality Audit Trails',
-                            desc: 'Seamlessly synchronizes inspection records and classification telemetry with PostgreSQL and Google Auth.',
+                            title: 'Saved Inspection History',
+                            desc: 'Automatically backs up your fish freshness scan results when you sign in with your Google account.',
                           ),
                         ),
                       ),
@@ -206,7 +206,7 @@ class FeaturesSection extends StatelessWidget {
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 18.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               letterSpacing: -0.3,
               color: const Color(0xFF0A2229),
             ),

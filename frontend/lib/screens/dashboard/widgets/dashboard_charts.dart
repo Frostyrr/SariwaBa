@@ -51,9 +51,10 @@ class DashboardUserAvatar extends StatelessWidget {
         child: Text(
           initial,
           style: TextStyle(
+            fontFamily: 'Geist',
             color: Colors.white,
             fontSize: size * 0.42,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -136,8 +137,10 @@ class NotchedKpiCard extends StatelessWidget {
                           child: Text(
                             title,
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: effectiveCompact ? 11.5 : 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.2,
                               color: SariwaColors.textMutedDark,
                             ),
                             maxLines: 1,
@@ -159,7 +162,7 @@ class NotchedKpiCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: effectiveCompact ? 20 : 24,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
                       color: SariwaColors.textPrimaryDark,
                       letterSpacing: -0.5,
                     ),
@@ -178,8 +181,10 @@ class NotchedKpiCard extends StatelessWidget {
                       Text(
                         trendText,
                         style: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: effectiveCompact ? 11 : 11.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
                           color: trendColor,
                         ),
                       ),
@@ -188,7 +193,10 @@ class NotchedKpiCard extends StatelessWidget {
                         child: Text(
                           comparisonText,
                           style: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: effectiveCompact ? 10.5 : 11,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.15,
                             color: SariwaColors.textMutedDark,
                           ),
                           maxLines: 1,

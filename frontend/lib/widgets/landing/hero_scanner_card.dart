@@ -117,10 +117,10 @@ class _HeroScannerCardState extends State<HeroScannerCard> {
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        'Classification Model',
+                        'Freshness Preview',
                         style: AppTypography.titleMedium.copyWith(
                           fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: SariwaColors.textPrimaryLight,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -141,7 +141,7 @@ class _HeroScannerCardState extends State<HeroScannerCard> {
                   ),
                 ),
                 child: Text(
-                  'Edge INT8 · ~32ms',
+                  'Instant AI Check',
                   style: AppTypography.monoMetric.copyWith(
                     fontSize: 10.5,
                     color: SariwaColors.brandLight,
@@ -190,7 +190,7 @@ class _HeroScannerCardState extends State<HeroScannerCard> {
                             fontFamily: AppTypography.fontFamily,
                             fontSize: 11,
                             fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected
                                 ? SariwaColors.brandLight
                                 : SariwaColors.textSecondaryLight,
@@ -251,7 +251,7 @@ class _HeroScannerCardState extends State<HeroScannerCard> {
                               sample.species,
                               style: AppTypography.titleMedium.copyWith(
                                 fontSize: 14.5,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: SariwaColors.textPrimaryLight,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -276,7 +276,7 @@ class _HeroScannerCardState extends State<HeroScannerCard> {
                               sample.grade,
                               style: AppTypography.caption.copyWith(
                                 fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: sample.statusColor,
                               ),
                             ),

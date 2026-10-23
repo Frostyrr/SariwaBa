@@ -109,7 +109,7 @@ class AuthPage extends ConsumerWidget {
                           'SariwaBa',
                           style: AppTypography.displayLarge.copyWith(
                             fontSize: 38,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w600,
                             letterSpacing: -0.5,
                           ),
                         ),

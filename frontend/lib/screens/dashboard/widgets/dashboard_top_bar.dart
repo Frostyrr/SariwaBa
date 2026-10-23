@@ -71,8 +71,10 @@ class DashboardTopBar extends StatelessWidget {
               const Text(
                 'Dashboard',
                 style: TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: -0.2,
                   color: SariwaColors.textMutedDark,
                 ),
               ),
@@ -89,8 +91,10 @@ class DashboardTopBar extends StatelessWidget {
               child: Text(
                 activeSection == 'Dashboard' ? 'Overview' : activeSection,
                 style: const TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                 ),
                 maxLines: 1,
@@ -122,13 +126,19 @@ class DashboardTopBar extends StatelessWidget {
                         controller: searchController,
                         onChanged: onSearchChanged,
                         style: const TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -0.2,
                           color: SariwaColors.textPrimaryDark,
                         ),
                         decoration: const InputDecoration(
                           hintText: 'Search scan history...',
                           hintStyle: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.15,
                             color: SariwaColors.textMutedDark,
                           ),
                           border: InputBorder.none,
@@ -202,7 +212,14 @@ class DashboardTopBar extends StatelessWidget {
                           color: SariwaColors.textSecondaryDark,
                         ),
                         SizedBox(width: 8),
-                        Text('Return to Home', style: TextStyle(fontSize: 13)),
+                        Text(
+                          'Return to Home',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: SariwaColors.textPrimaryDark,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -243,8 +260,10 @@ class DashboardTopBar extends StatelessWidget {
                       Text(
                         firstName,
                         style: const TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
                           color: SariwaColors.textPrimaryDark,
                         ),
                       ),
@@ -279,8 +298,10 @@ class DashboardTopBar extends StatelessWidget {
                         Text(
                           'Guest Mode',
                           style: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.2,
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
@@ -335,8 +356,8 @@ class DashboardGreetingHeader extends StatelessWidget {
                   style: AppTypography.displayLarge.copyWith(
                     color: SariwaColors.textPrimaryDark,
                     fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.4,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 if (isGuest) ...[
@@ -344,9 +365,11 @@ class DashboardGreetingHeader extends StatelessWidget {
                   const Text(
                     'You are currently exploring as a guest. Sign in to save your fish freshness classification history.',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 13,
                       color: SariwaColors.textSecondaryDark,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ],
@@ -368,12 +391,30 @@ class DashboardGreetingHeader extends StatelessWidget {
                       .map(
                         (period) => PopupMenuItem(
                           value: period,
-                          child: Text(
-                            period,
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                period,
+                                style: TextStyle(
+                                  fontFamily: 'Geist',
+                                  fontSize: 12.5,
+                                  fontWeight: selectedTimeframe == period
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  letterSpacing: -0.2,
+                                  color: selectedTimeframe == period
+                                      ? SariwaColors.brandPrimary
+                                      : SariwaColors.textPrimaryDark,
+                                ),
+                              ),
+                              if (selectedTimeframe == period)
+                                const Icon(
+                                  Icons.check_rounded,
+                                  size: 16,
+                                  color: SariwaColors.brandPrimary,
+                                ),
+                            ],
                           ),
                         ),
                       )
@@ -394,8 +435,10 @@ class DashboardGreetingHeader extends StatelessWidget {
                         Text(
                           selectedTimeframe,
                           style: const TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.2,
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
@@ -432,8 +475,10 @@ class DashboardGreetingHeader extends StatelessWidget {
                       Text(
                         '23 Oct, 2026',
                         style: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.2,
                           color: SariwaColors.textPrimaryDark,
                         ),
                       ),
@@ -497,8 +542,10 @@ class DashboardGreetingHeader extends StatelessWidget {
                           Text(
                             'Guest Evaluation Mode',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
                           ),
@@ -506,7 +553,10 @@ class DashboardGreetingHeader extends StatelessWidget {
                           Text(
                             'Your scans are temporary in Guest Mode. Sign in with Google to save your classification history.',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.15,
                               color: SariwaColors.textSecondaryDark,
                             ),
                           ),

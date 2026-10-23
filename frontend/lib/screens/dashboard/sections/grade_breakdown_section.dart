@@ -64,8 +64,10 @@ class GradeBreakdownSection extends StatelessWidget {
               const Text(
                 'Freshness Grade Breakdown',
                 style: TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 15.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
@@ -75,7 +77,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   const Text(
                     'Grade A Rate: ',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.15,
                       color: SariwaColors.textMutedDark,
                     ),
                   ),
@@ -84,7 +89,8 @@ class GradeBreakdownSection extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 19,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.4,
                       color: SariwaColors.textPrimaryDark,
                     ),
                   ),
@@ -102,8 +108,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   Text(
                     '24.5%',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
                       color: SariwaColors.statusFresh,
                     ),
                   ),
@@ -111,7 +119,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   Text(
                     'vs last month',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.15,
                       color: SariwaColors.textMutedDark,
                     ),
                   ),
@@ -202,8 +213,10 @@ class GradeBreakdownSection extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
+                fontFamily: 'Geist',
                 fontSize: 11.5,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.15,
                 color: SariwaColors.textPrimaryDark,
               ),
               overflow: TextOverflow.ellipsis,
@@ -214,7 +227,8 @@ class GradeBreakdownSection extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Geist',
               fontSize: 11.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.2,
               color: SariwaColors.textMutedDark,
             ),
           ),
@@ -252,8 +266,10 @@ class GradeBreakdownSection extends StatelessWidget {
               const Text(
                 'AI Confidence & Stability Summary',
                 style: TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 15.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
@@ -263,7 +279,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   const Text(
                     'Mean Precision: ',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.15,
                       color: SariwaColors.textMutedDark,
                     ),
                   ),
@@ -272,7 +291,8 @@ class GradeBreakdownSection extends StatelessWidget {
                     style: const TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 19,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.4,
                       color: SariwaColors.textPrimaryDark,
                     ),
                   ),
@@ -290,8 +310,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   Text(
                     '18.2%',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
                       color: SariwaColors.statusFresh,
                     ),
                   ),
@@ -299,7 +321,10 @@ class GradeBreakdownSection extends StatelessWidget {
                   Text(
                     'vs baseline model',
                     style: TextStyle(
+                      fontFamily: 'Geist',
                       fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.15,
                       color: SariwaColors.textMutedDark,
                     ),
                   ),

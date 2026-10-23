@@ -86,8 +86,10 @@ class AuditHistorySection extends StatelessWidget {
                           const Text(
                             'Audit History',
                             style: TextStyle(
-                              fontSize: 16.5,
-                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Geist',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.3,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -97,7 +99,10 @@ class AuditHistorySection extends StatelessWidget {
                                 ? '${state.history.length} scan(s) in temporary local cache'
                                 : '${state.history.length} scans saved in your history',
                             style: const TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.15,
                               color: SariwaColors.textSecondaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -135,9 +140,8 @@ class AuditHistorySection extends StatelessWidget {
                 label: Text(filter),
                 selected: isSelected,
                 onSelected: (_) => onFilterChanged(filter),
-                selectedColor: SariwaColors.brandPrimary.withValues(
-                  alpha: 0.15,
-                ),
+                selectedColor: SariwaColors.brandPrimary,
+                checkmarkColor: Colors.white,
                 backgroundColor: SariwaColors.bgDashboard,
                 side: BorderSide(
                   color: isSelected
@@ -145,10 +149,12 @@ class AuditHistorySection extends StatelessWidget {
                       : SariwaColors.borderLightTeal,
                 ),
                 labelStyle: TextStyle(
+                  fontFamily: 'Geist',
                   fontSize: 11.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  letterSpacing: -0.2,
                   color: isSelected
-                      ? SariwaColors.brandPrimary
+                      ? Colors.white
                       : SariwaColors.textSecondaryDark,
                 ),
               );
@@ -207,8 +213,10 @@ class AuditHistorySection extends StatelessWidget {
           Text(
             isGuest ? 'No Cached Guest Scans Yet' : 'No scan history found',
             style: const TextStyle(
+              fontFamily: 'Geist',
               fontSize: 14.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.25,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
@@ -218,7 +226,10 @@ class AuditHistorySection extends StatelessWidget {
                 ? 'Scans performed in Guest Mode are cached locally in this browser. Sign in with Google to back them up permanently.'
                 : 'Upload a fish photo to start building your permanent quality log.',
             style: const TextStyle(
+              fontFamily: 'Geist',
               fontSize: 12,
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.15,
               color: SariwaColors.textSecondaryDark,
             ),
             textAlign: TextAlign.center,
@@ -293,8 +304,10 @@ class AuditHistorySection extends StatelessWidget {
                     Text(
                       scan.label,
                       style: TextStyle(
+                        fontFamily: 'Geist',
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
                         color: scan.statusColor,
                       ),
                     ),
@@ -311,8 +324,10 @@ class AuditHistorySection extends StatelessWidget {
                       child: Text(
                         scan.formattedConfidence,
                         style: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.15,
                           color: scan.statusColor,
                         ),
                       ),
@@ -332,8 +347,10 @@ class AuditHistorySection extends StatelessWidget {
                         child: const Text(
                           'Local Cache',
                           style: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 9.5,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.15,
                             color: SariwaColors.statusModerate,
                           ),
                         ),
@@ -348,7 +365,10 @@ class AuditHistorySection extends StatelessWidget {
                           ? 'Temporary Guest Scan'
                           : 'Audit Scan #${scan.scanId ?? ''}'),
                   style: const TextStyle(
+                    fontFamily: 'Geist',
                     fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: -0.15,
                     color: SariwaColors.textSecondaryDark,
                   ),
                 ),
@@ -379,17 +399,33 @@ class AuditHistorySection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           isLocalCache ? 'Remove Cached Scan?' : 'Delete Scan Record?',
+          style: const TextStyle(
+            fontFamily: 'Geist',
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.25,
+            color: SariwaColors.textPrimaryDark,
+          ),
         ),
         content: Text(
           isLocalCache
               ? 'Remove this scan from your temporary local browser cache?'
               : 'Are you sure you want to permanently remove Scan #$scanId from your classification history?',
+          style: const TextStyle(
+            fontSize: 13.5,
+            color: SariwaColors.textSecondaryDark,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogCtx),
+            style: TextButton.styleFrom(
+              foregroundColor: SariwaColors.textSecondaryDark,
+            ),
             child: const Text('Cancel'),
           ),
           ElevatedButton(

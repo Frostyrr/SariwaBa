@@ -46,7 +46,7 @@ class HowItWorksSection extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                       color: SariwaColors.brandPrimaryDark,
                     ),
@@ -66,7 +66,7 @@ class HowItWorksSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: -1.0,
                     color: const Color(0xFF0A2229),
                   ),
@@ -116,9 +116,9 @@ class HowItWorksSection extends StatelessWidget {
                 staggerIndex: 2,
                 child: _buildStepCard(
                   stepNumber: '02',
-                  title: 'Multi-Spectral AI Analysis',
+                  title: 'Instant AI Freshness Check',
                   description:
-                      'Our edge MobileNetV3 neural model segments optical cornea cloudiness, measures RGB branchial redness, and evaluates tissue degradation.',
+                      'Our AI examines eye clarity, gill redness, and skin condition in seconds to determine overall freshness.',
                   icon: Icons.memory_outlined,
                 ),
               ),
@@ -130,9 +130,9 @@ class HowItWorksSection extends StatelessWidget {
                 staggerIndex: 3,
                 child: _buildStepCard(
                   stepNumber: '03',
-                  title: 'Standardized Grading & Telemetry Sync',
+                  title: 'Clear Freshness Grade & History',
                   description:
-                      'Receive an immediate freshness confidence score (Grade A Sariwa, Grade B Katamtaman, Grade C Spoiled) and synchronize records with PostgreSQL.',
+                      'Receive an immediate freshness grade (Grade A Sariwa, Grade B Katamtaman, or Grade C Spoiled) and save results to your account history.',
                   icon: Icons.task_alt_outlined,
                 ),
               ),
@@ -200,7 +200,7 @@ class HowItWorksSection extends StatelessWidget {
               stepNumber,
               style: AppTypography.monoMetric.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 fontSize: 15,
               ),
             ),
@@ -220,7 +220,7 @@ class HowItWorksSection extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 18.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF0A2229),
                         ),
                       ),

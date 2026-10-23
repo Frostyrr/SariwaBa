@@ -76,9 +76,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = authState.user;
     final isGuest = authState.isGuest || user == null;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool isDesktop = constraints.maxWidth >= 800.0;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'Geist'),
+        popupMenuTheme: const PopupMenuThemeData(
+          color: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          textStyle: TextStyle(
+            fontFamily: 'Geist',
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: SariwaColors.textPrimaryDark,
+          ),
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isDesktop = constraints.maxWidth >= 800.0;
 
         if (!isDesktop) {
           return _buildMobileScannerFirstLayout(
@@ -212,7 +226,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ],
           ),
         );
-      },
+        },
+      ),
     );
   }
 
@@ -285,21 +300,24 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'SariwaBa AI',
+                          'SariwaBa',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.3,
                             color: SariwaColors.textPrimaryDark,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'MobileNetV3 • INT8',
+                          'Fish Freshness Scanner',
                           style: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 10.5,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.15,
                             color: SariwaColors.textMutedDark,
                           ),
                           maxLines: 1,
@@ -404,8 +422,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             child: Text(
                               'Guest Evaluation Mode',
                               style: TextStyle(
+                                fontFamily: 'Geist',
                                 fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.2,
                                 color: SariwaColors.textPrimaryDark,
                               ),
                             ),
@@ -416,7 +436,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       const Text(
                         'You are currently a guest. Log in to save your classification history.',
                         style: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 11.5,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -0.15,
                           color: SariwaColors.textSecondaryDark,
                         ),
                       ),
@@ -554,8 +577,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         labelColor: Colors.white,
                         unselectedLabelColor: SariwaColors.textSecondaryDark,
                         labelStyle: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
+                        ),
+                        unselectedLabelStyle: TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: -0.2,
                         ),
                         tabs: [
                           Tab(text: 'Audit History'),

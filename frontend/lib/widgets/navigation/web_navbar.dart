@@ -281,7 +281,7 @@ class WebNavbar extends StatelessWidget {
                       currentUser.displayName,
                       style: const TextStyle(
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: SariwaColors.textPrimaryDark,
                       ),
                       maxLines: 1,
@@ -447,7 +447,7 @@ class WebNavbar extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontSize: size * 0.45,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

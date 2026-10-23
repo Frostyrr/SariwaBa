@@ -70,8 +70,10 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                       const Text(
                         'Freshness Inspection Overview',
                         style: TextStyle(
+                          fontFamily: 'Geist',
                           fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.3,
                           color: SariwaColors.textPrimaryDark,
                         ),
                       ),
@@ -82,7 +84,10 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                           const Text(
                             'Verified Grade A Catch:  ',
                             style: TextStyle(
+                              fontFamily: 'Geist',
                               fontSize: 12.5,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: -0.15,
                               color: SariwaColors.textMutedDark,
                             ),
                           ),
@@ -91,7 +96,8 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                             style: const TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 20,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.4,
                               color: SariwaColors.textPrimaryDark,
                             ),
                           ),
@@ -275,7 +281,8 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                                             style: const TextStyle(
                                               fontFamily: 'Geist',
                                               fontSize: 11.5,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: -0.2,
                                               color:
                                                   SariwaColors.textPrimaryDark,
                                             ),
@@ -299,7 +306,9 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                                               Text(
                                                 'Sariwa',
                                                 style: TextStyle(
+                                                  fontFamily: 'Geist',
                                                   fontSize: 11,
+                                                  fontWeight: FontWeight.w400,
                                                   color: SariwaColors
                                                       .textSecondaryDark,
                                                 ),
@@ -311,7 +320,8 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                                             style: const TextStyle(
                                               fontFamily: 'Geist',
                                               fontSize: 11.5,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: -0.2,
                                               color: SariwaColors.brandPrimary,
                                             ),
                                           ),
@@ -344,10 +354,12 @@ class _FreshnessTrendsSectionState extends State<FreshnessTrendsSection> {
                         child: Text(
                           _months[i],
                           style: TextStyle(
+                            fontFamily: 'Geist',
                             fontSize: 11,
                             fontWeight: isSelected
-                                ? FontWeight.w800
-                                : FontWeight.w500,
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            letterSpacing: -0.15,
                             color: isSelected
                                 ? SariwaColors.textPrimaryDark
                                 : SariwaColors.textMutedDark,
