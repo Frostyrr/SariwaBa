@@ -6,7 +6,6 @@ import '../../constants/theme/app_typography.dart';
 enum _AppButtonVariant { primary, secondary, outline, lightPill }
 
 /// Reusable AppButton Widget
-/// Styled for SariwaBa aquatic palette and squircle / capsule geometry:
 /// - [AppButton.primary]: Sariwa teal (#168077) with white text & gentle elevation.
 /// - [AppButton.secondary]: Lagoon glass container with subtle light border.
 /// - [AppButton.outline]: Transparent container with light aqua border.
