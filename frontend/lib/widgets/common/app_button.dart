@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 
@@ -121,14 +122,9 @@ class _AppButtonState extends State<AppButton> {
         break;
 
       case _AppButtonVariant.lightPill:
-        backgroundColor = _isHovered
-            ? const Color(0xFFE8F7F5)
-            : Colors.white;
+        backgroundColor = _isHovered ? const Color(0xFFE8F7F5) : Colors.white;
         textColor = SariwaColors.bgAbyssDark;
-        border = Border.all(
-          color: SariwaColors.borderGlass,
-          width: 1.0,
-        );
+        border = Border.all(color: SariwaColors.borderGlass, width: 1.0);
         break;
     }
 
@@ -136,7 +132,9 @@ class _AppButtonState extends State<AppButton> {
 
     return SelectionContainer.disabled(
       child: MouseRegion(
-        cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        cursor: isInteractive
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
         child: GestureDetector(
@@ -153,15 +151,16 @@ class _AppButtonState extends State<AppButton> {
               border: border,
               boxShadow:
                   widget._variant == _AppButtonVariant.primary && isInteractive
-                      ? [
-                          BoxShadow(
-                            color: SariwaColors.brandPrimary
-                                .withValues(alpha: _isHovered ? 0.35 : 0.22),
-                            blurRadius: _isHovered ? 14 : 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ]
-                      : null,
+                  ? [
+                      BoxShadow(
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: _isHovered ? 0.35 : 0.22,
+                        ),
+                        blurRadius: _isHovered ? 14 : 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Center(

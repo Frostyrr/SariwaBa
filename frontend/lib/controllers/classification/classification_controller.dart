@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
+import '../../services/storage/guest_history_cache.dart';
+import '../auth/auth_controller.dart';
 
 class ClassificationState {
   final Uint8List? selectedImageBytes;
@@ -64,11 +66,33 @@ class ClassificationState {
 
 class ClassificationController extends StateNotifier<ClassificationState> {
   final ClassificationService _service;
+  final GuestHistoryCache _guestCache;
+  final bool _isAuthenticated;
   final ImagePicker _picker = ImagePicker();
 
-  ClassificationController(this._service)
-      : super(const ClassificationState()) {
-    loadHistory();
+  ClassificationController(
+    this._service, {
+    GuestHistoryCache? guestCache,
+    bool autoLoadHistory = true,
+  })  : _guestCache = guestCache ?? GuestHistoryCache(),
+        _isAuthenticated = autoLoadHistory,
+        super(const ClassificationState()) {
+    if (_isAuthenticated) {
+      loadHistory();
+    } else {
+      loadGuestCache();
+    }
+  }
+
+  /// Load guest scans from local cache
+  Future<void> loadGuestCache() async {
+    final cached = await _guestCache.getCachedHistory();
+    if (mounted) {
+      state = state.copyWith(
+        history: cached,
+        isLoadingHistory: false,
+      );
+    }
   }
 
   /// Pick image from gallery or camera
@@ -143,10 +167,13 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         filename: name,
       );
 
-      // Prepend to history if automatically saved on backend
-      final updatedHistory = List<ClassificationResult>.from(state.history);
+      List<ClassificationResult> updatedHistory;
       if (result.saved && result.scanId != null) {
-        updatedHistory.insert(0, result);
+        updatedHistory = List<ClassificationResult>.from(state.history)
+          ..insert(0, result);
+      } else {
+        // Guest Mode: save to local cache (up to 10 recent scans)
+        updatedHistory = await _guestCache.addScan(result);
       }
 
       state = state.copyWith(
@@ -154,8 +181,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         latestResult: result,
         history: updatedHistory,
         successMessage: result.saved
-            ? 'Scan complete! Record automatically archived to your audit history.'
-            : 'Scan complete! (Guest mode: temporary preview only).',
+            ? 'Scan complete! Record automatically saved to your classification history.'
+            : 'Scan complete! Cached locally in Guest Mode (sign in to back up permanently).',
       );
     } catch (e) {
       state = state.copyWith(
@@ -165,26 +192,45 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     }
   }
 
-  /// Load user's scan history from PostgreSQL
+  /// Load user's scan history (or local guest cache when in Guest Mode)
   Future<void> loadHistory() async {
+    if (!_isAuthenticated) {
+      await loadGuestCache();
+      return;
+    }
+
     state = state.copyWith(isLoadingHistory: true, clearError: true);
     try {
       final list = await _service.fetchHistory();
-      state = state.copyWith(
-        history: list,
-        isLoadingHistory: false,
-      );
+      if (mounted) {
+        state = state.copyWith(
+          history: list,
+          isLoadingHistory: false,
+        );
+      }
     } catch (e) {
-      state = state.copyWith(
-        isLoadingHistory: false,
-      );
+      if (mounted) {
+        state = state.copyWith(
+          isLoadingHistory: false,
+        );
+      }
     }
   }
 
-  /// Delete a scan from user history
+  /// Delete a scan from user history or local guest cache
   Future<void> deleteScan(int scanId) async {
     state = state.copyWith(deletingScanId: scanId, clearError: true);
     try {
+      if (!_isAuthenticated || scanId < 0) {
+        final updated = await _guestCache.removeScan(scanId);
+        state = state.copyWith(
+          history: updated,
+          clearDeleting: true,
+          successMessage: 'Scan removed from temporary guest cache.',
+        );
+        return;
+      }
+
       await _service.deleteScan(scanId);
       final updated = state.history.where((s) => s.scanId != scanId).toList();
       state = state.copyWith(
@@ -199,10 +245,26 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       );
     }
   }
+
+  /// Clear all locally cached guest scans
+  Future<void> clearGuestCache() async {
+    await _guestCache.clearCache();
+    state = state.copyWith(
+      history: const [],
+      successMessage: 'Temporary guest scan cache cleared.',
+    );
+  }
 }
 
 final classificationControllerProvider =
     StateNotifierProvider<ClassificationController, ClassificationState>((ref) {
   final service = ref.watch(classificationServiceProvider);
-  return ClassificationController(service);
+  final guestCache = ref.watch(guestHistoryCacheProvider);
+  final isAuthenticated =
+      ref.watch(authControllerProvider.select((s) => s.isAuthenticated));
+  return ClassificationController(
+    service,
+    guestCache: guestCache,
+    autoLoadHistory: isAuthenticated,
+  );
 });
