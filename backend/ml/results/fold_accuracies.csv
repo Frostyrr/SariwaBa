@@ -1,9 +1,9 @@
 Fold,Accuracy (%)
-1,85.8173
+1,79.9279
 2,100.0
 3,100.0
-4,72.1641
-5,99.8343
+4,55.6006
+5,98.3151
 
-Mean Accuracy (%),91.5631
-Standard Deviation (%),12.451
+Mean Accuracy (%),86.7687
+Standard Deviation (%),19.3759

@@ -3,6 +3,7 @@ from collections import Counter, defaultdict
 import random
 import statistics
 import csv
+import re
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +12,6 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, models, transforms
-import re
 
 from sklearn.metrics import (
     confusion_matrix,
@@ -41,9 +41,8 @@ LEARNING_RATE = 0.001
 NUM_FOLDS = 5
 RANDOM_SEED = 42
 
-# For NonFresh sequential images.
-# Images are grouped into blocks so nearby frames do not leak
-# between training and validation.
+# NonFresh images are sequential frames.
+# Group nearby frames together to reduce leakage.
 BLOCK_SIZE = 50
 
 
@@ -168,49 +167,49 @@ print(
 
 def create_group_key(path_string):
     path = Path(path_string)
-
     parts = path.parts
 
     # --------------------------------------------------------
     # FRESH
     #
-    # Fresh images are already stored inside specimen/capture
-    # folders such as:
-    #
-    # Fresh/Day 1/Eyes/1_Eyes/
-    #
-    # Keep the whole leaf folder together.
+    # Fresh images already have capture/specimen folders.
+    # Keep the complete leaf folder together.
     # --------------------------------------------------------
 
     if "Fresh" in parts:
-
         return (
             f"Fresh::{path.parent}"
         )
 
-
     # --------------------------------------------------------
     # NONFRESH
     #
-    # NonFresh images are sequential frames stored in broader
-    # folders. Divide them into blocks of 50 sequential images.
+    # NonFresh images are stored as sequential frames.
+    # Group frames into blocks of 50.
+    #
+    # Regex handles filenames such as:
+    # 0365.jpg
+    # 0365(1).jpg
     # --------------------------------------------------------
 
     if "NonFresh" in parts:
 
-        match = re.match(r"(\d+)", path.stem)
+        match = re.match(
+            r"(\d+)",
+            path.stem,
+        )
 
         if match:
-            image_number = int(match.group(1))
+            image_number = int(
+                match.group(1)
+            )
         else:
             image_number = 0
-
 
         block_number = (
             image_number
             // BLOCK_SIZE
         )
-
 
         return (
             f"NonFresh::"
@@ -218,8 +217,6 @@ def create_group_key(path_string):
             f"block_{block_number}"
         )
 
-
-    # Fallback
     return str(
         path.parent
     )
@@ -244,7 +241,6 @@ for index, (
     group_key = create_group_key(
         path
     )
-
 
     groups_by_class[
         class_index
@@ -296,17 +292,14 @@ for class_index in range(
         ].keys()
     )
 
-
     group_randomizer = random.Random(
         RANDOM_SEED
         + class_index
     )
 
-
     group_randomizer.shuffle(
         groups
     )
-
 
     for position, group_key in enumerate(
         groups
@@ -316,7 +309,6 @@ for class_index in range(
             position
             % NUM_FOLDS
         )
-
 
         fold_validation_indices[
             fold_index
@@ -353,12 +345,10 @@ for fold_index in range(
         ]
     )
 
-
     training_indices = (
         all_indices
         - validation_indices
     )
-
 
     print(
         f"Fold {fold_index + 1}: "
@@ -375,7 +365,6 @@ def get_groups(indices):
 
     result = set()
 
-
     for index in indices:
 
         path, _ = (
@@ -384,13 +373,11 @@ def get_groups(indices):
             ]
         )
 
-
         result.add(
             create_group_key(
                 path
             )
         )
-
 
     return result
 
@@ -405,22 +392,18 @@ for fold_index in range(
         ]
     )
 
-
     training_indices = (
         all_indices
         - validation_indices
     )
 
-
     train_groups = get_groups(
         training_indices
     )
 
-
     validation_groups = get_groups(
         validation_indices
     )
-
 
     assert train_groups.isdisjoint(
         validation_groups
@@ -495,11 +478,9 @@ for fold_index in range(
         ]
     )
 
-
     validation_index_set = set(
         validation_indices
     )
-
 
     training_indices = list(
         all_indices
@@ -516,7 +497,6 @@ for fold_index in range(
         training_indices,
     )
 
-
     validation_dataset = Subset(
         eval_full_dataset,
         validation_indices,
@@ -532,7 +512,6 @@ for fold_index in range(
         batch_size=BATCH_SIZE,
         shuffle=True,
     )
-
 
     validation_loader = DataLoader(
         validation_dataset,
@@ -553,24 +532,19 @@ for fold_index in range(
         in training_indices
     ]
 
-
     class_counts = Counter(
         train_targets
     )
-
 
     number_of_classes = len(
         base_dataset.classes
     )
 
-
     total_training_images = len(
         train_targets
     )
 
-
     class_weights = []
-
 
     for class_index in range(
         number_of_classes
@@ -580,7 +554,6 @@ for fold_index in range(
             class_index
         ]
 
-
         weight = (
             total_training_images
             /
@@ -589,7 +562,6 @@ for fold_index in range(
                 * class_count
             )
         )
-
 
         class_weights.append(
             weight
@@ -607,7 +579,6 @@ for fold_index in range(
     print(
         "\nTraining class counts:"
     )
-
 
     for class_index, class_name in enumerate(
         base_dataset.classes
@@ -634,7 +605,6 @@ for fold_index in range(
         .MobileNet_V3_Small_Weights
         .DEFAULT
     )
-
 
     model = (
         models.mobilenet_v3_small(
@@ -687,15 +657,8 @@ for fold_index in range(
 
 
     # ========================================================
-    # TRAIN MODEL
+    # TRAIN EXACTLY 5 EPOCHS
     # ========================================================
-
-    best_validation_accuracy = (
-        -1.0
-    )
-
-    best_state = None
-
 
     for epoch in range(
         EPOCHS
@@ -706,7 +669,6 @@ for fold_index in range(
         # ----------------------------------------------------
 
         model.train()
-
 
         running_loss = 0.0
         training_correct = 0
@@ -720,7 +682,6 @@ for fold_index in range(
             images = images.to(
                 DEVICE
             )
-
 
             labels = labels.to(
                 DEVICE
@@ -783,11 +744,14 @@ for fold_index in range(
 
 
         # ----------------------------------------------------
-        # VALIDATION
+        # VALIDATION MONITORING
+        #
+        # We display validation accuracy during training,
+        # but we DO NOT select the best epoch from it.
+        # Final fold evaluation uses the model after epoch 5.
         # ----------------------------------------------------
 
         model.eval()
-
 
         validation_correct = 0
         validation_total = 0
@@ -802,7 +766,6 @@ for fold_index in range(
                 images = images.to(
                     DEVICE
                 )
-
 
                 labels = labels.to(
                     DEVICE
@@ -852,60 +815,12 @@ for fold_index in range(
         )
 
 
-        # ----------------------------------------------------
-        # SAVE BEST STATE IN MEMORY
-        # ----------------------------------------------------
-
-        if (
-            validation_accuracy
-            > best_validation_accuracy
-        ):
-
-            best_validation_accuracy = (
-                validation_accuracy
-            )
-
-
-            best_state = {
-                key: value
-                .detach()
-                .cpu()
-                .clone()
-
-                for key, value
-                in model.state_dict().items()
-            }
-
-
     # ========================================================
-    # LOAD BEST MODEL FOR THIS FOLD
+    # FINAL EVALUATION FOR THIS FOLD
     # ========================================================
-
-    if best_state is None:
-
-        raise RuntimeError(
-            f"No best model state "
-            f"was created for "
-            f"Fold {fold_index + 1}."
-        )
-
-
-    model.load_state_dict(
-        best_state
-    )
-
-
-    model = model.to(
-        DEVICE
-    )
-
 
     model.eval()
 
-
-    # ========================================================
-    # FINAL PREDICTIONS FOR THIS FOLD
-    # ========================================================
 
     fold_true_labels = []
     fold_predictions = []
@@ -990,9 +905,9 @@ for fold_index in range(
 
 
     print(
-        f"\nBest Fold "
+        f"\nFold "
         f"{fold_index + 1} "
-        f"Accuracy: "
+        f"Final Accuracy: "
         f"{fold_accuracy:.2f}%"
     )
 
@@ -1187,7 +1102,7 @@ axis.set_yticklabels(
 )
 
 
-# Add numbers to each confusion matrix cell
+# Put count inside every confusion-matrix cell
 for row in range(
     matrix.shape[0]
 ):
@@ -1210,7 +1125,6 @@ for row in range(
         )
 
 
-# Add scale bar
 figure.colorbar(
     matrix_image,
     ax=axis,
@@ -1305,7 +1219,7 @@ with open(
 
 
     # --------------------------------------------------------
-    # CLASS METRICS
+    # INDIVIDUAL CLASS METRICS
     # --------------------------------------------------------
 
     for class_name in (
