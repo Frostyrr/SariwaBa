@@ -11,6 +11,7 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, models, transforms
+import re
 
 from sklearn.metrics import (
     confusion_matrix,
@@ -197,12 +198,11 @@ def create_group_key(path_string):
 
     if "NonFresh" in parts:
 
-        try:
-            image_number = int(
-                path.stem
-            )
+        match = re.match(r"(\d+)", path.stem)
 
-        except ValueError:
+        if match:
+            image_number = int(match.group(1))
+        else:
             image_number = 0
 
 

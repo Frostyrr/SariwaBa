@@ -6,6 +6,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, models, transforms
+import re
 
 from sklearn.metrics import (
     classification_report,
@@ -75,9 +76,12 @@ def create_group_key(path_string):
         return f"Fresh::{path.parent}"
 
     if "NonFresh" in parts:
-        try:
-            image_number = int(path.stem)
-        except ValueError:
+
+        match = re.match(r"(\d+)", path.stem)
+
+        if match:
+            image_number = int(match.group(1))
+        else:
             image_number = 0
 
         block_number = image_number // BLOCK_SIZE
