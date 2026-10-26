@@ -1,0 +1,9 @@
+Class,Precision,Recall,F1-Score,Support
+Fresh,0.9685,0.8032,0.8781,3292
+NonFresh,0.7791,0.9637,0.8617,2372
+Macro Average,0.8738,0.8835,0.8699,5664
+Weighted Average,0.8892,0.8704,0.8712,5664
+
+Overall Accuracy,0.8704
+Mean Fold Accuracy (%),86.7687
+Standard Deviation (%),19.3759

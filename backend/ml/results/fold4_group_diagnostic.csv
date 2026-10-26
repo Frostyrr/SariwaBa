@@ -1,0 +1,14 @@
+Class,Group,Images,Correct,Wrong,Accuracy (%)
+Fresh,Fresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\Fresh\Day 1\Gills\2_Gills_Day1,500,2,498,0.4
+Fresh,Fresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\Fresh\Day 1\Eyes\1_Eyes,234,234,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 2\Eyes::block_8,44,1,43,2.2727
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 4\Gills::block_9,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 2\Gills::block_7,33,33,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 2\Eyes::block_0,49,49,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 3\Gills::block_1,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 3\Gills::block_5,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 3\Gills::block_4,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 4\Eyes::block_0,49,49,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 4\Gills::block_7,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 3\Gills::block_8,50,50,0,100.0
+NonFresh,NonFresh::C:\Users\USER\OneDrive\Desktop\PROjects\projectUnknown\backend\datasets\tilapia\NonFresh\Day 2\Eyes::block_5,23,23,0,100.0
