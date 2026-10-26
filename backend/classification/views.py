@@ -12,6 +12,8 @@ from PIL import Image, UnidentifiedImageError
 from .models import ClassificationHistory
 from .serializers import ClassificationHistorySerializer
 
+from ml.predict import predict_image
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @parser_classes([MultiPartParser, FormParser])
@@ -68,9 +70,31 @@ def classify_fish(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Temporary result before MobileNetV3 model integration
-    label = "Fresh"
-    confidence = 0.95
+    # Prediction
+    image_file.seek(0)
+
+    prediction = predict_image(image_file)
+
+    print("REAL ML PREDICTION:", prediction)
+
+    label = prediction["label"]
+    confidence = prediction["confidence"]
+
+    if confidence < 0.80:
+        return Response(
+            {
+                "error": {
+                    "code": "LOW_CONFIDENCE",
+                    "message": "The uploaded image could not be confidently classified as a fish freshness image."
+                },
+                "confidence": confidence
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+    image_file.seek(0)
+
     scan_id = None
 
     if request.user.is_authenticated:
