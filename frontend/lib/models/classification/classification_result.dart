@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../constants/theme/app_colors.dart';
 
 class ClassificationResult {
@@ -21,7 +22,7 @@ class ClassificationResult {
   factory ClassificationResult.fromJson(Map<String, dynamic> json) {
     return ClassificationResult(
       scanId: json['scan_id'] as int?,
-      label: json['label'] as String? ?? 'Fresh',
+      label: json['label'] as String? ?? 'Unknown',
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
       saved: json['saved'] as bool? ?? false,
       imageUrl: (json['image_url'] ?? json['image']) as String?,
@@ -42,34 +43,19 @@ class ClassificationResult {
     };
   }
 
-  bool get isFresh =>
-      label.toLowerCase().contains('fresh') &&
-      !label.toLowerCase().contains('not');
+  bool get isFresh => label.trim().toLowerCase() == 'fresh';
 
-  String get grade {
-    if (isFresh) return 'Grade A (Sariwa)';
-    if (confidence > 0.80) return 'Grade C (Hindi Sariwa)';
-    return 'Grade B (Katamtaman)';
-  }
+  bool get isNotFresh => const {
+    'not fresh',
+    'nonfresh',
+    'non-fresh',
+  }.contains(label.trim().toLowerCase());
 
-  Color get statusColor {
-    if (isFresh) return SariwaColors.statusFresh;
-    if (confidence > 0.80) return SariwaColors.statusSpoiled;
-    return SariwaColors.statusModerate;
-  }
+  Color get statusColor => isFresh
+      ? SariwaColors.statusFresh
+      : isNotFresh
+      ? SariwaColors.statusSpoiled
+      : SariwaColors.textMutedDark;
 
   String get formattedConfidence => '${(confidence * 100).toStringAsFixed(1)}%';
-
-  String get eyesIndicator =>
-      isFresh ? 'Clear cornea & rounded lens' : 'Cloudy, opaque & sunken cornea';
-
-  String get gillsIndicator =>
-      isFresh ? 'Ruby red & clean odor' : 'Pale brown/gray discoloration';
-
-  String get scalesIndicator =>
-      isFresh ? 'Firm, intact with high sheen' : 'Loose, slimy & dull pigmentation';
-
-  String get recommendation => isFresh
-      ? 'Optimal freshness grade. Approved for immediate culinary use and premium seafood commercial distribution.'
-      : 'Spoilage detected. Fish exhibits significant tissue breakdown. Strictly not recommended for human consumption.';
 }

@@ -173,7 +173,7 @@ class NotchedKpiCard extends StatelessWidget {
                   Row(
                     children: [
                       Icon(
-                        Icons.trending_up_rounded,
+                        Icons.info_outline_rounded,
                         size: effectiveCompact ? 12.5 : 14,
                         color: trendColor,
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../constants/theme/app_colors.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
@@ -29,14 +30,13 @@ class AuditHistorySection extends StatelessWidget {
     if (historyFilter == 'Fresh') {
       filtered = filtered.where((s) => s.isFresh).toList();
     } else if (historyFilter == 'Non-Fresh') {
-      filtered = filtered.where((s) => !s.isFresh).toList();
+      filtered = filtered.where((s) => s.isNotFresh).toList();
     }
 
     if (searchQuery.trim().isNotEmpty) {
       final q = searchQuery.toLowerCase();
       filtered = filtered.where((s) {
         return s.label.toLowerCase().contains(q) ||
-            s.grade.toLowerCase().contains(q) ||
             (s.scanId?.toString().contains(q) ?? false);
       }).toList();
     }
@@ -257,7 +257,8 @@ class AuditHistorySection extends StatelessWidget {
 
   Widget _buildHistoryItemRow(BuildContext context, ClassificationResult scan) {
     final isDeleting = state.deletingScanId == scan.scanId;
-    final isLocalCache = !scan.saved || (scan.scanId != null && scan.scanId! < 0);
+    final isLocalCache =
+        !scan.saved || (scan.scanId != null && scan.scanId! < 0);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -362,8 +363,8 @@ class AuditHistorySection extends StatelessWidget {
                   scan.createdAt != null
                       ? '${scan.createdAt!.month}/${scan.createdAt!.day}/${scan.createdAt!.year} at ${scan.createdAt!.hour}:${scan.createdAt!.minute.toString().padLeft(2, '0')}'
                       : (isLocalCache
-                          ? 'Temporary Guest Scan'
-                          : 'Audit Scan #${scan.scanId ?? ''}'),
+                            ? 'Temporary Guest Scan'
+                            : 'Audit Scan #${scan.scanId ?? ''}'),
                   style: const TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 11,

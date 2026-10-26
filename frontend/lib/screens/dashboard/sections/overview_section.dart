@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../constants/theme/app_colors.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../widgets/common/staggered_reveal.dart';
@@ -35,34 +36,34 @@ class OverviewSection extends StatelessWidget {
     final history = classState.history;
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
-    final cautionCount = total - freshCount;
+    final cautionCount = history.where((s) => s.isNotFresh).length;
     final avgConfidence = total > 0
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
-        : 96.4;
-    final freshRate = total > 0 ? (freshCount / total) * 100 : 100.0;
+        : 0.0;
+    final freshRate = total > 0 ? (freshCount / total) * 100 : 0.0;
 
     final cards = [
       NotchedKpiCard(
         title: 'Total Inspections',
-        value: total > 0 ? total.toString() : '1,248',
-        trendText: '+24.5%',
-        comparisonText: 'vs last month',
+        value: total.toString(),
+        trendText: 'Available',
+        comparisonText: 'scan history',
         waveColor: SariwaColors.textPrimaryDark,
         trendColor: SariwaColors.statusFresh,
         points: const [0.42, 0.25, 0.58, 0.64, 0.32, 0.18, 0.72],
-        showSparkline: true,
+        showSparkline: false,
         isCompact: false,
         onTap: () => onNavigateSection('Scan Logs'),
       ),
       NotchedKpiCard(
         title: 'Sariwa (Fresh)',
-        value: total > 0 ? freshCount.toString() : '1,086',
+        value: freshCount.toString(),
         trendText: '${freshRate.toStringAsFixed(1)}%',
-        comparisonText: 'Grade A pass rate',
+        comparisonText: 'of scans',
         waveColor: SariwaColors.statusFresh,
         trendColor: SariwaColors.statusFresh,
         points: const [0.22, 0.45, 0.30, 0.55, 0.38, 0.48, 0.85],
-        showSparkline: true,
+        showSparkline: false,
         isCompact: false,
         onTap: () {
           onFilterChanged('Fresh');
@@ -70,16 +71,16 @@ class OverviewSection extends StatelessWidget {
         },
       ),
       NotchedKpiCard(
-        title: 'Substandard / Caution',
-        value: total > 0 ? cautionCount.toString() : '162',
+        title: 'Not Fresh',
+        value: cautionCount.toString(),
         trendText: total > 0
             ? '${((cautionCount / total) * 100).toStringAsFixed(1)}%'
-            : '13.0%',
-        comparisonText: 'Grade B & C alerts',
+            : '0%',
+        comparisonText: 'of scans',
         waveColor: SariwaColors.statusModerate,
         trendColor: SariwaColors.statusModerate,
         points: const [0.18, 0.48, 0.28, 0.32, 0.62, 0.44, 0.78],
-        showSparkline: true,
+        showSparkline: false,
         isCompact: false,
         onTap: () {
           onFilterChanged('Non-Fresh');
@@ -88,13 +89,13 @@ class OverviewSection extends StatelessWidget {
       ),
       NotchedKpiCard(
         title: 'Avg. AI Confidence',
-        value: '${avgConfidence.toStringAsFixed(1)}%',
-        trendText: '+11.3%',
-        comparisonText: 'AI precision score',
+        value: total == 0 ? '—' : '${avgConfidence.toStringAsFixed(1)}%',
+        trendText: 'Model score',
+        comparisonText: 'not accuracy',
         waveColor: SariwaColors.brandPrimary,
         trendColor: SariwaColors.statusFresh,
         points: const [0.25, 0.68, 0.74, 0.45, 0.20, 0.35, 0.82],
-        showSparkline: true,
+        showSparkline: false,
         isCompact: false,
         onTap: () => onNavigateSection('Freshness Trends'),
       ),
@@ -113,10 +114,7 @@ class OverviewSection extends StatelessWidget {
                   left: i == 0 ? 0 : 7,
                   right: i == cards.length - 1 ? 0 : 7,
                 ),
-                child: StaggeredReveal(
-                  staggerIndex: i + 1,
-                  child: cards[i],
-                ),
+                child: StaggeredReveal(staggerIndex: i + 1, child: cards[i]),
               ),
             ),
           ),

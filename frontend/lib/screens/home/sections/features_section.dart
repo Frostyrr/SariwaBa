@@ -76,7 +76,7 @@ class FeaturesSection extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
                   child: Text(
-                    'Standardize seafood inspection across markets, harbors, and cold storage with clinical computer vision.',
+                    'Use image classification to record fish freshness predictions and review previous scans.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -106,8 +106,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 1,
                           child: _buildFeatureCard(
                             icon: Icons.remove_red_eye_outlined,
-                            title: 'Cornea Optical Clarity',
-                            desc: 'Analyzes pupil transparency and lens convexity to detect post-mortem cloudiness within milliseconds.',
+                            title: 'Image Classification',
+                            desc: 'Upload a JPEG or PNG image up to 5 MB to receive a Fresh or Not Fresh prediction.',
                           ),
                         ),
                       ),
@@ -118,8 +118,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 2,
                           child: _buildFeatureCard(
                             icon: Icons.bloodtype_outlined,
-                            title: 'Branchial Gill Pigmentation',
-                            desc: 'Measures RGB redness variance and discoloration across gill arches to separate fresh catch from oxidized fish.',
+                            title: 'Model Confidence',
+                            desc: 'See the model score for each prediction. Low-confidence images are rejected so you can try another photo.',
                           ),
                         ),
                       ),
@@ -130,8 +130,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 3,
                           child: _buildFeatureCard(
                             icon: Icons.offline_bolt_outlined,
-                            title: 'Offline Smart Scanning',
-                            desc: 'Assess fish freshness anytime on your mobile device, even in markets or ports without an internet connection.',
+                            title: 'Connected Scanning',
+                            desc: 'Capture or select an image on your device. A connection to the backend is required to run the model.',
                           ),
                         ),
                       ),

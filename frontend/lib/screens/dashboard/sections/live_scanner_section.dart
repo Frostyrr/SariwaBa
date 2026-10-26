@@ -1,15 +1,14 @@
+import '../../../widgets/classification/classification_result_card.dart';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../../constants/theme/app_colors.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
 import '../../../widgets/common/app_button.dart';
 
-enum ScannerState {
-  idle,
-  scanning,
-  result,
-}
+enum ScannerState { idle, scanning, result }
 
 typedef LiveScannerCard = LiveScannerSection;
 
@@ -96,7 +95,7 @@ class LiveScannerSection extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'Multi-cue analysis of cornea, gills & dermal sheen',
+                            'Image classification with model confidence',
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 12,
@@ -177,7 +176,9 @@ class LiveScannerSection extends StatelessWidget {
   /// State 1: Idle Dropzone (180px on Mobile, 250px on Desktop, swapped button priority)
   Widget _buildEmptyUploadDropzone() {
     final dropzoneHeight = isMobile ? 180.0 : 250.0;
-    final primaryBtnColor = isMobile ? kMobileEmerald : SariwaColors.brandPrimary;
+    final primaryBtnColor = isMobile
+        ? kMobileEmerald
+        : SariwaColors.brandPrimary;
 
     final useCameraPrimary = ElevatedButton.icon(
       onPressed: () => controller.pickImage(ImageSource.camera),
@@ -188,9 +189,7 @@ class LiveScannerSection extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
     );
 
@@ -203,9 +202,7 @@ class LiveScannerSection extends StatelessWidget {
         side: const BorderSide(color: SariwaColors.borderLightTeal),
         backgroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
     );
 
@@ -218,9 +215,7 @@ class LiveScannerSection extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
     );
 
@@ -233,9 +228,7 @@ class LiveScannerSection extends StatelessWidget {
         side: const BorderSide(color: SariwaColors.borderLightTeal),
         backgroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
     );
 
@@ -349,7 +342,7 @@ class LiveScannerSection extends StatelessWidget {
               SizedBox(width: 10),
               Flexible(
                 child: Text(
-                  'Analyzing fish eyes, gills, and skin freshness...',
+                  'Classifying your image...',
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 13,
@@ -443,142 +436,13 @@ class LiveScannerSection extends StatelessWidget {
     );
   }
 
-  /// State 3: Result View (Graded badge + 3 Biomarker Progress Bars + Scan Another / Save to Log)
+  /// Display only fields returned by the classification API.
   Widget _buildInspectionResultView(ClassificationResult result) {
-    final corneaScore = result.isFresh ? 0.96 : 0.48;
-    final gillScore = result.isFresh ? 0.94 : 0.44;
-    final dermalScore = result.isFresh ? 0.92 : 0.51;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Graded Badge Header
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: result.statusColor.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: result.statusColor.withValues(alpha: 0.35),
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: result.statusColor,
-                ),
-                child: Icon(
-                  result.isFresh
-                      ? Icons.verified_rounded
-                      : Icons.warning_amber_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        Text(
-                          '${result.formattedConfidence} ${result.label}',
-                          style: TextStyle(
-                            fontFamily: 'Geist',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.35,
-                            color: result.statusColor,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: result.statusColor,
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            result.grade,
-                            style: TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.15,
-                              color: result.statusColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      result.recommendation,
-                      style: const TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: -0.15,
-                        color: SariwaColors.textSecondaryDark,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-
-        const Text(
-          'Sensory Biomarkers Analysis',
-          style: TextStyle(
-            fontFamily: 'Geist',
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.2,
-            color: SariwaColors.textPrimaryDark,
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // 3 Biomarker Progress Bars (Cornea Clarity, Gill Coloration, Dermal Sheen)
-        _buildBiomarkerProgressRow(
-          label: 'Cornea Clarity',
-          indicatorText: result.eyesIndicator,
-          progress: corneaScore,
-          color: result.statusColor,
-        ),
-        const SizedBox(height: 8),
-        _buildBiomarkerProgressRow(
-          label: 'Gill Coloration',
-          indicatorText: result.gillsIndicator,
-          progress: gillScore,
-          color: result.statusColor,
-        ),
-        const SizedBox(height: 8),
-        _buildBiomarkerProgressRow(
-          label: 'Dermal Sheen',
-          indicatorText: result.scalesIndicator,
-          progress: dermalScore,
-          color: result.statusColor,
-        ),
-        const SizedBox(height: 14),
-
+        ClassificationResultCard(result: result),
+        const SizedBox(height: 16),
         // Action Row: Scan Another & Save to Log
         Wrap(
           spacing: 10,
@@ -637,7 +501,7 @@ class LiveScannerSection extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onSignInToSave,
                 icon: const Icon(Icons.bookmark_add_outlined, size: 17),
-                label: const Text('Save to Log (Sign in)'),
+                label: const Text('Sign in for future scans'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isMobile
                       ? kMobileEmerald
@@ -656,66 +520,6 @@ class LiveScannerSection extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildBiomarkerProgressRow({
-    required String label,
-    required String indicatorText,
-    required double progress,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.2,
-                  color: SariwaColors.textPrimaryDark,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  indicatorText,
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: -0.15,
-                    color: SariwaColors.textSecondaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 5.5,
-              backgroundColor: Colors.white,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

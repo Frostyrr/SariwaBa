@@ -6,7 +6,7 @@ import '../../../widgets/common/staggered_reveal.dart';
 
 /// How It Works Section Widget
 /// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
-/// numbered clinical inspection steps, and high-contrast elevated cards.
+/// numbered image classification steps, and high-contrast elevated cards.
 class HowItWorksSection extends StatelessWidget {
   final VoidCallback onDownload;
 
@@ -82,7 +82,7 @@ class HowItWorksSection extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 620),
                   child: Text(
-                    'Eliminate subjective guesswork with real-time sensory classification aligned with international seafood grading standards.',
+                    'Upload a fish image to receive a Fresh or Not Fresh prediction and its model confidence.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -96,7 +96,7 @@ class HowItWorksSection extends StatelessWidget {
 
               const SizedBox(height: 48),
 
-              // 3 Clinical Workflow Step Cards
+              // 3 Classification Workflow Step Cards
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 1,
@@ -130,9 +130,9 @@ class HowItWorksSection extends StatelessWidget {
                 staggerIndex: 3,
                 child: _buildStepCard(
                   stepNumber: '03',
-                  title: 'Clear Freshness Grade & History',
+                  title: 'Prediction & Scan History',
                   description:
-                      'Receive an immediate freshness grade (Grade A Sariwa, Grade B Katamtaman, or Grade C Spoiled) and save results to your account history.',
+                      'View the predicted label and model confidence. Sign in before scanning to save the result to your account history.',
                   icon: Icons.task_alt_outlined,
                 ),
               ),

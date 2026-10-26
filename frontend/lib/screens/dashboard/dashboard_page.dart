@@ -94,138 +94,142 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         builder: (context, constraints) {
           final bool isDesktop = constraints.maxWidth >= 800.0;
 
-        if (!isDesktop) {
-          return _buildMobileScannerFirstLayout(
-            user: user,
-            isGuest: isGuest,
-            authController: authController,
-            classState: classState,
-            classController: classController,
-          );
-        }
+          if (!isDesktop) {
+            return _buildMobileScannerFirstLayout(
+              user: user,
+              isGuest: isGuest,
+              authController: authController,
+              classState: classState,
+              classController: classController,
+            );
+          }
 
-        // ---------------------------------------------------------------------
-        // DESKTOP LAYOUT (>= 800.0px) — Preserved Hierarchy
-        // ---------------------------------------------------------------------
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: SariwaColors.bgDashboard,
-          body: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. Left Persistent Sidebar (250px)
-              SizedBox(
-                width: 250,
-                child: DashboardSidebar(
-                  activeSection: _activeSection,
-                  user: user,
-                  isGuest: isGuest,
-                  onSelectSection: _selectSection,
-                  onQuickScan: () {
-                    _selectSection('Live Scanner');
-                    classController.pickImage(ImageSource.gallery);
-                  },
-                  onOpenDownloads: () => authController.goToDownloads(),
-                  onOpenHome: () => authController.goToLanding(),
-                  onSignIn: () => authController.goToLogin(),
-                  onSignOut: () => authController.signOut(),
+          // ---------------------------------------------------------------------
+          // DESKTOP LAYOUT (>= 800.0px) — Preserved Hierarchy
+          // ---------------------------------------------------------------------
+          return Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: SariwaColors.bgDashboard,
+            body: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. Left Persistent Sidebar (250px)
+                SizedBox(
+                  width: 250,
+                  child: DashboardSidebar(
+                    activeSection: _activeSection,
+                    user: user,
+                    isGuest: isGuest,
+                    onSelectSection: _selectSection,
+                    onQuickScan: () {
+                      _selectSection('Live Scanner');
+                      classController.pickImage(ImageSource.gallery);
+                    },
+                    onOpenDownloads: () => authController.goToDownloads(),
+                    onOpenHome: () => authController.goToLanding(),
+                    onSignIn: () => authController.goToLogin(),
+                    onSignOut: () => authController.signOut(),
+                  ),
                 ),
-              ),
 
-              // 2. Main Desktop Workspace
-              Expanded(
-                child: Column(
-                  children: [
-                    DashboardTopBar(
-                      isDesktop: true,
-                      activeSection: _activeSection,
-                      user: user,
-                      isGuest: isGuest,
-                      searchController: _searchController,
-                      searchQuery: _searchQuery,
-                      onSearchChanged: (val) =>
-                          setState(() => _searchQuery = val),
-                      onClearSearch: () {
-                        _searchController.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                      onOpenDrawer: () {},
-                      onSyncHistory: () => classController.loadHistory(),
-                      onOpenHome: () => authController.goToLanding(),
-                      onSignIn: () => authController.goToLogin(),
-                      onSignOut: () => authController.signOut(),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 28,
-                          vertical: 20,
-                        ),
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 1240),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                StaggeredReveal(
-                                  staggerIndex: 0,
-                                  child: DashboardGreetingHeader(
-                                    user: user,
-                                    isGuest: isGuest,
-                                    selectedTimeframe: _selectedTimeframe,
-                                    onTimeframeChanged: (val) => setState(
-                                      () => _selectedTimeframe = val,
-                                    ),
-                                    onConnectGoogle: () =>
-                                        authController.continueWithGoogle(),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-
-                                if (classState.errorMessage != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 14),
-                                    child: _buildNotificationBanner(
-                                      message: classState.errorMessage!,
-                                      isError: true,
+                // 2. Main Desktop Workspace
+                Expanded(
+                  child: Column(
+                    children: [
+                      DashboardTopBar(
+                        isDesktop: true,
+                        activeSection: _activeSection,
+                        user: user,
+                        isGuest: isGuest,
+                        searchController: _searchController,
+                        searchQuery: _searchQuery,
+                        onSearchChanged: (val) =>
+                            setState(() => _searchQuery = val),
+                        onClearSearch: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                        onOpenDrawer: () {},
+                        onSyncHistory: () => classController.loadHistory(),
+                        onOpenHome: () => authController.goToLanding(),
+                        onSignIn: () => authController.goToLogin(),
+                        onSignOut: () => authController.signOut(),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 20,
+                          ),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 1240),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  StaggeredReveal(
+                                    staggerIndex: 0,
+                                    child: DashboardGreetingHeader(
+                                      user: user,
+                                      isGuest: isGuest,
+                                      selectedTimeframe: _selectedTimeframe,
+                                      onTimeframeChanged: (val) => setState(
+                                        () => _selectedTimeframe = val,
+                                      ),
+                                      onConnectGoogle: () =>
+                                          authController.continueWithGoogle(),
                                     ),
                                   ),
-                                if (classState.successMessage != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 14),
-                                    child: _buildNotificationBanner(
-                                      message: classState.successMessage!,
-                                      isError: false,
+                                  const SizedBox(height: 20),
+
+                                  if (classState.errorMessage != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 14,
+                                      ),
+                                      child: _buildNotificationBanner(
+                                        message: classState.errorMessage!,
+                                        isError: true,
+                                      ),
+                                    ),
+                                  if (classState.successMessage != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 14,
+                                      ),
+                                      child: _buildNotificationBanner(
+                                        message: classState.successMessage!,
+                                        isError: false,
+                                      ),
+                                    ),
+
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 220),
+                                    child: _buildActiveSectionContent(
+                                      classState: classState,
+                                      classController: classController,
+                                      isGuest: isGuest,
+                                      authController: authController,
                                     ),
                                   ),
 
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 220),
-                                  child: _buildActiveSectionContent(
-                                    classState: classState,
-                                    classController: classController,
-                                    isGuest: isGuest,
-                                    authController: authController,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 36),
-                                _buildSimpleFooter(),
-                                const SizedBox(height: 12),
-                              ],
+                                  const SizedBox(height: 36),
+                                  _buildSimpleFooter(),
+                                  const SizedBox(height: 12),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
         },
       ),
     );
@@ -244,11 +248,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final history = classState.history;
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
-    final cautionCount = total - freshCount;
+    final cautionCount = history.where((s) => s.isNotFresh).length;
     final avgConfidence = total > 0
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
-        : 96.4;
-    final freshRate = total > 0 ? (freshCount / total) * 100 : 100.0;
+        : 0.0;
+    final freshRate = total > 0 ? (freshCount / total) * 100 : 0.0;
 
     return DefaultTabController(
       length: 2,
@@ -500,8 +504,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 children: [
                   NotchedKpiCard(
                     title: 'Total Inspections',
-                    value: total > 0 ? total.toString() : '1,248',
-                    trendText: '+24.5%',
+                    value: total.toString(),
+                    trendText: 'Available',
                     comparisonText: 'vs last mo',
                     waveColor: SariwaColors.textPrimaryDark,
                     trendColor: SariwaColors.statusFresh,
@@ -512,9 +516,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                   NotchedKpiCard(
                     title: 'Sariwa (Fresh)',
-                    value: total > 0 ? freshCount.toString() : '1,086',
+                    value: freshCount.toString(),
                     trendText: '${freshRate.toStringAsFixed(0)}%',
-                    comparisonText: 'Grade A',
+                    comparisonText: 'of scans',
                     waveColor: SariwaColors.statusFresh,
                     trendColor: SariwaColors.statusFresh,
                     points: const [0.22, 0.45, 0.30, 0.55, 0.38, 0.48, 0.85],
@@ -523,12 +527,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     onTap: () {},
                   ),
                   NotchedKpiCard(
-                    title: 'Substandard',
-                    value: total > 0 ? cautionCount.toString() : '162',
+                    title: 'Not Fresh',
+                    value: cautionCount.toString(),
                     trendText: total > 0
                         ? '${((cautionCount / total) * 100).toStringAsFixed(0)}%'
-                        : '13%',
-                    comparisonText: 'Grade B/C',
+                        : '0%',
+                    comparisonText: 'of scans',
                     waveColor: SariwaColors.statusModerate,
                     trendColor: SariwaColors.statusModerate,
                     points: const [0.18, 0.48, 0.28, 0.32, 0.62, 0.44, 0.78],
@@ -538,9 +542,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                   NotchedKpiCard(
                     title: 'Avg. Confidence',
-                    value: '${avgConfidence.toStringAsFixed(1)}%',
-                    trendText: '+11.3%',
-                    comparisonText: 'precision',
+                    value: total == 0
+                        ? '—'
+                        : '${avgConfidence.toStringAsFixed(1)}%',
+                    trendText: 'Model score',
+                    comparisonText: 'not accuracy',
                     waveColor: SariwaColors.brandPrimary,
                     trendColor: SariwaColors.statusFresh,
                     points: const [0.25, 0.68, 0.74, 0.45, 0.20, 0.35, 0.82],
@@ -727,7 +733,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           key: const ValueKey('section_freshness_trends'),
           history: classState.history,
         );
-      case 'Grade Breakdown':
+      case 'Classification Summary':
         return GradeBreakdownSection(
           key: const ValueKey('section_grade_breakdown'),
           history: classState.history,

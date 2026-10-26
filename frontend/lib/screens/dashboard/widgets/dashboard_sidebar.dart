@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../constants/theme/app_colors.dart';
 import '../../../models/auth/user_model.dart';
 import 'dashboard_charts.dart';
@@ -140,10 +141,10 @@ class DashboardSidebar extends StatelessWidget {
                       onTap: () => onSelectSection('Freshness Trends'),
                     ),
                     _buildNavItem(
-                      label: 'Grade Breakdown',
+                      label: 'Classification Summary',
                       icon: Icons.pie_chart_outline_rounded,
-                      isActive: activeSection == 'Grade Breakdown',
-                      onTap: () => onSelectSection('Grade Breakdown'),
+                      isActive: activeSection == 'Classification Summary',
+                      onTap: () => onSelectSection('Classification Summary'),
                     ),
 
                     const Padding(
