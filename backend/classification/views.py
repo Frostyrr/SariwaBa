@@ -75,22 +75,22 @@ def classify_fish(request):
 
     prediction = predict_image(image_file)
 
-    print("REAL ML PREDICTION:", prediction)
+#    print("REAL ML PREDICTION:", prediction)
 
     label = prediction["label"]
     confidence = prediction["confidence"]
 
-    if confidence < 0.80:
-        return Response(
-            {
-                "error": {
-                    "code": "LOW_CONFIDENCE",
-                    "message": "The uploaded image could not be confidently classified as a fish freshness image."
-                },
-                "confidence": confidence
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+#    if confidence < 0.80:
+#        return Response(
+#            {
+#                "error": {
+#                    "code": "LOW_CONFIDENCE",
+#                    "message": "The uploaded image could not be confidently classified as a fish freshness image."
+#                },
+#                "confidence": confidence
+#            },
+#            status=status.HTTP_400_BAD_REQUEST
+#        )
 
 
     image_file.seek(0)
