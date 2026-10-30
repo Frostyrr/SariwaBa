@@ -58,4 +58,24 @@ class ClassificationResult {
       : SariwaColors.textMutedDark;
 
   String get formattedConfidence => '${(confidence * 100).toStringAsFixed(1)}%';
+
+  String get grade {
+    if (isFresh) return 'Grade A (Sariwa)';
+    if (confidence > 0.80) return 'Grade C (Hindi Sariwa)';
+    return 'Grade B (Katamtaman)';
+  }
+
+  String get eyesIndicator =>
+      isFresh ? 'Clear cornea & rounded lens' : 'Cloudy, opaque & sunken cornea';
+
+  String get gillsIndicator =>
+      isFresh ? 'Ruby red & clean odor' : 'Pale brown/gray discoloration';
+
+  String get scalesIndicator =>
+      isFresh ? 'Firm, intact with high sheen' : 'Loose, slimy & dull pigmentation';
+
+  String get recommendation => isFresh
+      ? 'Optimal freshness grade. Approved for immediate culinary use and premium seafood commercial distribution.'
+      : 'Spoilage detected. Fish exhibits significant tissue breakdown. Strictly not recommended for human consumption.';
 }
+
