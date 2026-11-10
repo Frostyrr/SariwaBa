@@ -4,13 +4,16 @@ from .models import ClassificationHistory
 
 class ClassificationHistorySerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    classification = serializers.CharField(source="label", read_only=True)
 
     class Meta:
         model = ClassificationHistory
         fields = [
             "scan_id",
+            "classification",
             "label",
             "confidence",
+            "region_type",
             "image",
             "image_url",
             "created_at",
