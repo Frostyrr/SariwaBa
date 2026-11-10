@@ -1,5 +1,3 @@
-import '../../controllers/auth/auth_controller.dart';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,9 +22,8 @@ final Provider<Dio> apiClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
-        if (ref.read(authControllerProvider).isGuest) {
+        if (options.extra['guestRequest'] == true) {
           options.headers.remove('Authorization');
-          options.extra['guestRequest'] = true;
           return handler.next(options);
         }
         final accessToken = await tokenStorage.getAccessToken();
