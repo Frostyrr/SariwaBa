@@ -6,8 +6,9 @@ import '../../constants/theme/app_typography.dart';
 enum _AppButtonVariant { primary, secondary, outline, lightPill }
 
 /// Reusable AppButton Widget
-/// - [AppButton.primary]: Sariwa teal (#168077) with white text & gentle elevation.
-/// - [AppButton.secondary]: Lagoon glass container with subtle light border.
+/// Styled for SariwaBa aquatic palette and squircle / capsule geometry:
+/// - [AppButton.primary]: Sariwa teal (#168077) with white text, crisp hover state & gentle elevation.
+/// - [AppButton.secondary]: Editorial light card button with subtle border.
 /// - [AppButton.outline]: Transparent container with light aqua border.
 /// - [AppButton.lightPill]: White/light capsule button with dark text.
 class AppButton extends StatefulWidget {
@@ -21,7 +22,21 @@ class AppButton extends StatefulWidget {
   final double borderRadius;
   final _AppButtonVariant _variant;
 
+  /// Classic Primary Button
   const AppButton.primary({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.trailing,
+    this.isLoading = false,
+    this.width,
+    this.height = 48,
+    this.borderRadius = 16,
+  }) : _variant = _AppButtonVariant.primary;
+
+  /// Backward compatible alias pointing to classic Primary Button
+  const AppButton.primaryV2({
     super.key,
     required this.label,
     required this.onPressed,
@@ -96,13 +111,13 @@ class _AppButtonState extends State<AppButton> {
 
       case _AppButtonVariant.secondary:
         backgroundColor = _isHovered
-            ? SariwaColors.bgLagoonMid
-            : SariwaColors.surfaceGlass;
-        textColor = SariwaColors.textPrimaryLight;
+            ? const Color(0xFFF1F5F9)
+            : Colors.white;
+        textColor = const Color(0xFF0A2229);
         border = Border.all(
           color: _isHovered
-              ? SariwaColors.brandLight.withValues(alpha: 0.45)
-              : SariwaColors.borderGlass,
+              ? const Color(0xFF94A3B8)
+              : const Color(0xFFE2E8F0),
           width: 1.2,
         );
         break;
@@ -150,16 +165,16 @@ class _AppButtonState extends State<AppButton> {
               border: border,
               boxShadow:
                   widget._variant == _AppButtonVariant.primary && isInteractive
-                  ? [
-                      BoxShadow(
-                        color: SariwaColors.brandPrimary.withValues(
-                          alpha: _isHovered ? 0.35 : 0.22,
-                        ),
-                        blurRadius: _isHovered ? 14 : 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]
-                  : null,
+                      ? [
+                          BoxShadow(
+                            color: SariwaColors.brandPrimary.withValues(
+                              alpha: _isHovered ? 0.35 : 0.22,
+                            ),
+                            blurRadius: _isHovered ? 14 : 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                      : null,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Center(
@@ -175,6 +190,7 @@ class _AppButtonState extends State<AppButton> {
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (widget.icon != null) ...[
                           widget.icon!,
@@ -183,6 +199,7 @@ class _AppButtonState extends State<AppButton> {
                         Flexible(
                           child: Text(
                             widget.label,
+                            textAlign: TextAlign.center,
                             style: AppTypography.buttonSecondary.copyWith(
                               color: textColor,
                               fontWeight: FontWeight.w600,

@@ -495,80 +495,191 @@ class HowItWorksSection extends StatelessWidget {
     );
   }
 
-  /// Section 5: Clean Final Call to Action Banner
+  /// Section 5: Atmospheric Underwater Call to Action Banner (Centered)
   Widget _buildFinalCtaBanner(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 36),
       decoration: BoxDecoration(
-        color: SariwaColors.bgAbyssDark,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1F0A2229),
-            blurRadius: 30,
-            offset: Offset(0, 10),
+            color: Color(0x240A2229),
+            blurRadius: 36,
+            offset: Offset(0, 16),
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: Color(0x1814B8A6),
+            blurRadius: 44,
+            offset: Offset(0, 20),
+            spreadRadius: -6,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text(
-            'Ready to experience intelligent fish inspection?',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.25,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 580),
-            child: Text(
-              'Inspect Tilapia freshness in your browser right now or download the mobile application for field audits.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 15,
-                height: 1.5,
-                letterSpacing: -0.25,
-                color: Color(0xFFCCEAE6),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Layer 1: Blurred Underwater Aquatic Backdrop
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/backgroundBlurred.jpg',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
               ),
             ),
-          ),
-          const SizedBox(height: 28),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 14,
-            runSpacing: 12,
-            children: [
-              AppButton.primary(
-                label: 'Download App',
-                icon: const Icon(
-                  Icons.download_rounded,
-                  color: Colors.white,
-                  size: 18,
+
+            // Layer 2: Deep Abyss Gradient Overlay (ensures high contrast & text legibility)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
+                      const Color(0xFF0D2F38).withValues(alpha: 0.82),
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.92),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: const Color(0x28CCEAE6),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
                 ),
-                width: 180,
-                height: 48,
-                borderRadius: 24,
-                onPressed: onDownload,
               ),
-              if (onTryInspection != null)
-                AppButton.secondary(
-                  label: 'Try Inspection',
-                  width: 170,
-                  height: 48,
-                  borderRadius: 24,
-                  onPressed: onTryInspection,
+            ),
+
+            // Layer 3: Ambient Radial Glow Flare in top-right corner
+            Positioned(
+              top: -80,
+              right: -60,
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x3514B8A6),
+                      Color(0x0E2DD4BF),
+                      Color(0x002DD4BF),
+                    ],
+                    stops: [0.0, 0.55, 1.0],
+                  ),
                 ),
-            ],
-          ),
-        ],
+              ),
+            ),
+
+            // Layer 4: Foreground Content (Centered across full width)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Subtle Pill Eyebrow
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x2414B8A6),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0x402DD4BF),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: const Text(
+                      'START AUDITING TODAY',
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: Color(0xFF5EEAD4),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  const Text(
+                    'Ready to experience intelligent fish inspection?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.25,
+                      height: 1.2,
+                      color: Colors.white,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 580),
+                    child: const Text(
+                      'Inspect Tilapia freshness in your browser right now or download the mobile application for field audits.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 15.5,
+                        height: 1.55,
+                        letterSpacing: -0.25,
+                        color: Color(0xFFD1FAF4),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Symmetrically Centered Action Buttons
+                  SizedBox(
+                    width: double.infinity,
+                    child: Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 16,
+                        runSpacing: 12,
+                        children: [
+                          AppButton.primary(
+                            label: 'Download App',
+                            icon: const Icon(
+                              Icons.download_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            width: 180,
+                            height: 48,
+                            borderRadius: 24,
+                            onPressed: onDownload,
+                          ),
+                          if (onTryInspection != null)
+                            AppButton.secondary(
+                              label: 'Try Inspection',
+                              width: 170,
+                              height: 48,
+                              borderRadius: 24,
+                              onPressed: onTryInspection,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

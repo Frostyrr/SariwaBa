@@ -99,7 +99,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isGuest = authState.isGuest;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFCFB),
+      backgroundColor: const Color(0xFFF0F7F6),
       body: Stack(
         children: [
           // Scrollable Page Sections

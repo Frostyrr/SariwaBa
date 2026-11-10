@@ -178,11 +178,11 @@ void main() {
     expect(find.descendant(of: find.byType(WebNavbar), matching: find.text('How it Works')), findsOneWidget);
     expect(find.text('Log in'), findsOneWidget);
 
-    expect(find.text('SariwaBa? See for yourself.'), findsOneWidget);
-    expect(find.text('A smarter way to assess fish freshness through AI.'), findsOneWidget);
+    expect(find.text('A clearer perspective on fish freshness.'), findsOneWidget);
+    expect(find.text('Assess fish freshness through image-based machine learning, with results designed to support more informed decisions.'), findsOneWidget);
     expect(find.text('Download App'), findsAtLeast(2));
 
-    await tester.tap(find.text('Download App').first);
+    await tester.tap(find.descendant(of: find.byType(WebNavbar), matching: find.text('Download App')));
     await tester.pumpAndSettle();
 
     expect(find.text('Get SariwaBa.'), findsOneWidget);

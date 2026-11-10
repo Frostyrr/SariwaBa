@@ -41,182 +41,199 @@ class WebNavbar extends StatelessWidget {
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 768;
 
-        final bgColor = isLight
-            ? Colors.white.withValues(alpha: isScrolled ? 0.92 : 0.96)
-            : SariwaColors.bgAbyssDark
-                .withValues(alpha: isScrolled ? 0.85 : 0.65);
-
-        final borderColor =
-            isLight ? SariwaColors.borderLightTeal : SariwaColors.borderGlass;
-
         final linkColor = isLight
             ? SariwaColors.textSecondaryDark
             : SariwaColors.textSecondaryLight;
 
         return SelectionContainer.disabled(
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOutCubic,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: borderColor,
-                      width: 1.0,
-                    ),
-                  ),
-                  boxShadow: isScrolled
-                      ? [
-                          BoxShadow(
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isDesktop ? 24.0 : 8.0,
+                12.0,
+                isDesktop ? 24.0 : 8.0,
+                6.0,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1040.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(36),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        height: 58,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isDesktop ? 20.0 : 8.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isLight
+                              ? Colors.white.withValues(alpha: isScrolled ? 0.75 : 0.62)
+                              : SariwaColors.bgAbyssDark
+                                  .withValues(alpha: isScrolled ? 0.80 : 0.60),
+                          borderRadius: BorderRadius.circular(36),
+                          border: Border.all(
                             color: isLight
-                                ? const Color(0x0F0A2229)
-                                : const Color(0x38000000),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
+                                ? Colors.white.withValues(alpha: 0.85)
+                                : Colors.white.withValues(alpha: 0.16),
+                            width: 1.2,
                           ),
-                        ]
-                      : const [],
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1120.0),
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: isDesktop ? 24 : 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Left: Brand Logo with Text asset
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            hitTestBehavior: HitTestBehavior.opaque,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: onHome,
-                              child: Image.asset(
-                                'assets/images/SariwaBa with Text.png',
-                                height: isDesktop ? 40 : 34,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/SariwaBa logo.png',
-                                        height: 32,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'SariwaBa',
-                                        style: AppTypography.brandLogo.copyWith(
-                                          color: isLight
-                                              ? SariwaColors.brandPrimary
-                                              : Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0F172A)
+                                  .withValues(alpha: isScrolled ? 0.08 : 0.04),
+                              blurRadius: isScrolled ? 24 : 16,
+                              offset: const Offset(0, 6),
+                              spreadRadius: -2,
+                            ),
+                            BoxShadow(
+                              color: const Color(0xFF14B8A6)
+                                  .withValues(alpha: isScrolled ? 0.08 : 0.05),
+                              blurRadius: 32,
+                              offset: const Offset(0, 8),
+                              spreadRadius: -4,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Left: Brand Logo mark alongside Outlined Text Logo
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              hitTestBehavior: HitTestBehavior.opaque,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: onHome,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/images/SariwaBa logo.png',
+                                      height: isDesktop ? 34 : 24,
+                                      fit: BoxFit.contain,
+                                    ),
+                                    SizedBox(width: isDesktop ? 10 : 6),
+                                    Image.asset(
+                                      'assets/images/SariwaBa Text Only - Original Black.png',
+                                      color: isLight ? null : Colors.white,
+                                      height: isDesktop ? 22 : 15,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Text(
+                                          'SariwaBa',
+                                          style: AppTypography.brandLogo.copyWith(
+                                            color: isLight
+                                                ? const Color(0xFF0A2229)
+                                                : Colors.white,
+                                            fontSize: 16,
+                                            letterSpacing: -0.25,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
 
-                          // Center: Nav Links for Desktop (Home, Features, How it Works, Downloads, Dashboard)
-                          if (isDesktop)
+                            // Center: Nav Links for Desktop (Home, Features, How it Works, Downloads, Dashboard)
+                            if (isDesktop)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _buildNavItem(
+                                    'Home',
+                                    isActive: activeTab == 'Home',
+                                    linkColor: linkColor,
+                                    onTap: onHome,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  _buildNavItem(
+                                    'Features',
+                                    isActive: activeTab == 'Features',
+                                    linkColor: linkColor,
+                                    onTap: onFeatures,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  _buildNavItem(
+                                    'How it Works',
+                                    isActive: activeTab == 'How it Works',
+                                    linkColor: linkColor,
+                                    onTap: onHowItWorks,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  _buildNavItem(
+                                    'Downloads',
+                                    isActive: activeTab == 'Downloads',
+                                    linkColor: linkColor,
+                                    onTap: onDownloads ?? onGetStarted,
+                                  ),
+                                  if (user != null) ...[
+                                    const SizedBox(width: 10),
+                                    _buildNavItem(
+                                      'Dashboard',
+                                      isActive: activeTab == 'Dashboard',
+                                      linkColor: linkColor,
+                                      onTap: onDashboard,
+                                    ),
+                                  ],
+                                ],
+                              ),
+
+                            // Right: User Profile (when authenticated) or Log In + CTA
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                _buildNavItem(
-                                  'Home',
-                                  isActive: activeTab == 'Home',
-                                  linkColor: linkColor,
-                                  onTap: onHome,
-                                ),
-                                const SizedBox(width: 14),
-                                _buildNavItem(
-                                  'Features',
-                                  isActive: activeTab == 'Features',
-                                  linkColor: linkColor,
-                                  onTap: onFeatures,
-                                ),
-                                const SizedBox(width: 14),
-                                _buildNavItem(
-                                  'How it Works',
-                                  isActive: activeTab == 'How it Works',
-                                  linkColor: linkColor,
-                                  onTap: onHowItWorks,
-                                ),
-                                const SizedBox(width: 14),
-                                _buildNavItem(
-                                  'Downloads',
-                                  isActive: activeTab == 'Downloads',
-                                  linkColor: linkColor,
-                                  onTap: onDownloads ?? onGetStarted,
-                                ),
-                                if (user != null) ...[
-                                  const SizedBox(width: 14),
-                                  _buildNavItem(
-                                    'Dashboard',
-                                    isActive: activeTab == 'Dashboard',
-                                    linkColor: linkColor,
-                                    onTap: onDashboard,
+                                if (user != null)
+                                  _buildUserMenu(context, isDesktop)
+                                else ...[
+                                  MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: TextButton(
+                                      onPressed: onLogIn,
+                                      style: TextButton.styleFrom(
+                                        enabledMouseCursor:
+                                            SystemMouseCursors.click,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: isDesktop ? 10 : 6,
+                                          vertical: 6,
+                                        ),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                        foregroundColor: isLight
+                                            ? SariwaColors.brandPrimary
+                                            : SariwaColors.brandLight,
+                                      ),
+                                      child: Text(
+                                        'Log in',
+                                        style: AppTypography.navLink.copyWith(
+                                          color: isLight
+                                              ? SariwaColors.textPrimaryDark
+                                              : SariwaColors.textPrimaryLight,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: isDesktop ? 10 : 6),
+                                  AppButton.primary(
+                                    label: 'Download App',
+                                    height: 36,
+                                    width: isDesktop ? 138 : 90,
+                                    borderRadius: 18,
+                                    onPressed: onDownloads ?? onGetStarted,
                                   ),
                                 ],
                               ],
                             ),
-
-                          // Right: User Profile (when authenticated) or Log In + CTA
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (user != null)
-                                _buildUserMenu(context, isDesktop)
-                              else ...[
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: TextButton(
-                                    onPressed: onLogIn,
-                                    style: TextButton.styleFrom(
-                                      enabledMouseCursor:
-                                          SystemMouseCursors.click,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      foregroundColor: isLight
-                                          ? SariwaColors.brandPrimary
-                                          : SariwaColors.brandLight,
-                                    ),
-                                    child: Text(
-                                      'Log in',
-                                      style: AppTypography.navLink.copyWith(
-                                        color: isLight
-                                            ? SariwaColors.textPrimaryDark
-                                            : SariwaColors.textPrimaryLight,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                AppButton.primary(
-                                  label: 'Download App',
-                                  height: 38,
-                                  width: isDesktop ? 144 : 116,
-                                  borderRadius: 19,
-                                  onPressed: onDownloads ?? onGetStarted,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

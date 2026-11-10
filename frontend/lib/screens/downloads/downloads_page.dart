@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../constants/theme/app_colors.dart';
-import '../../constants/theme/app_theme.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/common/ambient_glow_background.dart';
@@ -11,9 +10,9 @@ import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
 
 /// Downloads Page
-/// Directly inspired by the reference layout:
-/// Top section: "DOWNLOAD" pill tag, "Get SariwaBa.", subtitle,
-/// 3 platform cards (iPhone & iPad, Android, Web) with feature checklists and download CTA pills.
+/// Cohesive with the Home Page aesthetic:
+/// Features the atmospheric ocean-mint gradient background, floating glass pill navbar,
+/// high-contrast slate typography, and elevated white platform cards (iOS, Android, Web).
 class DownloadsPage extends ConsumerWidget {
   const DownloadsPage({super.key});
 
@@ -21,35 +20,27 @@ class DownloadsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
     final authController = ref.read(authControllerProvider.notifier);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = screenWidth >= 900;
 
     return Scaffold(
-      backgroundColor: SariwaColors.bgAbyssDark,
-      body: AmbientGlowBackground(
-        showTopRightGlow: true,
-        showBottomGlow: true,
-        useBlurredAsset: true,
-        child: Column(
-          children: [
-            // Sticky Top Web Navbar
-            WebNavbar(
-              activeTab: 'Downloads',
-              user: authState.user,
-              onHome: () => authController.goToLanding(),
-              onFeatures: () => authController.goToFeatures(),
-              onHowItWorks: () => authController.goToHowItWorks(),
-              onDashboard: () => authController.goToDashboard(),
-              onSignOut: () => authController.signOut(),
-              onDownloads: () {},
-              onGetStarted: () {},
-              onLogIn: () => authController.goToLogin(),
-            ),
-
-            // Content Area
-            Expanded(
+      backgroundColor: const Color(0xFFF0F7F6),
+      body: Stack(
+        children: [
+          // Content Area with Ambient Gradient Background
+          Positioned.fill(
+            child: AmbientGlowBackground(
+              showTopRightGlow: true,
+              showBottomGlow: false,
+              useLightAtmospheric: true,
+              nextSectionColor: const Color(0xFFF0F7F6),
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
+                    // Top spacer compensating for sticky floating glass pill WebNavbar
+                    const SizedBox(height: 84),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
                       child: Center(
@@ -64,20 +55,21 @@ class DownloadsPage extends ConsumerWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: SariwaColors.surfaceGlass,
+                                    color: const Color(0xFFE6F7F5),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: SariwaColors.brandGlow.withValues(alpha: 0.4),
+                                      color: const Color(0xFFCCEAE6),
                                       width: 1.0,
                                     ),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'DOWNLOAD',
-                                    style: AppTypography.caption.copyWith(
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w700,
                                       letterSpacing: -0.25,
-                                      color: SariwaColors.brandGlow,
+                                      color: SariwaColors.brandPrimary,
                                     ),
                                   ),
                                 ),
@@ -90,10 +82,13 @@ class DownloadsPage extends ConsumerWidget {
                                 staggerIndex: 1,
                                 child: Text(
                                   'Get SariwaBa.',
-                                  style: AppTypography.displayLarge.copyWith(
-                                    fontSize: 46,
-                                    fontWeight: FontWeight.w600,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: isDesktop ? 48 : 36,
+                                    fontWeight: FontWeight.w800,
                                     letterSpacing: -0.25,
+                                    color: const Color(0xFF0A2229),
                                   ),
                                 ),
                               ),
@@ -105,13 +100,15 @@ class DownloadsPage extends ConsumerWidget {
                                 staggerIndex: 2,
                                 child: ConstrainedBox(
                                   constraints: const BoxConstraints(maxWidth: 620),
-                                  child: Text(
+                                  child: const Text(
                                     'Free on Android and iOS. Evaluate seafood freshness on your phone with zero delay. Or launch directly in your browser without installing anything.',
                                     textAlign: TextAlign.center,
-                                    style: AppTypography.bodyLarge.copyWith(
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
                                       fontSize: 16,
-                                      color: SariwaColors.textSecondaryLight,
+                                      color: Color(0xFF475569),
                                       height: 1.5,
+                                      letterSpacing: -0.25,
                                     ),
                                   ),
                                 ),
@@ -122,9 +119,9 @@ class DownloadsPage extends ConsumerWidget {
                               // Platform Cards Grid (iOS, Android, Web)
                               LayoutBuilder(
                                 builder: (context, constraints) {
-                                  final isDesktop = constraints.maxWidth >= 900;
+                                  final isWide = constraints.maxWidth >= 900;
 
-                                  if (isDesktop) {
+                                  if (isWide) {
                                     return Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -178,12 +175,14 @@ class DownloadsPage extends ConsumerWidget {
                               // Bottom Disclaimer Note
                               StaggeredReveal(
                                 staggerIndex: 6,
-                                child: Text(
+                                child: const Text(
                                   'SariwaBa scans fish freshness directly on your device. An internet connection is only needed to sync your saved scan history.',
                                   textAlign: TextAlign.center,
-                                  style: AppTypography.caption.copyWith(
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
                                     fontSize: 12.5,
-                                    color: SariwaColors.textMutedLight,
+                                    letterSpacing: -0.25,
+                                    color: Color(0xFF64748B),
                                   ),
                                 ),
                               ),
@@ -204,8 +203,28 @@ class DownloadsPage extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+
+          // Sticky Top Floating Glass Pill Web Navbar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: WebNavbar(
+              activeTab: 'Downloads',
+              isLight: true,
+              user: authState.user,
+              onHome: () => authController.goToLanding(),
+              onFeatures: () => authController.goToFeatures(),
+              onHowItWorks: () => authController.goToHowItWorks(),
+              onDashboard: () => authController.goToDashboard(),
+              onSignOut: () => authController.signOut(),
+              onDownloads: () {},
+              onGetStarted: () {},
+              onLogIn: () => authController.goToLogin(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -217,15 +236,16 @@ class DownloadsPage extends ConsumerWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: const Color(0xFF007AFF).withValues(alpha: 0.15),
+          color: const Color(0xFFF0F9FF),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF007AFF).withValues(alpha: 0.35),
+            color: const Color(0xFFBAE6FD),
+            width: 1.0,
           ),
         ),
         child: const Icon(
           Icons.apple_rounded,
-          color: Color(0xFF38BDF8),
+          color: Color(0xFF0284C7),
           size: 28,
         ),
       ),
@@ -255,15 +275,16 @@ class DownloadsPage extends ConsumerWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: const Color(0xFF3DDC84).withValues(alpha: 0.15),
+          color: const Color(0xFFECFDF5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF3DDC84).withValues(alpha: 0.35),
+            color: const Color(0xFFA7F3D0),
+            width: 1.0,
           ),
         ),
         child: const Icon(
           Icons.android_rounded,
-          color: Color(0xFF34D399),
+          color: Color(0xFF059669),
           size: 28,
         ),
       ),
@@ -294,15 +315,16 @@ class DownloadsPage extends ConsumerWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: SariwaColors.brandGlow.withValues(alpha: 0.15),
+          color: const Color(0xFFE6F7F5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: SariwaColors.brandGlow.withValues(alpha: 0.35),
+            color: const Color(0xFFCCEAE6),
+            width: 1.0,
           ),
         ),
         child: const Icon(
           Icons.laptop_chromebook_rounded,
-          color: SariwaColors.brandLight,
+          color: SariwaColors.brandPrimary,
           size: 26,
         ),
       ),
@@ -319,7 +341,7 @@ class DownloadsPage extends ConsumerWidget {
   }
 }
 
-/// Common Platform Card Widget
+/// Common Elevated Platform Card Widget
 class _PlatformCard extends StatelessWidget {
   final Widget icon;
   final String title;
@@ -341,12 +363,28 @@ class _PlatformCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SariwaGlassCard(
+    return Container(
       padding: const EdgeInsets.all(28),
-      borderRadius: 24,
-      borderColor: isPrimaryPlatform
-          ? SariwaColors.brandGlow.withValues(alpha: 0.5)
-          : SariwaColors.borderGlass,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isPrimaryPlatform
+              ? SariwaColors.brandPrimary.withValues(alpha: 0.45)
+              : const Color(0xFFE2E8F0),
+          width: isPrimaryPlatform ? 1.5 : 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isPrimaryPlatform
+                ? const Color(0x1414B8A6)
+                : const Color(0x0A0A2229),
+            blurRadius: isPrimaryPlatform ? 24 : 18,
+            offset: const Offset(0, 6),
+            spreadRadius: -2,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -357,9 +395,12 @@ class _PlatformCard extends StatelessWidget {
           // Title
           Text(
             title,
-            style: AppTypography.titleLarge.copyWith(
+            style: const TextStyle(
+              fontFamily: AppTypography.fontFamily,
               fontSize: 22,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.25,
+              color: Color(0xFF0A2229),
             ),
           ),
           const SizedBox(height: 8),
@@ -367,9 +408,12 @@ class _PlatformCard extends StatelessWidget {
           // Description
           Text(
             description,
-            style: AppTypography.bodyMedium.copyWith(
+            style: const TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 14,
               height: 1.45,
-              color: SariwaColors.textSecondaryLight,
+              letterSpacing: -0.25,
+              color: Color(0xFF64748B),
             ),
           ),
 
@@ -380,20 +424,23 @@ class _PlatformCard extends StatelessWidget {
             (feat) => Padding(
               padding: const EdgeInsets.only(bottom: 10.0),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(
-                    Icons.check_rounded,
+                    Icons.check_circle_rounded,
                     size: 18,
-                    color: SariwaColors.statusFresh,
+                    color: Color(0xFF168077),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       feat,
-                      style: AppTypography.bodyMedium.copyWith(
+                      style: const TextStyle(
+                        fontFamily: AppTypography.fontFamily,
                         fontSize: 13.5,
-                        color: SariwaColors.textPrimaryLight,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.25,
+                        color: Color(0xFF334155),
                       ),
                     ),
                   ),

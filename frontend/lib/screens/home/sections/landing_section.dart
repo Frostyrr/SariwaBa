@@ -7,12 +7,12 @@ import '../../../models/auth/user_model.dart';
 import '../../../widgets/common/ambient_glow_background.dart';
 import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/staggered_reveal.dart';
-import '../../../widgets/landing/walkthrough/cinematic_inspection_walkthrough.dart';
+import '../../../widgets/landing/dashboard_showcase.dart';
 
-/// Cinematic Public Landing / Hero Section
-/// Features an atmospheric underwater backdrop, centered editorial typography,
-/// an automatically playing cursor-driven product walkthrough, and a seamless
-/// gradient transition into the next section.
+/// Coastal Light-Mode Hero / Landing Section
+/// Features a warm ivory and soft seafoam atmospheric background,
+/// deep forest-green typography, centered editorial hierarchy,
+/// and a prominent static showcase of the actual SariwaBa? dashboard.
 class LandingSection extends StatelessWidget {
   final VoidCallback onHome;
   final VoidCallback onFeatures;
@@ -46,14 +46,13 @@ class LandingSection extends StatelessWidget {
 
     return AmbientGlowBackground(
       showTopRightGlow: true,
-      showBottomGlow: true,
+      showBottomGlow: false,
       useLightAtmospheric: true,
-      enableSeamlessTransition: true,
       nextSectionColor: const Color(0xFFF0F7F6),
       child: Column(
         children: [
           // Top spacer compensating for sticky 72px WebNavbar
-          const SizedBox(height: 72),
+          const SizedBox(height: 80),
 
           // Guest Evaluation Mode Banner (if guest mode active)
           if (isGuest)
@@ -242,7 +241,7 @@ class LandingSection extends StatelessWidget {
               ),
             ),
 
-          // Centered Cinematic Hero Content
+          // Centered Coastal Hero Content
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1140.0),
@@ -254,64 +253,9 @@ class LandingSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Eyebrow Badge (Light Mode SaaS Pill)
+                    // Deep Forest-Green Headline
                     StaggeredReveal(
                       staggerIndex: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE6F7F5),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFFCCEAE6),
-                            width: 1.0,
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0A0A2229),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF0F766E),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Flexible(
-                              child: Text(
-                                'SariwaBa? See for yourself.',
-                                style: TextStyle(
-                                  fontFamily: AppTypography.fontFamily,
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: -0.25,
-                                  color: Color(0xFF0F766E),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    // Cinematic Headline
-                    StaggeredReveal(
-                      staggerIndex: 1,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 820),
                         child: Text(
@@ -320,194 +264,92 @@ class LandingSection extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
                             fontSize: isDesktop ? 54 : 36,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.25,
                             height: 1.14,
-                            color: const Color(0xFF0A2229),
+                            color: const Color(0xFF0A2B24), // Deep forest-green
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 20),
 
-                    // Supporting Copy
+                    // Concise Supporting Copy
                     StaggeredReveal(
-                      staggerIndex: 2,
+                      staggerIndex: 1,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 680),
-                        child: Column(
-                          children: [
-                            Text(
-                              'A smarter way to assess fish freshness through AI.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: AppTypography.fontFamily,
-                                fontSize: isDesktop ? 18 : 15,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.25,
-                                color: const Color(0xFF0F172A),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Explore AI-assisted fish freshness assessment through a simple, image-based inspection experience.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: AppTypography.fontFamily,
-                                fontSize: isDesktop ? 15.5 : 14,
-                                height: 1.5,
-                                letterSpacing: -0.25,
-                                color: const Color(0xFF475569),
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          'Assess fish freshness through image-based machine learning, with results designed to support more informed decisions.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: isDesktop ? 17.5 : 15,
+                            height: 1.55,
+                            letterSpacing: -0.25,
+                            color: const Color(0xFF334E48), // Muted coastal forest-slate
+                          ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 32),
 
                     // Primary & Secondary Action CTAs
                     StaggeredReveal(
+                      staggerIndex: 2,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Center(
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 16,
+                            runSpacing: 12,
+                            children: [
+                              // Primary CTA: Start assessing (Preserving established primary button styling)
+                              AppButton.primary(
+                                label: 'Start assessing',
+                                icon: const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                width: isDesktop ? 180 : null,
+                                height: 48,
+                                borderRadius: 24,
+                                onPressed: onDashboard ?? onDownloads,
+                              ),
+
+                              // Secondary CTA: Explore how it works
+                              AppButton.secondary(
+                                label: 'Explore how it works',
+                                width: isDesktop ? 190 : null,
+                                height: 48,
+                                borderRadius: 24,
+                                onPressed: onHowItWorks,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 52),
+
+                    // Middle Centerpiece: Static Showcase of the Actual SariwaBa? Dashboard
+                    StaggeredReveal(
                       staggerIndex: 3,
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 14,
-                        runSpacing: 12,
-                        children: [
-                          // Primary CTA: Try Inspection
-                          AppButton.primary(
-                            label: 'Try Inspection',
-                            icon: const Icon(
-                              Icons.auto_awesome,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            width: isDesktop ? 180 : null,
-                            height: 48,
-                            borderRadius: 24,
-                            onPressed: onDashboard ?? onDownloads,
-                          ),
-
-                          // Secondary CTA: How It Works
-                          AppButton.secondary(
-                            label: 'How it works',
-                            width: isDesktop ? 160 : null,
-                            height: 48,
-                            borderRadius: 24,
-                            onPressed: onHowItWorks,
-                          ),
-
-                          // Mobile App Download Button
-                          OutlinedButton.icon(
-                            onPressed: onDownloads,
-                            icon: const Icon(
-                              Icons.download_rounded,
-                              size: 18,
-                              color: SariwaColors.brandPrimary,
-                            ),
-                            label: const Text(
-                              'Download App',
-                              style: TextStyle(
-                                fontFamily: AppTypography.fontFamily,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.25,
-                                color: Color(0xFF0A2229),
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              side: const BorderSide(
-                                color: Color(0xFFE2E8F0),
-                                width: 1.2,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 14,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                            ),
-                          ),
-                        ],
+                      slideOffset: const Offset(0, 32),
+                      child: DashboardShowcase(
+                        width: isDesktop
+                            ? (screenWidth * 0.82).clamp(840.0, 1080.0)
+                            : screenWidth - 32,
                       ),
                     ),
 
-                    const SizedBox(height: 28),
-
-                    // Social Proof / Trust Badge (Mirroring modern SaaS hero reference)
-                    StaggeredReveal(
-                      staggerIndex: 4,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // 3 Overlapping Avatar Circles
-                          SizedBox(
-                            width: 68,
-                            height: 26,
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  left: 0,
-                                  child: CircleAvatar(
-                                    radius: 13,
-                                    backgroundColor: const Color(0xFF14B8A6),
-                                    child: const Text('M', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 18,
-                                  child: CircleAvatar(
-                                    radius: 13,
-                                    backgroundColor: const Color(0xFF0EA5E9),
-                                    child: const Text('J', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 36,
-                                  child: CircleAvatar(
-                                    radius: 13,
-                                    backgroundColor: const Color(0xFF10B981),
-                                    child: const Text('R', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Flexible(
-                            child: Text(
-                              '2,400+ Inspections • Trusted by seafood evaluators & markets',
-                              style: TextStyle(
-                                fontFamily: AppTypography.fontFamily,
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: -0.25,
-                                color: Color(0xFF64748B),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 36),
-
-                    // Middle Centerpiece: Programmatic Cursor-Driven Demonstration
-                    StaggeredReveal(
-                      staggerIndex: 4,
-                      slideOffset: const Offset(0, 36),
-                      child: CinematicInspectionWalkthrough(
-                        width: isDesktop ? 840 : screenWidth - 32,
-                      ),
-                    ),
-
-                    const SizedBox(height: 56),
+                    const SizedBox(height: 64),
                   ],
                 ),
               ),
