@@ -328,18 +328,16 @@ void main() {
       findsOneWidget,
     );
 
-    // 2. Attempting to classify before selecting Eye/Gill is prevented
+    // 2. Eye is pre-selected by default when an image is uploaded; jargon like PostgreSQL is absent
+    expect(
+      container.read(classificationControllerProvider).selectedRegion,
+      equals(AnatomicalRegion.eye),
+    );
     expect(
       container.read(classificationControllerProvider).workflowStage,
-      equals(ClassificationWorkflowStage.imageSelected),
+      equals(ClassificationWorkflowStage.regionSelected),
     );
-    await tester.ensureVisible(find.text('Validate & Classify Freshness'));
-    await tester.tap(find.text('Validate & Classify Freshness'));
-    await tester.pumpAndSettle();
-    expect(
-      find.text('Please select an anatomical region (Eye or Gill) before classifying.'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('PostgreSQL'), findsNothing);
     expect(fakeClassRepo.lastSubmittedBytes, isNull);
 
     // 3. Select Gill region; direct controller.classify() before confirmation is guarded
@@ -404,7 +402,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Confirmed Eye Region Ready'), findsOneWidget);
-    expect(find.text('Cropped ROI'), findsOneWidget);
+    expect(find.text('Cropped Photo'), findsOneWidget);
 
     // 7. Submit classification and verify truthful "Analyzing image..." state + duplicate submit prevention
     final completer = Completer<ClassificationResult>();
@@ -1135,11 +1133,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
 
-    // 4. Select Eye region and press 'Validate & Classify Freshness' directly (without clicking Confirm Crop first)
-    await tester.ensureVisible(find.byKey(const Key('region_option_eye')));
-    await tester.tap(find.byKey(const Key('region_option_eye')));
-    await tester.pumpAndSettle();
-
+    // 4. Eye is already pre-selected by default; press 'Validate & Classify Freshness' directly in 1 tap
+    expect(
+      container.read(classificationControllerProvider).selectedRegion,
+      equals(AnatomicalRegion.eye),
+    );
     await tester.ensureVisible(
       find.byKey(const Key('validate_and_classify_button')),
     );

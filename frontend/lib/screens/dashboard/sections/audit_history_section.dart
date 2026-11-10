@@ -96,7 +96,7 @@ class AuditHistorySection extends StatelessWidget {
                           ),
                           Text(
                             isGuest
-                                ? '${state.history.length} scan(s) in temporary local cache'
+                                ? '${state.history.length} temporary guest scan(s)'
                                 : '${state.history.length} scans saved in your history',
                             style: const TextStyle(
                               fontFamily: 'Geist',
@@ -414,7 +414,7 @@ class AuditHistorySection extends StatelessWidget {
         ),
         content: Text(
           isLocalCache
-              ? 'Remove this scan from your temporary local browser cache?'
+              ? 'Remove this scan from your temporary guest session?'
               : 'Are you sure you want to permanently remove Scan #$scanId from your classification history?',
           style: const TextStyle(
             fontSize: 13.5,

@@ -361,7 +361,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     child: Text(
                       isGuestUser
                           ? 'Guest Evaluation Mode'
-                          : 'PostgreSQL Live Session',
+                          : 'Account Synced',
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -386,7 +386,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Upload a Tilapia photo (JPG, PNG, or HEIC), frame the eye or exposed gill, and run MobileNetV3 freshness analysis.',
+              'Upload a Tilapia photo, frame the eye or exposed gill, and check its freshness in seconds.',
               style: AppTypography.bodyMedium.copyWith(
                 color: SariwaColors.textSecondaryDark,
                 fontSize: 14,
@@ -478,7 +478,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           _buildMetricBox(
             title: 'Total Scans',
             value: total.toString(),
-            subtitle: 'Lifetime audit records',
+            subtitle: 'Saved inspections',
             icon: CupertinoIcons.chart_bar_square,
             iconColor: SariwaColors.brandPrimary,
             iconBg: SariwaColors.brandPrimary.withValues(alpha: 0.10),
@@ -496,7 +496,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           _buildMetricBox(
             title: 'Not Fresh Alerts',
             value: cautionCount.toString(),
-            subtitle: 'Non-fresh detections',
+            subtitle: 'Needs attention',
             icon: CupertinoIcons.exclamationmark_triangle,
             iconColor: SariwaColors.statusModerate,
             iconBg: SariwaColors.statusModerate.withValues(alpha: 0.10),
@@ -504,7 +504,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           _buildMetricBox(
             title: 'Avg. Confidence',
             value: total > 0 ? '${avgConfidence.toStringAsFixed(1)}%' : '—',
-            subtitle: 'History mean score',
+            subtitle: 'Average across scans',
             icon: CupertinoIcons.speedometer,
             iconColor: SariwaColors.statusInfo,
             iconBg: SariwaColors.statusInfo.withValues(alpha: 0.10),
@@ -675,7 +675,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'Tilapia Eye & Exposed Gill ROI Classification',
+                            'Check freshness from a Tilapia eye or exposed gill photo',
                             style: TextStyle(
                               fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
@@ -699,7 +699,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: const Text(
-                  'MobileNetV3',
+                  'Tilapia',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -801,7 +801,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'Region selection & ROI framing active in modal...',
+                  'Adjusting photo in crop view...',
                   style: TextStyle(
                     fontSize: 12,
                     color: SariwaColors.textSecondaryDark,
@@ -1554,7 +1554,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            '${state.history.length} scans recorded in PostgreSQL',
+                            state.history.length == 1 ? '1 saved scan' : '${state.history.length} saved scans',
                             style: const TextStyle(
                               fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
@@ -1884,7 +1884,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Text('Delete Scan Record?'),
         content: Text(
-          'Are you sure you want to permanently delete Scan #$scanId from PostgreSQL history?',
+          'Are you sure you want to permanently delete Scan #$scanId from your history?',
         ),
         actions: [
           TextButton(

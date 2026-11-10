@@ -611,16 +611,20 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            Text(
-              selected != null
-                  ? '${selected.displayName} (${selected.tagalogName})'
-                  : 'Required',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: selected != null
-                    ? SariwaColors.brandPrimary
-                    : SariwaColors.textMutedDark,
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                selected != null
+                    ? '${selected.displayName} (${selected.tagalogName})'
+                    : 'Required',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: selected != null
+                      ? SariwaColors.brandPrimary
+                      : SariwaColors.textMutedDark,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -1517,7 +1521,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 child: Text(
                   state.isFullImageConfirmed
                       ? 'Full Close-Up'
-                      : 'Cropped ROI',
+                      : 'Cropped Photo',
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1647,7 +1651,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             children: [
               Expanded(
                 child: Text(
-                  'Selected region: ${region?.displayName ?? ''}',
+                  'Region: ${region?.displayName ?? ''} (${region?.tagalogName ?? ''})',
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
@@ -1717,7 +1721,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'HEIC / HEIF High-Efficiency Image',
+              'Ready to frame and classify',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 11,

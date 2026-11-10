@@ -41,7 +41,7 @@ class ClassificationState {
   const ClassificationState({
     this.selectedImageBytes,
     this.selectedImageName,
-    this.selectedRegion,
+    this.selectedRegion = AnatomicalRegion.eye,
     this.confirmedImageBytes,
     this.isCropConfirmed = false,
     this.isFullImageConfirmed = false,
@@ -130,7 +130,7 @@ class ClassificationState {
       selectedImageName:
           clearImage ? null : (selectedImageName ?? this.selectedImageName),
       selectedRegion:
-          clearRegion ? null : (selectedRegion ?? this.selectedRegion),
+          clearRegion ? AnatomicalRegion.eye : (selectedRegion ?? this.selectedRegion),
       confirmedImageBytes: clearImage || clearConfirmedImage
           ? null
           : (confirmedImageBytes ?? this.confirmedImageBytes),
@@ -298,6 +298,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(
       selectedImageBytes: bytes,
       selectedImageName: filename,
+      selectedRegion: state.selectedRegion ?? AnatomicalRegion.eye,
       isClassifying: false,
       isEditingCrop: false,
       clearProcessingStage: true,

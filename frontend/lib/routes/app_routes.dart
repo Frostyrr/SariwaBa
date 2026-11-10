@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../controllers/auth/auth_controller.dart';
 import '../controllers/auth/auth_state.dart';
-import '../screens/auth/auth_page.dart';
 import '../pages/dashboard/dashboard_page.dart';
+import '../screens/auth/auth_page.dart';
 import '../screens/downloads/downloads_page.dart';
 import '../screens/home/home_page.dart';
 
@@ -94,11 +94,11 @@ class AppRoutes {
       case AuthViewStatus.initializing:
         return splash;
       case AuthViewStatus.authenticated:
-      case AuthViewStatus.guestMode:
         return dashboard;
       case AuthViewStatus.landing:
       case AuthViewStatus.features:
       case AuthViewStatus.howItWorks:
+      case AuthViewStatus.guestMode:
         return home;
       case AuthViewStatus.downloads:
         return downloads;
