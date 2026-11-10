@@ -32,6 +32,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   BuildContext? _cropModalContext;
   bool _isHistorySelectionMode = false;
   final Set<int> _selectedHistoryScanIds = <int>{};
+  bool _isDropzoneHovered = false;
 
   @override
   void initState() {
@@ -1264,12 +1265,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return _buildFrostedGlassCard(
       padding: const EdgeInsets.all(24),
       borderRadius: 24,
-      blurSigma: 22,
+      blurSigma: 6,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Row(
@@ -1294,7 +1296,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Live Freshness Inspection',
+                            'Freshness Inspection',
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
@@ -1303,8 +1305,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
+                          SizedBox(height: 2),
                           Text(
-                            'Check freshness from a Tilapia eye or exposed gill photo',
+                            'Analyze a Tilapia eye or exposed gill image.',
                             style: TextStyle(
                               fontSize: 12,
                               letterSpacing: AppTypography.defaultLetterSpacing,
@@ -1318,24 +1321,43 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 5,
+                  horizontal: 9,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary.withValues(alpha: 0.08),
+                  color: const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(99),
-                ),
-                child: const Text(
-                  'Tilapia',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
-                    color: SariwaColors.brandPrimary,
+                  border: Border.all(
+                    color: const Color(0xFFE2E8F0),
+                    width: 1,
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: SariwaColors.brandPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Tilapia only',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1384,105 +1406,119 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget _buildEmptyUploadDropzone(ClassificationController controller) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isDropzoneHovered = true),
+      onExit: (_) => setState(() => _isDropzoneHovered = false),
       child: GestureDetector(
+        key: const Key('empty_upload_dropzone'),
         onTap: () => controller.pickImage(ImageSource.gallery),
         behavior: HitTestBehavior.opaque,
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 34, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
           decoration: BoxDecoration(
-            color: const Color(0xE6FFFFFF),
-            borderRadius: BorderRadius.circular(24),
+            color: _isDropzoneHovered
+                ? SariwaColors.brandPrimary.withValues(alpha: 0.03)
+                : const Color(0xFFFAFAFA),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: SariwaColors.brandPrimary.withValues(alpha: 0.42),
+              color: _isDropzoneHovered
+                  ? SariwaColors.brandPrimary.withValues(alpha: 0.5)
+                  : const Color(0xFFE2E8F0),
               width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                ),
-                child: const Icon(
-                  CupertinoIcons.cloud_upload,
-                  size: 26,
-                  color: SariwaColors.brandPrimary,
-                ),
-              ),
-              const SizedBox(height: 14),
-              RichText(
-                textAlign: TextAlign.center,
-                text: const TextSpan(
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 15,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
-                    color: SariwaColors.textPrimaryDark,
+                  color: _isDropzoneHovered
+                      ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _isDropzoneHovered
+                        ? SariwaColors.brandPrimary.withValues(alpha: 0.25)
+                        : const Color(0xFFE2E8F0),
+                    width: 1.2,
                   ),
-                  children: [
-                    TextSpan(
-                      text: 'Click here ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.brandPrimary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'to select or capture a Tilapia image',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textPrimaryDark,
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _isDropzoneHovered
+                          ? SariwaColors.brandPrimary.withValues(alpha: 0.15)
+                          : const Color(0x0A0F172A),
+                      blurRadius: _isDropzoneHovered ? 16 : 8,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
+                child: Center(
+                  child: Icon(
+                    CupertinoIcons.arrow_up_doc,
+                    size: 24,
+                    color: _isDropzoneHovered
+                        ? SariwaColors.brandPrimary
+                        : const Color(0xFF475569),
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 18),
               const Text(
-                'Supported Format: JPG, JPEG, PNG, HEIC (5 MB max · Eye pre-selected by default)',
+                'Drop your image here',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontFamily: 'Geist',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textSecondaryDark,
-                  height: 1.4,
+                  color: SariwaColors.textPrimaryDark,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 6),
+              const Text(
+                'Or select an image from your device.',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: AppTypography.defaultLetterSpacing,
+                  color: SariwaColors.textSecondaryDark,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
               Wrap(
-                spacing: 10,
+                spacing: 12,
                 runSpacing: 10,
                 alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     key: const Key('browse_gallery_button'),
                     onPressed: () => controller.pickImage(ImageSource.gallery),
-                    icon:
-                        const Icon(CupertinoIcons.photo_on_rectangle, size: 15),
-                    label: const Text('Browse Gallery'),
+                    icon: const Icon(CupertinoIcons.photo, size: 15),
+                    label: const Text('Choose Image'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SariwaColors.brandPrimary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 11,
+                        horizontal: 20,
+                        vertical: 12,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(99),
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
                       ),
                     ),
                   ),
@@ -1492,19 +1528,53 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     icon: const Icon(CupertinoIcons.camera, size: 15),
                     label: const Text('Use Camera'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: SariwaColors.textPrimaryDark,
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      foregroundColor: const Color(0xFF334155),
+                      side: const BorderSide(
+                        color: Color(0xFFCBD5E1),
+                        width: 1.2,
+                      ),
                       backgroundColor: Colors.white,
+                      elevation: 0,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 18,
-                        vertical: 11,
+                        vertical: 12,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(99),
                       ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                      ),
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 22),
+              const Text(
+                'JPG, JPEG, PNG, HEIC · Max 5 MB',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: AppTypography.defaultLetterSpacing,
+                  color: Color(0xFF64748B),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'Active region: Eye (default)',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: AppTypography.defaultLetterSpacing,
+                  color: SariwaColors.brandPrimary,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -1517,21 +1587,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       key: const Key('image_uploading_state'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xE6FFFFFF),
-        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: SariwaColors.brandPrimary.withValues(alpha: 0.45),
-          width: 1.5,
+          color: const Color(0xFFE2E8F0),
+          width: 1.2,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: SariwaColors.brandPrimary.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -1539,14 +1602,25 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                width: 1.2,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0A0F172A),
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
             ),
             child: const Center(
               child: CupertinoActivityIndicator(radius: 12),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           const Text(
             'Uploading & Processing Photo...',
             style: TextStyle(
@@ -1583,7 +1657,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  Widget _buildActiveModalPlaceholderCard(ClassificationState state) {
+    Widget _buildActiveModalPlaceholderCard(ClassificationState state) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),

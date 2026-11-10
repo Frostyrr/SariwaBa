@@ -268,7 +268,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back, Juan!'), findsOneWidget);
-    expect(find.text('Live Freshness Inspection'), findsOneWidget);
+    expect(find.text('Freshness Inspection'), findsOneWidget);
     expect(find.text('Audit History'), findsOneWidget);
     expect(find.text('Log in'), findsNothing);
     expect(find.text('Juan'), findsOneWidget);
