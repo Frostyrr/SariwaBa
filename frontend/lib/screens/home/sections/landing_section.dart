@@ -116,6 +116,28 @@ class LandingSection extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 12),
+                              if (onDashboard != null) ...[
+                                OutlinedButton.icon(
+                                  key: const Key('guest_open_scanner_button'),
+                                  onPressed: onDashboard,
+                                  icon: const Icon(
+                                    Icons.camera_alt_outlined,
+                                    size: 16,
+                                  ),
+                                  label: const Text('Open Live Scanner'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: SariwaColors.brandPrimary,
+                                    side: const BorderSide(
+                                      color: SariwaColors.brandPrimary,
+                                    ),
+                                    minimumSize: const Size(double.infinity, 38),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(19),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
                               AppButton.primary(
                                 label: 'Connect with Google',
                                 icon: SvgPicture.asset(
@@ -140,11 +162,11 @@ class LandingSection extends StatelessWidget {
                               size: 20,
                             ),
                             const SizedBox(width: 10),
-                            Expanded(
+                            const Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Guest Evaluation Mode',
                                     style: TextStyle(
                                       fontFamily: AppTypography.fontFamily,
@@ -153,10 +175,10 @@ class LandingSection extends StatelessWidget {
                                       color: Color(0xFF0A2229),
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
+                                  SizedBox(height: 2),
                                   Text(
                                     'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 12.5,
                                       color: Color(0xFF64748B),
@@ -167,7 +189,29 @@ class LandingSection extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            if (onDashboard != null) ...[
+                              const SizedBox(width: 10),
+                              OutlinedButton.icon(
+                                key: const Key('guest_open_scanner_button'),
+                                onPressed: onDashboard,
+                                icon: const Icon(
+                                  Icons.camera_alt_outlined,
+                                  size: 16,
+                                ),
+                                label: const Text('Open Live Scanner'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: SariwaColors.brandPrimary,
+                                  side: const BorderSide(
+                                    color: SariwaColors.brandPrimary,
+                                  ),
+                                  minimumSize: const Size(160, 38),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(19),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(width: 10),
                             AppButton.primary(
                               label: 'Connect with Google',
                               icon: SvgPicture.asset(
