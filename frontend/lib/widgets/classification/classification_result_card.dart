@@ -26,7 +26,9 @@ class ClassificationResultCard extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Model confidence: ${result.formattedConfidence}',
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(
+letterSpacing: -0.25,
+fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(

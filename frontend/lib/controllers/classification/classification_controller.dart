@@ -13,6 +13,7 @@ import '../../services/classification/classification_service.dart';
 /// Conceptual workflow states for the Live Freshness Inspection pipeline.
 enum ClassificationWorkflowStage {
   initial,
+  imageUploading,
   imageSelected,
   regionSelected,
   cropEditing,
@@ -32,6 +33,7 @@ class ClassificationState {
   final bool isFullImageConfirmed;
   final bool isEditingCrop;
   final Rect? lastCropNormalizedRect;
+  final bool isUploadingImage;
   final bool isClassifying;
   final String? processingStage;
   final ClassificationResult? latestResult;
@@ -52,6 +54,7 @@ class ClassificationState {
     this.isFullImageConfirmed = false,
     this.isEditingCrop = false,
     this.lastCropNormalizedRect,
+    this.isUploadingImage = false,
     this.isClassifying = false,
     this.processingStage,
     this.latestResult,
@@ -74,6 +77,9 @@ class ClassificationState {
 
   /// Current conceptual stage in the classification state machine.
   ClassificationWorkflowStage get workflowStage {
+    if (isUploadingImage) {
+      return ClassificationWorkflowStage.imageUploading;
+    }
     if (isClassifying) {
       return ClassificationWorkflowStage.processing;
     }
@@ -113,6 +119,7 @@ class ClassificationState {
     bool? isEditingCrop,
     Rect? lastCropNormalizedRect,
     bool clearCropRect = false,
+    bool? isUploadingImage,
     bool? isClassifying,
     String? processingStage,
     bool clearProcessingStage = false,
@@ -152,6 +159,7 @@ class ClassificationState {
       lastCropNormalizedRect: clearImage || clearCropRect
           ? null
           : (lastCropNormalizedRect ?? this.lastCropNormalizedRect),
+      isUploadingImage: isUploadingImage ?? this.isUploadingImage,
       isClassifying: isClassifying ?? this.isClassifying,
       processingStage: clearProcessingStage
           ? null
@@ -254,8 +262,14 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     return true;
   }
 
-  /// Pick image from gallery or camera without silent resizing or recompression.
+  /// Set image uploading loading state manually when necessary
+  void setUploadingImage(bool isUploading) {
+    state = state.copyWith(isUploadingImage: isUploading);
+  }
+
+  /// Pick image from gallery or camera with an explicit loading state
   Future<void> pickImage(ImageSource source) async {
+    state = state.copyWith(isUploadingImage: true, clearError: true);
     try {
       final picked = await _picker.pickImage(source: source);
 
@@ -270,6 +284,10 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         isInputRejection: true,
         clearSuccess: true,
       );
+    } finally {
+      if (mounted) {
+        state = state.copyWith(isUploadingImage: false);
+      }
     }
   }
 
@@ -277,6 +295,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   void setSelectedImage({required Uint8List bytes, required String filename}) {
     if (bytes.isEmpty) {
       state = state.copyWith(
+        isUploadingImage: false,
         errorMessage: 'The selected image file is empty.',
         errorCode: 'EMPTY_IMAGE',
         isInputRejection: true,
@@ -287,6 +306,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (bytes.lengthInBytes > maxFileSizeBytes) {
       state = state.copyWith(
+        isUploadingImage: false,
         errorMessage: 'Image size exceeds 5 MB. Please select a smaller photo.',
         errorCode: 'IMAGE_TOO_LARGE',
         isInputRejection: true,
@@ -297,6 +317,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (!isSupportedImageFormat(bytes, filename)) {
       state = state.copyWith(
+        isUploadingImage: false,
         errorMessage: 'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
         errorCode: 'UNSUPPORTED_IMAGE_TYPE',
         isInputRejection: true,
@@ -312,6 +333,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       selectedImageBytes: bytes,
       selectedImageName: filename,
       selectedRegion: state.selectedRegion ?? AnatomicalRegion.eye,
+      isUploadingImage: false,
       isClassifying: false,
       isEditingCrop: false,
       clearProcessingStage: true,
@@ -476,6 +498,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   void clearSelection() {
     _activeRequestId++;
     state = state.copyWith(
+      isUploadingImage: false,
       isClassifying: false,
       isEditingCrop: false,
       clearProcessingStage: true,
@@ -637,6 +660,37 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       state = state.copyWith(
         clearDeleting: true,
         errorMessage: 'Could not delete scan record. Please try again.',
+      );
+    }
+  }
+
+  /// Delete multiple scans from user history in bulk
+  Future<void> deleteMultipleScans(List<int> scanIds) async {
+    if (scanIds.isEmpty) return;
+    state = state.copyWith(clearError: true);
+    try {
+      if (isAuthenticated) {
+        await Future.wait(scanIds.map((id) => _service.deleteScan(id)));
+      } else {
+        await Future.wait(scanIds.map((id) => _guestCache.removeScan(id)));
+      }
+      if (!mounted) return;
+      final targetSet = scanIds.toSet();
+      final updated =
+          state.history.where((s) => !targetSet.contains(s.scanId)).toList();
+      state = state.copyWith(
+        history: updated,
+        clearDeleting: true,
+        successMessage: scanIds.length == 1
+            ? 'Scan #${scanIds.first} permanently removed.'
+            : '${scanIds.length} scan records permanently removed.',
+      );
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(
+        clearDeleting: true,
+        errorMessage:
+            'Could not delete selected scan records. Please try again.',
       );
     }
   }

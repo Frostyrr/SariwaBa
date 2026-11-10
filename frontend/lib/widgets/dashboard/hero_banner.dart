@@ -92,7 +92,7 @@ class HeroBanner extends StatelessWidget {
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: 0.9,
+                        letterSpacing: -0.25,
                         color: Colors.white.withValues(alpha: 0.90),
                       ),
                     ),
@@ -104,7 +104,7 @@ class HeroBanner extends StatelessWidget {
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: -0.6,
+                      letterSpacing: -0.25,
                       color: Colors.white,
                     ),
                   ),
@@ -114,6 +114,7 @@ class HeroBanner extends StatelessWidget {
                     child: Text(
                       'Real-time multi-cue classification of cornea, gills, and dermal sheen across audit records.',
                       style: TextStyle(
+                        letterSpacing: -0.25,
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
                         height: 1.4,
@@ -166,6 +167,7 @@ class HeroBanner extends StatelessWidget {
                             const Text(
                               'Sync status',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -207,6 +209,7 @@ class HeroBanner extends StatelessWidget {
                             Text(
                               'PNS 67 Guide',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -252,6 +255,7 @@ class HeroBanner extends StatelessWidget {
                             Text(
                               'Inspect catch',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -441,7 +445,7 @@ class HeroBanner extends StatelessWidget {
                   fontFamily: 'Geist',
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: -0.6,
+                  letterSpacing: -0.25,
                   color: Colors.white,
                 ),
               ),
@@ -449,6 +453,7 @@ class HeroBanner extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
@@ -460,6 +465,7 @@ class HeroBanner extends StatelessWidget {
               Text(
                 subtitle,
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 10.5,
                   color: Colors.white.withValues(alpha: 0.65),

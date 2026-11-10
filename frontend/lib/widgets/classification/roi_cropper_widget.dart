@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/theme/app_colors.dart';
+import '../../constants/theme/app_typography.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 
@@ -247,9 +248,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     required bool classifyImmediately,
   }) async {
     if (!widget.controller.isReadyToClassify) return;
-    widget.onCloseModal?.call();
     if (classifyImmediately) {
+      // Keep modal open so the modal can show the loading state and the freshness results!
       await widget.controller.classify();
+    } else if (widget.isModal) {
+      widget.onCloseModal?.call();
     }
   }
 
@@ -384,8 +387,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
       return;
     }
 
-    // 3. Already confirmed -> close modal if open and classify immediately
-    widget.onCloseModal?.call();
+    // 3. Already confirmed -> keep modal open and classify immediately
     await controller.classify();
   }
 
@@ -395,81 +397,142 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     final controller = widget.controller;
 
     if (widget.isModal) {
-      return Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: const Color(0x18000000),
-            width: 0.8,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x26000000),
-              blurRadius: 40,
-              spreadRadius: -4,
-              offset: Offset(0, 18),
-            ),
-          ],
+      return DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: 'Geist',
+          letterSpacing: AppTypography.defaultLetterSpacing,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildIosModalHeader(state),
-              const Divider(height: 1, color: Color(0xFFE5E7EB)),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (state.errorMessage != null) ...[
-                        _buildModalErrorBanner(state.errorMessage!),
-                        const SizedBox(height: 14),
-                      ],
-                      _buildRegionSelectionSection(state, controller),
-                      const SizedBox(height: 14),
-                      _buildInteractiveCropWorkspace(state, controller),
-                      const SizedBox(height: 16),
-                      _buildPrimaryClassifyAction(state),
-                    ],
-                  ),
-                ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: const Color(0x18000000),
+              width: 0.8,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x26000000),
+                blurRadius: 40,
+                spreadRadius: -4,
+                offset: Offset(0, 18),
               ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+              child: ColoredBox(
+                color: const Color(0xEBFFFFFF),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildIosModalHeader(state),
+                    const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.errorMessage != null) ...[
+                              _buildModalErrorBanner(state.errorMessage!),
+                              const SizedBox(height: 14),
+                            ],
+                            if (state.latestResult != null) ...[
+                              _buildModalResultView(state.latestResult!, state, controller),
+                            ] else ...[
+                              _buildRegionSelectionSection(state, controller),
+                              const SizedBox(height: 14),
+                              _buildInteractiveCropWorkspace(state, controller),
+                              const SizedBox(height: 16),
+                              if (state.isClassifying) ...[
+                                _buildModalClassifyingStatus(state),
+                                const SizedBox(height: 14),
+                              ],
+                              _buildPrimaryClassifyAction(state),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F7FA),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
+    return DefaultTextStyle.merge(
+      style: const TextStyle(
+        fontFamily: 'Geist',
+        letterSpacing: AppTypography.defaultLetterSpacing,
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildRegionSelectionSection(state, controller),
-          const SizedBox(height: 14),
-          if (state.isCropConfirmed && state.confirmedImageBytes != null)
-            _buildConfirmedRegionPreview(state, controller)
-          else if (widget.onOpenModal != null)
-            _buildPendingModalTriggerCard(state, controller)
-          else
-            _buildInteractiveCropWorkspace(state, controller),
-        ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xD9F8FAFC),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xCCFFFFFF), width: 1.0),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildRegionSelectionSection(state, controller),
+                const SizedBox(height: 14),
+                if (state.isCropConfirmed && state.confirmedImageBytes != null)
+                  _buildConfirmedRegionPreview(state, controller)
+                else if (widget.onOpenModal != null)
+                  _buildPendingModalTriggerCard(state, controller)
+                else
+                  _buildInteractiveCropWorkspace(state, controller),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildIosModalHeader(ClassificationState state) {
     final region = state.selectedRegion;
+    final isResult = state.latestResult != null;
+    final isClassifying = state.isClassifying;
+
+    String title;
+    String subtitle;
+    IconData headerIcon;
+    Color headerIconColor;
+
+    if (isResult) {
+      title = 'Freshness Assessment · ${region?.displayName ?? 'Tilapia'}';
+      subtitle = 'Evaluation complete · Inspect results and confidence metrics below';
+      headerIcon = state.latestResult!.isFresh
+          ? CupertinoIcons.checkmark_seal_fill
+          : CupertinoIcons.exclamationmark_triangle_fill;
+      headerIconColor = state.latestResult!.statusColor;
+    } else if (isClassifying) {
+      title = 'Analyzing Tilapia Freshness...';
+      subtitle = 'Checking anatomical cornea/gill features with MobileNetV3';
+      headerIcon = CupertinoIcons.sparkles;
+      headerIconColor = SariwaColors.brandPrimary;
+    } else {
+      title = region != null
+          ? 'Frame Tilapia ${region.displayName}'
+          : 'Select & Frame Region';
+      subtitle = 'Hover over photo for details · Position crop and classify in one tap';
+      headerIcon = CupertinoIcons.viewfinder;
+      headerIconColor = SariwaColors.brandPrimary;
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 10, 14, 12),
       color: Colors.white,
@@ -492,13 +555,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                  color: headerIconColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  CupertinoIcons.viewfinder,
+                child: Icon(
+                  headerIcon,
                   size: 19,
-                  color: SariwaColors.brandPrimary,
+                  color: headerIconColor,
                 ),
               ),
               const SizedBox(width: 12),
@@ -507,21 +570,20 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      region != null
-                          ? 'Frame Tilapia ${region.displayName}'
-                          : 'Select & Frame Region',
+                      title,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const Text(
-                      'Hover over photo for details · Position crop and classify in one tap',
-                      style: TextStyle(
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
                         fontSize: 12,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textSecondaryDark,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -576,6 +638,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             child: Text(
               message,
               style: const TextStyle(
+                letterSpacing: -0.25,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: SariwaColors.textPrimaryDark,
@@ -605,7 +668,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: -0.2,
+                  letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -618,6 +681,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                     ? '${selected.displayName} (${selected.tagalogName})'
                     : 'Required',
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: selected != null
@@ -734,7 +798,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    letterSpacing: -0.2,
+                    letterSpacing: -0.25,
                     color: isSelected
                         ? SariwaColors.textPrimaryDark
                         : const Color(0xFF4B5563),
@@ -855,6 +919,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                               state.selectedImageName ??
                                                   'tilapia_scan.jpg',
                                               style: const TextStyle(
+                                                letterSpacing: -0.25,
                                                 fontSize: 11.5,
                                                 fontWeight: FontWeight.w600,
                                                 color: Colors.white,
@@ -882,8 +947,8 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       borderRadius: BorderRadius.circular(99),
                                       child: BackdropFilter(
                                         filter: ui.ImageFilter.blur(
-                                          sigmaX: 14,
-                                          sigmaY: 14,
+                                          sigmaX: 4,
+                                          sigmaY: 4,
                                         ),
                                         child: Container(
                                           padding: const EdgeInsets.all(6.5),
@@ -913,8 +978,8 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                     borderRadius: BorderRadius.circular(99),
                                     child: BackdropFilter(
                                       filter: ui.ImageFilter.blur(
-                                        sigmaX: 14,
-                                        sigmaY: 14,
+                                        sigmaX: 4,
+                                        sigmaY: 4,
                                       ),
                                       child: Material(
                                         color: const Color(0x991C1C1E),
@@ -953,6 +1018,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                                 Text(
                                                   'Replace Image',
                                                   style: TextStyle(
+                                                    letterSpacing: -0.25,
                                                     color: Colors.white,
                                                     fontSize: 11.5,
                                                     fontWeight: FontWeight.w600,
@@ -1012,6 +1078,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       const Text(
                                         "Eye: Select the fish's visible eye and surrounding area.",
                                         style: TextStyle(
+                                          letterSpacing: -0.25,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
@@ -1021,6 +1088,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       const Text(
                                         'Gill: Select exposed gill tissue, not the external gill cover.',
                                         style: TextStyle(
+                                          letterSpacing: -0.25,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
@@ -1030,6 +1098,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       Text(
                                         'Drag to reposition and pinch or slide to zoom the ${region?.displayName.toLowerCase() ?? 'target'} inside the frame, or switch to Full Close-Up.',
                                         style: const TextStyle(
+                                          letterSpacing: -0.25,
                                           fontSize: 10.5,
                                           color: Colors.white70,
                                         ),
@@ -1038,6 +1107,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       const Text(
                                         'Note: Selecting Eye or Gill specifies which region you are submitting; it does not automatically verify that the image contains Tilapia or that anatomical part.',
                                         style: TextStyle(
+                                          letterSpacing: -0.25,
                                           fontSize: 10,
                                           color: Colors.white60,
                                         ),
@@ -1138,6 +1208,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                     child: Text(
                                       'Frame Region',
                                       style: TextStyle(
+                                        letterSpacing: -0.25,
                                         fontSize: 12,
                                         fontWeight: !_useFullCloseUpMode
                                             ? FontWeight.w700
@@ -1203,6 +1274,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                     child: Text(
                                       'Full Close-Up',
                                       style: TextStyle(
+                                        letterSpacing: -0.25,
                                         fontSize: 12,
                                         fontWeight: _useFullCloseUpMode
                                             ? FontWeight.w700
@@ -1288,6 +1360,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                             child: Text(
                               '${_currentScale.toStringAsFixed(1)}x',
                               style: const TextStyle(
+                                letterSpacing: -0.25,
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w700,
                                 color: SariwaColors.textPrimaryDark,
@@ -1304,6 +1377,411 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
           ],
         );
       },
+    );
+  }
+
+  /// Dedicated Classification Loading Status Card inside the Modal
+  Widget _buildModalClassifyingStatus(ClassificationState state) {
+    final stageText = state.processingStage ?? 'Analyzing Tilapia freshness...';
+    return Container(
+      key: const Key('modal_classifying_status'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: SariwaColors.brandPrimary.withValues(alpha: 0.35),
+          width: 1.0,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x060F172A),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const CupertinoActivityIndicator(radius: 8),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Evaluating Tilapia Freshness...',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      stageText,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.textSecondaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: const LinearProgressIndicator(
+              minHeight: 5,
+              backgroundColor: Color(0xFFE2E8F0),
+              color: SariwaColors.brandPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Freshness Result View displayed directly inside the iOS ROI Modal
+  Widget _buildModalResultView(
+    ClassificationResult result,
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    final isFresh = result.isFresh;
+    final statusColor = result.statusColor;
+
+    return Container(
+      key: const Key('modal_classification_result_view'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Confirmed / Framed Image Thumbnail
+          if (state.confirmedImageBytes != null ||
+              state.selectedImageBytes != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: statusColor.withValues(alpha: 0.35),
+                    width: 1.5,
+                  ),
+                ),
+                child: _buildSafeMemoryImage(
+                  state.confirmedImageBytes ?? state.selectedImageBytes!,
+                  state.selectedImageName,
+                ),
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          // 2. SlothUI-style Result Breakdown Card
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: statusColor.withValues(alpha: 0.30),
+                width: 1.0,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x060F172A),
+                  blurRadius: 16,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: statusColor.withValues(alpha: 0.12),
+                      ),
+                      child: Icon(
+                        isFresh
+                            ? CupertinoIcons.checkmark_alt
+                            : CupertinoIcons.exclamationmark_triangle,
+                        color: statusColor,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      result.label,
+                                      style: TextStyle(
+                                        fontFamily: 'Geist',
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing:
+                                            AppTypography.defaultLetterSpacing,
+                                        color: statusColor,
+                                      ),
+                                    ),
+                                    if (result.selectedRegionLabel != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 9,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF1F5F9),
+                                          borderRadius:
+                                              BorderRadius.circular(99),
+                                        ),
+                                        child: Text(
+                                          result.selectedRegionLabel!,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: AppTypography.defaultLetterSpacing,
+                                            color: SariwaColors.brandPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                isFresh
+                                    ? CupertinoIcons.checkmark_circle_fill
+                                    : CupertinoIcons.exclamationmark_circle_fill,
+                                color: statusColor,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(99),
+                            child: LinearProgressIndicator(
+                              value: result.confidence.clamp(0.0, 1.0),
+                              minHeight: 7,
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                statusColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  'Model Confidence: ${result.formattedConfidence}',
+                                  style: const TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing:
+                                        AppTypography.defaultLetterSpacing,
+                                    color: SariwaColors.textPrimaryDark,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                result.formattedConfidence,
+                                style: TextStyle(
+                                  fontFamily: 'Geist',
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: statusColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (result.modelVersion != null) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              'Model: ${result.modelVersion}',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                letterSpacing:
+                                    AppTypography.defaultLetterSpacing,
+                                color: SariwaColors.textSecondaryDark,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // 3. Save Status Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                width: 0.8,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  result.saved
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.info_circle,
+                  size: 16,
+                  color: result.saved
+                      ? SariwaColors.brandPrimary
+                      : SariwaColors.textSecondaryDark,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    result.saveStatusLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: AppTypography.defaultLetterSpacing,
+                      color: result.saved
+                          ? SariwaColors.brandPrimary
+                          : SariwaColors.textSecondaryDark,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // 4. Preliminary Disclaimer
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+            ),
+            child: Text(
+              result.disclaimer,
+              style: const TextStyle(
+                fontSize: 11.5,
+                height: 1.4,
+                fontWeight: FontWeight.w500,
+                letterSpacing: AppTypography.defaultLetterSpacing,
+                color: SariwaColors.textSecondaryDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // 5. Modal Action Buttons (Done, Adjust Crop)
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    key: const Key('modal_result_done_button'),
+                    onPressed: widget.onCloseModal,
+                    icon: const Icon(CupertinoIcons.checkmark_alt, size: 16),
+                    label: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: SariwaColors.brandPrimary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 2,
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    key: const Key('modal_result_edit_crop_button'),
+                    onPressed: () => controller.editCrop(),
+                    icon: const Icon(CupertinoIcons.crop, size: 14),
+                    label: const Text(
+                      'Adjust Crop',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SariwaColors.brandPrimary,
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1328,7 +1806,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            letterSpacing: -0.2,
+            letterSpacing: -0.25,
           ),
         ),
         style: ElevatedButton.styleFrom(
@@ -1374,6 +1852,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                       child: Text(
                         state.selectedImageName ?? 'tilapia_scan.jpg',
                         style: const TextStyle(
+                          letterSpacing: -0.25,
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
                           color: SariwaColors.textPrimaryDark,
@@ -1397,6 +1876,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 label: const Text(
                   'Replace Image',
                   style: TextStyle(
+                    letterSpacing: -0.25,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: SariwaColors.statusSpoiled,
@@ -1501,7 +1981,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.2,
+                        letterSpacing: -0.25,
                         color: SariwaColors.textPrimaryDark,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -1523,6 +2003,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                       ? 'Full Close-Up'
                       : 'Cropped Photo',
                   style: const TextStyle(
+                    letterSpacing: -0.25,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: SariwaColors.brandPrimary,
@@ -1565,8 +2046,8 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                 borderRadius: BorderRadius.circular(99),
                                 child: BackdropFilter(
                                   filter: ui.ImageFilter.blur(
-                                    sigmaX: 12,
-                                    sigmaY: 12,
+                                    sigmaX: 4,
+                                    sigmaY: 4,
                                   ),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
@@ -1581,6 +2062,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       state.selectedImageName ??
                                           'tilapia_scan.jpg',
                                       style: const TextStyle(
+                                        letterSpacing: -0.25,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -1596,8 +2078,8 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                               borderRadius: BorderRadius.circular(99),
                               child: BackdropFilter(
                                 filter: ui.ImageFilter.blur(
-                                  sigmaX: 12,
-                                  sigmaY: 12,
+                                  sigmaX: 4,
+                                  sigmaY: 4,
                                 ),
                                 child: Material(
                                   color: const Color(0x991C1C1E),
@@ -1624,6 +2106,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                           Text(
                                             'Replace Image',
                                             style: TextStyle(
+                                              letterSpacing: -0.25,
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
                                               color: Colors.white,
@@ -1653,6 +2136,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 child: Text(
                   'Region: ${region?.displayName ?? ''} (${region?.tagalogName ?? ''})',
                   style: const TextStyle(
+                    letterSpacing: -0.25,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                     color: SariwaColors.textSecondaryDark,
@@ -1714,6 +2198,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             Text(
               filename ?? 'iOS HEIC Photo Ready',
               style: const TextStyle(
+                letterSpacing: -0.25,
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1723,6 +2208,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             const Text(
               'Ready to frame and classify',
               style: TextStyle(
+                letterSpacing: -0.25,
                 color: Colors.white70,
                 fontSize: 11,
               ),
@@ -1747,6 +2233,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             Text(
               filename ?? 'HEIC / Image Ready',
               style: const TextStyle(
+                letterSpacing: -0.25,
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

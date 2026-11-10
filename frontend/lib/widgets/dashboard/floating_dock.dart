@@ -140,6 +140,7 @@ class _FloatingDockState extends State<FloatingDock> {
         borderRadius: BorderRadius.circular(8),
       ),
       textStyle: const TextStyle(
+        letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
         fontSize: 11.5,
         fontWeight: FontWeight.w600,
@@ -187,6 +188,7 @@ class _FloatingDockState extends State<FloatingDock> {
         borderRadius: BorderRadius.circular(8),
       ),
       textStyle: const TextStyle(
+        letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
         fontSize: 11.5,
         fontWeight: FontWeight.w600,
@@ -273,6 +275,7 @@ class _FloatingDockState extends State<FloatingDock> {
         ],
       ),
       textStyle: const TextStyle(
+        letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
         fontSize: 11.5,
         fontWeight: FontWeight.w600,
@@ -346,6 +349,7 @@ class _FloatingDockState extends State<FloatingDock> {
                         child: Text(
                           item.badgeCount! > 9 ? '9+' : '${item.badgeCount}',
                           style: const TextStyle(
+                            letterSpacing: -0.25,
                             fontFamily: AppTypography.fontFamily,
                             fontSize: 9,
                             fontWeight: FontWeight.w800,

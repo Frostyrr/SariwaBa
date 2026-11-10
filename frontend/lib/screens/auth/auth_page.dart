@@ -110,7 +110,7 @@ class AuthPage extends ConsumerWidget {
                           style: AppTypography.displayLarge.copyWith(
                             fontSize: 38,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: -0.5,
+                            letterSpacing: -0.25,
                           ),
                         ),
 

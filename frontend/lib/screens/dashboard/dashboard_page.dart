@@ -83,6 +83,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           color: Colors.white,
           surfaceTintColor: Colors.transparent,
           textStyle: TextStyle(
+            letterSpacing: -0.25,
             fontFamily: 'Geist',
             fontSize: 13,
             fontWeight: FontWeight.w500,
@@ -309,7 +310,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             fontFamily: 'Geist',
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            letterSpacing: -0.3,
+                            letterSpacing: -0.25,
                             color: SariwaColors.textPrimaryDark,
                           ),
                           maxLines: 1,
@@ -321,7 +322,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             fontFamily: 'Geist',
                             fontSize: 10.5,
                             fontWeight: FontWeight.w400,
-                            letterSpacing: -0.15,
+                            letterSpacing: -0.25,
                             color: SariwaColors.textMutedDark,
                           ),
                           maxLines: 1,
@@ -354,6 +355,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         Text(
                           '23 Oct, 2026',
                           style: TextStyle(
+                            letterSpacing: -0.25,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: SariwaColors.textPrimaryDark,
@@ -429,7 +431,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 fontFamily: 'Geist',
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w600,
-                                letterSpacing: -0.2,
+                                letterSpacing: -0.25,
                                 color: SariwaColors.textPrimaryDark,
                               ),
                             ),
@@ -443,7 +445,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           fontFamily: 'Geist',
                           fontSize: 11.5,
                           fontWeight: FontWeight.w400,
-                          letterSpacing: -0.15,
+                          letterSpacing: -0.25,
                           color: SariwaColors.textSecondaryDark,
                         ),
                       ),
@@ -586,13 +588,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           fontFamily: 'Geist',
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
+                          letterSpacing: -0.25,
                         ),
                         unselectedLabelStyle: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 12.5,
                           fontWeight: FontWeight.w400,
-                          letterSpacing: -0.2,
+                          letterSpacing: -0.25,
                         ),
                         tabs: [
                           Tab(text: 'Audit History'),
@@ -784,6 +786,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             child: Text(
               message,
               style: TextStyle(
+                letterSpacing: -0.25,
                 color: color,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -799,7 +802,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Center(
       child: Text(
         '© ${DateTime.now().year} SariwaBa — Intelligent Fish Freshness Classification System. All rights reserved.',
-        style: const TextStyle(fontSize: 12, color: SariwaColors.textMutedDark),
+        style: const TextStyle(
+letterSpacing: -0.25,
+fontSize: 12, color: SariwaColors.textMutedDark),
       ),
     );
   }
