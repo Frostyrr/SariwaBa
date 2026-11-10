@@ -519,7 +519,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytesToSubmit[3] == 0x47;
     final submitFilename = state.isFullImageConfirmed
         ? baseName
-        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : 'jpg'}';
+        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : (isHeicHeader(bytesToSubmit) ? 'heic' : 'jpg')}';
 
     final requestId = ++_activeRequestId;
 

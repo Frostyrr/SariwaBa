@@ -34,7 +34,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     _scrollController.addListener(_onScroll);
     // Load fresh history when dashboard opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(classificationControllerProvider.notifier).loadHistory();
+      if (ref.read(authControllerProvider).isAuthenticated) {
+        ref.read(classificationControllerProvider.notifier).loadHistory();
+      }
     });
   }
 
@@ -192,7 +194,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       // Header Greetings & Actions
                       StaggeredReveal(
                         staggerIndex: 0,
-                        child: _buildDashboardHeader(user, classController),
+                        child: _buildDashboardHeader(
+                          user,
+                          classController,
+                          isGuestSession: authState.isGuest,
+                          onConnectGoogle: () =>
+                              authController.continueWithGoogle(),
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -303,10 +311,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   // Header Section
   Widget _buildDashboardHeader(
     dynamic user,
-    ClassificationController controller,
-  ) {
+    ClassificationController controller, {
+    bool isGuestSession = false,
+    VoidCallback? onConnectGoogle,
+  }) {
     final name = (user?.displayName ?? 'Evaluator').toString().split(' ').first;
-    final isGuestUser = user?.isGuest == true;
+    final isGuestUser = isGuestSession || user?.isGuest == true;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -350,7 +360,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   Flexible(
                     child: Text(
                       isGuestUser
-                          ? 'Guest Evaluation Session'
+                          ? 'Guest Evaluation Mode'
                           : 'PostgreSQL Live Session',
                       style: const TextStyle(
                         fontSize: 11.5,
@@ -385,23 +395,47 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ],
         );
 
-        final syncBtn = OutlinedButton.icon(
-          onPressed: () => controller.loadHistory(),
-          icon: const Icon(CupertinoIcons.refresh, size: 15),
-          label: const Text('Sync History'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: SariwaColors.textPrimaryDark,
-            side: const BorderSide(
-              color: Color(0xFFE5E7EB),
-              width: 0.8,
-            ),
-            backgroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(99),
-            ),
-          ),
-        );
+        final syncBtn = isGuestUser
+            ? OutlinedButton.icon(
+                onPressed: onConnectGoogle,
+                icon: const Icon(CupertinoIcons.person_badge_plus, size: 15),
+                label: const Text('Connect with Google'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.brandPrimary,
+                  side: const BorderSide(
+                    color: SariwaColors.brandPrimary,
+                    width: 0.8,
+                  ),
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: () => controller.loadHistory(),
+                icon: const Icon(CupertinoIcons.refresh, size: 15),
+                label: const Text('Sync History'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.textPrimaryDark,
+                  side: const BorderSide(
+                    color: Color(0xFFE5E7EB),
+                    width: 0.8,
+                  ),
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              );
 
         if (isCompact) {
           return Column(

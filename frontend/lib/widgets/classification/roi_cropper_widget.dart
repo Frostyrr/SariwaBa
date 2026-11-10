@@ -207,6 +207,12 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
       _decodedForBytes = null;
       return;
     }
+    if (ClassificationController.isHeicHeader(bytes)) {
+      _decodedImage?.dispose();
+      _decodedImage = null;
+      _decodedForBytes = bytes;
+      return;
+    }
     if (identical(bytes, _decodedForBytes) && _decodedImage != null) {
       return;
     }
@@ -780,30 +786,9 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                         child: SizedBox(
                           width: viewportWidth,
                           height: viewportHeight,
-                          child: Image.memory(
+                          child: _buildSafeMemoryImage(
                             state.selectedImageBytes!,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    CupertinoIcons.photo_on_rectangle,
-                                    color: Colors.white70,
-                                    size: 32,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    state.selectedImageName ?? 'HEIC / Image Ready',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            state.selectedImageName,
                           ),
                         ),
                       ),
@@ -1557,16 +1542,9 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.memory(
+                    _buildSafeMemoryImage(
                       state.confirmedImageBytes!,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const Center(
-                        child: Icon(
-                          CupertinoIcons.photo,
-                          size: 40,
-                          color: Colors.white70,
-                        ),
-                      ),
+                      state.selectedImageName,
                     ),
                     Positioned(
                       top: 10,
@@ -1706,6 +1684,72 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSafeMemoryImage(Uint8List bytes, String? filename) {
+    if (ClassificationController.isHeicHeader(bytes)) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                CupertinoIcons.photo_on_rectangle,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              filename ?? 'iOS HEIC Photo Ready',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'HEIC / HEIF High-Efficiency Image',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Image.memory(
+      bytes,
+      fit: BoxFit.contain,
+      errorBuilder: (_, _, _) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              CupertinoIcons.photo_on_rectangle,
+              color: Colors.white70,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              filename ?? 'HEIC / Image Ready',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
