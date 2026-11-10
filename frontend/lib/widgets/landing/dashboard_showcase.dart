@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../constants/theme/app_colors.dart';
@@ -33,12 +34,7 @@ class DashboardShowcase extends StatelessWidget {
         width: targetWidth,
         constraints: const BoxConstraints(maxWidth: 1080),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1.0,
-          ),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0E0A2229),
@@ -55,26 +51,39 @@ class DashboardShowcase extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Clean Browser / macOS Window Chrome Header
-              _buildBrowserHeader(isMobile),
-
-              // Dashboard Workspace Body (Height constrained)
-              SizedBox(
-                height: targetHeight - 40.0,
-                width: double.infinity,
-                child: Image.asset(
-                  screenshotAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildStaticDashboard(isMobile);
-                  },
+          borderRadius: BorderRadius.circular(16),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.90),
+                  width: 1.2,
                 ),
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Clean Browser / macOS Window Chrome Header
+                  _buildBrowserHeader(isMobile),
+
+                  // Dashboard Workspace Body (Height constrained)
+                  SizedBox(
+                    height: targetHeight - 40.0,
+                    width: double.infinity,
+                    child: Image.asset(
+                      screenshotAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildStaticDashboard(isMobile);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -86,11 +95,11 @@ class DashboardShowcase extends StatelessWidget {
     return Container(
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF8FAFC),
-        border: Border(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC).withValues(alpha: 0.70),
+        border: const Border(
           bottom: BorderSide(
-            color: Color(0xFFE2E8F0),
+            color: Color(0x200D9488),
             width: 1.0,
           ),
         ),
@@ -624,21 +633,30 @@ class DashboardShowcase extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Modest Tilapia Image Preview
+          // Specimen Image Preview (SariwaBa fish logo as uploaded specimen)
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    'assets/images/sample_tilapia.jpg',
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
-                    errorBuilder: (_, _, _) => Container(
-                      color: const Color(0xFFE2E8F0),
-                      child: const Center(
-                        child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F8F6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(18),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/SariwaBa logo.png',
+                        fit: BoxFit.contain,
+                        alignment: Alignment.center,
+                        errorBuilder: (_, _, _) => Container(
+                          color: const Color(0xFFE2E8F0),
+                          child: const Center(
+                            child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                          ),
+                        ),
                       ),
                     ),
                   ),

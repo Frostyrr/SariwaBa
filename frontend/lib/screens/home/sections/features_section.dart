@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
@@ -5,7 +6,7 @@ import '../../../widgets/common/staggered_reveal.dart';
 
 /// Features Section Widget
 /// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
-/// high-contrast slate typography, and elevated white cards.
+/// high-contrast slate typography, and elevated frosted glassmorphism cards.
 class FeaturesSection extends StatelessWidget {
   const FeaturesSection({super.key});
 
@@ -21,28 +22,34 @@ class FeaturesSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Eyebrow Badge
+              // Eyebrow Badge (Frosted Pill)
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2F3F0),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFBBE5DF),
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Text(
-                    'PRECISION GRADING',
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.25,
-                      color: SariwaColors.brandPrimaryDark,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2F3F0).withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.90),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Text(
+                        'PRECISION GRADING',
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.25,
+                          color: SariwaColors.brandPrimaryDark,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -164,66 +171,79 @@ class FeaturesSection extends StatelessWidget {
     required String title,
     required String desc,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFDCEFEA),
-          width: 1.2,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0A2229),
-            blurRadius: 18,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6F6F4),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFCCEAE6),
-                width: 1.0,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.85),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+                spreadRadius: -2,
               ),
-            ),
-            child: Icon(
-              icon,
-              color: SariwaColors.brandPrimary,
-              size: 24,
-            ),
+              BoxShadow(
+                color: const Color(0xFF14B8A6).withValues(alpha: 0.05),
+                blurRadius: 28,
+                offset: const Offset(0, 8),
+                spreadRadius: -4,
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 18.5,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.25,
-              color: const Color(0xFF0A2229),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F6F4).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFCCEAE6).withValues(alpha: 0.8),
+                    width: 1.0,
+                  ),
+                ),
+                child: Icon(
+                  icon,
+                  color: SariwaColors.brandPrimary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 18.5,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.25,
+                  color: Color(0xFF0A2229),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                desc,
+                style: const TextStyle(
+                  letterSpacing: -0.25,
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 14,
+                  height: 1.55,
+                  color: Color(0xFF475569),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            desc,
-            style: TextStyle(
-              letterSpacing: -0.25,
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              height: 1.55,
-              color: const Color(0xFF475569),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

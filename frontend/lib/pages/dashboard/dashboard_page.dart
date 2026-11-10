@@ -128,10 +128,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required Widget child,
     EdgeInsetsGeometry padding = const EdgeInsets.all(24),
     double borderRadius = 24,
-    Color fillColor = const Color(0xD9FFFFFF),
-    Color borderColor = const Color(0xFFE2E8F0),
-    double borderWidth = 1.0,
-    double blurSigma = 6,
+    Color fillColor = const Color(0xC4FFFFFF),
+    Color borderColor = const Color(0xE6FFFFFF),
+    double borderWidth = 1.2,
+    double blurSigma = 18,
   }) {
     return ClipRRect(
       key: key,
@@ -145,11 +145,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             color: fillColor,
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(color: borderColor, width: borderWidth),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x0A0F172A),
-                blurRadius: 24,
-                offset: Offset(0, 8),
+                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+                spreadRadius: -2,
+              ),
+              BoxShadow(
+                color: const Color(0xFF14B8A6).withValues(alpha: 0.05),
+                blurRadius: 28,
+                offset: const Offset(0, 8),
+                spreadRadius: -4,
               ),
             ],
           ),
@@ -1003,6 +1010,101 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
+  Widget _buildAtmosphericHeaderBanner({
+    required Widget content,
+    EdgeInsetsGeometry? padding,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1E0A2229),
+            blurRadius: 32,
+            offset: Offset(0, 12),
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: Color(0x1414B8A6),
+            blurRadius: 36,
+            offset: Offset(0, 16),
+            spreadRadius: -6,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            // Layer 1: Blurred Underwater Aquatic Backdrop
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/backgroundBlurred.jpg',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+              ),
+            ),
+
+            // Layer 2: Deep Abyss Gradient Overlay (ensures high contrast & text legibility)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
+                      const Color(0xFF0D2F38).withValues(alpha: 0.82),
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.92),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: const Color(0x28CCEAE6),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+            ),
+
+            // Layer 3: Ambient Radial Glow Flare in top-right corner
+            Positioned(
+              top: -60,
+              right: -40,
+              child: Container(
+                width: 260,
+                height: 260,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x3514B8A6),
+                      Color(0x0E2DD4BF),
+                      Color(0x002DD4BF),
+                    ],
+                    stops: [0.0, 0.55, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            // Layer 4: Foreground Content
+            Padding(
+              padding: padding ??
+                  const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 24,
+                  ),
+              child: content,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDashboardHeader(
     dynamic user,
     ClassificationController controller, {
@@ -1035,7 +1137,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         Icon(
                           CupertinoIcons.chevron_left,
                           size: 13,
-                          color: SariwaColors.brandPrimary,
+                          color: Color(0xFF5EEAD4),
                         ),
                         SizedBox(width: 4),
                         Text(
@@ -1044,7 +1146,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
                             letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.brandPrimary,
+                            color: Color(0xFF5EEAD4),
                           ),
                         ),
                       ],
@@ -1057,10 +1159,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     vertical: 3.5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xCCFFFFFF),
+                    color: const Color(0x2814B8A6),
                     borderRadius: BorderRadius.circular(99),
                     border: Border.all(
-                      color: const Color(0xFFE2E8F0),
+                      color: const Color(0x402DD4BF),
                       width: 0.8,
                     ),
                   ),
@@ -1072,7 +1174,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         height: 6,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: SariwaColors.brandPrimary,
+                          color: Color(0xFF2DD4BF),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -1084,7 +1186,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: AppTypography.defaultLetterSpacing,
-                          color: SariwaColors.textPrimaryDark,
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -1096,7 +1198,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             Text(
               'Welcome back, $name!',
               style: AppTypography.displayLarge.copyWith(
-                color: SariwaColors.textPrimaryDark,
+                color: Colors.white,
                 fontSize: isCompact ? 23 : 28,
                 fontWeight: FontWeight.w800,
                 letterSpacing: AppTypography.defaultLetterSpacing,
@@ -1106,7 +1208,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             Text(
               'Upload a Tilapia photo, frame the eye or exposed gill, and check its freshness in seconds.',
               style: AppTypography.bodyMedium.copyWith(
-                color: SariwaColors.textSecondaryDark,
+                color: const Color(0xFFD1FAF4),
                 fontSize: 13.5,
                 letterSpacing: AppTypography.defaultLetterSpacing,
               ),
@@ -1122,11 +1224,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             _buildCircularHeaderIconButton(
               icon: CupertinoIcons.question,
               tooltip: 'Eye is selected by default. Hover over an uploaded photo for framing guidance.',
+              isDark: true,
               onTap: () {},
             ),
             _buildCircularHeaderIconButton(
               icon: CupertinoIcons.slider_horizontal_3,
               tooltip: 'Filter scan history',
+              isDark: true,
               onTap: () {
                 setState(() {
                   _historyFilter = _historyFilter == 'All'
@@ -1138,15 +1242,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             if (isGuestUser)
               OutlinedButton.icon(
                 onPressed: onConnectGoogle,
-                icon: const Icon(CupertinoIcons.person_badge_plus, size: 15),
+                icon: const Icon(CupertinoIcons.person_badge_plus, size: 15, color: Color(0xFF5EEAD4)),
                 label: const Text('Connect with Google'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SariwaColors.brandPrimary,
+                  foregroundColor: Colors.white,
                   side: const BorderSide(
-                    color: SariwaColors.brandPrimary,
-                    width: 0.8,
+                    color: Color(0x402DD4BF),
+                    width: 1.0,
                   ),
-                  backgroundColor: const Color(0xD9FFFFFF),
+                  backgroundColor: const Color(0x2414B8A6),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -1159,12 +1263,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             else
               OutlinedButton.icon(
                 onPressed: () => controller.loadHistory(),
-                icon: const Icon(CupertinoIcons.refresh, size: 14),
+                icon: const Icon(CupertinoIcons.refresh, size: 14, color: Color(0xFF5EEAD4)),
                 label: const Text('Sync History'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SariwaColors.textPrimaryDark,
-                  side: const BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
-                  backgroundColor: const Color(0xD9FFFFFF),
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: Color(0x402DD4BF), width: 1.0),
+                  backgroundColor: const Color(0x2414B8A6),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -1177,21 +1281,30 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ],
         );
 
+        final Widget innerContent;
         if (isCompact) {
-          return Column(
+          innerContent = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [headerInfo, const SizedBox(height: 12), actionsRow],
           );
+        } else {
+          innerContent = Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: headerInfo),
+              const SizedBox(width: 16),
+              actionsRow,
+            ],
+          );
         }
 
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: headerInfo),
-            const SizedBox(width: 16),
-            actionsRow,
-          ],
+        return _buildAtmosphericHeaderBanner(
+          content: innerContent,
+          padding: EdgeInsets.symmetric(
+            horizontal: isCompact ? 20 : 28,
+            vertical: isCompact ? 20 : 24,
+          ),
         );
       },
     );
@@ -1201,6 +1314,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required IconData icon,
     required String tooltip,
     required VoidCallback onTap,
+    bool isDark = false,
   }) {
     return Tooltip(
       message: tooltip,
@@ -1208,21 +1322,26 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
           child: Material(
-            color: const Color(0xD9FFFFFF),
+            color: isDark ? const Color(0x24FFFFFF) : const Color(0xD9FFFFFF),
             child: InkWell(
               onTap: onTap,
               customBorder: const CircleBorder(),
+              splashColor: isDark ? const Color(0x2014B8A6) : null,
               child: Container(
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: isDark ? const Color(0x33CCEAE6) : const Color(0xFFE2E8F0),
                     width: 1.0,
                   ),
                 ),
-                child: Icon(icon, size: 16, color: const Color(0xFF475569)),
+                child: Icon(
+                  icon,
+                  size: 16,
+                  color: isDark ? Colors.white : const Color(0xFF475569),
+                ),
               ),
             ),
           ),
@@ -3640,55 +3759,61 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Inspection History',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.textPrimaryDark,
+              _buildAtmosphericHeaderBanner(
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Inspection History',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Review and manage your previous freshness assessments.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.textSecondaryDark,
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Review and manage your previous freshness assessments.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Color(0xFFD1FAF4),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                    child: Text(
-                      '${classState.history.length} records',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.brandPrimary,
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0x2414B8A6),
+                        borderRadius: BorderRadius.circular(99),
+                        border: Border.all(
+                          color: const Color(0x402DD4BF),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Text(
+                        '${classState.history.length} records',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: AppTypography.defaultLetterSpacing,
+                          color: Color(0xFF5EEAD4),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               // Dedicated Toolbar
@@ -4651,68 +4776,76 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Freshness Insights',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.textPrimaryDark,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Explore your inspection activity and classification patterns.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.textSecondaryDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Wrap(
-                    spacing: 6,
-                    children: ['7d', '30d', '90d', 'All'].map((range) {
-                      final isSelected = _analyticsRange == range;
-                      return GestureDetector(
-                        onTap: () => setState(() => _analyticsRange = range),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? SariwaColors.brandPrimary
-                                : const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            range,
+              _buildAtmosphericHeaderBanner(
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Freshness Insights',
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
                               letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: isSelected
-                                  ? Colors.white
-                                  : const Color(0xFF64748B),
+                              color: Colors.white,
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                          SizedBox(height: 4),
+                          Text(
+                            'Explore your inspection activity and classification patterns.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Color(0xFFD1FAF4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 6,
+                      children: ['7d', '30d', '90d', 'All'].map((range) {
+                        final isSelected = _analyticsRange == range;
+                        return GestureDetector(
+                          onTap: () => setState(() => _analyticsRange = range),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF14B8A6)
+                                  : const Color(0x24FFFFFF),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF2DD4BF)
+                                    : const Color(0x33CCEAE6),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Text(
+                              range,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: AppTypography.defaultLetterSpacing,
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFFD1FAF4),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               _buildKpiMetrics(history),

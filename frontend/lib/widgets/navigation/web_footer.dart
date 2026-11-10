@@ -10,6 +10,7 @@ class WebFooter extends StatelessWidget {
   final VoidCallback onFeatures;
   final VoidCallback onHowItWorks;
   final VoidCallback onDownloads;
+  final VoidCallback? onFaq;
 
   const WebFooter({
     super.key,
@@ -17,6 +18,7 @@ class WebFooter extends StatelessWidget {
     required this.onFeatures,
     required this.onHowItWorks,
     required this.onDownloads,
+    this.onFaq,
   });
 
   @override
@@ -119,6 +121,8 @@ class WebFooter extends StatelessWidget {
                                 _buildFooterLink('Home', onHome),
                                 _buildFooterLink('Features', onFeatures),
                                 _buildFooterLink('How it Works', onHowItWorks),
+                                if (onFaq != null)
+                                  _buildFooterLink('FAQ', onFaq!),
                                 _buildFooterLink('Downloads', onDownloads),
                               ],
                             ),
@@ -154,6 +158,8 @@ class WebFooter extends StatelessWidget {
                                 _buildFooterLink('Home', onHome),
                                 _buildFooterLink('Features', onFeatures),
                                 _buildFooterLink('How it Works', onHowItWorks),
+                                if (onFaq != null)
+                                  _buildFooterLink('FAQ', onFaq!),
                                 _buildFooterLink('Downloads', onDownloads),
                               ],
                             ),

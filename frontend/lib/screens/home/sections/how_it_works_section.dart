@@ -1,288 +1,426 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
-import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 
 /// How It Works & Understanding Results Section
 /// Presents the 4-step workflow, transparency around classification labels,
 /// model confidence interpretation, and the final call-to-action.
 class HowItWorksSection extends StatelessWidget {
-  final VoidCallback onDownload;
+  final VoidCallback? onDownload;
   final VoidCallback? onTryInspection;
 
   const HowItWorksSection({
     super.key,
-    required this.onDownload,
+    this.onDownload,
     this.onTryInspection,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFFF0F7F6), // Consistent off-white leaning primary teal
-      padding: const EdgeInsets.symmetric(vertical: 84.0, horizontal: 24.0),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1040.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Eyebrow Badge
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2F3F0),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFBBE5DF),
-                      width: 1.0,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 768;
+        final headlineFontSize = isMobile ? 32.0 : 46.0;
+
+        return Container(
+          width: double.infinity,
+          color: const Color(0xFFFAF9F6), // Warm ivory / coastal clean canvas
+          padding: EdgeInsets.symmetric(
+            vertical: isMobile ? 64.0 : 96.0,
+            horizontal: isMobile ? 20.0 : 36.0,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 960.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Eyebrow Tag: DISCIPLINE (Editorial Accent)
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 0,
+                    child: const Text(
+                      'DISCIPLINE',
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2.4,
+                        color: Color(0xFF0D9488),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'INSPECTION WORKFLOW',
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.25,
-                      color: SariwaColors.brandPrimaryDark,
+
+                  const SizedBox(height: 16),
+
+                  // Headline: Serious About Freshness, No Guesswork.
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Serious About Freshness,',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: headlineFontSize,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
+                            height: 1.15,
+                            color: const Color(0xFF0A2229),
+                          ),
+                        ),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              'No ',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: headlineFontSize,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1.0,
+                                height: 1.15,
+                                color: const Color(0xFF0A2229),
+                              ),
+                            ),
+                            ShaderMask(
+                              shaderCallback: (bounds) => const LinearGradient(
+                                colors: [
+                                  Color(0xFF0D9488), // Coastal teal
+                                  Color(0xFF0284C7), // Vibrant marine cyan
+                                ],
+                              ).createShader(bounds),
+                              child: Text(
+                                'Guesswork.',
+                                style: TextStyle(
+                                  fontFamily: AppTypography.fontFamily,
+                                  fontSize: headlineFontSize,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -1.0,
+                                  height: 1.15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 18),
+                  SizedBox(height: isMobile ? 40 : 64),
 
-              // Title (Deep Ocean Slate #0A2229)
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 1,
-                child: const Text(
-                  'Four Steps to Quality Assurance',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 38,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.25,
-                    color: Color(0xFF0A2229),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // Subtitle
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 2,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 620),
-                  child: Text(
-                    'From specimen capture to verified inference, inspect Tilapia freshness in seconds through intelligent computer vision.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      letterSpacing: -0.25,
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 16,
-                      height: 1.5,
-                      color: Color(0xFF475569),
+                  // 4 Discipline Practice Step Cards
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 1,
+                    child: _buildEditorialStep(
+                      isMobile: isMobile,
+                      stepNumber: '01',
+                      stepTag: 'PRACTICE 01 — CAPTURE',
+                      title: 'Begin With the Specimen',
+                      description:
+                          'Capture a sharp, well-lit photograph under natural or balanced illumination, or upload an uncompressed image up to 5 MB. Optical fidelity ensures our convolutional layers receive true chromatic and structural data.',
+                      metaRecord: 'ANATOMICAL_SPECIMEN • RAW_INGESTION',
                     ),
                   ),
-                ),
+
+                  SizedBox(height: isMobile ? 24 : 36),
+
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 2,
+                    child: _buildEditorialStep(
+                      isMobile: isMobile,
+                      stepNumber: '02',
+                      stepTag: 'PRACTICE 02 — ISOLATE',
+                      title: 'Isolate Key Biomarkers',
+                      description:
+                          'Focus directly on physiological decay indicators: ocular corneal clarity (Eye) or exposed gill arch vascularization (Hasang). Isolating the region of interest eliminates background noise and grounds predictions in anatomy.',
+                      metaRecord: 'REGION_OF_INTEREST • ANATOMICAL_MASK',
+                    ),
+                  ),
+
+                  SizedBox(height: isMobile ? 24 : 36),
+
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 3,
+                    child: _buildEditorialStep(
+                      isMobile: isMobile,
+                      stepNumber: '03',
+                      stepTag: 'PRACTICE 03 — INFER',
+                      title: 'Hold Objective Standards',
+                      description:
+                          'Our dual-model pipeline evaluates corneal opacity, pupil definition, and gill filament discoloration. Every feature map is verified against strict confidence thresholds before an assessment is computed.',
+                      metaRecord: 'DEEP_CONVNET • MULTI_FEATURE_EXTRACTION',
+                    ),
+                  ),
+
+                  SizedBox(height: isMobile ? 24 : 36),
+
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 4,
+                    child: _buildEditorialStep(
+                      isMobile: isMobile,
+                      stepNumber: '04',
+                      stepTag: 'PRACTICE 04 — AUDIT',
+                      title: 'Deliver Honest Certainty',
+                      description:
+                          'Receive an unambiguous Fresh or Not Fresh classification paired with transparent model confidence metrics. Authenticated scans are preserved in an audit history log for full traceability.',
+                      metaRecord: 'QUALITY_ASSURANCE • AUDIT_CHAIN',
+                    ),
+                  ),
+
+                  const SizedBox(height: 72),
+
+                  // --- Section 4: Understanding the Results ---
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 1,
+                    child: _buildUnderstandingResultsCard(),
+                  ),
+                ],
               ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-              const SizedBox(height: 48),
-
-              // 4 Classification Workflow Step Cards
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 1,
-                child: _buildStepCard(
-                  stepNumber: '01',
-                  title: 'Capture or Upload Specimen',
-                  description:
-                      'Take a focused photograph of your Tilapia under natural, even illumination, or select an existing high-resolution image up to 5 MB.',
-                  icon: Icons.camera_alt_outlined,
-                ),
+  Widget _buildNumberCircle(String stepNumber, {double size = 44}) {
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.78),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.90),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
               ),
-
-              const SizedBox(height: 16),
-
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 2,
-                child: _buildStepCard(
-                  stepNumber: '02',
-                  title: 'Select Inspection Region',
-                  description:
-                      'Designate whether the model should analyze the ocular cornea (Eye) or exposed gill arch (Hasang) for targeted inference.',
-                  icon: Icons.crop_free_rounded,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 3,
-                child: _buildStepCard(
-                  stepNumber: '03',
-                  title: 'Validate & Run AI Inference',
-                  description:
-                      'Our computer vision model verifies anatomical alignment, assesses transparency and color indicators, and scores quality markers.',
-                  icon: Icons.memory_outlined,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 4,
-                child: _buildStepCard(
-                  stepNumber: '04',
-                  title: 'Review Classification & Certainty',
-                  description:
-                      'View the Fresh or Not Fresh classification along with transparent model confidence. Authenticated accounts automatically archive audit history.',
-                  icon: Icons.task_alt_outlined,
-                ),
-              ),
-
-              const SizedBox(height: 72),
-
-              // --- Section 4: Understanding the Results ---
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 1,
-                child: _buildUnderstandingResultsCard(),
-              ),
-
-              const SizedBox(height: 72),
-
-              // --- Section 5: Final Call-To-Action Banner ---
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 1,
-                child: _buildFinalCtaBanner(context),
+              BoxShadow(
+                color: const Color(0xFF0D9488).withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+                spreadRadius: -2,
               ),
             ],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            stepNumber,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: size == 44 ? 14 : 12,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF0D9488),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStepCard({
+  Widget _buildEditorialStep({
+    required bool isMobile,
     required String stepNumber,
+    required String stepTag,
     required String title,
     required String description,
-    required IconData icon,
+    required String metaRecord,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFDCEFEA),
-          width: 1.2,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0A2229),
-            blurRadius: 18,
-            offset: Offset(0, 4),
+    final cardContent = ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 22 : 36,
+            vertical: isMobile ? 24 : 32,
           ),
-        ],
-      ),
-      child: Row(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.75),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.90),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+                spreadRadius: -2,
+              ),
+              BoxShadow(
+                color: const Color(0xFF14B8A6).withValues(alpha: 0.05),
+                blurRadius: 28,
+                offset: const Offset(0, 8),
+                spreadRadius: -4,
+              ),
+            ],
+          ),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Step Number Pill (Primary Teal)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: SariwaColors.brandPrimary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              stepNumber,
-              style: AppTypography.monoMetric.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                letterSpacing: -0.25,
+          // Step Header Tag + Horizontal Hairline Divider
+          Row(
+            children: [
+              Text(
+                stepTag,
+                style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.8,
+                  color: Color(0xFF0D9488),
+                ),
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Container(
+                  height: 1,
+                  color: const Color(0xFFF1F5F9),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          // Card Title
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: isMobile ? 20 : 25,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
+              color: const Color(0xFF0A2229),
             ),
           ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, color: SariwaColors.brandPrimary, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          letterSpacing: -0.25,
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF0A2229),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 14,
-                    height: 1.55,
-                    color: Color(0xFF475569),
-                  ),
-                ),
-              ],
+
+          const SizedBox(height: 12),
+
+          // Card Description
+          Text(
+            description,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: isMobile ? 14 : 15,
+              height: 1.6,
+              letterSpacing: -0.2,
+              color: const Color(0xFF475569),
             ),
+          ),
+
+          const SizedBox(height: 26),
+
+          // Industrial Meta Record at Bottom Left
+          Row(
+            children: [
+              Container(
+                width: 13,
+                height: 13,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color(0xFFCBD5E1),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  metaRecord,
+                  style: const TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                    color: Color(0xFF94A3B8),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    ),
+  ),
+);
+
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildNumberCircle(stepNumber, size: 36),
+          const SizedBox(height: 10),
+          cardContent,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildNumberCircle(stepNumber, size: 44),
+        const SizedBox(width: 32),
+        Expanded(child: cardContent),
+      ],
     );
   }
 
   /// Section 4: Understanding the Results & Scientific Disclaimer Card
   Widget _buildUnderstandingResultsCard() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFDCEFEA),
-          width: 1.2,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0E0A2229),
-            blurRadius: 24,
-            offset: Offset(0, 6),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.78),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.90),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+                spreadRadius: -2,
+              ),
+              BoxShadow(
+                color: const Color(0xFF14B8A6).withValues(alpha: 0.06),
+                blurRadius: 32,
+                offset: const Offset(0, 10),
+                spreadRadius: -4,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -339,10 +477,10 @@ class HowItWorksSection extends StatelessWidget {
               final freshCard = Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
+                  color: const Color(0xFFF0FDF4).withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFBBF7D0),
+                    color: Colors.white.withValues(alpha: 0.90),
                     width: 1.0,
                   ),
                 ),
@@ -387,10 +525,10 @@ class HowItWorksSection extends StatelessWidget {
               final notFreshCard = Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
+                  color: const Color(0xFFFEF2F2).withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFFECACA),
+                    color: Colors.white.withValues(alpha: 0.90),
                     width: 1.0,
                   ),
                 ),
@@ -459,10 +597,10 @@ class HowItWorksSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: const Color(0xFFF8FAFC).withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: const Color(0xFFE2E8F0),
+                color: Colors.white.withValues(alpha: 0.90),
                 width: 1.0,
               ),
             ),
@@ -492,195 +630,8 @@ class HowItWorksSection extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  /// Section 5: Atmospheric Underwater Call to Action Banner (Centered)
-  Widget _buildFinalCtaBanner(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x240A2229),
-            blurRadius: 36,
-            offset: Offset(0, 16),
-            spreadRadius: -4,
-          ),
-          BoxShadow(
-            color: Color(0x1814B8A6),
-            blurRadius: 44,
-            offset: Offset(0, 20),
-            spreadRadius: -6,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Layer 1: Blurred Underwater Aquatic Backdrop
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/backgroundBlurred.jpg',
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-            ),
-
-            // Layer 2: Deep Abyss Gradient Overlay (ensures high contrast & text legibility)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
-                      const Color(0xFF0D2F38).withValues(alpha: 0.82),
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.92),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: const Color(0x28CCEAE6),
-                    width: 1.2,
-                  ),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-              ),
-            ),
-
-            // Layer 3: Ambient Radial Glow Flare in top-right corner
-            Positioned(
-              top: -80,
-              right: -60,
-              child: Container(
-                width: 320,
-                height: 320,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x3514B8A6),
-                      Color(0x0E2DD4BF),
-                      Color(0x002DD4BF),
-                    ],
-                    stops: [0.0, 0.55, 1.0],
-                  ),
-                ),
-              ),
-            ),
-
-            // Layer 4: Foreground Content (Centered across full width)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 36),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Subtle Pill Eyebrow
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0x2414B8A6),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0x402DD4BF),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: const Text(
-                      'START AUDITING TODAY',
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                        color: Color(0xFF5EEAD4),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  const Text(
-                    'Ready to experience intelligent fish inspection?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.25,
-                      height: 1.2,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 580),
-                    child: const Text(
-                      'Inspect Tilapia freshness in your browser right now or download the mobile application for field audits.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 15.5,
-                        height: 1.55,
-                        letterSpacing: -0.25,
-                        color: Color(0xFFD1FAF4),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Symmetrically Centered Action Buttons
-                  SizedBox(
-                    width: double.infinity,
-                    child: Center(
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 16,
-                        runSpacing: 12,
-                        children: [
-                          AppButton.primary(
-                            label: 'Download App',
-                            icon: const Icon(
-                              Icons.download_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            width: 180,
-                            height: 48,
-                            borderRadius: 24,
-                            onPressed: onDownload,
-                          ),
-                          if (onTryInspection != null)
-                            AppButton.secondary(
-                              label: 'Try Inspection',
-                              width: 170,
-                              height: 48,
-                              borderRadius: 24,
-                              onPressed: onTryInspection,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    ),
+  ),
+);
   }
 }

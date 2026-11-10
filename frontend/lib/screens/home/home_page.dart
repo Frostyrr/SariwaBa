@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
+import 'sections/faq_section.dart';
 import 'sections/features_section.dart';
 import 'sections/how_it_works_section.dart';
 import 'sections/landing_section.dart';
@@ -22,6 +23,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _featuresKey = GlobalKey();
   final GlobalKey _howItWorksKey = GlobalKey();
+  final GlobalKey _faqKey = GlobalKey();
 
   bool _isScrolled = false;
   bool _isLightNavbar = true;
@@ -128,19 +130,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                   key: _featuresKey,
                 ),
 
-                // Section 3: How It Works Section (Off-white leaning primary teal #F0F7F6)
+                // Section 3: How It Works Section (Discipline workflow & results)
                 HowItWorksSection(
                   key: _howItWorksKey,
+                ),
+
+                // Section 4: FAQ & Call-To-Action Section
+                FaqSection(
+                  key: _faqKey,
                   onDownload: () => authController.goToDownloads(),
                   onTryInspection: () => authController.goToDashboard(),
                 ),
 
-                // Section 4: Web Footer (Deep Abyss #0A2229)
+                // Section 5: Web Footer (Deep Abyss #0A2229)
                 WebFooter(
                   onHome: () => _scrollToKey(_homeKey),
                   onFeatures: () => _scrollToKey(_featuresKey),
                   onHowItWorks: () => _scrollToKey(_howItWorksKey),
                   onDownloads: () => authController.goToDownloads(),
+                  onFaq: () => _scrollToKey(_faqKey),
                 ),
               ],
             ),
