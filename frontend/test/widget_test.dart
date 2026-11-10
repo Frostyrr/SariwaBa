@@ -342,7 +342,7 @@ void main() {
     );
     expect(fakeClassRepo.lastSubmittedBytes, isNull);
 
-    // 3. Select Gill region, then attempt to classify before confirming crop -> prevented
+    // 3. Select Gill region; direct controller.classify() before confirmation is guarded
     await tester.ensureVisible(find.byKey(const Key('region_option_gill')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('region_option_gill')));
@@ -352,9 +352,7 @@ void main() {
       equals(ClassificationWorkflowStage.regionSelected),
     );
 
-    await tester.ensureVisible(find.text('Validate & Classify Freshness'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Validate & Classify Freshness'));
+    await controller.classify();
     await tester.pumpAndSettle();
     expect(
       find.text(
@@ -1047,7 +1045,7 @@ void main() {
   });
 
   testWidgets(
-      'ROI Preparation Modal opens on image selection, supports 1-click Crop & Classify and Full Close-Up & Classify, and re-opens on Edit Crop',
+      'iOS ROI Modal opens on image selection (including HEIC), auto-accepts crop position when pressing Validate & Classify Freshness, and re-opens on Edit Crop',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1280, 1000);
     tester.view.devicePixelRatio = 1.0;
@@ -1095,52 +1093,66 @@ void main() {
     final controller =
         container.read(classificationControllerProvider.notifier);
 
-    // 1. Selecting an image automatically opens the ROI Preparation Modal
+    // 1. Selecting an iOS HEIC image (ISO Base Media 'ftypheic' header) is accepted and opens the ROI Modal
+    final validHeicBytes = Uint8List.fromList([
+      0x00, 0x00, 0x00, 0x18, // box size
+      0x66, 0x74, 0x79, 0x70, // 'ftyp'
+      0x68, 0x65, 0x69, 0x63, // 'heic' major brand
+      0x00, 0x00, 0x00, 0x00,
+      0x6D, 0x69, 0x66, 0x31, // 'mif1'
+      0x68, 0x65, 0x69, 0x63, // 'heic'
+    ]);
     controller.setSelectedImage(
-      bytes: kValidPngBytes,
-      filename: 'tilapia_modal_scan.png',
+      bytes: validHeicBytes,
+      filename: 'iphone_tilapia.heic',
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
-    expect(find.byKey(const Key('crop_and_classify_button')), findsOneWidget);
     expect(
-      find.byKey(const Key('full_image_and_classify_button')),
-      findsOneWidget,
+      container.read(classificationControllerProvider).hasSelectedImage,
+      isTrue,
     );
+    expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+    // Ensure old redundant buttons and STEP badges are gone
+    expect(find.byKey(const Key('crop_and_classify_button')), findsNothing);
+    expect(find.byKey(const Key('full_image_and_classify_button')), findsNothing);
+    expect(find.text('STEP 1'), findsNothing);
+    expect(find.text('STEP 2'), findsNothing);
+    expect(find.text('STEP 3'), findsNothing);
+    expect(find.text('STEP 4'), findsNothing);
 
-    // 2. Dismissing the modal via close button shows the compact pending card with Open Modal button
+    // 2. Dismissing the modal via close button shows the compact pending card with Adjust Crop button
     await tester.tap(find.byKey(const Key('close_crop_modal_button')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
     expect(find.byKey(const Key('open_crop_modal_button')), findsOneWidget);
 
-    // 3. Re-open the modal via 'Open Crop & Region Modal' button
+    // 3. Re-open the modal via 'Adjust Crop' button
     await tester.ensureVisible(find.byKey(const Key('open_crop_modal_button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('open_crop_modal_button')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
 
-    // 4. Select Eye region and click 1-Click 'Full Close-Up & Classify'
+    // 4. Select Eye region and press 'Validate & Classify Freshness' directly (without clicking Confirm Crop first)
     await tester.ensureVisible(find.byKey(const Key('region_option_eye')));
     await tester.tap(find.byKey(const Key('region_option_eye')));
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(
-      find.byKey(const Key('full_image_and_classify_button')),
+      find.byKey(const Key('validate_and_classify_button')),
     );
-    await tester.tap(find.byKey(const Key('full_image_and_classify_button')));
+    await tester.tap(find.byKey(const Key('validate_and_classify_button')));
     await tester.pumpAndSettle();
 
-    // Modal automatically closed, crop confirmed, and classification completed in 1 click!
+    // Pressing 'Validate & Classify Freshness' automatically accepted the crop position, closed the modal, and classified!
     expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
     expect(find.byKey(const Key('confirmed_region_preview')), findsOneWidget);
     expect(find.byKey(const Key('classification_result_view')), findsOneWidget);
     expect(fakeClassRepo.classifyCallCount, equals(1));
 
-    // 5. Clicking 'Edit Crop' on the dashboard re-opens the ROI Preparation Modal
+    // 5. Clicking 'Edit Crop' on the dashboard re-opens the ROI Modal
     await tester.ensureVisible(find.byKey(const Key('edit_crop_button')));
     await tester.tap(find.byKey(const Key('edit_crop_button')));
     await tester.pumpAndSettle();

@@ -142,6 +142,22 @@ class ClassificationServiceImpl implements ClassificationService {
       return DioMediaType('image', 'jpeg');
     }
     final lower = filename.toLowerCase();
+    if (bytes.length >= 12 &&
+        bytes[4] == 0x66 &&
+        bytes[5] == 0x74 &&
+        bytes[6] == 0x79 &&
+        bytes[7] == 0x70) {
+      if (lower.endsWith('.heif')) {
+        return DioMediaType('image', 'heif');
+      }
+      return DioMediaType('image', 'heic');
+    }
+    if (lower.endsWith('.heic')) {
+      return DioMediaType('image', 'heic');
+    }
+    if (lower.endsWith('.heif')) {
+      return DioMediaType('image', 'heif');
+    }
     if (lower.endsWith('.png')) {
       return DioMediaType('image', 'png');
     }

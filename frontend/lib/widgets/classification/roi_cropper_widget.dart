@@ -2,17 +2,17 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/theme/app_colors.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
-import '../common/app_button.dart';
 
-/// Interactive Region-of-Interest (ROI) Selection & Cropping Widget
-/// Supports both a dedicated Modal Dialog (`isModal: true`) for conflict-free
-/// pan/zoom cropping + 1-click classification, and a compact inline Dashboard
-/// summary card (`isModal: false`).
+/// iOS Cupertino-inspired Interactive Region-of-Interest (ROI) Selection & Cropping Widget.
+/// Uses progressive disclosure (hover/tap frosted-glass HUD over the image) to eliminate
+/// visual overload, and automatically accepts the live crop or close-up frame when
+/// the user presses "Validate & Classify Freshness".
 class RoiCropperWidget extends StatefulWidget {
   final ClassificationState state;
   final ClassificationController controller;
@@ -125,6 +125,10 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   Uint8List? _decodedForBytes;
   bool _isCropping = false;
   double _currentScale = 1.0;
+  bool _isHoveringViewport = false;
+  bool _pinGuidanceOverlay = false;
+  bool _useFullCloseUpMode = false;
+  Size _lastViewportSize = const Size(320, 280);
 
   static const double _minScale = 1.0;
   static const double _maxScale = 5.0;
@@ -133,6 +137,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   @override
   void initState() {
     super.initState();
+    _useFullCloseUpMode = widget.state.isFullImageConfirmed;
     _transformController.addListener(_onTransformChanged);
     _decodeSelectedImageInBackground();
   }
@@ -141,8 +146,12 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   void didUpdateWidget(covariant RoiCropperWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.state.selectedImageBytes != oldWidget.state.selectedImageBytes) {
+      _useFullCloseUpMode = false;
       _resetTransform();
       _decodeSelectedImageInBackground();
+    } else if (widget.state.isFullImageConfirmed !=
+        oldWidget.state.isFullImageConfirmed) {
+      _useFullCloseUpMode = widget.state.isFullImageConfirmed;
     }
   }
 
@@ -219,8 +228,6 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     }
   }
 
-  /// Calculates the normalized (0..1) and pixel source rectangle of the image
-  /// currently framed inside the center ROI reticle window.
   Rect _computeNormalizedCropRect(Size viewportSize, Size imageSize) {
     return RoiCropperWidget.computeNormalizedCropRect(
       viewportSize: viewportSize,
@@ -243,6 +250,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   Future<void> _handleConfirmFullCloseUp({
     bool classifyImmediately = false,
   }) async {
+    setState(() => _useFullCloseUpMode = true);
     widget.controller.confirmFullImageAsCloseUp();
     await _completeConfirmation(classifyImmediately: classifyImmediately);
   }
@@ -251,6 +259,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     Size viewportSize, {
     bool classifyImmediately = false,
   }) async {
+    setState(() => _useFullCloseUpMode = false);
     if (widget.state.selectedRegion == null) {
       widget.controller.confirmCroppedRegion(Uint8List(0));
       return;
@@ -291,7 +300,6 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
         normalizedRect.bottom * imageSize.height,
       );
 
-      // Keep high visual fidelity (at least 64px, up to 1024px) for MobileNetV3 (224x224)
       final outWidth = srcRect.width.round().clamp(64, 1024);
       final outHeight = srcRect.height.round().clamp(64, 1024);
 
@@ -346,6 +354,35 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     }
   }
 
+  /// Automatically accepts the current crop position (or full close-up mode)
+  /// and runs classification when the user presses "Validate & Classify Freshness".
+  Future<void> _handleValidateAndClassifyPressed() async {
+    final state = widget.state;
+    final controller = widget.controller;
+
+    if (state.isClassifying || _isCropping) return;
+
+    // 1. If no region is selected yet, trigger the controller's region guard
+    if (state.selectedRegion == null) {
+      await controller.classify();
+      return;
+    }
+
+    // 2. If crop/close-up hasn't been confirmed yet, automatically accept current frame
+    if (!state.isCropConfirmed || state.confirmedImageBytes == null) {
+      if (_useFullCloseUpMode) {
+        await _handleConfirmFullCloseUp(classifyImmediately: true);
+      } else {
+        await _handleConfirmCrop(_lastViewportSize, classifyImmediately: true);
+      }
+      return;
+    }
+
+    // 3. Already confirmed -> close modal if open and classify immediately
+    widget.onCloseModal?.call();
+    await controller.classify();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
@@ -354,28 +391,32 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     if (widget.isModal) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: SariwaColors.borderLightTeal, width: 1.5),
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: const Color(0x18000000),
+            width: 0.8,
+          ),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x28061419),
-              blurRadius: 28,
-              offset: Offset(0, 12),
+              color: Color(0x26000000),
+              blurRadius: 40,
+              spreadRadius: -4,
+              offset: Offset(0, 18),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildModalHeader(state),
-              const Divider(height: 1, color: SariwaColors.borderLightTeal),
+              _buildIosModalHeader(state),
+              const Divider(height: 1, color: Color(0xFFE5E7EB)),
               Flexible(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -383,13 +424,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                         _buildModalErrorBanner(state.errorMessage!),
                         const SizedBox(height: 14),
                       ],
-                      _buildTopFileBar(state, controller),
-                      const SizedBox(height: 14),
                       _buildRegionSelectionSection(state, controller),
                       const SizedBox(height: 14),
                       _buildInteractiveCropWorkspace(state, controller),
-                      const SizedBox(height: 14),
-                      _buildModalStep4GuardBar(state, controller),
+                      const SizedBox(height: 16),
+                      _buildPrimaryClassifyAction(state),
                     ],
                   ),
                 ),
@@ -402,27 +441,20 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
     return Container(
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal),
+        color: const Color(0xFFF5F7FA),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Step 1: Uploaded Image Summary & Replace Action
-          _buildTopFileBar(state, controller),
-          const SizedBox(height: 16),
-
-          // Step 2: Anatomical Region Selector (Eye or Gill)
           _buildRegionSelectionSection(state, controller),
-          const SizedBox(height: 16),
-
-          // Step 3: Confirmed Region Preview OR Open Modal / Interactive Workspace
+          const SizedBox(height: 14),
           if (state.isCropConfirmed && state.confirmedImageBytes != null)
             _buildConfirmedRegionPreview(state, controller)
           else if (widget.onOpenModal != null)
-            _buildPendingModalTriggerCard(state)
+            _buildPendingModalTriggerCard(state, controller)
           else
             _buildInteractiveCropWorkspace(state, controller),
         ],
@@ -430,62 +462,83 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     );
   }
 
-  Widget _buildModalHeader(ClassificationState state) {
+  Widget _buildIosModalHeader(ClassificationState state) {
     final region = state.selectedRegion;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      color: SariwaColors.bgDashboard,
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(20, 10, 14, 12),
+      color: Colors.white,
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.crop_free_rounded,
-              size: 19,
-              color: SariwaColors.brandPrimary,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  region != null
-                      ? 'Prepare ${region.displayName} Region (ROI)'
-                      : 'Prepare Anatomical Region (Eye / Gill)',
-                  style: const TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w800,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const Text(
-                  'Select Eye or Gill, frame the region, and classify in one click or confirm preview first.',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: SariwaColors.textSecondaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          // iOS Sheet Grabber Handle
+          Center(
+            child: Container(
+              width: 36,
+              height: 4.5,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD1D5DB),
+                borderRadius: BorderRadius.circular(99),
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            key: const Key('close_crop_modal_button'),
-            tooltip: 'Close Crop Modal',
-            onPressed: widget.onCloseModal,
-            icon: const Icon(
-              Icons.close_rounded,
-              size: 20,
-              color: SariwaColors.textSecondaryDark,
-            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  CupertinoIcons.viewfinder,
+                  size: 19,
+                  color: SariwaColors.brandPrimary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      region != null
+                          ? 'Frame Tilapia ${region.displayName}'
+                          : 'Select & Frame Region',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Text(
+                      'Hover over photo for details · Position crop and classify in one tap',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: SariwaColors.textSecondaryDark,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                key: const Key('close_crop_modal_button'),
+                tooltip: 'Close Crop Modal',
+                onPressed: widget.onCloseModal,
+                style: IconButton.styleFrom(
+                  backgroundColor: const Color(0xFFF2F2F7),
+                  shape: const CircleBorder(),
+                ),
+                icon: const Icon(
+                  CupertinoIcons.xmark,
+                  size: 16,
+                  color: Color(0xFF3C3C43),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -496,326 +549,34 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     return Container(
       key: const Key('modal_error_banner'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        color: SariwaColors.statusModerate.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: SariwaColors.statusModerate.withValues(alpha: 0.45),
+          color: SariwaColors.statusModerate.withValues(alpha: 0.35),
+          width: 0.8,
         ),
       ),
       child: Row(
         children: [
           const Icon(
-            Icons.info_outline_rounded,
+            CupertinoIcons.exclamationmark_circle_fill,
             size: 18,
             color: SariwaColors.statusModerate,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: SariwaColors.textPrimaryDark,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPendingModalTriggerCard(ClassificationState state) {
-    final region = state.selectedRegion;
-    return Container(
-      key: const Key('pending_crop_modal_card'),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'STEP 3',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Crop or Confirm Anatomical Region',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            region != null
-                ? 'Open the ROI Cropper Modal to frame the ${region.displayName.toLowerCase()} or confirm the full close-up image.'
-                : 'Select Eye or Gill above, then open the ROI Cropper Modal to frame and confirm the image.',
-            style: const TextStyle(
-              fontSize: 12,
-              color: SariwaColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: [
-              ElevatedButton.icon(
-                key: const Key('open_crop_modal_button'),
-                onPressed: widget.onOpenModal,
-                icon: const Icon(Icons.crop_free_rounded, size: 17),
-                label: const Text('Open Crop & Region Modal'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: SariwaColors.brandPrimary,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 11,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              OutlinedButton.icon(
-                key: const Key('confirm_full_image_button'),
-                onPressed: () => _handleConfirmFullCloseUp(),
-                icon: const Icon(Icons.fullscreen_rounded, size: 17),
-                label: const Text('Use Full Image (Close-Up)'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: SariwaColors.brandPrimary,
-                  side: const BorderSide(color: SariwaColors.brandPrimary),
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 11,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModalStep4GuardBar(
-    ClassificationState state,
-    ClassificationController controller,
-  ) {
-    final isReady = state.isReadyToClassify;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: SariwaColors.bgDashboardSubtle,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Tip: Use "Crop & Classify Freshness" above to confirm your framed region and start MobileNetV3 classification in a single click.',
-            style: TextStyle(
-              fontSize: 11.5,
-              color: SariwaColors.textSecondaryDark,
-            ),
-          ),
-          const SizedBox(height: 8),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: !isReady && !state.isClassifying
-                ? () => controller.classify()
-                : null,
-            child: AppButton.primary(
-              key: const Key('validate_and_classify_button'),
-              label: state.isClassifying
-                  ? (state.processingStage ?? 'Analyzing image...')
-                  : 'Validate & Classify Freshness',
-              isLoading: state.isClassifying,
-              height: 44,
-              borderRadius: 12,
-              icon: const Icon(
-                Icons.auto_awesome,
-                size: 17,
-                color: Colors.white,
-              ),
-              onPressed: isReady && !state.isClassifying
-                  ? () async {
-                      widget.onCloseModal?.call();
-                      await controller.classify();
-                    }
-                  : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopFileBar(
-    ClassificationState state,
-    ClassificationController controller,
-  ) {
-    final fileInfo = Row(
-      children: [
-        if (state.selectedImageBytes != null)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              width: 36,
-              height: 36,
-              color: SariwaColors.bgAbyssDark,
-              child: Image.memory(
-                state.selectedImageBytes!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.image_outlined,
-                  size: 18,
-                  color: Colors.white70,
-                ),
-              ),
-            ),
-          )
-        else
-          const Icon(
-            Icons.image_outlined,
-            size: 18,
-            color: SariwaColors.brandPrimary,
-          ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 1.5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SariwaColors.brandPrimary,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Text(
-                      'STEP 1',
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      state.selectedImageName ?? 'tilapia_scan.jpg',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: SariwaColors.textPrimaryDark,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'Uploaded source image · Supported formats: JPG, JPEG, PNG (max 5 MB)',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: SariwaColors.textSecondaryDark,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-
-    final replaceBtn = TextButton.icon(
-      key: const Key('replace_image_button'),
-      onPressed:
-          state.isClassifying ? null : () => controller.clearSelection(),
-      icon: const Icon(
-        Icons.swap_horiz_rounded,
-        size: 16,
-        color: SariwaColors.statusSpoiled,
-      ),
-      label: const Text(
-        'Replace Image',
-        style: TextStyle(
-          color: SariwaColors.statusSpoiled,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 360) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                fileInfo,
-                const SizedBox(height: 6),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: replaceBtn,
-                ),
-              ],
-            );
-          }
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: fileInfo),
-              replaceBtn,
-            ],
-          );
-        },
       ),
     );
   }
@@ -830,145 +591,92 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: SariwaColors.brandPrimary,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Text(
-                'STEP 2',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
             const Expanded(
               child: Text(
-                'Select Anatomical Region (Required)',
+                'Anatomical Region',
                 style: TextStyle(
                   fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
                   color: SariwaColors.textPrimaryDark,
                 ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              selected != null
+                  ? '${selected.displayName} (${selected.tagalogName})'
+                  : 'Required',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: selected != null
+                    ? SariwaColors.brandPrimary
+                    : SariwaColors.textMutedDark,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final isNarrow = constraints.maxWidth < 360;
-            final eyeCard = _buildRegionOptionCard(
-              key: const Key('region_option_eye'),
-              region: AnatomicalRegion.eye,
-              icon: Icons.visibility_outlined,
-              isSelected: selected == AnatomicalRegion.eye,
-              isDisabled: state.isClassifying,
-              onTap: state.isClassifying
-                  ? null
-                  : () => controller.selectRegion(AnatomicalRegion.eye),
-            );
-            final gillCard = _buildRegionOptionCard(
-              key: const Key('region_option_gill'),
-              region: AnatomicalRegion.gill,
-              icon: Icons.waves_rounded,
-              isSelected: selected == AnatomicalRegion.gill,
-              isDisabled: state.isClassifying,
-              onTap: state.isClassifying
-                  ? null
-                  : () => controller.selectRegion(AnatomicalRegion.gill),
-            );
+        const SizedBox(height: 8),
 
-            if (isNarrow) {
-              return Column(
+        // iOS Sliding Segmented Control Track
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEEEF2),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 300;
+              final eyeSegment = _buildIosSegmentedRegionOption(
+                key: const Key('region_option_eye'),
+                region: AnatomicalRegion.eye,
+                icon: CupertinoIcons.eye_fill,
+                isSelected: selected == AnatomicalRegion.eye,
+                isDisabled: state.isClassifying,
+                onTap: state.isClassifying
+                    ? null
+                    : () => controller.selectRegion(AnatomicalRegion.eye),
+              );
+              final gillSegment = _buildIosSegmentedRegionOption(
+                key: const Key('region_option_gill'),
+                region: AnatomicalRegion.gill,
+                icon: CupertinoIcons.waveform_path,
+                isSelected: selected == AnatomicalRegion.gill,
+                isDisabled: state.isClassifying,
+                onTap: state.isClassifying
+                    ? null
+                    : () => controller.selectRegion(AnatomicalRegion.gill),
+              );
+
+              if (isNarrow) {
+                return Column(
+                  children: [
+                    eyeSegment,
+                    const SizedBox(height: 4),
+                    gillSegment,
+                  ],
+                );
+              }
+
+              return Row(
                 children: [
-                  eyeCard,
-                  const SizedBox(height: 8),
-                  gillCard,
+                  Expanded(child: eyeSegment),
+                  const SizedBox(width: 4),
+                  Expanded(child: gillSegment),
                 ],
               );
-            }
-
-            return Row(
-              children: [
-                Expanded(child: eyeCard),
-                const SizedBox(width: 10),
-                Expanded(child: gillCard),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 10),
-
-        // Concise Anatomical Guidance Box
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(11),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: SariwaColors.borderLightTeal),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.tips_and_updates_outlined,
-                    size: 16,
-                    color: SariwaColors.brandPrimary,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Eye: Select the fish's visible eye and surrounding area.",
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: SariwaColors.textPrimaryDark,
-                          ),
-                        ),
-                        SizedBox(height: 3),
-                        Text(
-                          'Gill: Select exposed gill tissue, not the external gill cover.',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: SariwaColors.textPrimaryDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 6),
-              Text(
-                'Note: Selecting Eye or Gill specifies which region you are submitting; it does not automatically verify that the image contains Tilapia or that anatomical part.',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: SariwaColors.textMutedDark,
-                  height: 1.3,
-                ),
-              ),
-            ],
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRegionOptionCard({
+  Widget _buildIosSegmentedRegionOption({
     required Key key,
     required AnatomicalRegion region,
     required IconData icon,
@@ -978,84 +686,53 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   }) {
     return Opacity(
       opacity: isDisabled ? 0.55 : 1.0,
-      child: Material(
-        color: isSelected
-            ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          key: key,
-          onTap: onTap,
-          hoverColor: SariwaColors.brandPrimary.withValues(alpha: 0.06),
-          focusColor: SariwaColors.brandPrimary.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(12),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
+      child: GestureDetector(
+        key: key,
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
                 color: isSelected
                     ? SariwaColors.brandPrimary
-                    : SariwaColors.borderLightTeal,
-                width: isSelected ? 1.8 : 1.0,
+                    : const Color(0xFF6B7280),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
+              const SizedBox(width: 7),
+              Flexible(
+                child: Text(
+                  '${region.displayName} · ${region.tagalogName}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    letterSpacing: -0.2,
                     color: isSelected
-                        ? SariwaColors.brandPrimary
-                        : SariwaColors.bgDashboardSubtle,
-                    borderRadius: BorderRadius.circular(8),
+                        ? SariwaColors.textPrimaryDark
+                        : const Color(0xFF4B5563),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 17,
-                    color: isSelected
-                        ? Colors.white
-                        : SariwaColors.textSecondaryDark,
-                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        region.displayName,
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          color: isSelected
-                              ? SariwaColors.brandPrimary
-                              : SariwaColors.textPrimaryDark,
-                        ),
-                      ),
-                      Text(
-                        region.tagalogName,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: SariwaColors.textSecondaryDark,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  isSelected
-                      ? Icons.radio_button_checked_rounded
-                      : Icons.radio_button_off_rounded,
-                  size: 18,
-                  color: isSelected
-                      ? SariwaColors.brandPrimary
-                      : SariwaColors.textMutedDark,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1067,338 +744,723 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     ClassificationController controller,
   ) {
     final region = state.selectedRegion;
+    final showGuidanceHud = _isHoveringViewport || _pinGuidanceOverlay;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportWidth = constraints.maxWidth;
-        final viewportHeight = viewportWidth.clamp(240.0, 310.0);
+        final viewportHeight = viewportWidth.clamp(250.0, 320.0);
         final viewportSize = Size(viewportWidth, viewportHeight);
+        _lastViewportSize = viewportSize;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: SariwaColors.brandPrimary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    'STEP 3',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'Crop Region of Interest or Confirm Close-Up',
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w700,
-                      color: SariwaColors.textPrimaryDark,
-                    ),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: _resetTransform,
-                  icon: const Icon(Icons.restart_alt_rounded, size: 15),
-                  label: const Text(
-                    'Reset Zoom',
-                    style: TextStyle(fontSize: 11.5),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: SariwaColors.brandPrimary,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Drag to reposition and pinch or slide to zoom the ${region?.displayName.toLowerCase() ?? 'target'} inside the frame, or retain the full image if it is already a close-up.',
-              style: const TextStyle(
-                fontSize: 11.5,
-                color: SariwaColors.textSecondaryDark,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Interactive Cropping Viewport
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
-                key: const Key('interactive_crop_viewport'),
-                width: viewportWidth,
-                height: viewportHeight,
-                color: SariwaColors.bgAbyssDark,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    InteractiveViewer(
-                      transformationController: _transformController,
-                      minScale: _minScale,
-                      maxScale: _maxScale,
-                      boundaryMargin: const EdgeInsets.all(120),
-                      panEnabled: true,
-                      scaleEnabled: true,
-                      child: SizedBox(
-                        width: viewportWidth,
-                        height: viewportHeight,
-                        child: Image.memory(
-                          state.selectedImageBytes!,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => const Center(
-                            child: Text(
-                              'Image preview unavailable',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+            // Interactive Viewport with Hover Frosted-Glass Overlay
+            MouseRegion(
+              onEnter: (_) => setState(() => _isHoveringViewport = true),
+              onExit: (_) => setState(() => _isHoveringViewport = false),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: Container(
+                  key: const Key('interactive_crop_viewport'),
+                  width: viewportWidth,
+                  height: viewportHeight,
+                  color: const Color(0xFF0B1317),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      InteractiveViewer(
+                        transformationController: _transformController,
+                        minScale: _minScale,
+                        maxScale: _maxScale,
+                        boundaryMargin: const EdgeInsets.all(120),
+                        panEnabled: !_useFullCloseUpMode,
+                        scaleEnabled: !_useFullCloseUpMode,
+                        child: SizedBox(
+                          width: viewportWidth,
+                          height: viewportHeight,
+                          child: Image.memory(
+                            state.selectedImageBytes!,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, _, _) => Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    CupertinoIcons.photo_on_rectangle,
+                                    color: Colors.white70,
+                                    size: 32,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    state.selectedImageName ?? 'HEIC / Image Ready',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                    // Non-interactive Reticle & Mask Overlay
-                    const IgnorePointer(
-                      child: CustomPaint(
-                        painter: _RoiCropReticlePainter(
-                          cropWindowFraction: _cropWindowFraction,
-                          accentColor: SariwaColors.brandLight,
-                        ),
-                      ),
-                    ),
-
-                    // Top-left Target Badge inside viewport
-                    Positioned(
-                      top: 10,
-                      left: 10,
-                      child: IgnorePointer(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: SariwaColors.bgAbyssDark
-                                .withValues(alpha: 0.80),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: SariwaColors.borderGlass,
+                      // iOS Photos-style Crop Reticle (hidden when Full Close-Up mode is active)
+                      if (!_useFullCloseUpMode)
+                        const IgnorePointer(
+                          child: CustomPaint(
+                            painter: _RoiCropReticlePainter(
+                              cropWindowFraction: _cropWindowFraction,
+                              accentColor: Colors.white,
                             ),
                           ),
+                        ),
+
+                      // Top Floating iOS Frosted-Glass Bar (Filename + Info Toggle + Replace Image)
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        right: 12,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 180),
+                          opacity: _isHoveringViewport ? 1.0 : 0.90,
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(
-                                Icons.crop_free_rounded,
-                                size: 13,
-                                color: SariwaColors.brandLight,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                region != null
-                                    ? 'Target: Tilapia ${region.displayName}'
-                                    : 'Select Eye or Gill above',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                              Flexible(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(99),
+                                  child: BackdropFilter(
+                                    filter: ui.ImageFilter.blur(
+                                      sigmaX: 14,
+                                      sigmaY: 14,
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 11,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x991C1C1E),
+                                        borderRadius: BorderRadius.circular(99),
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.16),
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            CupertinoIcons.photo,
+                                            size: 13,
+                                            color: Colors.white70,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Flexible(
+                                            child: Text(
+                                              state.selectedImageName ??
+                                                  'tilapia_scan.jpg',
+                                              style: const TextStyle(
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Info toggle pill for touch devices
+                                  GestureDetector(
+                                    onTap: () => setState(
+                                      () => _pinGuidanceOverlay =
+                                          !_pinGuidanceOverlay,
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(99),
+                                      child: BackdropFilter(
+                                        filter: ui.ImageFilter.blur(
+                                          sigmaX: 14,
+                                          sigmaY: 14,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6.5),
+                                          decoration: BoxDecoration(
+                                            color: showGuidanceHud
+                                                ? SariwaColors.brandPrimary
+                                                : const Color(0x991C1C1E),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.18),
+                                              width: 0.5,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            CupertinoIcons.info,
+                                            size: 14,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  // Frosted-Glass Replace Image Pill
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(99),
+                                    child: BackdropFilter(
+                                      filter: ui.ImageFilter.blur(
+                                        sigmaX: 14,
+                                        sigmaY: 14,
+                                      ),
+                                      child: Material(
+                                        color: const Color(0x991C1C1E),
+                                        child: InkWell(
+                                          key: const Key('replace_image_button'),
+                                          onTap: state.isClassifying
+                                              ? null
+                                              : () =>
+                                                  controller.clearSelection(),
+                                          borderRadius:
+                                              BorderRadius.circular(99),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 11,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(99),
+                                              border: Border.all(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.16),
+                                                width: 0.5,
+                                              ),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  CupertinoIcons
+                                                      .arrow_2_squarepath,
+                                                  size: 13,
+                                                  color: Color(0xFFFF6B6B),
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  'Replace Image',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11.5,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
 
-                    if (_isCropping)
-                      Container(
-                        color: Colors.black45,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: SariwaColors.brandLight,
+                      // Hover-Revealed Bottom Frosted-Glass Guidance HUD
+                      Positioned(
+                        left: 12,
+                        right: 12,
+                        bottom: 12,
+                        child: IgnorePointer(
+                          ignoring: !showGuidanceHud,
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOutCubic,
+                            opacity: showGuidanceHud ? 1.0 : 0.0,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: BackdropFilter(
+                                filter: ui.ImageFilter.blur(
+                                  sigmaX: 16,
+                                  sigmaY: 16,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xCC1C1C1E),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.white
+                                          .withValues(alpha: 0.16),
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        "Eye: Select the fish's visible eye and surrounding area.",
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      const Text(
+                                        'Gill: Select exposed gill tissue, not the external gill cover.',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Drag to reposition and pinch or slide to zoom the ${region?.displayName.toLowerCase() ?? 'target'} inside the frame, or switch to Full Close-Up.',
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      const Text(
+                                        'Note: Selecting Eye or Gill specifies which region you are submitting; it does not automatically verify that the image contains Tilapia or that anatomical part.',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white60,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                  ],
+
+                      if (_isCropping)
+                        Container(
+                          color: Colors.black45,
+                          child: const Center(
+                            child: CupertinoActivityIndicator(
+                              radius: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
-            // Zoom Slider & Buttons Row
-            Row(
-              children: [
-                IconButton(
-                  tooltip: 'Zoom Out',
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () =>
-                      _setZoomScale(_currentScale - 0.5, viewportSize),
-                  icon: const Icon(
-                    Icons.remove_circle_outline_rounded,
-                    size: 20,
-                    color: SariwaColors.brandPrimary,
-                  ),
+            // Unified iOS Framing Mode Toggle + Smooth Zoom Bar
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFE5E7EB),
+                  width: 0.8,
                 ),
-                Expanded(
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: SariwaColors.brandPrimary,
-                      inactiveTrackColor: SariwaColors.borderLightTeal,
-                      thumbColor: SariwaColors.brandPrimary,
-                      overlayColor:
-                          SariwaColors.brandPrimary.withValues(alpha: 0.12),
-                      trackHeight: 3.5,
+              ),
+              child: Column(
+                children: [
+                  // Framing Mode Pill Switch: Frame Region vs Full Close-Up
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2F2F7),
+                      borderRadius: BorderRadius.circular(11),
                     ),
-                    child: Slider(
-                      key: const Key('crop_zoom_slider'),
-                      value: _currentScale.clamp(_minScale, _maxScale),
-                      min: _minScale,
-                      max: _maxScale,
-                      onChanged: (val) => _setZoomScale(val, viewportSize),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Zoom In',
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () =>
-                      _setZoomScale(_currentScale + 0.5, viewportSize),
-                  icon: const Icon(
-                    Icons.add_circle_outline_rounded,
-                    size: 20,
-                    color: SariwaColors.brandPrimary,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${_currentScale.toStringAsFixed(1)}x',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // Primary 1-Click Actions: Crop & Classify OR Full Close-Up & Classify
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                ElevatedButton.icon(
-                  key: const Key('crop_and_classify_button'),
-                  onPressed: _isCropping || state.isClassifying
-                      ? null
-                      : () => _handleConfirmCrop(
-                            viewportSize,
-                            classifyImmediately: true,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            key: const Key('confirm_crop_button'),
+                            behavior: HitTestBehavior.opaque,
+                            onTap: _isCropping
+                                ? null
+                                : () {
+                                    setState(() => _useFullCloseUpMode = false);
+                                    if (state.selectedRegion != null) {
+                                      _handleConfirmCrop(viewportSize);
+                                    }
+                                  },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: !_useFullCloseUpMode
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                                boxShadow: !_useFullCloseUpMode
+                                    ? const [
+                                        BoxShadow(
+                                          color: Color(0x12000000),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 1),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.crop,
+                                    size: 14,
+                                    color: !_useFullCloseUpMode
+                                        ? SariwaColors.brandPrimary
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      'Frame Region',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: !_useFullCloseUpMode
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                        color: !_useFullCloseUpMode
+                                            ? SariwaColors.textPrimaryDark
+                                            : const Color(0xFF6B7280),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                  icon: const Icon(Icons.auto_awesome_rounded, size: 17),
-                  label: const Text('Crop & Classify Freshness'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: SariwaColors.brandPrimary,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  key: const Key('full_image_and_classify_button'),
-                  onPressed: _isCropping || state.isClassifying
-                      ? null
-                      : () => _handleConfirmFullCloseUp(
-                            classifyImmediately: true,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: GestureDetector(
+                            key: const Key('confirm_full_image_button'),
+                            behavior: HitTestBehavior.opaque,
+                            onTap: _isCropping
+                                ? null
+                                : () {
+                                    setState(() => _useFullCloseUpMode = true);
+                                    if (state.selectedRegion != null) {
+                                      _handleConfirmFullCloseUp();
+                                    }
+                                  },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _useFullCloseUpMode
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                                boxShadow: _useFullCloseUpMode
+                                    ? const [
+                                        BoxShadow(
+                                          color: Color(0x12000000),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 1),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.fullscreen,
+                                    size: 14,
+                                    color: _useFullCloseUpMode
+                                        ? SariwaColors.brandPrimary
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      'Full Close-Up',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: _useFullCloseUpMode
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                        color: _useFullCloseUpMode
+                                            ? SariwaColors.textPrimaryDark
+                                            : const Color(0xFF6B7280),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                  icon: const Icon(Icons.bolt_rounded, size: 18),
-                  label: const Text('Full Close-Up & Classify'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: SariwaColors.brandPrimary,
-                    side: const BorderSide(
-                      color: SariwaColors.brandPrimary,
-                      width: 1.4,
-                    ),
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
 
-            // Secondary Review-First Confirmation Buttons: Confirm Crop OR Confirm Full Close-Up
-            Wrap(
-              spacing: 10,
-              runSpacing: 8,
-              children: [
-                OutlinedButton.icon(
-                  key: const Key('confirm_crop_button'),
-                  onPressed: _isCropping
-                      ? null
-                      : () => _handleConfirmCrop(viewportSize),
-                  icon: const Icon(Icons.crop_rounded, size: 16),
-                  label: const Text('Confirm Cropped Region'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: SariwaColors.textPrimaryDark,
-                    side: const BorderSide(color: SariwaColors.borderLightTeal),
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+                  if (!_useFullCloseUpMode) ...[
+                    const SizedBox(height: 6),
+                    // iOS-style Thin Zoom Slider Row
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'Zoom Out',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () =>
+                              _setZoomScale(_currentScale - 0.5, viewportSize),
+                          icon: const Icon(
+                            CupertinoIcons.minus_circle,
+                            size: 18,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                        Expanded(
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: SariwaColors.brandPrimary,
+                              inactiveTrackColor: const Color(0xFFE5E7EB),
+                              thumbColor: Colors.white,
+                              overlayColor: SariwaColors.brandPrimary
+                                  .withValues(alpha: 0.10),
+                              trackHeight: 3.0,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 8,
+                                elevation: 2,
+                              ),
+                            ),
+                            child: Slider(
+                              key: const Key('crop_zoom_slider'),
+                              value: _currentScale.clamp(_minScale, _maxScale),
+                              min: _minScale,
+                              max: _maxScale,
+                              onChanged: (val) =>
+                                  _setZoomScale(val, viewportSize),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Zoom In',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () =>
+                              _setZoomScale(_currentScale + 0.5, viewportSize),
+                          icon: const Icon(
+                            CupertinoIcons.plus_circle,
+                            size: 18,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _resetTransform,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF2F2F7),
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                            child: Text(
+                              '${_currentScale.toStringAsFixed(1)}x',
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: SariwaColors.textPrimaryDark,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  key: const Key('confirm_full_image_button'),
-                  onPressed: _isCropping
-                      ? null
-                      : () => _handleConfirmFullCloseUp(),
-                  icon: const Icon(Icons.fullscreen_rounded, size: 17),
-                  label: const Text('Use Full Image (Close-Up)'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: SariwaColors.textPrimaryDark,
-                    side: const BorderSide(color: SariwaColors.borderLightTeal),
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ],
+                  ],
+                ],
+              ),
             ),
           ],
         );
       },
+    );
+  }
+
+  /// Single Primary iOS Action Button: pressing "Validate & Classify Freshness"
+  /// immediately accepts the current crop position (or Full Close-Up mode) and classifies.
+  Widget _buildPrimaryClassifyAction(ClassificationState state) {
+    final statusText = state.processingStage ?? 'Analyzing image...';
+
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        key: const Key('validate_and_classify_button'),
+        onPressed: state.isClassifying || _isCropping
+            ? null
+            : _handleValidateAndClassifyPressed,
+        icon: state.isClassifying
+            ? const CupertinoActivityIndicator(radius: 9, color: Colors.white)
+            : const Icon(CupertinoIcons.sparkles, size: 18),
+        label: Text(
+          state.isClassifying ? statusText : 'Validate & Classify Freshness',
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.2,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: SariwaColors.brandPrimary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPendingModalTriggerCard(
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    return Container(
+      key: const Key('pending_crop_modal_card'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      CupertinoIcons.photo,
+                      size: 16,
+                      color: SariwaColors.brandPrimary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        state.selectedImageName ?? 'tilapia_scan.jpg',
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: SariwaColors.textPrimaryDark,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton.icon(
+                key: const Key('replace_image_button'),
+                onPressed: state.isClassifying
+                    ? null
+                    : () => controller.clearSelection(),
+                icon: const Icon(
+                  CupertinoIcons.arrow_2_squarepath,
+                  size: 14,
+                  color: SariwaColors.statusSpoiled,
+                ),
+                label: const Text(
+                  'Replace Image',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: SariwaColors.statusSpoiled,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ElevatedButton.icon(
+                key: const Key('open_crop_modal_button'),
+                onPressed: widget.onOpenModal,
+                icon: const Icon(CupertinoIcons.crop, size: 16),
+                label: const Text('Adjust Crop'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SariwaColors.brandPrimary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              OutlinedButton.icon(
+                key: const Key('confirm_full_image_button'),
+                onPressed: () => _handleConfirmFullCloseUp(),
+                icon: const Icon(CupertinoIcons.fullscreen, size: 15),
+                label: const Text('Full Close-Up'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.textPrimaryDark,
+                  side: const BorderSide(color: Color(0xFFD1D5DB)),
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -1413,11 +1475,18 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: SariwaColors.brandPrimary.withValues(alpha: 0.45),
-          width: 1.5,
+          color: const Color(0xFFE5E7EB),
+          width: 0.8,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x06000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1431,31 +1500,19 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: SariwaColors.brandPrimary,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      'STEP 3',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
+                  const Icon(
+                    CupertinoIcons.checkmark_seal_fill,
+                    size: 16,
+                    color: SariwaColors.brandPrimary,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Flexible(
                     child: Text(
                       'Confirmed ${region?.displayName ?? ''} Region Ready',
                       style: const TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
                         color: SariwaColors.textPrimaryDark,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -1464,10 +1521,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(6),
+                  color: const Color(0xFFF2F2F7),
+                  borderRadius: BorderRadius.circular(99),
                 ),
                 child: Text(
                   state.isFullImageConfirmed
@@ -1475,7 +1535,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                       : 'Cropped ROI',
                   style: const TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: SariwaColors.brandPrimary,
                   ),
                 ),
@@ -1483,21 +1543,122 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ],
           ),
           const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              height: 190,
-              width: double.infinity,
-              color: SariwaColors.bgAbyssDark,
-              child: Image.memory(
-                state.confirmedImageBytes!,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Center(
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: 40,
-                    color: Colors.white70,
-                  ),
+
+          // Preview Viewport with Floating iOS Glass Controls on Hover
+          MouseRegion(
+            onEnter: (_) => setState(() => _isHoveringViewport = true),
+            onExit: (_) => setState(() => _isHoveringViewport = false),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                color: const Color(0xFF0B1317),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.memory(
+                      state.confirmedImageBytes!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const Center(
+                        child: Icon(
+                          CupertinoIcons.photo,
+                          size: 40,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      right: 10,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 180),
+                        opacity: _isHoveringViewport ? 1.0 : 0.85,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(99),
+                                child: BackdropFilter(
+                                  filter: ui.ImageFilter.blur(
+                                    sigmaX: 12,
+                                    sigmaY: 12,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x991C1C1E),
+                                      borderRadius: BorderRadius.circular(99),
+                                    ),
+                                    child: Text(
+                                      state.selectedImageName ??
+                                          'tilapia_scan.jpg',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(99),
+                              child: BackdropFilter(
+                                filter: ui.ImageFilter.blur(
+                                  sigmaX: 12,
+                                  sigmaY: 12,
+                                ),
+                                child: Material(
+                                  color: const Color(0x991C1C1E),
+                                  child: InkWell(
+                                    key: const Key('replace_image_button'),
+                                    onTap: state.isClassifying
+                                        ? null
+                                        : () => controller.clearSelection(),
+                                    borderRadius: BorderRadius.circular(99),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 5,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            CupertinoIcons.arrow_2_squarepath,
+                                            size: 12,
+                                            color: Color(0xFFFF6B6B),
+                                          ),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            'Replace Image',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -1508,10 +1669,10 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             children: [
               Expanded(
                 child: Text(
-                  'Exact image to be submitted · Selected region: ${region?.displayName ?? ''}',
+                  'Selected region: ${region?.displayName ?? ''}',
                   style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.textSecondaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -1526,18 +1687,19 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                         controller.editCrop();
                         widget.onOpenModal?.call();
                       },
-                icon: const Icon(Icons.crop_rotate_rounded, size: 15),
+                icon: const Icon(CupertinoIcons.crop, size: 14),
                 label: const Text('Edit Crop'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.brandPrimary,
-                  side: const BorderSide(color: SariwaColors.borderLightTeal),
+                  side: const BorderSide(color: Color(0xFFE5E7EB)),
+                  backgroundColor: const Color(0xFFF9FAFB),
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
               ),
@@ -1568,76 +1730,72 @@ class _RoiCropReticlePainter extends CustomPainter {
       height: cropSide,
     );
 
-    // Darken exterior outside the ROI crop window
+    // iOS Photos-style translucent scrim outside the crop window
     final overlayPath = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..addRRect(RRect.fromRectAndRadius(cropRect, const Radius.circular(12)))
+      ..addRRect(RRect.fromRectAndRadius(cropRect, const Radius.circular(18)))
       ..fillType = PathFillType.evenOdd;
 
     canvas.drawPath(
       overlayPath,
-      Paint()..color = const Color(0x88061419),
+      Paint()..color = const Color(0x80000000),
     );
 
-    // Subtle border around crop window
+    // Hairline white border around crop window
     final borderPaint = Paint()
-      ..color = accentColor.withValues(alpha: 0.45)
+      ..color = Colors.white.withValues(alpha: 0.65)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
+      ..strokeWidth = 1.0;
     canvas.drawRRect(
-      RRect.fromRectAndRadius(cropRect, const Radius.circular(12)),
+      RRect.fromRectAndRadius(cropRect, const Radius.circular(18)),
       borderPaint,
     );
 
-    // Rule-of-thirds guide lines inside crop window
+    // Ultra-fine iOS rule-of-thirds grid lines
     final gridPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.16)
+      ..color = Colors.white.withValues(alpha: 0.22)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8;
+      ..strokeWidth = 0.6;
 
     for (var i = 1; i <= 2; i++) {
       final dx = cropRect.left + (cropRect.width * i / 3);
       final dy = cropRect.top + (cropRect.height * i / 3);
       canvas.drawLine(
-        Offset(dx, cropRect.top),
-        Offset(dx, cropRect.bottom),
+        Offset(dx, cropRect.top + 4),
+        Offset(dx, cropRect.bottom - 4),
         gridPaint,
       );
       canvas.drawLine(
-        Offset(cropRect.left, dy),
-        Offset(cropRect.right, dy),
+        Offset(cropRect.left + 4, dy),
+        Offset(cropRect.right - 4, dy),
         gridPaint,
       );
     }
 
-    // Glowing SariwaBa corner brackets
+    // Clean iOS corner handles
     final cornerPaint = Paint()
       ..color = accentColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
+      ..strokeWidth = 2.8
       ..strokeCap = StrokeCap.round;
 
-    const double cornerLen = 22.0;
+    const double cornerLen = 20.0;
     final l = cropRect.left;
     final t = cropRect.top;
     final r = cropRect.right;
     final b = cropRect.bottom;
 
-    // Top-left
-    canvas.drawLine(Offset(l, t + cornerLen), Offset(l, t), cornerPaint);
-    canvas.drawLine(Offset(l, t), Offset(l + cornerLen, t), cornerPaint);
+    canvas.drawLine(Offset(l, t + cornerLen), Offset(l, t + 6), cornerPaint);
+    canvas.drawLine(Offset(l + 6, t), Offset(l + cornerLen, t), cornerPaint);
 
-    // Top-right
-    canvas.drawLine(Offset(r - cornerLen, t), Offset(r, t), cornerPaint);
-    canvas.drawLine(Offset(r, t), Offset(r, t + cornerLen), cornerPaint);
+    canvas.drawLine(Offset(r - cornerLen, t), Offset(r - 6, t), cornerPaint);
+    canvas.drawLine(Offset(r, t + 6), Offset(r, t + cornerLen), cornerPaint);
 
-    // Bottom-left
-    canvas.drawLine(Offset(l, b - cornerLen), Offset(l, b), cornerPaint);
-    canvas.drawLine(Offset(l, b), Offset(l + cornerLen, b), cornerPaint);
+    canvas.drawLine(Offset(l, b - cornerLen), Offset(l, b - 6), cornerPaint);
+    canvas.drawLine(Offset(l + 6, b), Offset(l + cornerLen, b), cornerPaint);
 
-    // Bottom-right
-    canvas.drawLine(Offset(r - cornerLen, b), Offset(r, b), cornerPaint);
-    canvas.drawLine(Offset(r, b - cornerLen), Offset(r, b), cornerPaint);
+    canvas.drawLine(Offset(r - cornerLen, b), Offset(r - 6, b), cornerPaint);
+    canvas.drawLine(Offset(r, b - cornerLen), Offset(r, b - 6), cornerPaint);
   }
 
   @override

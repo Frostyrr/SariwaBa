@@ -1,4 +1,9 @@
 from PIL import Image, UnidentifiedImageError
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
 from rest_framework import status
 from rest_framework.decorators import (
     api_view,
@@ -28,10 +33,14 @@ ALLOWED_CONTENT_TYPES = {
     "image/jpeg",
     "image/jpg",
     "image/png",
+    "image/heic",
+    "image/heif",
+    "image/heic-sequence",
+    "image/heif-sequence",
     "application/octet-stream",
     "",
 }
-ALLOWED_DECODED_FORMATS = {"JPEG", "PNG"}
+ALLOWED_DECODED_FORMATS = {"JPEG", "PNG", "HEIF", "HEIC"}
 ALLOWED_REGION_TYPES = {"eye", "gill"}
 
 PRELIMINARY_DISCLAIMER = (
@@ -99,7 +108,7 @@ def classify_fish(request):
             {
                 "error": {
                     "code": "UNSUPPORTED_IMAGE_TYPE",
-                    "message": "Only JPEG and PNG images are allowed.",
+                    "message": "Only JPEG, PNG, and HEIC images are allowed.",
                 }
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -117,7 +126,7 @@ def classify_fish(request):
                 {
                     "error": {
                         "code": "UNSUPPORTED_IMAGE_TYPE",
-                        "message": "Decoded image format is not supported. Only JPEG and PNG images are allowed.",
+                        "message": "Decoded image format is not supported. Only JPEG, PNG, and HEIC images are allowed.",
                     }
                 },
                 status=status.HTTP_400_BAD_REQUEST,

@@ -3,6 +3,11 @@ from typing import Any, Dict, Optional
 
 import torch
 from PIL import Image, ImageOps
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
 from torch import nn
 from torchvision import models, transforms
 
