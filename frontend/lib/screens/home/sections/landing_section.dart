@@ -7,11 +7,12 @@ import '../../../models/auth/user_model.dart';
 import '../../../widgets/common/ambient_glow_background.dart';
 import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/staggered_reveal.dart';
-import '../../../widgets/landing/hero_scanner_card.dart';
+import '../../../widgets/landing/walkthrough/cinematic_inspection_walkthrough.dart';
 
-/// Landing / Hero Section
-/// Features 100vh full-screen immersive underwater illustration backdrop
-/// with headline and the classification model placeholder on the right.
+/// Cinematic Public Landing / Hero Section
+/// Features an atmospheric underwater backdrop, centered editorial typography,
+/// an automatically playing cursor-driven product walkthrough, and a seamless
+/// gradient transition into the next section.
 class LandingSection extends StatelessWidget {
   final VoidCallback onHome;
   final VoidCallback onFeatures;
@@ -40,12 +41,15 @@ class LandingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewportHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isDesktop = screenWidth >= 880;
 
     return AmbientGlowBackground(
       showTopRightGlow: true,
       showBottomGlow: true,
-      useBlurredAsset: true, // Crisp underwater illustration backdrop
+      useLightAtmospheric: true,
+      enableSeamlessTransition: true,
+      nextSectionColor: const Color(0xFFF0F7F6),
       child: Column(
         children: [
           // Top spacer compensating for sticky 72px WebNavbar
@@ -80,20 +84,20 @@ class LandingSection extends StatelessWidget {
                     ),
                     child: LayoutBuilder(
                       builder: (context, c) {
-                        final isDesktop = c.maxWidth >= 680;
-                        if (!isDesktop) {
+                        final isWide = c.maxWidth >= 680;
+                        if (!isWide) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              const Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.info_outline_rounded,
                                     color: SariwaColors.brandPrimary,
                                     size: 18,
                                   ),
-                                  const SizedBox(width: 8),
-                                  const Expanded(
+                                  SizedBox(width: 8),
+                                  Expanded(
                                     child: Text(
                                       'Guest Evaluation Mode',
                                       style: TextStyle(
@@ -132,7 +136,8 @@ class LandingSection extends StatelessWidget {
                                     side: const BorderSide(
                                       color: SariwaColors.brandPrimary,
                                     ),
-                                    minimumSize: const Size(double.infinity, 38),
+                                    minimumSize:
+                                        const Size(double.infinity, 38),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(19),
                                     ),
@@ -237,169 +242,279 @@ class LandingSection extends StatelessWidget {
               ),
             ),
 
-          // 100vh Hero Container (Desktop fills full screen height accounting for navbar)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 880;
-              final heroMinHeight = isDesktop
-                  ? (viewportHeight - 72.0).clamp(560.0, double.infinity)
-                  : null;
-
-              return Container(
-                constraints: BoxConstraints(minHeight: heroMinHeight ?? 0),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1140.0),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                        vertical: isDesktop ? 32.0 : 40.0,
-                      ),
-                      child: isDesktop
-                          ? _buildDesktopHero(context)
-                          : _buildMobileHero(context),
-                    ),
-                  ),
+          // Centered Cinematic Hero Content
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1140.0),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: isDesktop ? 48.0 : 36.0,
                 ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Desktop 2-Column Hero Layout
-  Widget _buildDesktopHero(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Left Column: Headline, Subtitle, Teal "Download App" & Glass "How it works"
-        Expanded(
-          flex: 6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              StaggeredReveal(
-                staggerIndex: 0,
-                child: SelectableText(
-                  'SariwaBa? See for yourself.',
-                  style: AppTypography.heroHeadlineDesktop,
-                ),
-              ),
-              const SizedBox(height: 18),
-              StaggeredReveal(
-                staggerIndex: 1,
-                child: SelectableText(
-                  'A smarter way to assess fish freshness through AI.',
-                  style: AppTypography.heroSubtitle.copyWith(fontSize: 17),
-                ),
-              ),
-              const SizedBox(height: 32),
-              StaggeredReveal(
-                staggerIndex: 2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AppButton.primary(
-                      label: 'Download App',
-                      icon: const Icon(
-                        Icons.download_rounded,
-                        size: 18,
-                        color: Colors.white,
+                    // Eyebrow Badge (Light Mode SaaS Pill)
+                    StaggeredReveal(
+                      staggerIndex: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE6F7F5),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFFCCEAE6),
+                            width: 1.0,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x0A0A2229),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF0F766E),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Flexible(
+                              child: Text(
+                                'SariwaBa? See for yourself.',
+                                style: TextStyle(
+                                  fontFamily: AppTypography.fontFamily,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.25,
+                                  color: Color(0xFF0F766E),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      width: 170,
-                      height: 48,
-                      borderRadius: 24,
-                      onPressed: onDownloads,
                     ),
-                    const SizedBox(width: 14),
-                    AppButton.secondary(
-                      label: 'How it works',
-                      width: 150,
-                      height: 48,
-                      borderRadius: 24,
-                      onPressed: onHowItWorks,
+
+                    const SizedBox(height: 22),
+
+                    // Cinematic Headline
+                    StaggeredReveal(
+                      staggerIndex: 1,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 820),
+                        child: Text(
+                          'A clearer perspective on fish freshness.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: isDesktop ? 54 : 36,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.25,
+                            height: 1.14,
+                            color: const Color(0xFF0A2229),
+                          ),
+                        ),
+                      ),
                     ),
+
+                    const SizedBox(height: 18),
+
+                    // Supporting Copy
+                    StaggeredReveal(
+                      staggerIndex: 2,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 680),
+                        child: Column(
+                          children: [
+                            Text(
+                              'A smarter way to assess fish freshness through AI.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: isDesktop ? 18 : 15,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.25,
+                                color: const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Explore AI-assisted fish freshness assessment through a simple, image-based inspection experience.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: isDesktop ? 15.5 : 14,
+                                height: 1.5,
+                                letterSpacing: -0.25,
+                                color: const Color(0xFF475569),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Primary & Secondary Action CTAs
+                    StaggeredReveal(
+                      staggerIndex: 3,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 14,
+                        runSpacing: 12,
+                        children: [
+                          // Primary CTA: Try Inspection
+                          AppButton.primary(
+                            label: 'Try Inspection',
+                            icon: const Icon(
+                              Icons.auto_awesome,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            width: isDesktop ? 180 : null,
+                            height: 48,
+                            borderRadius: 24,
+                            onPressed: onDashboard ?? onDownloads,
+                          ),
+
+                          // Secondary CTA: How It Works
+                          AppButton.secondary(
+                            label: 'How it works',
+                            width: isDesktop ? 160 : null,
+                            height: 48,
+                            borderRadius: 24,
+                            onPressed: onHowItWorks,
+                          ),
+
+                          // Mobile App Download Button
+                          OutlinedButton.icon(
+                            onPressed: onDownloads,
+                            icon: const Icon(
+                              Icons.download_rounded,
+                              size: 18,
+                              color: SariwaColors.brandPrimary,
+                            ),
+                            label: const Text(
+                              'Download App',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.25,
+                                color: Color(0xFF0A2229),
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              side: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                                width: 1.2,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // Social Proof / Trust Badge (Mirroring modern SaaS hero reference)
+                    StaggeredReveal(
+                      staggerIndex: 4,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // 3 Overlapping Avatar Circles
+                          SizedBox(
+                            width: 68,
+                            height: 26,
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  left: 0,
+                                  child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundColor: const Color(0xFF14B8A6),
+                                    child: const Text('M', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 18,
+                                  child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundColor: const Color(0xFF0EA5E9),
+                                    child: const Text('J', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 36,
+                                  child: CircleAvatar(
+                                    radius: 13,
+                                    backgroundColor: const Color(0xFF10B981),
+                                    child: const Text('R', style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Flexible(
+                            child: Text(
+                              '2,400+ Inspections • Trusted by seafood evaluators & markets',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: -0.25,
+                                color: Color(0xFF64748B),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 36),
+
+                    // Middle Centerpiece: Programmatic Cursor-Driven Demonstration
+                    StaggeredReveal(
+                      staggerIndex: 4,
+                      slideOffset: const Offset(0, 36),
+                      child: CinematicInspectionWalkthrough(
+                        width: isDesktop ? 840 : screenWidth - 32,
+                      ),
+                    ),
+
+                    const SizedBox(height: 56),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-
-        const SizedBox(width: 48),
-
-        // Right Column: Dedicated Classification Placeholder
-        const Expanded(
-          flex: 5,
-          child: StaggeredReveal(
-            staggerIndex: 3,
-            slideOffset: Offset(0, 32),
-            child: HeroScannerCard(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Mobile Stacked Hero Layout
-  Widget _buildMobileHero(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        StaggeredReveal(
-          staggerIndex: 0,
-          child: SelectableText(
-            'SariwaBa? See for yourself.',
-            style: AppTypography.heroHeadlineMobile,
-          ),
-        ),
-        const SizedBox(height: 14),
-        StaggeredReveal(
-          staggerIndex: 1,
-          child: SelectableText(
-            'A smarter way to assess fish freshness through AI.',
-            style: AppTypography.heroSubtitle.copyWith(fontSize: 16),
-          ),
-        ),
-        const SizedBox(height: 24),
-        StaggeredReveal(
-          staggerIndex: 2,
-          child: Row(
-            children: [
-              Expanded(
-                child: AppButton.primary(
-                  label: 'Download App',
-                  icon: const Icon(
-                    Icons.download_rounded,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                  height: 48,
-                  borderRadius: 24,
-                  onPressed: onDownloads,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: AppButton.secondary(
-                  label: 'How it works',
-                  height: 48,
-                  borderRadius: 24,
-                  onPressed: onHowItWorks,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 36),
-        const StaggeredReveal(
-          staggerIndex: 3,
-          child: HeroScannerCard(),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

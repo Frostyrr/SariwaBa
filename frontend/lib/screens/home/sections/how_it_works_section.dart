@@ -4,22 +4,24 @@ import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 
-/// How It Works Section Widget
-/// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
-/// numbered image classification steps, and high-contrast elevated cards.
+/// How It Works & Understanding Results Section
+/// Presents the 4-step workflow, transparency around classification labels,
+/// model confidence interpretation, and the final call-to-action.
 class HowItWorksSection extends StatelessWidget {
   final VoidCallback onDownload;
+  final VoidCallback? onTryInspection;
 
   const HowItWorksSection({
     super.key,
     required this.onDownload,
+    this.onTryInspection,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF0F7F6), // Off-white leaning primary teal
+      color: const Color(0xFFF0F7F6), // Consistent off-white leaning primary teal
       padding: const EdgeInsets.symmetric(vertical: 84.0, horizontal: 24.0),
       child: Center(
         child: ConstrainedBox(
@@ -41,8 +43,8 @@ class HowItWorksSection extends StatelessWidget {
                       width: 1.0,
                     ),
                   ),
-                  child: Text(
-                    'SEAFOOD QUALITY WORKFLOW',
+                  child: const Text(
+                    'INSPECTION WORKFLOW',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
@@ -60,15 +62,15 @@ class HowItWorksSection extends StatelessWidget {
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 1,
-                child: Text(
-                  'Three Steps to Quality Assurance',
+                child: const Text(
+                  'Four Steps to Quality Assurance',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.25,
-                    color: const Color(0xFF0A2229),
+                    color: Color(0xFF0A2229),
                   ),
                 ),
               ),
@@ -82,14 +84,14 @@ class HowItWorksSection extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 620),
                   child: Text(
-                    'Upload a fish image to receive a Fresh or Not Fresh prediction and its model confidence.',
+                    'From specimen capture to verified inference, inspect Tilapia freshness in seconds through intelligent computer vision.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       letterSpacing: -0.25,
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 16,
                       height: 1.5,
-                      color: const Color(0xFF475569),
+                      color: Color(0xFF475569),
                     ),
                   ),
                 ),
@@ -97,65 +99,77 @@ class HowItWorksSection extends StatelessWidget {
 
               const SizedBox(height: 48),
 
-              // 3 Classification Workflow Step Cards
+              // 4 Classification Workflow Step Cards
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 1,
                 child: _buildStepCard(
                   stepNumber: '01',
-                  title: 'Capture Seafood Specimen',
+                  title: 'Capture or Upload Specimen',
                   description:
-                      'Position the fish eye cornea or gill arch directly in the camera viewfinder under natural lighting, or upload high-resolution images.',
+                      'Take a focused photograph of your Tilapia under natural, even illumination, or select an existing high-resolution image up to 5 MB.',
                   icon: Icons.camera_alt_outlined,
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 2,
                 child: _buildStepCard(
                   stepNumber: '02',
-                  title: 'Instant AI Freshness Check',
+                  title: 'Select Inspection Region',
                   description:
-                      'Our AI examines eye clarity, gill redness, and skin condition in seconds to determine overall freshness.',
-                  icon: Icons.memory_outlined,
+                      'Designate whether the model should analyze the ocular cornea (Eye) or exposed gill arch (Hasang) for targeted inference.',
+                  icon: Icons.crop_free_rounded,
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 3,
                 child: _buildStepCard(
                   stepNumber: '03',
-                  title: 'Prediction & Scan History',
+                  title: 'Validate & Run AI Inference',
                   description:
-                      'View the predicted label and model confidence. Sign in before scanning to save the result to your account history.',
+                      'Our computer vision model verifies anatomical alignment, assesses transparency and color indicators, and scores quality markers.',
+                  icon: Icons.memory_outlined,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 4,
+                child: _buildStepCard(
+                  stepNumber: '04',
+                  title: 'Review Classification & Certainty',
+                  description:
+                      'View the Fresh or Not Fresh classification along with transparent model confidence. Authenticated accounts automatically archive audit history.',
                   icon: Icons.task_alt_outlined,
                 ),
               ),
 
-              const SizedBox(height: 52),
+              const SizedBox(height: 72),
 
-              // CTA Button: Primary Teal
+              // --- Section 4: Understanding the Results ---
               StaggeredReveal(
                 revealOnScroll: true,
-                staggerIndex: 4,
-                child: AppButton.primary(
-                  label: 'Download App',
-                  icon: const Icon(
-                    Icons.download_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  width: 180,
-                  height: 48,
-                  borderRadius: 24,
-                  onPressed: onDownload,
-                ),
+                staggerIndex: 1,
+                child: _buildUnderstandingResultsCard(),
+              ),
+
+              const SizedBox(height: 72),
+
+              // --- Section 5: Final Call-To-Action Banner ---
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 1,
+                child: _buildFinalCtaBanner(context),
               ),
             ],
           ),
@@ -171,7 +185,7 @@ class HowItWorksSection extends StatelessWidget {
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(26),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -203,6 +217,7 @@ class HowItWorksSection extends StatelessWidget {
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
+                letterSpacing: -0.25,
               ),
             ),
           ),
@@ -218,12 +233,12 @@ class HowItWorksSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        style: TextStyle(
+                        style: const TextStyle(
                           letterSpacing: -0.25,
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 18.5,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF0A2229),
+                          color: Color(0xFF0A2229),
                         ),
                       ),
                     ),
@@ -232,16 +247,326 @@ class HowItWorksSection extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   description,
-                  style: TextStyle(
+                  style: const TextStyle(
                     letterSpacing: -0.25,
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 14,
                     height: 1.55,
-                    color: const Color(0xFF475569),
+                    color: Color(0xFF475569),
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Section 4: Understanding the Results & Scientific Disclaimer Card
+  Widget _buildUnderstandingResultsCard() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFDCEFEA),
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0E0A2229),
+            blurRadius: 24,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F6F4),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.psychology_outlined,
+                  color: SariwaColors.brandPrimary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Understanding Classification Outputs',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.25,
+                      color: Color(0xFF0A2229),
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'How SariwaBa? interprets ocular clarity and gill coloration',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 13,
+                      letterSpacing: -0.25,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Two-column explanation: Fresh vs Not Fresh
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth >= 640;
+
+              final freshCard = Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFBBF7D0),
+                    width: 1.0,
+                  ),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: Color(0xFF168077),
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Fresh Assessment',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.25,
+                            color: Color(0xFF15803D),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Indicates clear, transparent cornea, intact circular pupil lens, and bright, uniform reddish pigmentation on exposed gill arches.',
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 13,
+                        height: 1.5,
+                        letterSpacing: -0.25,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              final notFreshCard = Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFFECACA),
+                    width: 1.0,
+                  ),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 18,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Not Fresh Assessment',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.25,
+                            color: Color(0xFFB91C1C),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Indicates corneal opacity, cloudy milky discoloration, sunken orbital tissue, or faded brownish coloration across gill filaments.',
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 13,
+                        height: 1.5,
+                        letterSpacing: -0.25,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (isWide) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: freshCard),
+                    const SizedBox(width: 16),
+                    Expanded(child: notFreshCard),
+                  ],
+                );
+              }
+
+              return Column(
+                children: [
+                  freshCard,
+                  const SizedBox(height: 14),
+                  notFreshCard,
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 20),
+
+          // Clarification on Model Confidence vs Food Safety
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                width: 1.0,
+              ),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: Color(0xFF64748B),
+                  size: 18,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Model Confidence represents the algorithmic certainty of the neural network based on image features. It is not a food safety guarantee or risk index. External inspection does not detect internal chemical contaminants, biological toxins, or improper thermal handling.',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 12.5,
+                      height: 1.5,
+                      letterSpacing: -0.25,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Section 5: Clean Final Call to Action Banner
+  Widget _buildFinalCtaBanner(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 36),
+      decoration: BoxDecoration(
+        color: SariwaColors.bgAbyssDark,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F0A2229),
+            blurRadius: 30,
+            offset: Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            'Ready to experience intelligent fish inspection?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.25,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 580),
+            child: Text(
+              'Inspect Tilapia freshness in your browser right now or download the mobile application for field audits.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 15,
+                height: 1.5,
+                letterSpacing: -0.25,
+                color: Color(0xFFCCEAE6),
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 14,
+            runSpacing: 12,
+            children: [
+              AppButton.primary(
+                label: 'Download App',
+                icon: const Icon(
+                  Icons.download_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                width: 180,
+                height: 48,
+                borderRadius: 24,
+                onPressed: onDownload,
+              ),
+              if (onTryInspection != null)
+                AppButton.secondary(
+                  label: 'Try Inspection',
+                  width: 170,
+                  height: 48,
+                  borderRadius: 24,
+                  onPressed: onTryInspection,
+                ),
+            ],
           ),
         ],
       ),

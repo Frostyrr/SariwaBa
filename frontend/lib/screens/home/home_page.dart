@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../constants/theme/app_colors.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
@@ -25,7 +24,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   final GlobalKey _howItWorksKey = GlobalKey();
 
   bool _isScrolled = false;
-  bool _isLightNavbar = false;
+  bool _isLightNavbar = true;
   String _activeTab = 'Home';
 
   @override
@@ -41,7 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final scrolled = offset > 16;
 
     String newTab = 'Home';
-    bool lightNav = false;
+    bool lightNav = true;
 
     final featuresBox =
         _featuresKey.currentContext?.findRenderObject() as RenderBox?;
@@ -100,7 +99,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isGuest = authState.isGuest;
 
     return Scaffold(
-      backgroundColor: SariwaColors.bgAbyssDark,
+      backgroundColor: const Color(0xFFFAFCFB),
       body: Stack(
         children: [
           // Scrollable Page Sections
@@ -133,6 +132,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 HowItWorksSection(
                   key: _howItWorksKey,
                   onDownload: () => authController.goToDownloads(),
+                  onTryInspection: () => authController.goToDashboard(),
                 ),
 
                 // Section 4: Web Footer (Deep Abyss #0A2229)
