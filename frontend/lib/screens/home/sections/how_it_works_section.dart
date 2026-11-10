@@ -6,7 +6,7 @@ import '../../../widgets/common/staggered_reveal.dart';
 
 /// How It Works Section Widget
 /// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
-/// numbered clinical inspection steps, and high-contrast elevated cards.
+/// numbered image classification steps, and high-contrast elevated cards.
 class HowItWorksSection extends StatelessWidget {
   final VoidCallback onDownload;
 
@@ -46,7 +46,7 @@ class HowItWorksSection extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                       color: SariwaColors.brandPrimaryDark,
                     ),
@@ -66,7 +66,7 @@ class HowItWorksSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: -1.0,
                     color: const Color(0xFF0A2229),
                   ),
@@ -82,7 +82,7 @@ class HowItWorksSection extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 620),
                   child: Text(
-                    'Eliminate subjective guesswork with real-time sensory classification aligned with international seafood grading standards.',
+                    'Upload a fish image to receive a Fresh or Not Fresh prediction and its model confidence.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -96,7 +96,7 @@ class HowItWorksSection extends StatelessWidget {
 
               const SizedBox(height: 48),
 
-              // 3 Clinical Workflow Step Cards
+              // 3 Classification Workflow Step Cards
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 1,
@@ -116,9 +116,9 @@ class HowItWorksSection extends StatelessWidget {
                 staggerIndex: 2,
                 child: _buildStepCard(
                   stepNumber: '02',
-                  title: 'Multi-Spectral AI Analysis',
+                  title: 'Instant AI Freshness Check',
                   description:
-                      'Our edge MobileNetV3 neural model segments optical cornea cloudiness, measures RGB branchial redness, and evaluates tissue degradation.',
+                      'Our AI examines eye clarity, gill redness, and skin condition in seconds to determine overall freshness.',
                   icon: Icons.memory_outlined,
                 ),
               ),
@@ -130,9 +130,9 @@ class HowItWorksSection extends StatelessWidget {
                 staggerIndex: 3,
                 child: _buildStepCard(
                   stepNumber: '03',
-                  title: 'Standardized Grading & Telemetry Sync',
+                  title: 'Prediction & Scan History',
                   description:
-                      'Receive an immediate freshness confidence score (Grade A Sariwa, Grade B Katamtaman, Grade C Spoiled) and synchronize records with PostgreSQL.',
+                      'View the predicted label and model confidence. Sign in before scanning to save the result to your account history.',
                   icon: Icons.task_alt_outlined,
                 ),
               ),
@@ -200,7 +200,7 @@ class HowItWorksSection extends StatelessWidget {
               stepNumber,
               style: AppTypography.monoMetric.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 fontSize: 15,
               ),
             ),
@@ -220,7 +220,7 @@ class HowItWorksSection extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 18.5,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF0A2229),
                         ),
                       ),

@@ -49,3 +49,7 @@ app.*.map.json
 
 # Agentic Folder
 .agent/
+.codex/
+.codex-*/
+AGENTS.override.md
+AGENTS.md

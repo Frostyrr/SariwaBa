@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,7 +34,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     _scrollController.addListener(_onScroll);
     // Load fresh history when dashboard opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(classificationControllerProvider.notifier).loadHistory();
+      if (ref.read(authControllerProvider).isAuthenticated) {
+        ref.read(classificationControllerProvider.notifier).loadHistory();
+      }
     });
   }
 
@@ -54,6 +57,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     showDialog<void>(
       context: context,
       barrierDismissible: true,
+      barrierColor: const Color(0x66000000),
       builder: (dialogContext) {
         _cropModalContext = dialogContext;
         return Consumer(
@@ -71,12 +75,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             return Dialog(
               key: const Key('roi_cropper_modal'),
               backgroundColor: Colors.transparent,
+              elevation: 0,
               insetPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 20,
               ),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 660),
+                constraints: const BoxConstraints(maxWidth: 640),
                 child: RoiCropperWidget(
                   state: modalState,
                   controller: modalController,
@@ -157,10 +162,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         !classState.isCropConfirmed;
 
     return Scaffold(
-      backgroundColor: SariwaColors.bgDashboard,
+      backgroundColor: const Color(0xFFF2F4F7),
       body: Column(
         children: [
-          // Sticky Web Navbar configured for Off-White Light Mode
+          // Sticky Web Navbar configured for Light Mode
           WebNavbar(
             user: user,
             isLight: true,
@@ -189,7 +194,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       // Header Greetings & Actions
                       StaggeredReveal(
                         staggerIndex: 0,
-                        child: _buildDashboardHeader(user, classController),
+                        child: _buildDashboardHeader(
+                          user,
+                          classController,
+                          isGuestSession: authState.isGuest,
+                          onConnectGoogle: () =>
+                              authController.continueWithGoogle(),
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -300,10 +311,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   // Header Section
   Widget _buildDashboardHeader(
     dynamic user,
-    ClassificationController controller,
-  ) {
+    ClassificationController controller, {
+    bool isGuestSession = false,
+    VoidCallback? onConnectGoogle,
+  }) {
     final name = (user?.displayName ?? 'Evaluator').toString().split(' ').first;
-    final isGuestUser = user?.isGuest == true;
+    final isGuestUser = isGuestSession || user?.isGuest == true;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -314,40 +327,46 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 4,
+                horizontal: 11,
+                vertical: 4.5,
               ),
               decoration: BoxDecoration(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(99),
                 border: Border.all(
-                  color: SariwaColors.brandPrimary.withValues(
-                    alpha: 0.25,
-                  ),
-                  width: 1,
+                  color: const Color(0xFFE5E7EB),
+                  width: 0.8,
                 ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x06000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 6,
-                    height: 6,
+                    width: 6.5,
+                    height: 6.5,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: SariwaColors.brandPrimary,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 7),
                   Flexible(
                     child: Text(
                       isGuestUser
-                          ? 'Guest Evaluation Session'
-                          : 'PostgreSQL Live Session',
+                          ? 'Guest Evaluation Mode'
+                          : 'Account Synced',
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: SariwaColors.brandPrimary,
+                        letterSpacing: -0.1,
+                        color: SariwaColors.textPrimaryDark,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -355,18 +374,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               'Welcome back, $name!',
               style: AppTypography.displayLarge.copyWith(
                 color: SariwaColors.textPrimaryDark,
-                fontSize: isCompact ? 22 : 28,
+                fontSize: isCompact ? 23 : 29,
                 fontWeight: FontWeight.w800,
+                letterSpacing: -0.6,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Upload a Tilapia photo, select and confirm an eye or exposed-gill region, and run preliminary MobileNetV3 freshness analysis.',
+              'Upload a Tilapia photo, frame the eye or exposed gill, and check its freshness in seconds.',
               style: AppTypography.bodyMedium.copyWith(
                 color: SariwaColors.textSecondaryDark,
                 fontSize: 14,
@@ -375,23 +395,47 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ],
         );
 
-        final syncBtn = OutlinedButton.icon(
-          onPressed: () => controller.loadHistory(),
-          icon: const Icon(Icons.refresh_rounded, size: 18),
-          label: const Text('Sync History'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: SariwaColors.brandPrimary,
-            side: const BorderSide(
-              color: SariwaColors.borderLightTeal,
-              width: 1.2,
-            ),
-            backgroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
+        final syncBtn = isGuestUser
+            ? OutlinedButton.icon(
+                onPressed: onConnectGoogle,
+                icon: const Icon(CupertinoIcons.person_badge_plus, size: 15),
+                label: const Text('Connect with Google'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.brandPrimary,
+                  side: const BorderSide(
+                    color: SariwaColors.brandPrimary,
+                    width: 0.8,
+                  ),
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: () => controller.loadHistory(),
+                icon: const Icon(CupertinoIcons.refresh, size: 15),
+                label: const Text('Sync History'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.textPrimaryDark,
+                  side: const BorderSide(
+                    color: Color(0xFFE5E7EB),
+                    width: 0.8,
+                  ),
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              );
 
         if (isCompact) {
           return Column(
@@ -434,10 +478,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           _buildMetricBox(
             title: 'Total Scans',
             value: total.toString(),
-            subtitle: 'Lifetime audit records',
-            icon: Icons.analytics_outlined,
+            subtitle: 'Saved inspections',
+            icon: CupertinoIcons.chart_bar_square,
             iconColor: SariwaColors.brandPrimary,
-            iconBg: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+            iconBg: SariwaColors.brandPrimary.withValues(alpha: 0.10),
           ),
           _buildMetricBox(
             title: 'Sariwa (Fresh)',
@@ -445,25 +489,25 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             subtitle: total > 0
                 ? '${((freshCount / total) * 100).toStringAsFixed(0)}% of total scans'
                 : 'Fresh Tilapia count',
-            icon: Icons.check_circle_outline_rounded,
+            icon: CupertinoIcons.checkmark_seal,
             iconColor: SariwaColors.statusFresh,
-            iconBg: SariwaColors.statusFresh.withValues(alpha: 0.12),
+            iconBg: SariwaColors.statusFresh.withValues(alpha: 0.10),
           ),
           _buildMetricBox(
             title: 'Not Fresh Alerts',
             value: cautionCount.toString(),
-            subtitle: 'Non-fresh detections',
-            icon: Icons.warning_amber_rounded,
+            subtitle: 'Needs attention',
+            icon: CupertinoIcons.exclamationmark_triangle,
             iconColor: SariwaColors.statusModerate,
-            iconBg: SariwaColors.statusModerate.withValues(alpha: 0.12),
+            iconBg: SariwaColors.statusModerate.withValues(alpha: 0.10),
           ),
           _buildMetricBox(
             title: 'Avg. Confidence',
             value: total > 0 ? '${avgConfidence.toStringAsFixed(1)}%' : '—',
-            subtitle: 'History mean score',
-            icon: Icons.speed_rounded,
+            subtitle: 'Average across scans',
+            icon: CupertinoIcons.speedometer,
             iconColor: SariwaColors.statusInfo,
-            iconBg: SariwaColors.statusInfo.withValues(alpha: 0.12),
+            iconBg: SariwaColors.statusInfo.withValues(alpha: 0.10),
           ),
         ];
 
@@ -508,13 +552,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal, width: 1),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x060A2229),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: Color(0x08000000),
+            blurRadius: 18,
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -530,6 +574,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
+                    letterSpacing: -0.1,
                     color: SariwaColors.textSecondaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -540,7 +585,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: iconBg,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 18, color: iconColor),
               ),
@@ -551,8 +596,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             value,
             style: const TextStyle(
               fontFamily: 'Geist',
-              fontSize: 26,
+              fontSize: 27,
               fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
@@ -570,7 +616,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  // Left Column: Interactive Fish Freshness Scanner Card
+  // Left Column: iOS Cupertino-styled Interactive Fish Freshness Scanner Card
   Widget _buildScannerCard(
     ClassificationState state,
     ClassificationController controller,
@@ -579,13 +625,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.borderLightTeal, width: 1.2),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x080A2229),
-            blurRadius: 16,
-            offset: Offset(0, 6),
+            color: Color(0x0A000000),
+            blurRadius: 24,
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -600,15 +646,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
                         color: SariwaColors.brandPrimary.withValues(
-                          alpha: 0.12,
+                          alpha: 0.10,
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.camera_alt_outlined,
+                        CupertinoIcons.viewfinder,
                         size: 20,
                         color: SariwaColors.brandPrimary,
                       ),
@@ -623,12 +669,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'Tilapia Eye & Exposed Gill ROI Classification',
+                            'Check freshness from a Tilapia eye or exposed gill photo',
                             style: TextStyle(
                               fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
@@ -644,19 +691,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: 11,
+                  vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: SariwaColors.bgDashboardSubtle,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: SariwaColors.borderLightTeal,
-                    width: 1,
-                  ),
+                  color: const Color(0xFFF2F4F7),
+                  borderRadius: BorderRadius.circular(99),
                 ),
                 child: const Text(
-                  'MobileNetV3',
+                  'Tilapia',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -666,13 +709,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
-          // 4-Stage Guided Workflow Stepper
-          _buildWorkflowStepPills(state),
-          const SizedBox(height: 16),
-
-          // Step 1: Upload Dropzone OR ROI Preparation Modal / Confirmed Summary
+          // Upload Dropzone OR ROI Preparation Modal / Confirmed Summary
           if (state.selectedImageBytes == null)
             _buildEmptyUploadDropzone(controller)
           else if (_isCropModalOpen && !state.isCropConfirmed)
@@ -685,12 +724,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               onOpenModal: _showRoiCropperModal,
             ),
 
-          const SizedBox(height: 20),
-
-          // Step 4: Validate and Classify Section (hidden behind modal when modal is active)
+          // Primary Validate & Classify CTA (hidden behind modal when modal is active)
           if (state.selectedImageBytes != null &&
-              !(_isCropModalOpen && !state.isCropConfirmed))
+              !(_isCropModalOpen && !state.isCropConfirmed)) ...[
+            const SizedBox(height: 16),
             _buildStep4ClassifySection(state, controller),
+          ],
 
           // Dedicated Image Rejection State (when input is rejected by validation or Model A)
           if (state.errorMessage != null &&
@@ -700,22 +739,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 'INVALID_REGION_TYPE',
                 'CONFIRMATION_REQUIRED',
               }.contains(state.errorCode)) ...[
-            const SizedBox(height: 24),
-            const Divider(color: SariwaColors.borderLightTeal, height: 1),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
+            const Divider(color: Color(0xFFE5E7EB), height: 1),
+            const SizedBox(height: 18),
             _buildImageRejectionCard(state, controller),
           ] else if (state.errorMessage != null && !state.isInputRejection) ...[
-            const SizedBox(height: 24),
-            const Divider(color: SariwaColors.borderLightTeal, height: 1),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
+            const Divider(color: Color(0xFFE5E7EB), height: 1),
+            const SizedBox(height: 18),
             _buildTechnicalErrorCard(state, controller),
           ],
 
           // Live Result Breakdown (when available)
           if (state.latestResult != null) ...[
-            const SizedBox(height: 24),
-            const Divider(color: SariwaColors.borderLightTeal, height: 1),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
+            const Divider(color: Color(0xFFE5E7EB), height: 1),
+            const SizedBox(height: 18),
             _buildInspectionResultView(state.latestResult!),
           ],
         ],
@@ -728,20 +767,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
+              color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
-              Icons.crop_free_rounded,
+              CupertinoIcons.crop,
               color: SariwaColors.brandPrimary,
               size: 20,
             ),
@@ -755,14 +794,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   state.selectedImageName ?? 'tilapia_scan.jpg',
                   style: const TextStyle(
                     fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: SariwaColors.textPrimaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'Region selection & ROI cropping active in modal dialog...',
+                  'Adjusting photo in crop view...',
                   style: TextStyle(
                     fontSize: 12,
                     color: SariwaColors.textSecondaryDark,
@@ -776,219 +815,70 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  Widget _buildWorkflowStepPills(ClassificationState state) {
-    final step1Done = state.hasSelectedImage;
-    final step2Done = state.hasSelectedRegion;
-    final step3Done = state.isCropConfirmed && state.confirmedImageBytes != null;
-    final step4Done = state.latestResult != null;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: SariwaColors.bgDashboardSubtle,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 6,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          _buildStepPill(
-            stepNumber: '1',
-            label: 'Upload Image',
-            isCompleted: step1Done,
-            isActive: !step1Done,
-          ),
-          _buildStepPill(
-            stepNumber: '2',
-            label: 'Select Region',
-            isCompleted: step2Done,
-            isActive: step1Done && !step2Done,
-          ),
-          _buildStepPill(
-            stepNumber: '3',
-            label: 'Crop & Confirm',
-            isCompleted: step3Done,
-            isActive: step2Done && !step3Done,
-          ),
-          _buildStepPill(
-            stepNumber: '4',
-            label: 'Validate & Classify',
-            isCompleted: step4Done,
-            isActive: step3Done && !step4Done,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepPill({
-    required String stepNumber,
-    required String label,
-    required bool isCompleted,
-    required bool isActive,
-  }) {
-    final bgColor = isCompleted
-        ? SariwaColors.brandPrimary.withValues(alpha: 0.14)
-        : (isActive ? Colors.white : Colors.transparent);
-    final textColor = isCompleted || isActive
-        ? SariwaColors.brandPrimary
-        : SariwaColors.textMutedDark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isCompleted || isActive
-              ? SariwaColors.brandPrimary.withValues(alpha: 0.35)
-              : SariwaColors.borderLightTeal,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isCompleted
-                ? Icons.check_circle_rounded
-                : Icons.adjust_rounded,
-            size: 13,
-            color: textColor,
-          ),
-          const SizedBox(width: 5),
-          Flexible(
-            child: Text(
-              '$stepNumber. $label',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight:
-                    isCompleted || isActive ? FontWeight.w700 : FontWeight.w500,
-                color: textColor,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildStep4ClassifySection(
     ClassificationState state,
     ClassificationController controller,
   ) {
-    final isReady = state.isReadyToClassify;
     final statusText = state.processingStage ?? 'Analyzing image...';
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'STEP 4',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'Validate and Classify',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                ),
-              ),
-            ],
+    Future<void> handleClassifyTap() async {
+      if (state.isClassifying) return;
+      if (state.selectedRegion == null) {
+        await controller.classify();
+        return;
+      }
+      if (!state.isCropConfirmed) {
+        controller.confirmFullImageAsCloseUp();
+      }
+      await controller.classify();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppButton.primary(
+          key: const Key('validate_and_classify_button'),
+          label: state.isClassifying
+              ? statusText
+              : 'Validate & Classify Freshness',
+          isLoading: state.isClassifying,
+          height: 50,
+          borderRadius: 16,
+          icon: const Icon(
+            CupertinoIcons.sparkles,
+            size: 18,
+            color: Colors.white,
           ),
-          const SizedBox(height: 6),
-          Text(
-            isReady
-                ? 'Confirmed ${state.selectedRegion?.displayName ?? ''} region is ready for backend validation and MobileNetV3 freshness analysis.'
-                : 'Complete Step 2 (select Eye or Gill) and Step 3 (confirm cropped region or close-up) to enable classification.',
-            style: const TextStyle(
-              fontSize: 11.5,
-              color: SariwaColors.textSecondaryDark,
+          onPressed: state.isClassifying ? null : handleClassifyTap,
+        ),
+        if (state.isClassifying) ...[
+          const SizedBox(height: 10),
+          Container(
+            key: const Key('analyzing_image_status'),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
             ),
-          ),
-          const SizedBox(height: 12),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: !isReady && !state.isClassifying
-                ? () => controller.classify()
-                : null,
-            child: AppButton.primary(
-              key: const Key('validate_and_classify_button'),
-              label: state.isClassifying
-                  ? statusText
-                  : 'Validate & Classify Freshness',
-              isLoading: state.isClassifying,
-              height: 48,
-              borderRadius: 14,
-              icon: const Icon(
-                Icons.auto_awesome,
-                size: 18,
-                color: Colors.white,
-              ),
-              onPressed: isReady && !state.isClassifying
-                  ? () => controller.classify()
-                  : null,
-            ),
-          ),
-          if (state.isClassifying) ...[
-            const SizedBox(height: 10),
-            Container(
-              key: const Key('analyzing_image_status'),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: SariwaColors.borderLightTeal),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.hourglass_top_rounded,
-                    size: 15,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CupertinoActivityIndicator(radius: 8),
+                const SizedBox(width: 8),
+                Text(
+                  statusText,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
                     color: SariwaColors.brandPrimary,
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    statusText,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: SariwaColors.brandPrimary,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -1004,13 +894,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       key: const Key('image_rejection_card'),
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: SariwaColors.statusModerate.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: SariwaColors.statusModerate.withValues(alpha: 0.45),
-          width: 1.5,
+          color: SariwaColors.statusModerate.withValues(alpha: 0.35),
+          width: 1.0,
         ),
       ),
       child: Column(
@@ -1023,12 +913,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: SariwaColors.statusModerate.withValues(alpha: 0.16),
+                  color: SariwaColors.statusModerate.withValues(alpha: 0.14),
                 ),
                 child: const Icon(
-                  Icons.unpublished_outlined,
+                  CupertinoIcons.exclamationmark_circle,
                   color: SariwaColors.statusModerate,
-                  size: 24,
+                  size: 22,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1045,8 +935,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           'Image Not Supported',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 17,
+                            fontSize: 16.5,
                             fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
@@ -1058,10 +949,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(99),
                               border: Border.all(
                                 color: SariwaColors.statusModerate
-                                    .withValues(alpha: 0.5),
+                                    .withValues(alpha: 0.4),
                               ),
                             ),
                             child: Text(
@@ -1095,8 +986,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: SariwaColors.borderLightTeal),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1130,52 +1021,70 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               if (state.hasSelectedImage)
                 OutlinedButton.icon(
                   key: const Key('rejection_edit_crop_button'),
-                  onPressed: () => controller.editCrop(),
-                  icon: const Icon(Icons.crop_rotate_rounded, size: 15),
+                  onPressed: () {
+                    controller.editCrop();
+                    _showRoiCropperModal();
+                  },
+                  icon: const Icon(CupertinoIcons.crop, size: 14),
                   label: const Text('Edit Crop'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
-                    side: const BorderSide(color: SariwaColors.borderLightTeal),
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
               if (state.hasSelectedImage)
                 OutlinedButton.icon(
                   key: const Key('rejection_change_region_button'),
-                  onPressed: () => controller.changeRegion(),
-                  icon: const Icon(Icons.swap_vert_rounded, size: 15),
+                  onPressed: () {
+                    controller.changeRegion();
+                    _showRoiCropperModal();
+                  },
+                  icon: const Icon(CupertinoIcons.arrow_up_arrow_down, size: 14),
                   label: const Text('Change Region'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
-                    side: const BorderSide(color: SariwaColors.borderLightTeal),
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
               OutlinedButton.icon(
                 key: const Key('rejection_replace_image_button'),
                 onPressed: () => controller.clearSelection(),
-                icon: const Icon(Icons.swap_horiz_rounded, size: 15),
+                icon: const Icon(CupertinoIcons.arrow_2_squarepath, size: 14),
                 label: const Text('Replace Image'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.statusSpoiled,
-                  side: const BorderSide(color: SariwaColors.borderLightTeal),
+                  side: const BorderSide(color: Color(0xFFE5E7EB)),
                   backgroundColor: Colors.white,
                   visualDensity: VisualDensity.compact,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(99),
+                  ),
                 ),
               ),
               if (state.isReadyToClassify)
                 ElevatedButton.icon(
                   key: const Key('rejection_try_again_button'),
                   onPressed: () => controller.classify(),
-                  icon: const Icon(Icons.refresh_rounded, size: 15),
+                  icon: const Icon(CupertinoIcons.refresh, size: 14),
                   label: const Text('Try Again'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: SariwaColors.brandPrimary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
             ],
@@ -1193,11 +1102,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       key: const Key('technical_error_card'),
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboardSubtle,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal, width: 1.5),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1205,9 +1114,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           Row(
             children: [
               const Icon(
-                Icons.cloud_off_rounded,
+                CupertinoIcons.wifi_exclamationmark,
                 color: SariwaColors.textSecondaryDark,
-                size: 22,
+                size: 20,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1216,6 +1125,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
                     color: SariwaColors.textPrimaryDark,
                   ),
                 ),
@@ -1240,25 +1150,31 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ElevatedButton.icon(
                   key: const Key('technical_try_again_button'),
                   onPressed: () => controller.classify(),
-                  icon: const Icon(Icons.refresh_rounded, size: 15),
+                  icon: const Icon(CupertinoIcons.refresh, size: 14),
                   label: const Text('Try Again'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: SariwaColors.brandPrimary,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
               if (state.hasSelectedImage)
                 OutlinedButton.icon(
                   onPressed: () => controller.clearSelection(),
-                  icon: const Icon(Icons.swap_horiz_rounded, size: 15),
+                  icon: const Icon(CupertinoIcons.arrow_2_squarepath, size: 14),
                   label: const Text('Replace Image'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.textPrimaryDark,
-                    side: const BorderSide(color: SariwaColors.borderLightTeal),
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
             ],
@@ -1268,38 +1184,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  // Step 1 Upload Dropzone View
+  // iOS Cupertino-styled Upload Dropzone View
   Widget _buildEmptyUploadDropzone(ClassificationController controller) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 22),
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: SariwaColors.brandPrimary.withValues(alpha: 0.35),
-          style: BorderStyle.solid,
-          width: 1.5,
+          color: const Color(0xFFE5E7EB),
+          width: 1.0,
         ),
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: SariwaColors.brandPrimary,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text(
-              'STEP 1 — UPLOAD IMAGE',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -1307,8 +1206,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
             ),
             child: const Icon(
-              Icons.cloud_upload_outlined,
-              size: 36,
+              CupertinoIcons.camera_viewfinder,
+              size: 34,
               color: SariwaColors.brandPrimary,
             ),
           ),
@@ -1318,57 +1217,59 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
           const SizedBox(height: 6),
           const Text(
-            'Upload a whole-Tilapia photo to crop the eye or exposed gill, or upload an existing close-up (JPG, JPEG, PNG up to 5 MB).',
+            'Upload a whole-Tilapia photo to frame the eye or exposed gill, or upload an existing close-up (JPG, JPEG, PNG, or HEIC up to 5 MB).',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.5,
               color: SariwaColors.textSecondaryDark,
+              height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
           Wrap(
-            spacing: 12,
+            spacing: 10,
             runSpacing: 10,
             alignment: WrapAlignment.center,
             children: [
               ElevatedButton.icon(
                 key: const Key('browse_gallery_button'),
                 onPressed: () => controller.pickImage(ImageSource.gallery),
-                icon: const Icon(Icons.photo_library_outlined, size: 17),
+                icon: const Icon(CupertinoIcons.photo_on_rectangle, size: 16),
                 label: const Text('Browse Gallery'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: SariwaColors.brandPrimary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 18,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
               ),
               OutlinedButton.icon(
                 key: const Key('use_camera_button'),
                 onPressed: () => controller.pickImage(ImageSource.camera),
-                icon: const Icon(Icons.camera_alt_outlined, size: 17),
+                icon: const Icon(CupertinoIcons.camera, size: 16),
                 label: const Text('Use Camera'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SariwaColors.brandPrimary,
-                  side: const BorderSide(color: SariwaColors.borderLightTeal),
+                  foregroundColor: SariwaColors.textPrimaryDark,
+                  side: const BorderSide(color: Color(0xFFE5E7EB)),
                   backgroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 18,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
               ),
@@ -1391,13 +1292,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         children: [
           // Primary Prediction Banner
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: result.statusColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(16),
+              color: result.statusColor.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: result.statusColor.withValues(alpha: 0.35),
-                width: 1.5,
+                color: result.statusColor.withValues(alpha: 0.25),
+                width: 1.0,
               ),
             ),
             child: Row(
@@ -1411,10 +1312,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                   child: Icon(
                     result.isFresh
-                        ? Icons.verified_rounded
-                        : Icons.warning_amber_rounded,
+                        ? CupertinoIcons.checkmark_seal_fill
+                        : CupertinoIcons.exclamationmark_triangle_fill,
                     color: Colors.white,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -1433,19 +1334,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               fontFamily: 'Geist',
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
+                              letterSpacing: -0.4,
                               color: result.statusColor,
                             ),
                           ),
                           if (selectedRegionText != null)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
+                                horizontal: 9,
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: SariwaColors.brandPrimary
-                                    .withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(99),
                               ),
                               child: Text(
                                 selectedRegionText,
@@ -1458,15 +1359,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
+                              horizontal: 9,
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(
-                                color: SariwaColors.borderLightTeal,
-                              ),
+                              borderRadius: BorderRadius.circular(99),
                             ),
                             child: Text(
                               result.assessmentScopeLabel,
@@ -1484,7 +1382,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         'Model Confidence: ${result.formattedConfidence}',
                         style: const TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 13,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w700,
                           color: SariwaColors.textPrimaryDark,
                         ),
@@ -1523,29 +1421,26 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Actual Save Status Banner
           Container(
             key: const Key('result_save_status_banner'),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: result.saved
-                  ? SariwaColors.brandPrimary.withValues(alpha: 0.08)
-                  : SariwaColors.bgDashboardSubtle,
-              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: result.saved
-                    ? SariwaColors.brandPrimary.withValues(alpha: 0.30)
-                    : SariwaColors.borderLightTeal,
+                color: const Color(0xFFE5E7EB),
+                width: 0.8,
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   result.saved
-                      ? Icons.check_circle_rounded
-                      : Icons.info_outline_rounded,
+                      ? CupertinoIcons.checkmark_circle_fill
+                      : CupertinoIcons.info_circle,
                   size: 16,
                   color: result.saved
                       ? SariwaColors.brandPrimary
@@ -1567,23 +1462,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Mandatory Preliminary Disclaimer
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: SariwaColors.borderLightTeal),
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
             ),
             child: Text(
               result.disclaimer,
               style: const TextStyle(
                 fontSize: 11.5,
                 height: 1.4,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: SariwaColors.textSecondaryDark,
               ),
             ),
@@ -1593,7 +1488,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  // Right Column: Classification History Card
+  // Right Column: iOS Cupertino-styled Classification History Card
   Widget _buildHistoryCard(
     ClassificationState state,
     ClassificationController controller,
@@ -1609,20 +1504,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.borderLightTeal, width: 1.2),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x080A2229),
-            blurRadius: 16,
-            offset: Offset(0, 6),
+            color: Color(0x0A000000),
+            blurRadius: 24,
+            offset: Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with count & filter chips
+          // Header with count & refresh button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1630,15 +1525,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
                         color: SariwaColors.brandPrimary.withValues(
-                          alpha: 0.12,
+                          alpha: 0.10,
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.history_rounded,
+                        CupertinoIcons.clock,
                         size: 20,
                         color: SariwaColors.brandPrimary,
                       ),
@@ -1653,12 +1548,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
                               color: SariwaColors.textPrimaryDark,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            '${state.history.length} scans recorded in PostgreSQL',
+                            state.history.length == 1 ? '1 saved scan' : '${state.history.length} saved scans',
                             style: const TextStyle(
                               fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
@@ -1673,7 +1569,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
               IconButton(
                 onPressed: () => controller.loadHistory(),
-                icon: const Icon(Icons.refresh_rounded, size: 20),
+                icon: const Icon(CupertinoIcons.refresh, size: 18),
                 tooltip: 'Refresh history from server',
                 color: SariwaColors.brandPrimary,
               ),
@@ -1681,39 +1577,61 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           const SizedBox(height: 16),
 
-          // Filter Segment Tabs ('All', 'Fresh', 'Not Fresh')
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: ['All', 'Fresh', 'Not Fresh'].map((filter) {
-              final isSelected = _historyFilter == filter;
-              return FilterChip(
-                key: Key('history_filter_${filter.toLowerCase().replaceAll(' ', '_')}'),
-                label: Text(filter),
-                selected: isSelected,
-                onSelected: (val) {
-                  setState(() {
-                    _historyFilter = filter;
-                  });
-                },
-                selectedColor: SariwaColors.brandPrimary.withValues(
-                  alpha: 0.15,
-                ),
-                backgroundColor: SariwaColors.bgDashboard,
-                side: BorderSide(
-                  color: isSelected
-                      ? SariwaColors.brandPrimary
-                      : SariwaColors.borderLightTeal,
-                ),
-                labelStyle: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected
-                      ? SariwaColors.brandPrimary
-                      : SariwaColors.textSecondaryDark,
-                ),
-              );
-            }).toList(),
+          // iOS Segmented Filter Control ('All', 'Fresh', 'Not Fresh')
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEEEF2),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Row(
+              children: ['All', 'Fresh', 'Not Fresh'].map((filter) {
+                final isSelected = _historyFilter == filter;
+                return Expanded(
+                  child: GestureDetector(
+                    key: Key(
+                      'history_filter_${filter.toLowerCase().replaceAll(' ', '_')}',
+                    ),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      setState(() => _historyFilter = filter);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOutCubic,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: isSelected
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x12000000),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 1),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Center(
+                        child: Text(
+                          filter,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected
+                                ? SariwaColors.textPrimaryDark
+                                : const Color(0xFF6B7280),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -1722,9 +1640,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(40),
-                child: CircularProgressIndicator(
-                  color: SariwaColors.brandPrimary,
-                ),
+                child: CupertinoActivityIndicator(radius: 14),
               ),
             )
           else if (filtered.isEmpty)
@@ -1777,18 +1693,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
       ),
       child: Column(
         children: [
           Image.asset(
             'assets/images/SariwaBa logo.png',
-            height: 64,
+            height: 60,
             errorBuilder: (_, _, _) => const Icon(
-              Icons.inventory_2_outlined,
-              size: 48,
+              CupertinoIcons.tray,
+              size: 44,
               color: SariwaColors.textMutedDark,
             ),
           ),
@@ -1798,6 +1714,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
@@ -1825,19 +1742,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SariwaColors.bgDashboard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: SariwaColors.borderLightTeal),
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
       ),
       child: Row(
         children: [
           // Image thumbnail or badge
           ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             child: Container(
               width: 52,
               height: 52,
-              color: scan.statusColor.withValues(alpha: 0.15),
+              color: scan.statusColor.withValues(alpha: 0.12),
               child: scan.imageUrl != null && scan.imageUrl!.isNotEmpty
                   ? Image.network(
                       scan.imageUrl!,
@@ -1845,13 +1762,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       errorBuilder: (_, _, _) => Icon(
                         Icons.set_meal_rounded,
                         color: scan.statusColor,
-                        size: 26,
+                        size: 24,
                       ),
                     )
                   : Icon(
                       Icons.set_meal_rounded,
                       color: scan.statusColor,
-                      size: 26,
+                      size: 24,
                     ),
             ),
           ),
@@ -1872,23 +1789,27 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
                         color: scan.statusColor,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 1.5,
+                        horizontal: 7,
+                        vertical: 2,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: scan.statusColor, width: 0.8),
+                        borderRadius: BorderRadius.circular(99),
+                        border: Border.all(
+                          color: scan.statusColor.withValues(alpha: 0.4),
+                          width: 0.8,
+                        ),
                       ),
                       child: Text(
                         scan.formattedConfidence,
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w700,
                           color: scan.statusColor,
                         ),
@@ -1897,19 +1818,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     if (scan.regionDisplayName != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 1.5,
+                          horizontal: 7,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(4),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(
+                            color: const Color(0xFFE5E7EB),
+                            width: 0.8,
+                          ),
                         ),
                         child: Text(
                           'Selected region: ${scan.regionDisplayName!}',
                           style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
                             color: SariwaColors.brandPrimary,
                           ),
                         ),
@@ -1922,7 +1846,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       ? '${scan.createdAt!.month}/${scan.createdAt!.day}/${scan.createdAt!.year} at ${scan.createdAt!.hour}:${scan.createdAt!.minute.toString().padLeft(2, '0')}'
                       : 'Audit Scan #${scan.scanId ?? ''}',
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 11.5,
                     color: SariwaColors.textSecondaryDark,
                   ),
                 ),
@@ -1934,12 +1858,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           if (scan.scanId != null)
             IconButton(
               icon: isDeleting
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.delete_outline_rounded, size: 18),
+                  ? const CupertinoActivityIndicator(radius: 8)
+                  : const Icon(CupertinoIcons.trash, size: 17),
               color: SariwaColors.textMutedDark,
               tooltip: 'Delete scan',
               onPressed: isDeleting
@@ -1961,9 +1881,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Text('Delete Scan Record?'),
         content: Text(
-          'Are you sure you want to permanently delete Scan #$scanId from PostgreSQL history?',
+          'Are you sure you want to permanently delete Scan #$scanId from your history?',
         ),
         actions: [
           TextButton(
@@ -1974,6 +1895,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: SariwaColors.statusSpoiled,
               foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(99),
+              ),
             ),
             onPressed: () {
               Navigator.pop(dialogCtx);
@@ -2006,11 +1931,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         isError ? 'error_notification_banner' : 'success_notification_banner',
       ),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 1.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 14,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2021,11 +1953,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Icon(
                 isError
                     ? (state.isInputRejection
-                        ? Icons.warning_amber_rounded
-                        : Icons.error_outline_rounded)
-                    : Icons.check_circle_outline_rounded,
+                        ? CupertinoIcons.exclamationmark_circle_fill
+                        : CupertinoIcons.xmark_octagon_fill)
+                    : CupertinoIcons.checkmark_circle_fill,
                 color: color,
-                size: 20,
+                size: 19,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -2047,7 +1979,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ],
                     Text(
                       message,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: SariwaColors.textPrimaryDark,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -2067,43 +1999,51 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 if (state.isCropConfirmed)
                   OutlinedButton.icon(
                     key: const Key('banner_edit_crop_button'),
-                    onPressed: () => controller.editCrop(),
-                    icon: const Icon(Icons.crop_rotate_rounded, size: 15),
+                    onPressed: () {
+                      controller.editCrop();
+                      _showRoiCropperModal();
+                    },
+                    icon: const Icon(CupertinoIcons.crop, size: 14),
                     label: const Text('Edit Crop'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: SariwaColors.brandPrimary,
-                      side: const BorderSide(
-                        color: SariwaColors.borderLightTeal,
-                      ),
-                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      backgroundColor: const Color(0xFFF9FAFB),
                       visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(99),
+                      ),
                     ),
                   ),
                 OutlinedButton.icon(
                   key: const Key('banner_replace_image_button'),
                   onPressed: () => controller.clearSelection(),
-                  icon: const Icon(Icons.swap_horiz_rounded, size: 15),
+                  icon: const Icon(CupertinoIcons.arrow_2_squarepath, size: 14),
                   label: const Text('Replace Image'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.statusSpoiled,
-                    side: const BorderSide(
-                      color: SariwaColors.borderLightTeal,
-                    ),
-                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    backgroundColor: const Color(0xFFF9FAFB),
                     visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
                 if (state.isReadyToClassify)
                   ElevatedButton.icon(
                     key: const Key('banner_retry_button'),
                     onPressed: () => controller.classify(),
-                    icon: const Icon(Icons.refresh_rounded, size: 15),
+                    icon: const Icon(CupertinoIcons.refresh, size: 14),
                     label: const Text('Retry'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SariwaColors.brandPrimary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(99),
+                      ),
                     ),
                   ),
               ],

@@ -11,7 +11,7 @@ class AppTypography {
   static TextStyle get heroHeadlineDesktop => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 48,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.1,
         letterSpacing: -1.5,
         color: SariwaColors.textPrimaryLight,
@@ -20,7 +20,7 @@ class AppTypography {
   static TextStyle get heroHeadlineMobile => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 32,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.15,
         letterSpacing: -0.8,
         color: SariwaColors.textPrimaryLight,
@@ -30,7 +30,7 @@ class AppTypography {
   static TextStyle get displayLarge => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 36,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.15,
         letterSpacing: -0.8,
         color: SariwaColors.textPrimaryLight,
@@ -39,7 +39,7 @@ class AppTypography {
   static TextStyle get headlineLarge => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 26,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         letterSpacing: -0.5,
         color: SariwaColors.textPrimaryLight,
       );
@@ -89,7 +89,7 @@ class AppTypography {
   static TextStyle get authTitle => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 26,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         letterSpacing: -0.6,
         color: SariwaColors.textPrimaryLight,
       );
@@ -151,7 +151,7 @@ class AppTypography {
   // Brand Logo / Mascot Wordmark (Fredoka retained for the friendly brand curved identity)
   static TextStyle get brandLogo => GoogleFonts.fredoka(
         fontSize: 20,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
         color: SariwaColors.textPrimaryLight,
       );

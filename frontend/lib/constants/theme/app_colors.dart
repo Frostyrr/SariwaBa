@@ -36,6 +36,32 @@ class SariwaColors {
   static const Color statusSpoiled = Color(0xFFEF4444);   // Coral Red: Hindi Sariwa
   static const Color statusInfo = Color(0xFF06B6D4);      // Cyan: Scanning / Info
 
+  // Timber Design System 2.0 Semantic Tokens (Mapped to SariwaBa Palette)
+  static const Color colorPrimary = brandPrimary;               // #168077
+  static const Color colorPrimaryHover = brandPrimaryHover;     // #126B63
+  static const Color colorSupporting = brandGlow;               // #39B5A8
+  static const Color colorPale = Color(0xFFE6F5F3);             // 8-10% tint on white
+  static const Color colorCanvas = Color(0xFFFFFFFF);           // Pure white
+  static const Color colorWorkspace = Color(0xFFEEF6F5);        // Ambient tinted foam grey/teal
+  static const Color colorSurface = Color(0xFFF7FAFA);          // Secondary well surface
+  static const Color colorInk = Color(0xFF0A2229);              // Deep slate teal text (>13.5:1 contrast)
+  static const Color colorMutedInk = Color(0xFF436067);         // Supporting slate caption (>4.8:1 contrast)
+  static const Color colorLine = Color(0xFFD8E7E7);             // Card borders & dividers
+  static const Color colorLineSubtle = Color(0xFFEBF2F2);       // Inner micro-borders
+
+  // Timber Universal Status Tokens
+  static const Color warningBg = Color(0xFFFEF6EA);
+  static const Color warningText = Color(0xFF8C5410);
+  static const Color warningBorder = Color(0xFFF2D9B1);
+
+  static const Color dangerBg = Color(0xFFFDF0F0);
+  static const Color dangerText = Color(0xFF9B2C2C);
+  static const Color dangerBorder = Color(0xFFF3CACA);
+
+  static const Color successBg = Color(0xFFEEF8F1);
+  static const Color successText = Color(0xFF1B6838);
+  static const Color successBorder = Color(0xFFC6E7D0);
+
   // Aliases for compatibility
   static const Color background = bgAbyssDark;
   static const Color surface = bgLagoonMid;
@@ -51,3 +77,4 @@ class SariwaColors {
 
 // Retain AppColors for backward compatibility across components
 typedef AppColors = SariwaColors;
+

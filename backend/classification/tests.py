@@ -229,6 +229,33 @@ class ClassificationAPITests(TestCase):
         self.assertEqual(response.data["saved"], False)
         self.assertIsNone(response.data["scan_id"])
 
+    @patch("classification.views.predict_image")
+    def test_heic_image_upload_and_classification_succeeds(self, mock_predict):
+        mock_predict.return_value = {
+            "classification": "Fresh",
+            "label": "Fresh",
+            "confidence": 0.96,
+            "raw_label": "Fresh",
+            "region_type": "eye",
+        }
+        file_obj = io.BytesIO()
+        img = Image.new("RGB", (128, 128), color=(40, 140, 120))
+        img.save(file_obj, format="HEIF")
+        file_obj.seek(0)
+        heic_upload = SimpleUploadedFile(
+            "iphone_tilapia.heic",
+            file_obj.read(),
+            content_type="image/heic",
+        )
+        response = self.client.post(
+            "/api/v1/classify/",
+            {"image": heic_upload, "region_type": "eye"},
+            format="multipart",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["classification"], "Fresh")
+        self.assertEqual(response.data["region_type"], "eye")
+
     @patch(
         "classification.views.predict_image",
         side_effect=ModelUnavailableError("Checkpoint missing."),

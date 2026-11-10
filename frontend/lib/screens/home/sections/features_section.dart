@@ -40,7 +40,7 @@ class FeaturesSection extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                       color: SariwaColors.brandPrimaryDark,
                     ),
@@ -60,7 +60,7 @@ class FeaturesSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: -1.0,
                     color: const Color(0xFF0A2229),
                   ),
@@ -76,7 +76,7 @@ class FeaturesSection extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
                   child: Text(
-                    'Standardize seafood inspection across markets, harbors, and cold storage with clinical computer vision.',
+                    'Use image classification to record fish freshness predictions and review previous scans.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -106,8 +106,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 1,
                           child: _buildFeatureCard(
                             icon: Icons.remove_red_eye_outlined,
-                            title: 'Cornea Optical Clarity',
-                            desc: 'Analyzes pupil transparency and lens convexity to detect post-mortem cloudiness within milliseconds.',
+                            title: 'Image Classification',
+                            desc: 'Upload a JPEG or PNG image up to 5 MB to receive a Fresh or Not Fresh prediction.',
                           ),
                         ),
                       ),
@@ -118,8 +118,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 2,
                           child: _buildFeatureCard(
                             icon: Icons.bloodtype_outlined,
-                            title: 'Branchial Gill Pigmentation',
-                            desc: 'Measures RGB redness variance and discoloration across gill arches to separate fresh catch from oxidized fish.',
+                            title: 'Model Confidence',
+                            desc: 'See the model score for each prediction. Low-confidence images are rejected so you can try another photo.',
                           ),
                         ),
                       ),
@@ -130,8 +130,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 3,
                           child: _buildFeatureCard(
                             icon: Icons.offline_bolt_outlined,
-                            title: 'Offline Edge Inference',
-                            desc: 'Runs lightweight MobileNetV3 quantized neural networks locally on your mobile device without internet.',
+                            title: 'Connected Scanning',
+                            desc: 'Capture or select an image on your device. A connection to the backend is required to run the model.',
                           ),
                         ),
                       ),
@@ -142,8 +142,8 @@ class FeaturesSection extends StatelessWidget {
                           staggerIndex: 4,
                           child: _buildFeatureCard(
                             icon: Icons.history_edu_outlined,
-                            title: 'Quality Audit Trails',
-                            desc: 'Seamlessly synchronizes inspection records and classification telemetry with PostgreSQL and Google Auth.',
+                            title: 'Saved Inspection History',
+                            desc: 'Automatically backs up your fish freshness scan results when you sign in with your Google account.',
                           ),
                         ),
                       ),
@@ -206,7 +206,7 @@ class FeaturesSection extends StatelessWidget {
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 18.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               letterSpacing: -0.3,
               color: const Color(0xFF0A2229),
             ),

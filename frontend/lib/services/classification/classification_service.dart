@@ -121,6 +121,7 @@ abstract class ClassificationService {
 }
 
 typedef ClassificationRepository = ClassificationService;
+typedef ClassificationException = ClassificationApiException;
 
 class ClassificationServiceImpl implements ClassificationService {
   final Dio _dio;
@@ -142,6 +143,22 @@ class ClassificationServiceImpl implements ClassificationService {
       return DioMediaType('image', 'jpeg');
     }
     final lower = filename.toLowerCase();
+    if (bytes.length >= 12 &&
+        bytes[4] == 0x66 &&
+        bytes[5] == 0x74 &&
+        bytes[6] == 0x79 &&
+        bytes[7] == 0x70) {
+      if (lower.endsWith('.heif')) {
+        return DioMediaType('image', 'heif');
+      }
+      return DioMediaType('image', 'heic');
+    }
+    if (lower.endsWith('.heic')) {
+      return DioMediaType('image', 'heic');
+    }
+    if (lower.endsWith('.heif')) {
+      return DioMediaType('image', 'heif');
+    }
     if (lower.endsWith('.png')) {
       return DioMediaType('image', 'png');
     }
@@ -154,6 +171,27 @@ class ClassificationServiceImpl implements ClassificationService {
     required String filename,
     String regionType = 'eye',
   }) async {
+    final isPng = bytes.length >= 8 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4E &&
+        bytes[3] == 0x47;
+    final isJpeg = bytes.length >= 3 &&
+        bytes[0] == 0xFF &&
+        bytes[1] == 0xD8 &&
+        bytes[2] == 0xFF;
+    final isHeic = bytes.length >= 12 &&
+        bytes[4] == 0x66 &&
+        bytes[5] == 0x74 &&
+        bytes[6] == 0x79 &&
+        bytes[7] == 0x70;
+    if (!isPng && !isJpeg && !isHeic) {
+      throw const ClassificationApiException(
+        code: 'UNSUPPORTED_IMAGE_TYPE',
+        message:
+            'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
+      );
+    }
     final mediaType = _detectMediaType(bytes, filename);
     final formData = FormData.fromMap({
       'image': MultipartFile.fromBytes(
@@ -168,6 +206,7 @@ class ClassificationServiceImpl implements ClassificationService {
       final response = await _dio.post(
         ApiEndpoints.classify,
         data: formData,
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
@@ -187,7 +226,17 @@ class ClassificationServiceImpl implements ClassificationService {
       if (data is Map<String, dynamic> && data['error'] is Map) {
         final errMap = data['error'] as Map;
         final code = (errMap['code'] ?? 'API_ERROR').toString();
-        final msg = (errMap['message'] ?? 'Request validation failed.').toString();
+        String msg;
+        if (errMap['message'] != null &&
+            errMap['message'].toString().trim().isNotEmpty) {
+          msg = errMap['message'].toString();
+        } else if (code == 'LOW_CONFIDENCE' && data['confidence'] is num) {
+          final conf = (data['confidence'] as num).toDouble();
+          msg =
+              'Low confidence (${(conf * 100).toStringAsFixed(1)}%). Try a clearer close-up photo of the Tilapia eye or exposed gill.';
+        } else {
+          msg = 'Request validation failed.';
+        }
         throw ClassificationApiException(
           code: code,
           message: msg,

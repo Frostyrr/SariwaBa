@@ -85,7 +85,7 @@ class ClassificationResult {
 
   factory ClassificationResult.fromJson(Map<String, dynamic> json) {
     final rawLabel =
-        (json['classification'] ?? json['label']) as String? ?? 'Fresh';
+        (json['classification'] ?? json['label']) as String? ?? 'Unknown';
     final rawRegion = json['region_type'] as String?;
     final normalizedRegion =
         (rawRegion != null && rawRegion.trim().isNotEmpty)
@@ -174,6 +174,15 @@ class ClassificationResult {
       label.toLowerCase().contains('fresh') &&
       !label.toLowerCase().contains('not') &&
       !label.toLowerCase().contains('non');
+
+  bool get isNotFresh {
+    final normalized = label.trim().toLowerCase();
+    return normalized == 'not fresh' ||
+        normalized == 'nonfresh' ||
+        normalized == 'non-fresh';
+  }
+
+  String get grade => label;
 
   Color get statusColor {
     if (isFresh) return SariwaColors.statusFresh;

@@ -41,7 +41,7 @@ class ClassificationState {
   const ClassificationState({
     this.selectedImageBytes,
     this.selectedImageName,
-    this.selectedRegion,
+    this.selectedRegion = AnatomicalRegion.eye,
     this.confirmedImageBytes,
     this.isCropConfirmed = false,
     this.isFullImageConfirmed = false,
@@ -130,7 +130,7 @@ class ClassificationState {
       selectedImageName:
           clearImage ? null : (selectedImageName ?? this.selectedImageName),
       selectedRegion:
-          clearRegion ? null : (selectedRegion ?? this.selectedRegion),
+          clearRegion ? AnatomicalRegion.eye : (selectedRegion ?? this.selectedRegion),
       confirmedImageBytes: clearImage || clearConfirmedImage
           ? null
           : (confirmedImageBytes ?? this.confirmedImageBytes),
@@ -183,11 +183,38 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   /// Public convenience getter so widgets can check readiness after synchronous confirmation
   bool get isReadyToClassify => state.isReadyToClassify;
 
+  static bool isHeicHeader(Uint8List bytes) {
+    if (bytes.length < 12) return false;
+    final hasFtyp = bytes[4] == 0x66 &&
+        bytes[5] == 0x74 &&
+        bytes[6] == 0x79 &&
+        bytes[7] == 0x70;
+    if (!hasFtyp) return false;
+    final headerAscii = String.fromCharCodes(
+      bytes.sublist(8, bytes.length < 32 ? bytes.length : 32),
+    ).toLowerCase();
+    const heicBrands = [
+      'heic',
+      'heix',
+      'hevc',
+      'hevx',
+      'heim',
+      'heis',
+      'hevm',
+      'hevs',
+      'mif1',
+      'msf1',
+    ];
+    return heicBrands.any(headerAscii.contains);
+  }
+
   static bool isSupportedImageFormat(Uint8List bytes, String filename) {
     final lower = filename.trim().toLowerCase();
     final hasAllowedExtension = lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
-        lower.endsWith('.png');
+        lower.endsWith('.png') ||
+        lower.endsWith('.heic') ||
+        lower.endsWith('.heif');
 
     final isPngHeader = bytes.length >= 8 &&
         bytes[0] == 0x89 &&
@@ -200,7 +227,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytes[2] == 0xFF;
 
     // Require a valid JPEG/PNG byte signature and (if an extension is present) a supported extension
-    if (!isPngHeader && !isJpegHeader) {
+    if (!isPngHeader && !isJpegHeader && !isHeicHeader(bytes)) {
       return false;
     }
     if (lower.contains('.') && !hasAllowedExtension) {
@@ -257,7 +284,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     if (!isSupportedImageFormat(bytes, filename)) {
       state = state.copyWith(
         errorMessage:
-            'Unsupported image format. Only JPG, JPEG, and PNG images are allowed.',
+            'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
         errorCode: 'UNSUPPORTED_IMAGE_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -271,6 +298,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(
       selectedImageBytes: bytes,
       selectedImageName: filename,
+      selectedRegion: state.selectedRegion ?? AnatomicalRegion.eye,
       isClassifying: false,
       isEditingCrop: false,
       clearProcessingStage: true,
@@ -425,6 +453,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     );
   }
 
+  /// Alias used by guest session reset handlers
+  void clearGuestCache() => clearSelection();
+
   /// Clear the currently selected image and reset workflow state
   void clearSelection() {
     _activeRequestId++;
@@ -489,7 +520,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytesToSubmit[3] == 0x47;
     final submitFilename = state.isFullImageConfirmed
         ? baseName
-        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : 'jpg'}';
+        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : (isHeicHeader(bytesToSubmit) ? 'heic' : 'jpg')}';
 
     final requestId = ++_activeRequestId;
 

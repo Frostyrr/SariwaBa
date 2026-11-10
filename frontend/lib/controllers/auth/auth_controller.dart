@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../../models/auth/user_model.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/auth/google_sign_in_service.dart';
 import 'auth_state.dart';
@@ -71,7 +70,7 @@ class AuthController extends StateNotifier<AuthState> {
 
     state = state.copyWith(
       viewStatus: AuthViewStatus.landing,
-      user: null,
+      clearUser: true,
       isLoading: false,
     );
   }
@@ -119,7 +118,9 @@ class AuthController extends StateNotifier<AuthState> {
   /// Navigate to Dashboard view
   void goToDashboard() {
     state = state.copyWith(
-      viewStatus: AuthViewStatus.authenticated,
+      viewStatus: state.user != null
+          ? AuthViewStatus.authenticated
+          : AuthViewStatus.guestMode,
       clearError: true,
     );
   }
@@ -180,18 +181,12 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  /// Tapping "Continue as Guest"
+  /// Tapping "Continue as Guest" — routes directly to Dashboard in guest mode
+  /// without creating a fake registered user profile.
   void continueAsGuest() {
     state = state.copyWith(
       viewStatus: AuthViewStatus.guestMode,
-      user: const UserModel(
-        id: 'guest-trial',
-        email: 'guest@sariwaba.ph',
-        firstName: 'Guest',
-        lastName: 'Evaluator',
-        isGuest: true,
-        isRegistered: false,
-      ),
+      clearUser: true,
       clearError: true,
     );
   }
