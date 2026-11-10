@@ -11,6 +11,7 @@ class WebNavbar extends StatelessWidget {
   final VoidCallback? onHome;
   final VoidCallback? onFeatures;
   final VoidCallback? onHowItWorks;
+  final VoidCallback? onFaq;
   final VoidCallback? onDownloads;
   final VoidCallback? onDashboard;
   final VoidCallback? onSignOut;
@@ -26,6 +27,7 @@ class WebNavbar extends StatelessWidget {
     this.onHome,
     this.onFeatures,
     this.onHowItWorks,
+    this.onFaq,
     this.onDownloads,
     this.onDashboard,
     this.onSignOut,
@@ -152,21 +154,28 @@ class WebNavbar extends StatelessWidget {
                                     linkColor: linkColor,
                                     onTap: onHome,
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   _buildNavItem(
                                     'Features',
                                     isActive: activeTab == 'Features',
                                     linkColor: linkColor,
                                     onTap: onFeatures,
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   _buildNavItem(
                                     'How it Works',
                                     isActive: activeTab == 'How it Works',
                                     linkColor: linkColor,
                                     onTap: onHowItWorks,
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
+                                  _buildNavItem(
+                                    'FAQ',
+                                    isActive: activeTab == 'FAQ',
+                                    linkColor: linkColor,
+                                    onTap: onFaq,
+                                  ),
+                                  const SizedBox(width: 8),
                                   _buildNavItem(
                                     'Downloads',
                                     isActive: activeTab == 'Downloads',
@@ -174,7 +183,7 @@ class WebNavbar extends StatelessWidget {
                                     onTap: onDownloads ?? onGetStarted,
                                   ),
                                   if (user != null) ...[
-                                    const SizedBox(width: 10),
+                                    const SizedBox(width: 8),
                                     _buildNavItem(
                                       'Dashboard',
                                       isActive: activeTab == 'Dashboard',
@@ -289,7 +298,7 @@ class WebNavbar extends StatelessWidget {
           child: Row(
             children: [
               _buildAvatar(size: 36),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

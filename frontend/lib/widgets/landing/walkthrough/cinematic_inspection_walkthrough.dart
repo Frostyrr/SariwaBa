@@ -1194,9 +1194,9 @@ class _CinematicInspectionWalkthroughState
         children: [
           // Specimen image
           Image.asset(
-            'assets/images/SariwaBa logo.png',
-            fit: BoxFit.contain,
-            alignment: Alignment.center,
+            'assets/images/sample_tilapia2.jpg',
+            fit: BoxFit.cover,
+            alignment: const Alignment(0.0, 0.15),
           ),
 
           // Vignette

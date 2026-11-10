@@ -48,6 +48,8 @@ class _HomePageState extends ConsumerState<HomePage> {
         _featuresKey.currentContext?.findRenderObject() as RenderBox?;
     final howItWorksBox =
         _howItWorksKey.currentContext?.findRenderObject() as RenderBox?;
+    final faqBox =
+        _faqKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (featuresBox != null && featuresBox.hasSize) {
       final featuresTop = featuresBox.localToGlobal(Offset.zero).dy;
@@ -61,6 +63,14 @@ class _HomePageState extends ConsumerState<HomePage> {
       final howTop = howItWorksBox.localToGlobal(Offset.zero).dy;
       if (howTop <= 96) {
         newTab = 'How it Works';
+        lightNav = true;
+      }
+    }
+
+    if (faqBox != null && faqBox.hasSize) {
+      final faqTop = faqBox.localToGlobal(Offset.zero).dy;
+      if (faqTop <= 96) {
+        newTab = 'FAQ';
         lightNav = true;
       }
     }
@@ -167,6 +177,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               onHome: () => _scrollToKey(_homeKey),
               onFeatures: () => _scrollToKey(_featuresKey),
               onHowItWorks: () => _scrollToKey(_howItWorksKey),
+              onFaq: () => _scrollToKey(_faqKey),
               onDownloads: () => authController.goToDownloads(),
               onGetStarted: () => authController.goToDownloads(),
               onLogIn: () => authController.goToLogin(),

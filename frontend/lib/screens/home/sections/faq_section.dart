@@ -17,7 +17,7 @@ class FaqItem {
 }
 
 /// Frequently Asked Questions Section
-/// Features an interactive accordion with smooth animations, high-contrast typography,
+/// Features an interactive accordion with smooth animations, authentic SariwaBa? branding,
 /// and the atmospheric Call-To-Action banner transitioning cleanly into the footer.
 class FaqSection extends StatefulWidget {
   final VoidCallback onDownload;
@@ -88,73 +88,89 @@ class _FaqSectionState extends State<FaqSection> {
 
         return Container(
           width: double.infinity,
-          color: const Color(0xFFFAF9F6), // Warm ivory / coastal clean canvas
+          color: const Color(0xFFF0F7F6), // Consistent off-white leaning primary teal
           padding: EdgeInsets.symmetric(
-            vertical: isMobile ? 64.0 : 96.0,
+            vertical: isMobile ? 64.0 : 88.0,
             horizontal: isMobile ? 20.0 : 36.0,
           ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 960.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Eyebrow Tag: FAQ
+                  // Eyebrow Badge (Centered Frosted Pill)
                   StaggeredReveal(
                     revealOnScroll: true,
                     staggerIndex: 0,
-                    child: const Text(
-                      'FREQUENTLY ASKED QUESTIONS',
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 2.4,
-                        color: Color(0xFF0D9488),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2F3F0),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFBBE5DF),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: const Text(
+                        'FREQUENTLY ASKED QUESTIONS',
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.25,
+                          color: SariwaColors.brandPrimaryDark,
+                        ),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
-                  // Section Title
+                  // Section Title (Deep Ocean Slate #0A2229)
                   StaggeredReveal(
                     revealOnScroll: true,
                     staggerIndex: 1,
                     child: Text(
-                      'Everything You Need to Know',
+                      'Got Questions? We Have Answers.',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: isMobile ? 32.0 : 44.0,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -1.0,
-                        height: 1.15,
+                        fontSize: isMobile ? 32.0 : 38.0,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.25,
                         color: const Color(0xFF0A2229),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
 
-                  // Subtitle
+                  // Section Subtitle
                   StaggeredReveal(
                     revealOnScroll: true,
                     staggerIndex: 2,
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 680),
+                      constraints: const BoxConstraints(maxWidth: 620),
                       child: const Text(
                         'Clear answers regarding our machine learning pipeline, supported anatomy, confidence scoring, and data security.',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
+                          letterSpacing: -0.25,
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 16,
-                          height: 1.55,
+                          height: 1.5,
                           color: Color(0xFF475569),
                         ),
                       ),
                     ),
                   ),
 
-                  SizedBox(height: isMobile ? 36 : 52),
+                  SizedBox(height: isMobile ? 36 : 48),
 
                   // Accordion List
                   ...List.generate(_faqList.length, (index) {
@@ -165,7 +181,7 @@ class _FaqSectionState extends State<FaqSection> {
                       revealOnScroll: true,
                       staggerIndex: index,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
+                        padding: const EdgeInsets.only(bottom: 14.0),
                         child: _buildAccordionCard(
                           isMobile: isMobile,
                           index: index,
@@ -176,7 +192,7 @@ class _FaqSectionState extends State<FaqSection> {
                     );
                   }),
 
-                  const SizedBox(height: 72),
+                  const SizedBox(height: 64),
 
                   // Final Call-To-Action Banner
                   StaggeredReveal(
@@ -205,23 +221,23 @@ class _FaqSectionState extends State<FaqSection> {
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: isExpanded ? 0.82 : 0.72),
+            color: Colors.white.withValues(alpha: isExpanded ? 0.85 : 0.75),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isExpanded
                   ? const Color(0xFF0D9488).withValues(alpha: 0.45)
-                  : Colors.white.withValues(alpha: 0.85),
+                  : Colors.white.withValues(alpha: 0.88),
               width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: isExpanded ? 0.06 : 0.03),
+                color: const Color(0xFF0F172A).withValues(alpha: isExpanded ? 0.05 : 0.03),
                 blurRadius: isExpanded ? 24 : 16,
                 offset: const Offset(0, 6),
                 spreadRadius: -2,
               ),
               BoxShadow(
-                color: const Color(0xFF14B8A6).withValues(alpha: isExpanded ? 0.08 : 0.04),
+                color: const Color(0xFF14B8A6).withValues(alpha: isExpanded ? 0.07 : 0.03),
                 blurRadius: 30,
                 offset: const Offset(0, 8),
                 spreadRadius: -4,

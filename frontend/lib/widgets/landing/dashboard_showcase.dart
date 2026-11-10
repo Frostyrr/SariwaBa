@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import 'walkthrough/scanning_reticle_painter.dart';
 
 /// Static Dashboard Showcase Widget
 /// Displays a high-fidelity static presentation of the actual existing SariwaBa? dashboard
@@ -633,51 +634,193 @@ class DashboardShowcase extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Specimen Image Preview (SariwaBa fish logo as uploaded specimen)
+          // Specimen Image Preview with authentic dashboard inspection overlay
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F8F6),
-                      borderRadius: BorderRadius.circular(8),
+                  // Layer 1: Actual specimen image
+                  Image.asset(
+                    'assets/images/sample_tilapia2.jpg',
+                    fit: BoxFit.cover,
+                    alignment: const Alignment(0.0, 0.15),
+                    errorBuilder: (_, _, _) => Container(
+                      color: const Color(0xFFE2E8F0),
+                      child: const Center(
+                        child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                      ),
                     ),
-                    padding: const EdgeInsets.all(18),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/SariwaBa logo.png',
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                        errorBuilder: (_, _, _) => Container(
-                          color: const Color(0xFFE2E8F0),
-                          child: const Center(
-                            child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
-                          ),
+                  ),
+
+                  // Layer 2: Subtle radial vignette for optical inspection chamber depth
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: const Alignment(-0.15, -0.05),
+                          radius: 0.90,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.05),
+                            Colors.black.withValues(alpha: 0.55),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  // Reticle overlay indicating Eye region
+
+                  // Layer 3: Scanning Reticle & Corner Brackets framing the target ROI
                   Positioned(
-                    left: 18,
-                    top: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.65),
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFF2DD4BF), width: 1.2),
+                    left: 24,
+                    top: 14,
+                    width: 104,
+                    height: 104,
+                    child: CustomPaint(
+                      painter: ScanningReticlePainter(
+                        scanProgress: 0.70,
+                        isScanning: true,
+                        primaryColor: const Color(0xFF2DD4BF),
                       ),
-                      child: const Text(
-                        'Target ROI: Eye',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  // Layer 4: Top Floating Frosted-Glass HUD Bar
+                  Positioned(
+                    top: 7,
+                    left: 8,
+                    right: 8,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Filename pill
+                        Flexible(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(99),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0x991C1C1E),
+                                  borderRadius: BorderRadius.circular(99),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.20),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.photo_outlined,
+                                      size: 10.5,
+                                      color: Colors.white70,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        'sample_tilapia2.jpg',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                          letterSpacing: -0.2,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 6),
+                        // Target ROI pill with glowing teal accent
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xD00D9488),
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              color: const Color(0xFF5EEAD4),
+                              width: 0.8,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF14B8A6).withValues(alpha: 0.45),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.crop_free_rounded,
+                                size: 10,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 3.5),
+                              Text(
+                                'Target ROI: Eye',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Layer 5: Bottom live confidence & calibrated inference badge
+                  Positioned(
+                    bottom: 7,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.72),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: const Color(0x602DD4BF),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline_rounded,
+                            size: 10,
+                            color: Color(0xFF34D399),
+                          ),
+                          SizedBox(width: 3.5),
+                          Text(
+                            'AI Conf: 94.7%',
+                            style: TextStyle(
+                              color: Color(0xFF5EEAD4),
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
