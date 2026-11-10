@@ -1,7 +1,12 @@
+import '../auth/auth_controller.dart';
+import '../../services/storage/guest_history_cache.dart';
+
 import 'dart:typed_data';
 import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
 
@@ -125,12 +130,15 @@ class ClassificationState {
     bool clearSuccess = false,
   }) {
     return ClassificationState(
-      selectedImageBytes:
-          clearImage ? null : (selectedImageBytes ?? this.selectedImageBytes),
-      selectedImageName:
-          clearImage ? null : (selectedImageName ?? this.selectedImageName),
-      selectedRegion:
-          clearRegion ? AnatomicalRegion.eye : (selectedRegion ?? this.selectedRegion),
+      selectedImageBytes: clearImage
+          ? null
+          : (selectedImageBytes ?? this.selectedImageBytes),
+      selectedImageName: clearImage
+          ? null
+          : (selectedImageName ?? this.selectedImageName),
+      selectedRegion: clearRegion
+          ? AnatomicalRegion.eye
+          : (selectedRegion ?? this.selectedRegion),
       confirmedImageBytes: clearImage || clearConfirmedImage
           ? null
           : (confirmedImageBytes ?? this.confirmedImageBytes),
@@ -140,9 +148,7 @@ class ClassificationState {
       isFullImageConfirmed: clearImage || clearConfirmedImage
           ? false
           : (isFullImageConfirmed ?? this.isFullImageConfirmed),
-      isEditingCrop: clearImage
-          ? false
-          : (isEditingCrop ?? this.isEditingCrop),
+      isEditingCrop: clearImage ? false : (isEditingCrop ?? this.isEditingCrop),
       lastCropNormalizedRect: clearImage || clearCropRect
           ? null
           : (lastCropNormalizedRect ?? this.lastCropNormalizedRect),
@@ -153,14 +159,17 @@ class ClassificationState {
       latestResult: clearResult ? null : (latestResult ?? this.latestResult),
       history: history ?? this.history,
       isLoadingHistory: isLoadingHistory ?? this.isLoadingHistory,
-      deletingScanId:
-          clearDeleting ? null : (deletingScanId ?? this.deletingScanId),
+      deletingScanId: clearDeleting
+          ? null
+          : (deletingScanId ?? this.deletingScanId),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       errorCode: clearError ? null : (errorCode ?? this.errorCode),
-      isInputRejection:
-          clearError ? false : (isInputRejection ?? this.isInputRejection),
-      successMessage:
-          clearSuccess ? null : (successMessage ?? this.successMessage),
+      isInputRejection: clearError
+          ? false
+          : (isInputRejection ?? this.isInputRejection),
+      successMessage: clearSuccess
+          ? null
+          : (successMessage ?? this.successMessage),
     );
   }
 }
@@ -168,6 +177,8 @@ class ClassificationState {
 class ClassificationController extends StateNotifier<ClassificationState> {
   final ClassificationService _service;
   final ImagePicker _picker;
+  final GuestHistoryCache _guestCache;
+  final bool isAuthenticated;
   int _activeRequestId = 0;
 
   static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
@@ -175,8 +186,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   ClassificationController(
     this._service, {
     ImagePicker? picker,
-  })  : _picker = picker ?? ImagePicker(),
-        super(const ClassificationState()) {
+    GuestHistoryCache? guestCache,
+    this.isAuthenticated = true,
+  }) : _guestCache = guestCache ?? GuestHistoryCache(),
+       _picker = picker ?? ImagePicker(),
+       super(const ClassificationState()) {
     loadHistory();
   }
 
@@ -185,7 +199,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
   static bool isHeicHeader(Uint8List bytes) {
     if (bytes.length < 12) return false;
-    final hasFtyp = bytes[4] == 0x66 &&
+    final hasFtyp =
+        bytes[4] == 0x66 &&
         bytes[5] == 0x74 &&
         bytes[6] == 0x79 &&
         bytes[7] == 0x70;
@@ -210,18 +225,21 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
   static bool isSupportedImageFormat(Uint8List bytes, String filename) {
     final lower = filename.trim().toLowerCase();
-    final hasAllowedExtension = lower.endsWith('.jpg') ||
+    final hasAllowedExtension =
+        lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
         lower.endsWith('.png') ||
         lower.endsWith('.heic') ||
         lower.endsWith('.heif');
 
-    final isPngHeader = bytes.length >= 8 &&
+    final isPngHeader =
+        bytes.length >= 8 &&
         bytes[0] == 0x89 &&
         bytes[1] == 0x50 &&
         bytes[2] == 0x4E &&
         bytes[3] == 0x47;
-    final isJpegHeader = bytes.length >= 3 &&
+    final isJpegHeader =
+        bytes.length >= 3 &&
         bytes[0] == 0xFF &&
         bytes[1] == 0xD8 &&
         bytes[2] == 0xFF;
@@ -256,10 +274,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   }
 
   /// Validate and set selected image bytes (usable by both ImagePicker and tests)
-  void setSelectedImage({
-    required Uint8List bytes,
-    required String filename,
-  }) {
+  void setSelectedImage({required Uint8List bytes, required String filename}) {
     if (bytes.isEmpty) {
       state = state.copyWith(
         errorMessage: 'The selected image file is empty.',
@@ -272,8 +287,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (bytes.lengthInBytes > maxFileSizeBytes) {
       state = state.copyWith(
-        errorMessage:
-            'Image size exceeds 5 MB. Please select a smaller photo.',
+        errorMessage: 'Image size exceeds 5 MB. Please select a smaller photo.',
         errorCode: 'IMAGE_TOO_LARGE',
         isInputRejection: true,
         clearSuccess: true,
@@ -283,8 +297,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (!isSupportedImageFormat(bytes, filename)) {
       state = state.copyWith(
-        errorMessage:
-            'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
+        errorMessage: 'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
         errorCode: 'UNSUPPORTED_IMAGE_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -353,8 +366,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (state.selectedRegion == null) {
       state = state.copyWith(
-        errorMessage:
-            'Please select an anatomical region (Eye or Gill) before confirming the crop.',
+        errorMessage: 'Please select an anatomical region (Eye or Gill) before confirming the crop.',
         errorCode: 'INVALID_REGION_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -413,8 +425,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (state.selectedRegion == null) {
       state = state.copyWith(
-        errorMessage:
-            'Please select an anatomical region (Eye or Gill) before confirming the image.',
+        errorMessage: 'Please select an anatomical region (Eye or Gill) before confirming the image.',
         errorCode: 'INVALID_REGION_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -454,7 +465,12 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   }
 
   /// Alias used by guest session reset handlers
-  void clearGuestCache() => clearSelection();
+  Future<void> clearGuestCache() async {
+    await _guestCache.clearCache();
+    if (!mounted || isAuthenticated) return;
+    clearSelection();
+    state = state.copyWith(history: []);
+  }
 
   /// Clear the currently selected image and reset workflow state
   void clearSelection() {
@@ -490,8 +506,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (state.selectedRegion == null) {
       state = state.copyWith(
-        errorMessage:
-            'Please select an anatomical region (Eye or Gill) before classifying.',
+        errorMessage: 'Please select an anatomical region (Eye or Gill) before classifying.',
         errorCode: 'INVALID_REGION_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -501,8 +516,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
     if (!state.isCropConfirmed || state.confirmedImageBytes == null) {
       state = state.copyWith(
-        errorMessage:
-            'Please confirm your selected anatomical region (crop the region or confirm full close-up) before classifying.',
+        errorMessage: 'Please confirm your selected anatomical region (crop the region or confirm full close-up) before classifying.',
         errorCode: 'CONFIRMATION_REQUIRED',
         isInputRejection: true,
         clearSuccess: true,
@@ -513,7 +527,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     final bytesToSubmit = state.confirmedImageBytes!;
     final region = state.selectedRegion!;
     final baseName = state.selectedImageName ?? 'tilapia_scan.jpg';
-    final isPng = bytesToSubmit.length >= 8 &&
+    final isPng =
+        bytesToSubmit.length >= 8 &&
         bytesToSubmit[0] == 0x89 &&
         bytesToSubmit[1] == 0x50 &&
         bytesToSubmit[2] == 0x4E &&
@@ -542,8 +557,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       // Ignore stale response if image, region, or crop changed while in flight
       if (!mounted || requestId != _activeRequestId) return;
 
-      final updatedHistory = List<ClassificationResult>.from(state.history);
-      if (result.saved && result.scanId != null) {
+      final updatedHistory = isAuthenticated
+          ? List<ClassificationResult>.from(state.history)
+          : await _guestCache.addScan(result);
+      if (!mounted || requestId != _activeRequestId) return;
+      if (isAuthenticated && result.saved && result.scanId != null) {
         updatedHistory.insert(0, result);
       }
 
@@ -552,9 +570,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         clearProcessingStage: true,
         latestResult: result,
         history: updatedHistory,
-        successMessage: result.saved
+        successMessage: !isAuthenticated
+            ? 'Analysis complete. Saved on this device only (latest 10 guest scans).'
+            : result.saved
             ? 'Analysis complete. Result saved to your classification history.'
-            : 'Analysis complete. Guest result is temporary and not saved to history.',
+            : 'Analysis complete. Result was not saved to your account.',
       );
     } on ClassificationApiException catch (e) {
       if (!mounted || requestId != _activeRequestId) return;
@@ -581,21 +601,18 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     }
   }
 
-  /// Load user's scan history from PostgreSQL
+  /// Load account history or device-only guest history.
   Future<void> loadHistory() async {
     state = state.copyWith(isLoadingHistory: true, clearError: true);
     try {
-      final list = await _service.fetchHistory();
+      final list = isAuthenticated
+          ? await _service.fetchHistory()
+          : await _guestCache.getCachedHistory();
       if (!mounted) return;
-      state = state.copyWith(
-        history: list,
-        isLoadingHistory: false,
-      );
+      state = state.copyWith(history: list, isLoadingHistory: false);
     } catch (_) {
       if (!mounted) return;
-      state = state.copyWith(
-        isLoadingHistory: false,
-      );
+      state = state.copyWith(isLoadingHistory: false);
     }
   }
 
@@ -603,7 +620,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   Future<void> deleteScan(int scanId) async {
     state = state.copyWith(deletingScanId: scanId, clearError: true);
     try {
-      await _service.deleteScan(scanId);
+      if (isAuthenticated) {
+        await _service.deleteScan(scanId);
+      } else {
+        await _guestCache.removeScan(scanId);
+      }
       if (!mounted) return;
       final updated = state.history.where((s) => s.scanId != scanId).toList();
       state = state.copyWith(
@@ -623,6 +644,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
 final classificationControllerProvider =
     StateNotifierProvider<ClassificationController, ClassificationState>((ref) {
-  final service = ref.watch(classificationServiceProvider);
-  return ClassificationController(service);
-});
+      final service = ref.watch(classificationServiceProvider);
+      final auth = ref.watch(authControllerProvider);
+      return ClassificationController(
+        service,
+        isAuthenticated: auth.isAuthenticated,
+        guestCache: ref.watch(guestHistoryCacheProvider),
+      );
+    });

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -141,6 +142,7 @@ class FakeClassificationRepository implements ClassificationRepository {
 }
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   testWidgets(
       'Desktop web landing renders navbar, clean hero, and navigates to auth page',
       (WidgetTester tester) async {

@@ -1,10 +1,13 @@
+import '../../controllers/auth/auth_controller.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../constants/config/api_endpoints.dart';
 import '../../constants/config/app_config.dart';
 import '../storage/token_storage.dart';
 
-final apiClientProvider = Provider<Dio>((ref) {
+final Provider<Dio> apiClientProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
   final dio = Dio(
     BaseOptions(
@@ -21,6 +24,11 @@ final apiClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
+        if (ref.read(authControllerProvider).isGuest) {
+          options.headers.remove('Authorization');
+          options.extra['guestRequest'] = true;
+          return handler.next(options);
+        }
         final accessToken = await tokenStorage.getAccessToken();
         if (accessToken != null && accessToken.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $accessToken';
@@ -28,7 +36,8 @@ final apiClientProvider = Provider<Dio>((ref) {
         return handler.next(options);
       },
       onError: (DioException error, handler) async {
-        if (error.response?.statusCode == 401 &&
+        if (error.requestOptions.extra['guestRequest'] != true &&
+            error.response?.statusCode == 401 &&
             !error.requestOptions.path.contains(ApiEndpoints.tokenRefresh)) {
           final refreshToken = await tokenStorage.getRefreshToken();
           if (refreshToken != null && refreshToken.isNotEmpty) {

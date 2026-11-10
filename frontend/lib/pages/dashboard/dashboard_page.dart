@@ -63,8 +63,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         return Consumer(
           builder: (context, ref, _) {
             final modalState = ref.watch(classificationControllerProvider);
-            final modalController =
-                ref.read(classificationControllerProvider.notifier);
+            final modalController = ref.read(
+              classificationControllerProvider.notifier,
+            );
 
             if (!_isCropModalOpen ||
                 !modalState.hasSelectedImage ||
@@ -128,12 +129,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final classController = ref.read(classificationControllerProvider.notifier);
     final user = authState.user;
 
-    ref.listen<ClassificationState>(classificationControllerProvider,
-        (previous, next) {
-      final isNewUnconfirmedImage = next.hasSelectedImage &&
+    ref.listen<ClassificationState>(classificationControllerProvider, (
+      previous,
+      next,
+    ) {
+      final isNewUnconfirmedImage =
+          next.hasSelectedImage &&
           !next.isCropConfirmed &&
           previous?.selectedImageBytes != next.selectedImageBytes;
-      final isReopenedCropEditor = next.hasSelectedImage &&
+      final isReopenedCropEditor =
+          next.hasSelectedImage &&
           !next.isCropConfirmed &&
           ((previous?.isCropConfirmed == true) ||
               (previous?.isEditingCrop == false && next.isEditingCrop));
@@ -157,7 +162,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       }
     });
 
-    final isModalEffectivelyOpen = _isCropModalOpen &&
+    final isModalEffectivelyOpen =
+        _isCropModalOpen &&
         classState.hasSelectedImage &&
         !classState.isCropConfirmed;
 
@@ -333,10 +339,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(99),
-                border: Border.all(
-                  color: const Color(0xFFE5E7EB),
-                  width: 0.8,
-                ),
+                border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x06000000),
@@ -359,9 +362,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   const SizedBox(width: 7),
                   Flexible(
                     child: Text(
-                      isGuestUser
-                          ? 'Guest Evaluation Mode'
-                          : 'Account Synced',
+                      isGuestUser ? 'Guest Evaluation Mode' : 'Account Synced',
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
@@ -422,10 +423,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 label: const Text('Sync History'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.textPrimaryDark,
-                  side: const BorderSide(
-                    color: Color(0xFFE5E7EB),
-                    width: 0.8,
-                  ),
+                  side: const BorderSide(color: Color(0xFFE5E7EB), width: 0.8),
                   backgroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -440,11 +438,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         if (isCompact) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              headerInfo,
-              const SizedBox(height: 12),
-              syncBtn,
-            ],
+            children: [headerInfo, const SizedBox(height: 12), syncBtn],
           );
         }
 
@@ -503,7 +497,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           _buildMetricBox(
             title: 'Avg. Confidence',
-            value: total > 0 ? '${avgConfidence.toStringAsFixed(1)}%' : '—',
+            value: total > 0 ? '${avgConfidence.toStringAsFixed(1)}%' : 'â€”',
             subtitle: 'Average across scans',
             icon: CupertinoIcons.speedometer,
             iconColor: SariwaColors.statusInfo,
@@ -882,7 +876,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  /// Dedicated Rejected-Image State Card (Neutral / Warning styling — never Fresh/Not Fresh colors)
+  /// Dedicated Rejected-Image State Card (Neutral / Warning styling â€” never Fresh/Not Fresh colors)
   Widget _buildImageRejectionCard(
     ClassificationState state,
     ClassificationController controller,
@@ -951,8 +945,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(99),
                               border: Border.all(
-                                color: SariwaColors.statusModerate
-                                    .withValues(alpha: 0.4),
+                                color: SariwaColors.statusModerate.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                             child: Text(
@@ -1044,7 +1039,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     controller.changeRegion();
                     _showRoiCropperModal();
                   },
-                  icon: const Icon(CupertinoIcons.arrow_up_arrow_down, size: 14),
+                  icon: const Icon(
+                    CupertinoIcons.arrow_up_arrow_down,
+                    size: 14,
+                  ),
                   label: const Text('Change Region'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
@@ -1192,10 +1190,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-          width: 1.0,
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.0),
       ),
       child: Column(
         children: [
@@ -1430,10 +1425,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             decoration: BoxDecoration(
               color: const Color(0xFFF9FAFB),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xFFE5E7EB),
-                width: 0.8,
-              ),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 0.8),
             ),
             child: Row(
               children: [
@@ -1449,7 +1441,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    result.saveStatusLabel,
+                    ref.watch(authControllerProvider).isGuest
+                        ? 'Cached on this device only (latest 10 scans)'
+                        : result.saveStatusLabel,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1554,7 +1548,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            state.history.length == 1 ? '1 saved scan' : '${state.history.length} saved scans',
+                            ref.watch(authControllerProvider).isGuest
+                                ? '${state.history.length} cached scans · this device only · latest 10'
+                                : '${state.history.length} saved scans',
                             style: const TextStyle(
                               fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
@@ -1570,7 +1566,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               IconButton(
                 onPressed: () => controller.loadHistory(),
                 icon: const Icon(CupertinoIcons.refresh, size: 18),
-                tooltip: 'Refresh history from server',
+                tooltip: 'Refresh available history',
                 color: SariwaColors.brandPrimary,
               ),
             ],
@@ -1618,8 +1614,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           filter,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             color: isSelected
                                 ? SariwaColors.textPrimaryDark
                                 : const Color(0xFF6B7280),
@@ -1674,7 +1671,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     if (!hasAnyHistory) {
       emptyTitle = 'No classification history';
       emptySubtitle =
-          'Upload a Tilapia photo to start building your permanent quality log.';
+          'Upload a Tilapia photo to start building your scan history.';
     } else if (activeFilter == 'Fresh') {
       emptyTitle = 'No Fresh results';
       emptySubtitle =
@@ -1919,8 +1916,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }) {
     final color = isError
         ? (state.isInputRejection
-            ? SariwaColors.statusModerate
-            : SariwaColors.statusSpoiled)
+              ? SariwaColors.statusModerate
+              : SariwaColors.statusSpoiled)
         : SariwaColors.statusFresh;
 
     final showRecoveryActions =
@@ -1953,8 +1950,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Icon(
                 isError
                     ? (state.isInputRejection
-                        ? CupertinoIcons.exclamationmark_circle_fill
-                        : CupertinoIcons.xmark_octagon_fill)
+                          ? CupertinoIcons.exclamationmark_circle_fill
+                          : CupertinoIcons.xmark_octagon_fill)
                     : CupertinoIcons.checkmark_circle_fill,
                 color: color,
                 size: 19,
@@ -2057,7 +2054,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Widget _buildSimpleFooter() {
     return Center(
       child: Text(
-        '© ${DateTime.now().year} SariwaBa — Intelligent Fish Freshness Classification System. All rights reserved.',
+        'Â© ${DateTime.now().year} SariwaBa â€” Intelligent Fish Freshness Classification System. All rights reserved.',
         style: const TextStyle(fontSize: 12, color: SariwaColors.textMutedDark),
       ),
     );
