@@ -453,3 +453,71 @@ class ClassificationAPITests(TestCase):
             self.assertEqual(resp.data["region_type"], "gill")
             self.assertGreater(resp.data["confidence"], 0.0)
             self.assertLessEqual(resp.data["confidence"], 1.0)
+    def test_bulk_delete_history_unauthenticated_returns_401(self):
+        resp = self.client.delete("/api/v1/history/bulk/", {"scan_ids": [1]}, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_bulk_delete_invalid_payload_returns_400(self):
+        resp = self.client.delete(
+            "/api/v1/history/bulk/",
+            {"scan_ids": "not-a-list"},
+            format="json",
+            HTTP_AUTHORIZATION=self.auth_header,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data["error"]["code"], "INVALID_SCAN_IDS")
+
+    def test_bulk_delete_empty_list_returns_200(self):
+        resp = self.client.delete(
+            "/api/v1/history/bulk/",
+            {"scan_ids": []},
+            format="json",
+            HTTP_AUTHORIZATION=self.auth_header,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["deleted_count"], 0)
+        self.assertEqual(resp.data["deleted_ids"], [])
+
+    def test_bulk_delete_history_deletes_only_own_records(self):
+        image1 = _create_test_image()
+        image2 = _create_test_image()
+        image3 = _create_test_image()
+
+        scan1 = ClassificationHistory.objects.create(
+            user=self.user,
+            image=image1,
+            region_type="eye",
+            label="Fresh",
+            confidence=0.96,
+        )
+        scan2 = ClassificationHistory.objects.create(
+            user=self.user,
+            image=image2,
+            region_type="gill",
+            label="Not Fresh",
+            confidence=0.88,
+        )
+        scan3 = ClassificationHistory.objects.create(
+            user=self.other_user,
+            image=image3,
+            region_type="eye",
+            label="Fresh",
+            confidence=0.94,
+        )
+
+        resp = self.client.delete(
+            "/api/v1/history/bulk/",
+            {"scan_ids": [scan1.scan_id, scan2.scan_id, scan3.scan_id]},
+            format="json",
+            HTTP_AUTHORIZATION=self.auth_header,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["deleted_count"], 2)
+        self.assertCountEqual(resp.data["deleted_ids"], [scan1.scan_id, scan2.scan_id])
+
+        # Verify scan1 and scan2 were deleted from DB
+        self.assertFalse(ClassificationHistory.objects.filter(scan_id=scan1.scan_id).exists())
+        self.assertFalse(ClassificationHistory.objects.filter(scan_id=scan2.scan_id).exists())
+        # Verify scan3 belonging to other_user was NOT deleted
+        self.assertTrue(ClassificationHistory.objects.filter(scan_id=scan3.scan_id).exists())
+

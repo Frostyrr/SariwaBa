@@ -140,6 +140,12 @@ class FakeClassificationRepository implements ClassificationRepository {
   Future<void> deleteScan(int scanId) async {
     mockHistory.removeWhere((s) => s.scanId == scanId);
   }
+
+  @override
+  Future<List<int>> bulkDeleteScans(List<int> scanIds) async {
+    mockHistory.removeWhere((s) => scanIds.contains(s.scanId));
+    return scanIds;
+  }
 }
 
 void main() {

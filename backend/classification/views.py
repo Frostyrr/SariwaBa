@@ -292,3 +292,60 @@ def history_detail(request, scan_id):
                 pass
         record.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["DELETE", "POST"])
+@permission_classes([IsAuthenticated])
+def bulk_delete_history(request):
+    """
+    Bulk delete classification history records owned by the authenticated user.
+    Expects JSON body: {"scan_ids": [1, 2, 3]}
+    Returns: {"deleted_count": N, "deleted_ids": [...]}
+    """
+    scan_ids = request.data.get("scan_ids")
+    if scan_ids is None or not isinstance(scan_ids, list):
+        return Response(
+            {
+                "error": {
+                    "code": "INVALID_SCAN_IDS",
+                    "message": "A list of 'scan_ids' is required.",
+                }
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not scan_ids:
+        return Response(
+            {
+                "deleted_count": 0,
+                "deleted_ids": [],
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    records = list(
+        ClassificationHistory.objects.filter(
+            scan_id__in=scan_ids,
+            user=request.user,
+        )
+    )
+
+    deleted_ids = []
+    for record in records:
+        if record.image:
+            try:
+                record.image.delete(save=False)
+            except Exception:
+                pass
+        deleted_ids.append(record.scan_id)
+
+    if deleted_ids:
+        ClassificationHistory.objects.filter(scan_id__in=deleted_ids).delete()
+
+    return Response(
+        {
+            "deleted_count": len(deleted_ids),
+            "deleted_ids": deleted_ids,
+        },
+        status=status.HTTP_200_OK,
+    )
+

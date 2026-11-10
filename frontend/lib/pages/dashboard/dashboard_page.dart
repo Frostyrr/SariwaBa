@@ -14,6 +14,7 @@ import '../../services/classification/classification_service.dart';
 import '../../widgets/classification/roi_cropper_widget.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/staggered_reveal.dart';
+import '../../widgets/dashboard/organoleptic_guidelines_dialog.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -26,8 +27,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   String _historyFilter = 'All'; // 'All', 'Fresh', 'Not Fresh'
+  String _regionFilter = 'All'; // 'All', 'Eye', 'Gill'
+  String _sortOrder = 'Newest'; // 'Newest', 'Oldest'
+  String _analyticsRange = '30d'; // '7d', '30d', '90d', 'All'
   String _searchQuery = '';
-  String _activeNav = 'Scanner'; // 'Scanner', 'History', 'Summary'
+  String _activeNav = 'Inspection'; // 'Inspection', 'History', 'Analytics'
   bool _isCropModalOpen = false;
   BuildContext? _cropModalContext;
   bool _isHistorySelectionMode = false;
@@ -61,8 +65,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           child: Consumer(
             builder: (context, ref, _) {
               final modalState = ref.watch(classificationControllerProvider);
-              final modalController =
-                  ref.read(classificationControllerProvider.notifier);
+              final modalController = ref.read(
+                classificationControllerProvider.notifier,
+              );
 
               if (!_isCropModalOpen || !modalState.hasSelectedImage) {
                 return const SizedBox.shrink();
@@ -163,12 +168,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final user = authState.user;
     final isGuestUser = authState.isGuest || user == null || user.isGuest;
 
-    ref.listen<ClassificationState>(classificationControllerProvider,
-        (previous, next) {
-      final isNewUnconfirmedImage = next.hasSelectedImage &&
+    ref.listen<ClassificationState>(classificationControllerProvider, (
+      previous,
+      next,
+    ) {
+      final isNewUnconfirmedImage =
+          next.hasSelectedImage &&
           !next.isCropConfirmed &&
           previous?.selectedImageBytes != next.selectedImageBytes;
-      final isReopenedCropEditor = next.hasSelectedImage &&
+      final isReopenedCropEditor =
+          next.hasSelectedImage &&
           !next.isCropConfirmed &&
           previous?.isEditingCrop == false &&
           next.isEditingCrop == true;
@@ -192,8 +201,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       }
     });
 
-    final isModalEffectivelyOpen = _isCropModalOpen &&
-        classState.hasSelectedImage;
+    final isModalEffectivelyOpen =
+        _isCropModalOpen && classState.hasSelectedImage;
 
     return DefaultTextStyle.merge(
       style: const TextStyle(
@@ -202,6 +211,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFFF3F6F9),
+        drawer: MediaQuery.of(context).size.width >= 900
+            ? null
+            : Drawer(
+                child: _buildSidebar(
+                  user: user,
+                  isGuestUser: isGuestUser,
+                  historyCount: classState.history.length,
+                  authController: authController,
+                  classController: classController,
+                ),
+              ),
         body: Stack(
           children: [
             Positioned(
@@ -311,8 +331,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required AuthController authController,
     required ClassificationController classController,
   }) {
-    final firstName =
-        (user?.displayName ?? 'Evaluator').toString().split(' ').first;
+    final firstName = (user?.displayName ?? 'Evaluator')
+        .toString()
+        .split(' ')
+        .first;
     final email = (user?.email ?? 'Guest Session').toString();
 
     return ClipRect(
@@ -362,72 +384,31 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.search,
-                      size: 16,
-                      color: Color(0xFF64748B),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) =>
-                            setState(() => _searchQuery = value),
-                        style: const TextStyle(
-                          fontSize: 13,
-                          letterSpacing: AppTypography.defaultLetterSpacing,
-                          color: SariwaColors.textPrimaryDark,
-                        ),
-                        decoration: const InputDecoration(
-                          hintText: 'Search scans...',
-                          hintStyle: TextStyle(
-                            fontSize: 13,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: Color(0xFF94A3B8),
-                          ),
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
-                    if (_searchQuery.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                        child: const Icon(
-                          CupertinoIcons.xmark_circle_fill,
-                          size: 15,
-                          color: Color(0xFF94A3B8),
-                        ),
-                      ),
-                  ],
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Text(
+                  'WORKSPACE',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 4),
               _buildSidebarNavItem(
                 icon: CupertinoIcons.viewfinder,
-                label: 'Freshness Scanner',
-                isActive: _activeNav == 'Scanner',
-                onTap: () => setState(() => _activeNav = 'Scanner'),
+                label: 'Inspection',
+                isActive: _activeNav == 'Inspection' || _activeNav == 'Scanner',
+                onTap: () => setState(() => _activeNav = 'Inspection'),
               ),
               const SizedBox(height: 4),
               _buildSidebarNavItem(
                 icon: CupertinoIcons.clock,
-                label: 'Scan History',
+                label: 'History',
                 badgeCount: historyCount,
                 isActive: _activeNav == 'History',
                 onTap: () => setState(() => _activeNav = 'History'),
@@ -435,21 +416,35 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               const SizedBox(height: 4),
               _buildSidebarNavItem(
                 icon: CupertinoIcons.chart_bar_square,
-                label: 'Overview Stats',
-                isActive: _activeNav == 'Summary',
-                onTap: () => setState(() => _activeNav = 'Summary'),
+                label: 'Analytics',
+                isActive: _activeNav == 'Analytics' || _activeNav == 'Summary',
+                onTap: () => setState(() => _activeNav = 'Analytics'),
+              ),
+              const SizedBox(height: 20),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Text(
+                  'GENERAL',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
               ),
               const SizedBox(height: 4),
               _buildSidebarNavItem(
-                icon: CupertinoIcons.house,
-                label: 'Back to Home',
+                icon: CupertinoIcons.question_circle,
+                label: 'Help & Guide',
                 isActive: false,
-                onTap: () => authController.goToLanding(),
+                onTap: () => OrganolepticGuidelinesDialog.show(context),
               ),
               const SizedBox(height: 4),
               _buildSidebarNavItem(
-                icon: CupertinoIcons.arrow_down_circle,
-                label: 'Download App',
+                icon: CupertinoIcons.device_phone_portrait,
+                label: 'Get Mobile App',
                 isActive: false,
                 onTap: () => authController.goToDownloads(),
               ),
@@ -468,7 +463,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(7),
                       decoration: BoxDecoration(
-                        color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: 0.10,
+                        ),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -528,8 +525,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor:
-                        SariwaColors.brandPrimary.withValues(alpha: 0.14),
+                    backgroundColor: SariwaColors.brandPrimary.withValues(
+                      alpha: 0.14,
+                    ),
                     child: Text(
                       firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
                       style: const TextStyle(
@@ -564,6 +562,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isGuestUser
+                                    ? const Color(0xFFF59E0B)
+                                    : const Color(0xFF10B981),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Flexible(
+                              child: Text(
+                                isGuestUser
+                                    ? 'Guest Evaluator'
+                                    : 'Verified Account',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textSecondaryDark,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -572,10 +601,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     onPressed: () => isGuestUser
                         ? authController.goToLogin()
                         : authController.signOut(),
-                    icon: const Icon(
-                      CupertinoIcons.square_arrow_right,
+                    icon: Icon(
+                      isGuestUser
+                          ? CupertinoIcons.arrow_right_circle
+                          : CupertinoIcons.square_arrow_right,
                       size: 18,
-                      color: Color(0xFF64748B),
+                      color: const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -664,89 +695,190 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required AuthController authController,
     required ClassificationController classController,
   }) {
-    final firstName =
-        (user?.displayName ?? 'Evaluator').toString().split(' ').first;
+    final firstName = (user?.displayName ?? 'Evaluator')
+        .toString()
+        .split(' ')
+        .first;
 
     return ClipRect(
       child: BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
-          height: 62,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: const BoxDecoration(
             color: Color(0xD9FFFFFF),
             border: Border(
               bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => authController.goToLanding(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'assets/images/SariwaBa logo.png',
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => const Icon(
-                          CupertinoIcons.sparkles,
-                          color: SariwaColors.brandPrimary,
-                          size: 20,
-                        ),
+              Row(
+                children: [
+                  Builder(
+                    builder: (scaffoldContext) => IconButton(
+                      icon: const Icon(CupertinoIcons.bars, size: 18),
+                      color: SariwaColors.textPrimaryDark,
+                      tooltip: 'Menu',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
                       ),
-                      const SizedBox(width: 9),
-                      const Text(
-                        'SariwaBa',
-                        style: TextStyle(
-                          fontFamily: 'Geist',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () =>
+                          Scaffold.of(scaffoldContext).openDrawer(),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => authController.goToLanding(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/images/SariwaBa logo.png',
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, _, _) => const Icon(
+                            CupertinoIcons.sparkles,
+                            color: SariwaColors.brandPrimary,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          'SariwaBa',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textPrimaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                      child: Text(
+                        firstName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                           color: SariwaColors.textPrimaryDark,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                    child: Text(
-                      firstName,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textPrimaryDark,
-                      ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   IconButton(
                     onPressed: () => classController.loadHistory(),
-                    icon: const Icon(CupertinoIcons.refresh, size: 17),
+                    icon: const Icon(CupertinoIcons.refresh, size: 15),
                     color: SariwaColors.brandPrimary,
                     tooltip: 'Sync History',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.all(2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildMobileTabButton(
+                        label: 'Inspection',
+                        isActive:
+                            _activeNav == 'Inspection' ||
+                            _activeNav == 'Scanner',
+                        onTap: () => setState(() => _activeNav = 'Inspection'),
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildMobileTabButton(
+                        label: 'History',
+                        isActive: _activeNav == 'History',
+                        onTap: () => setState(() => _activeNav = 'History'),
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildMobileTabButton(
+                        label: 'Analytics',
+                        isActive:
+                            _activeNav == 'Analytics' ||
+                            _activeNav == 'Summary',
+                        onTap: () => setState(() => _activeNav = 'Analytics'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileTabButton({
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: isActive
+              ? const [
+                  BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: AppTypography.defaultLetterSpacing,
+            color: isActive
+                ? SariwaColors.brandPrimary
+                : SariwaColors.textSecondaryDark,
           ),
         ),
       ),
@@ -762,6 +894,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required ClassificationController classController,
     required AuthController authController,
   }) {
+    if (_activeNav == 'History') {
+      return _buildHistoryPageView(classState, classController, isDesktop);
+    }
+    if (_activeNav == 'Analytics' || _activeNav == 'Summary') {
+      return _buildAnalyticsPageView(classState, classController, isDesktop);
+    }
+
     return SingleChildScrollView(
       controller: _scrollController,
       physics: const BouncingScrollPhysics(),
@@ -844,18 +983,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     children: [
                       StaggeredReveal(
                         staggerIndex: 5,
-                        child: _buildScannerCard(
-                          classState,
-                          classController,
-                        ),
+                        child: _buildScannerCard(classState, classController),
                       ),
                       const SizedBox(height: 24),
                       StaggeredReveal(
                         staggerIndex: 6,
-                        child: _buildHistoryCard(
-                          classState,
-                          classController,
-                        ),
+                        child: _buildHistoryCard(classState, classController),
                       ),
                     ],
                   );
@@ -988,8 +1121,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           children: [
             _buildCircularHeaderIconButton(
               icon: CupertinoIcons.question,
-              tooltip:
-                  'Eye is selected by default. Hover over an uploaded photo for framing guidance.',
+              tooltip: 'Eye is selected by default. Hover over an uploaded photo for framing guidance.',
               onTap: () {},
             ),
             _buildCircularHeaderIconButton(
@@ -1031,10 +1163,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 label: const Text('Sync History'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.textPrimaryDark,
-                  side: const BorderSide(
-                    color: Color(0xFFE2E8F0),
-                    width: 0.8,
-                  ),
+                  side: const BorderSide(color: Color(0xFFE2E8F0), width: 0.8),
                   backgroundColor: const Color(0xD9FFFFFF),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -1051,11 +1180,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         if (isCompact) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              headerInfo,
-              const SizedBox(height: 12),
-              actionsRow,
-            ],
+            children: [headerInfo, const SizedBox(height: 12), actionsRow],
           );
         }
 
@@ -1097,11 +1222,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     width: 1.0,
                   ),
                 ),
-                child: Icon(
-                  icon,
-                  size: 16,
-                  color: const Color(0xFF475569),
-                ),
+                child: Icon(icon, size: 16, color: const Color(0xFF475569)),
               ),
             ),
           ),
@@ -1323,17 +1444,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(99),
-                  border: Border.all(
-                    color: const Color(0xFFE2E8F0),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1591,10 +1706,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
       ),
       child: Column(
         children: [
@@ -1604,10 +1716,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFE2E8F0),
-                width: 1.2,
-              ),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x0A0F172A),
@@ -1616,9 +1725,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ),
               ],
             ),
-            child: const Center(
-              child: CupertinoActivityIndicator(radius: 12),
-            ),
+            child: const Center(child: CupertinoActivityIndicator(radius: 12)),
           ),
           const SizedBox(height: 18),
           const Text(
@@ -1657,7 +1764,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-    Widget _buildActiveModalPlaceholderCard(ClassificationState state) {
+  Widget _buildActiveModalPlaceholderCard(ClassificationState state) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -1700,8 +1807,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   state.latestResult != null
                       ? 'Viewing freshness results in inspection modal...'
                       : (state.isClassifying
-                          ? 'Evaluating image freshness in modal...'
-                          : 'Adjusting photo in crop view...'),
+                            ? 'Evaluating image freshness in modal...'
+                            : 'Adjusting photo in crop view...'),
                   style: const TextStyle(
                     fontSize: 12,
                     letterSpacing: AppTypography.defaultLetterSpacing,
@@ -1770,7 +1877,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(7),
                       decoration: BoxDecoration(
-                        color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                        color: SariwaColors.brandPrimary.withValues(
+                          alpha: 0.10,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const CupertinoActivityIndicator(radius: 8),
@@ -1881,8 +1990,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               color: const Color(0xFFFEF2F2),
                               borderRadius: BorderRadius.circular(99),
                               border: Border.all(
-                                color: SariwaColors.statusSpoiled
-                                    .withValues(alpha: 0.35),
+                                color: SariwaColors.statusSpoiled.withValues(
+                                  alpha: 0.35,
+                                ),
                               ),
                             ),
                             child: Text(
@@ -1991,8 +2101,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     controller.changeRegion();
                     _showRoiCropperModal();
                   },
-                  icon:
-                      const Icon(CupertinoIcons.arrow_up_arrow_down, size: 14),
+                  icon: const Icon(
+                    CupertinoIcons.arrow_up_arrow_down,
+                    size: 14,
+                  ),
                   label: const Text('Change Region'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
@@ -2212,15 +2324,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFF1F5F9),
-                                          borderRadius:
-                                              BorderRadius.circular(99),
+                                          borderRadius: BorderRadius.circular(
+                                            99,
+                                          ),
                                         ),
                                         child: Text(
                                           selectedRegionText,
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
-                                            letterSpacing: AppTypography.defaultLetterSpacing,
+                                            letterSpacing: AppTypography
+                                                .defaultLetterSpacing,
                                             color: SariwaColors.brandPrimary,
                                           ),
                                         ),
@@ -2239,9 +2353,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          letterSpacing: AppTypography.defaultLetterSpacing,
-                                          color:
-                                              SariwaColors.textSecondaryDark,
+                                          letterSpacing: AppTypography
+                                              .defaultLetterSpacing,
+                                          color: SariwaColors.textSecondaryDark,
                                         ),
                                       ),
                                     ),
@@ -2251,7 +2365,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               Icon(
                                 result.isFresh
                                     ? CupertinoIcons.checkmark_circle_fill
-                                    : CupertinoIcons.exclamationmark_circle_fill,
+                                    : CupertinoIcons
+                                          .exclamationmark_circle_fill,
                                 color: result.statusColor,
                                 size: 20,
                               ),
@@ -2329,8 +2444,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             ClassificationResult.confidenceExplanation,
                             style: TextStyle(
                               fontSize: 11.5,
-                              letterSpacing:
-                                  AppTypography.defaultLetterSpacing,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textSecondaryDark,
                             ),
                           ),
@@ -2349,10 +2463,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xFFE2E8F0),
-                width: 0.8,
-              ),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
             ),
             child: Row(
               children: [
@@ -2412,7 +2523,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ClassificationController controller,
   ) {
     // Keep selection synchronized with current history
-    final existingIds = state.history.map((s) => s.scanId).whereType<int>().toSet();
+    final existingIds = state.history
+        .map((s) => s.scanId)
+        .whereType<int>()
+        .toSet();
     _selectedHistoryScanIds.removeWhere((id) => !existingIds.contains(id));
 
     var filtered = state.history;
@@ -2579,8 +2693,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           filter,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: isSelected
                                 ? SariwaColors.textPrimaryDark
@@ -2682,13 +2797,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 );
                               },
                         icon: const Icon(CupertinoIcons.trash, size: 13),
-                        label:
-                            Text('Delete (${_selectedHistoryScanIds.length})'),
+                        label: Text(
+                          'Delete (${_selectedHistoryScanIds.length})',
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: SariwaColors.statusSpoiled,
                           foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              SariwaColors.statusSpoiled.withValues(alpha: 0.35),
+                          disabledBackgroundColor: SariwaColors.statusSpoiled
+                              .withValues(alpha: 0.35),
                           disabledForegroundColor: Colors.white70,
                           elevation: 0,
                           visualDensity: VisualDensity.compact,
@@ -2751,8 +2867,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     if (!hasAnyHistory) {
       emptyTitle = 'No classification history';
-      emptySubtitle =
-          'Upload a Tilapia photo to start building your permanent quality log.';
+      emptySubtitle = 'Upload a Tilapia photo to start building your permanent quality log.';
     } else if (activeFilter == 'Fresh') {
       emptyTitle = 'No Fresh results';
       emptySubtitle =
@@ -2886,8 +3001,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   height: 22,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:
-                        isSelected ? SariwaColors.brandPrimary : Colors.white,
+                    color: isSelected
+                        ? SariwaColors.brandPrimary
+                        : Colors.white,
                     border: Border.all(
                       color: isSelected
                           ? SariwaColors.brandPrimary
@@ -3015,8 +3131,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       value: scan.confidence.clamp(0.0, 1.0),
                       minHeight: 6,
                       backgroundColor: const Color(0xFFF1F5F9),
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(scan.statusColor),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        scan.statusColor,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -3286,8 +3403,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }) {
     final color = isError
         ? (state.isInputRejection
-            ? SariwaColors.statusModerate
-            : SariwaColors.statusSpoiled)
+              ? SariwaColors.statusModerate
+              : SariwaColors.statusSpoiled)
         : SariwaColors.statusFresh;
 
     final showRecoveryActions =
@@ -3310,8 +3427,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               Icon(
                 isError
                     ? (state.isInputRejection
-                        ? CupertinoIcons.exclamationmark_circle_fill
-                        : CupertinoIcons.xmark_octagon_fill)
+                          ? CupertinoIcons.exclamationmark_circle_fill
+                          : CupertinoIcons.xmark_octagon_fill)
                     : CupertinoIcons.checkmark_circle_fill,
                 color: color,
                 size: 19,
@@ -3423,6 +3540,1421 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           color: SariwaColors.textMutedDark,
         ),
       ),
+    );
+  }
+
+  String _formatDateTime(DateTime? dt) {
+    if (dt == null) return 'Recent scan';
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final m = monthNames[dt.month - 1];
+    final d = dt.day;
+    final y = dt.year;
+    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '$m $d, $y · $hour:$min $ampm';
+  }
+
+  Widget _buildHistoryPageView(
+    ClassificationState classState,
+    ClassificationController classController,
+    bool isDesktop,
+  ) {
+    final filtered = classState.history.where((scan) {
+      if (_historyFilter == 'Fresh' && !scan.isFresh) return false;
+      if (_historyFilter == 'Not Fresh' && !scan.isNotFresh) return false;
+      if (_regionFilter == 'Eye' &&
+          (scan.regionType ?? '').toLowerCase() != 'eye') {
+        return false;
+      }
+      if (_regionFilter == 'Gill' &&
+          (scan.regionType ?? '').toLowerCase() != 'gill') {
+        return false;
+      }
+      if (_searchQuery.trim().isNotEmpty) {
+        final q = _searchQuery.trim().toLowerCase();
+        final idStr = (scan.scanId ?? '').toString();
+        final labelStr = scan.label.toLowerCase();
+        final regionStr = (scan.regionType ?? '').toLowerCase();
+        final dateStr = scan.createdAt?.toIso8601String().toLowerCase() ?? '';
+        if (!idStr.contains(q) &&
+            !labelStr.contains(q) &&
+            !regionStr.contains(q) &&
+            !dateStr.contains(q)) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    if (_sortOrder == 'Newest') {
+      filtered.sort(
+        (a, b) => (b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+            .compareTo(a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
+      );
+    } else {
+      filtered.sort(
+        (a, b) => (a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+            .compareTo(b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
+      );
+    }
+
+    return SingleChildScrollView(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 36 : 18,
+        vertical: isDesktop ? 28 : 20,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1320),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Inspection History',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textPrimaryDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Review and manage your previous freshness assessments.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textSecondaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      '${classState.history.length} records',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.brandPrimary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Dedicated Toolbar
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.search,
+                                  size: 16,
+                                  color: Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _searchController,
+                                    onChanged: (val) =>
+                                        setState(() => _searchQuery = val),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      letterSpacing:
+                                          AppTypography.defaultLetterSpacing,
+                                      color: SariwaColors.textPrimaryDark,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      hintText: 'Search scans by ID, date, or region...',
+                                      hintStyle: TextStyle(
+                                        fontSize: 13,
+                                        letterSpacing:
+                                            AppTypography.defaultLetterSpacing,
+                                        color: Color(0xFF94A3B8),
+                                      ),
+                                      isDense: true,
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                                if (_searchQuery.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                    child: const Icon(
+                                      CupertinoIcons.xmark_circle_fill,
+                                      size: 15,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        OutlinedButton.icon(
+                          key: const Key(
+                            'history_toggle_selection_mode_button',
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isHistorySelectionMode =
+                                  !_isHistorySelectionMode;
+                              if (!_isHistorySelectionMode) {
+                                _selectedHistoryScanIds.clear();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _isHistorySelectionMode
+                                ? CupertinoIcons.xmark
+                                : CupertinoIcons.checkmark_square,
+                            size: 15,
+                          ),
+                          label: Text(
+                            _isHistorySelectionMode ? 'Cancel' : 'Select',
+                            style: const TextStyle(
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _isHistorySelectionMode
+                                ? SariwaColors.statusModerate
+                                : SariwaColors.brandPrimary,
+                            side: BorderSide(
+                              color: _isHistorySelectionMode
+                                  ? SariwaColors.statusModerate
+                                  : const Color(0xFFCBD5E1),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text(
+                          'Status:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        _buildHistoryFilterPill(
+                          'All',
+                          _historyFilter == 'All',
+                          () => setState(() => _historyFilter = 'All'),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Fresh',
+                          _historyFilter == 'Fresh',
+                          () => setState(() => _historyFilter = 'Fresh'),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Not Fresh',
+                          _historyFilter == 'Not Fresh',
+                          () => setState(() => _historyFilter = 'Not Fresh'),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Region:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        _buildHistoryFilterPill(
+                          'All',
+                          _regionFilter == 'All',
+                          () => setState(() => _regionFilter = 'All'),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Eye',
+                          _regionFilter == 'Eye',
+                          () => setState(() => _regionFilter = 'Eye'),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Gill',
+                          _regionFilter == 'Gill',
+                          () => setState(() => _regionFilter = 'Gill'),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Sort:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Newest',
+                          _sortOrder == 'Newest',
+                          () => setState(() => _sortOrder = 'Newest'),
+                        ),
+                        _buildHistoryFilterPill(
+                          'Oldest',
+                          _sortOrder == 'Oldest',
+                          () => setState(() => _sortOrder = 'Oldest'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (_isHistorySelectionMode) ...[
+                const SizedBox(height: 14),
+                _buildBulkActionBar(classState, classController, filtered),
+              ],
+              const SizedBox(height: 18),
+              if (filtered.isEmpty)
+                _buildEmptyHistoryState(
+                  activeFilter: _historyFilter,
+                  hasAnyHistory: classState.history.isNotEmpty,
+                )
+              else if (isDesktop)
+                _buildDesktopDataTable(filtered, classController)
+              else
+                _buildMobileHistoryList(filtered, classController),
+              const SizedBox(height: 36),
+              _buildSimpleFooter(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryFilterPill(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+              : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(99),
+          border: Border.all(
+            color: isSelected
+                ? SariwaColors.brandPrimary
+                : const Color(0xFFE2E8F0),
+            width: 1.0,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: AppTypography.defaultLetterSpacing,
+            color: isSelected
+                ? SariwaColors.brandPrimary
+                : SariwaColors.textPrimaryDark,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBulkActionBar(
+    ClassificationState state,
+    ClassificationController controller,
+    List<ClassificationResult> currentScans,
+  ) {
+    final count = _selectedHistoryScanIds.length;
+    final allIds = currentScans.map((s) => s.scanId).whereType<int>().toSet();
+    final isAllSelected = count > 0 && count == allIds.length;
+
+    return Container(
+      key: const Key('history_bulk_action_bar'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F000000),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            CupertinoIcons.checkmark_seal_fill,
+            size: 18,
+            color: SariwaColors.brandPrimary,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            '$count of ${currentScans.length} selected',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: AppTypography.defaultLetterSpacing,
+              color: Colors.white,
+            ),
+          ),
+          const Spacer(),
+          TextButton(
+            key: const Key('history_select_all_button'),
+            onPressed: () {
+              setState(() {
+                if (isAllSelected) {
+                  _selectedHistoryScanIds.clear();
+                } else {
+                  _selectedHistoryScanIds.addAll(allIds);
+                }
+              });
+            },
+            child: Text(
+              isAllSelected ? 'Deselect All' : 'Select All',
+              style: const TextStyle(
+                color: Color(0xFF94A3B8),
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                letterSpacing: AppTypography.defaultLetterSpacing,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            key: const Key('history_bulk_delete_button'),
+            onPressed: count == 0
+                ? null
+                : () => _confirmBulkDelete(
+                    context,
+                    _selectedHistoryScanIds.toList(),
+                    controller,
+                  ),
+            icon: const Icon(CupertinoIcons.trash, size: 14),
+            label: Text('Delete ($count)'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopDataTable(
+    List<ClassificationResult> scans,
+    ClassificationController controller,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x05000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Column(
+          children: [
+            Container(
+              color: const Color(0xFFF8FAFC),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              child: const Row(
+                children: [
+                  SizedBox(width: 38),
+                  SizedBox(
+                    width: 140,
+                    child: Text(
+                      'SCAN ID / DATE',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 110,
+                    child: Text(
+                      'REGION',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: Text(
+                      'STATUS',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'CONFIDENCE',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 90,
+                    child: Text(
+                      'ACTIONS',
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE2E8F0)),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: scans.length,
+              separatorBuilder: (_, _) =>
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+              itemBuilder: (context, index) {
+                final scan = scans[index];
+                final scanId = scan.scanId;
+                final isSelected =
+                    scanId != null && _selectedHistoryScanIds.contains(scanId);
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      if (_isHistorySelectionMode) ...[
+                        SizedBox(
+                          width: 38,
+                          child: Checkbox(
+                            key: scanId != null
+                                ? Key('history_item_checkbox_$scanId')
+                                : null,
+                            value: isSelected,
+                            activeColor: SariwaColors.brandPrimary,
+                            onChanged: (val) {
+                              if (scanId == null) return;
+                              setState(() {
+                                if (val == true) {
+                                  _selectedHistoryScanIds.add(scanId);
+                                } else {
+                                  _selectedHistoryScanIds.remove(scanId);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ] else ...[
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: scan.isFresh
+                                ? const Color(0xFFF0FDF4)
+                                : const Color(0xFFFEF2F2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            scan.isFresh
+                                ? CupertinoIcons.checkmark_seal_fill
+                                : CupertinoIcons.exclamationmark_triangle_fill,
+                            size: 15,
+                            color: scan.isFresh
+                                ? const Color(0xFF16A34A)
+                                : const Color(0xFFEF4444),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                      SizedBox(
+                        width: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              scanId != null ? 'Scan #$scanId' : 'Scan',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing:
+                                    AppTypography.defaultLetterSpacing,
+                                color: SariwaColors.textPrimaryDark,
+                              ),
+                            ),
+                            Text(
+                              _formatDateTime(scan.createdAt),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                letterSpacing:
+                                    AppTypography.defaultLetterSpacing,
+                                color: SariwaColors.textSecondaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 110,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildDetailBadge(
+                            label: (scan.regionType ?? 'Eye').toUpperCase(),
+                            bg: const Color(0xFFF1F5F9),
+                            text: const Color(0xFF334155),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 130,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildDetailBadge(
+                            label: scan.label,
+                            bg: scan.isFresh
+                                ? const Color(0xFFDCFCE7)
+                                : const Color(0xFFFEE2E2),
+                            text: scan.isFresh
+                                ? const Color(0xFF15803D)
+                                : const Color(0xFFB91C1C),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 80,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(99),
+                                child: LinearProgressIndicator(
+                                  value: scan.confidence,
+                                  backgroundColor: const Color(0xFFE2E8F0),
+                                  valueColor: AlwaysStoppedAnimation(
+                                    scan.isFresh
+                                        ? const Color(0xFF16A34A)
+                                        : const Color(0xFFEF4444),
+                                  ),
+                                  minHeight: 6,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${(scan.confidence * 100).toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing:
+                                    AppTypography.defaultLetterSpacing,
+                                color: SariwaColors.textPrimaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 90,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(CupertinoIcons.eye, size: 16),
+                              tooltip: 'View details',
+                              color: SariwaColors.brandPrimary,
+                              onPressed: () =>
+                                  _showInspectionDetailsModal(scan),
+                            ),
+                            IconButton(
+                              icon: const Icon(CupertinoIcons.trash, size: 16),
+                              tooltip: 'Delete scan',
+                              color: const Color(0xFF94A3B8),
+                              onPressed: () => _confirmDelete(
+                                context,
+                                scanId ?? 0,
+                                controller,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileHistoryList(
+    List<ClassificationResult> scans,
+    ClassificationController controller,
+  ) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: scans.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
+      itemBuilder: (context, index) {
+        final scan = scans[index];
+        final scanId = scan.scanId;
+        final isSelected =
+            scanId != null && _selectedHistoryScanIds.contains(scanId);
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? SariwaColors.brandPrimary
+                  : const Color(0xFFE2E8F0),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (_isHistorySelectionMode) ...[
+                    Checkbox(
+                      key: scanId != null
+                          ? Key('history_item_checkbox_$scanId')
+                          : null,
+                      value: isSelected,
+                      activeColor: SariwaColors.brandPrimary,
+                      onChanged: (val) {
+                        if (scanId == null) return;
+                        setState(() {
+                          if (val == true) {
+                            _selectedHistoryScanIds.add(scanId);
+                          } else {
+                            _selectedHistoryScanIds.remove(scanId);
+                          }
+                        });
+                      },
+                    ),
+                  ],
+                  Text(
+                    scanId != null ? 'Scan #$scanId' : 'Scan',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: AppTypography.defaultLetterSpacing,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
+                  ),
+                  const Spacer(),
+                  _buildDetailBadge(
+                    label: scan.label,
+                    bg: scan.isFresh
+                        ? const Color(0xFFDCFCE7)
+                        : const Color(0xFFFEE2E2),
+                    text: scan.isFresh
+                        ? const Color(0xFF15803D)
+                        : const Color(0xFFB91C1C),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _formatDateTime(scan.createdAt),
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  letterSpacing: AppTypography.defaultLetterSpacing,
+                  color: SariwaColors.textSecondaryDark,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _buildDetailBadge(
+                    label: (scan.regionType ?? 'Eye').toUpperCase(),
+                    bg: const Color(0xFFF1F5F9),
+                    text: const Color(0xFF334155),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Confidence: ${(scan.confidence * 100).toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: AppTypography.defaultLetterSpacing,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(CupertinoIcons.eye, size: 16),
+                    tooltip: 'View details',
+                    color: SariwaColors.brandPrimary,
+                    onPressed: () => _showInspectionDetailsModal(scan),
+                  ),
+                  IconButton(
+                    icon: const Icon(CupertinoIcons.trash, size: 16),
+                    tooltip: 'Delete scan',
+                    color: const Color(0xFF94A3B8),
+                    onPressed: () =>
+                        _confirmDelete(context, scanId ?? 0, controller),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailBadge({
+    required String label,
+    required Color bg,
+    required Color text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: AppTypography.defaultLetterSpacing,
+          color: text,
+        ),
+      ),
+    );
+  }
+
+  void _showInspectionDetailsModal(ClassificationResult scan) {
+    showDialog<void>(
+      context: context,
+      barrierColor: const Color(0x330A1926),
+      builder: (ctx) {
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1F000000),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Inspection #${scan.scanId ?? ''}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textPrimaryDark,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(CupertinoIcons.xmark, size: 18),
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: scan.isFresh
+                            ? const Color(0xFFF0FDF4)
+                            : const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: scan.isFresh
+                              ? const Color(0xFFBBF7D0)
+                              : const Color(0xFFFECACA),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            scan.isFresh
+                                ? CupertinoIcons.checkmark_seal_fill
+                                : CupertinoIcons.exclamationmark_triangle_fill,
+                            color: scan.isFresh
+                                ? const Color(0xFF16A34A)
+                                : const Color(0xFFEF4444),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                scan.label,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: scan.isFresh
+                                      ? const Color(0xFF15803D)
+                                      : const Color(0xFFB91C1C),
+                                ),
+                              ),
+                              Text(
+                                'Model Confidence: ${(scan.confidence * 100).toStringAsFixed(1)}%',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textSecondaryDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildModalDetailRow(
+                      'Region Examined',
+                      scan.regionType ?? 'Eye',
+                    ),
+                    _buildModalDetailRow(
+                      'Species Scope',
+                      'Oreochromis niloticus (Tilapia)',
+                    ),
+                    _buildModalDetailRow(
+                      'Timestamp',
+                      _formatDateTime(scan.createdAt),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'PNS Sensory Note: Fresh Tilapia eyes are clear, bright, and slightly convex. Exposed gills must exhibit bright red coloration and fresh neutral marine aroma.',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          height: 1.4,
+                          letterSpacing: AppTypography.defaultLetterSpacing,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModalDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              letterSpacing: AppTypography.defaultLetterSpacing,
+              color: Color(0xFF64748B),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: AppTypography.defaultLetterSpacing,
+              color: SariwaColors.textPrimaryDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnalyticsPageView(
+    ClassificationState classState,
+    ClassificationController classController,
+    bool isDesktop,
+  ) {
+    final history = classState.history;
+    final total = history.length;
+    final freshCount = history.where((s) => s.isFresh).length;
+    final notFreshCount = history.where((s) => s.isNotFresh).length;
+    final avgConf = total > 0
+        ? (history.fold<double>(0.0, (acc, s) => acc + s.confidence) / total) *
+              100
+        : 0.0;
+    final freshPct = total > 0
+        ? ((freshCount / total) * 100).toStringAsFixed(0)
+        : '0';
+    final notFreshPct = total > 0
+        ? ((notFreshCount / total) * 100).toStringAsFixed(0)
+        : '0';
+    final eyeCount = history
+        .where((s) => (s.regionType ?? '').toLowerCase() == 'eye')
+        .length;
+    final gillCount = history
+        .where((s) => (s.regionType ?? '').toLowerCase() == 'gill')
+        .length;
+
+    return SingleChildScrollView(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 36 : 18,
+        vertical: isDesktop ? 28 : 20,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1320),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Freshness Insights',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textPrimaryDark,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Explore your inspection activity and classification patterns.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textSecondaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 6,
+                    children: ['7d', '30d', '90d', 'All'].map((range) {
+                      final isSelected = _analyticsRange == range;
+                      return GestureDetector(
+                        onTap: () => setState(() => _analyticsRange = range),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? SariwaColors.brandPrimary
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            range,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildKpiMetrics(history),
+              const SizedBox(height: 24),
+              // Visual Distribution Ratio Bar
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Freshness Ratio Distribution',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '$freshCount fresh tilapia vs $notFreshCount not fresh tilapia identified',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.textSecondaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: Container(
+                        height: 14,
+                        color: const Color(0xFFE2E8F0),
+                        child: total == 0
+                            ? null
+                            : Row(
+                                children: [
+                                  if (freshCount > 0)
+                                    Expanded(
+                                      flex: freshCount,
+                                      child: Container(
+                                        color: const Color(0xFF16A34A),
+                                      ),
+                                    ),
+                                  if (notFreshCount > 0)
+                                    Expanded(
+                                      flex: notFreshCount,
+                                      child: Container(
+                                        color: const Color(0xFFEF4444),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildDistributionLegend(
+                          label: 'Fresh: $freshPct%',
+                          color: const Color(0xFF16A34A),
+                        ),
+                        const SizedBox(width: 16),
+                        _buildDistributionLegend(
+                          label: 'Not Fresh: $notFreshPct%',
+                          color: const Color(0xFFEF4444),
+                        ),
+                        const Spacer(),
+                        Text(
+                          'Avg Conf: ${avgConf.toStringAsFixed(1)}%',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Anatomical Region Breakdown
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.eye,
+                                size: 18,
+                                color: SariwaColors.brandPrimary,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Eye Inspections',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textPrimaryDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '$eyeCount scans',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: SariwaColors.textPrimaryDark,
+                            ),
+                          ),
+                          Text(
+                            total > 0
+                                ? '${((eyeCount / total) * 100).toStringAsFixed(0)}% of total scans'
+                                : 'Default region',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: SariwaColors.textSecondaryDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.waveform_path,
+                                size: 18,
+                                color: Color(0xFF8B5CF6),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Gill Inspections',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textPrimaryDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '$gillCount scans',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: SariwaColors.textPrimaryDark,
+                            ),
+                          ),
+                          Text(
+                            total > 0
+                                ? '${((gillCount / total) * 100).toStringAsFixed(0)}% of total scans'
+                                : 'Exposed gill view',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: SariwaColors.textSecondaryDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 36),
+              _buildSimpleFooter(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDistributionLegend({
+    required String label,
+    required Color color,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: AppTypography.defaultLetterSpacing,
+            color: Color(0xFF334155),
+          ),
+        ),
+      ],
     );
   }
 }

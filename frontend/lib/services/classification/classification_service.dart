@@ -122,6 +122,8 @@ abstract class ClassificationService {
   Future<List<ClassificationResult>> fetchHistory();
 
   Future<void> deleteScan(int scanId);
+
+  Future<List<int>> bulkDeleteScans(List<int> scanIds);
 }
 
 typedef ClassificationRepository = ClassificationService;
@@ -306,7 +308,26 @@ class ClassificationServiceImpl implements ClassificationService {
       throw Exception('Failed to delete scan record.');
     }
   }
+
+  @override
+  Future<List<int>> bulkDeleteScans(List<int> scanIds) async {
+    if (scanIds.isEmpty) return [];
+    try {
+      final response = await _dio.delete(
+        ApiEndpoints.historyBulkDelete,
+        data: {'scan_ids': scanIds},
+      );
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        final list = (response.data['deleted_ids'] as List<dynamic>? ?? []);
+        return list.map((e) => (e as num).toInt()).toList();
+      }
+      return scanIds;
+    } on DioException {
+      rethrow;
+    }
+  }
 }
+
 
 final classificationServiceProvider = Provider<ClassificationService>((ref) {
   final dio = ref.watch(apiClientProvider);

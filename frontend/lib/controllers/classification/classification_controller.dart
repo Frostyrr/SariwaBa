@@ -494,6 +494,14 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(history: []);
   }
 
+  /// Clear error or success notification banner
+  void clearNotification() {
+    state = state.copyWith(clearError: true, clearSuccess: true);
+  }
+
+  /// Convenience alias to reset workflow
+  void resetWorkflow() => clearSelection();
+
   /// Clear the currently selected image and reset workflow state
   void clearSelection() {
     _activeRequestId++;
@@ -670,7 +678,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(clearError: true);
     try {
       if (isAuthenticated) {
-        await Future.wait(scanIds.map((id) => _service.deleteScan(id)));
+        await _service.bulkDeleteScans(scanIds);
       } else {
         await Future.wait(scanIds.map((id) => _guestCache.removeScan(id)));
       }

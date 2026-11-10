@@ -1463,8 +1463,19 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     ClassificationState state,
     ClassificationController controller,
   ) {
-    final isFresh = result.isFresh;
-    final statusColor = result.statusColor;
+    final isNotFresh = result.isNotFresh;
+    final primaryColor =
+        isNotFresh ? SariwaColors.notFreshPrimary : SariwaColors.brandPrimary;
+    final textColor =
+        isNotFresh ? SariwaColors.notFreshText : SariwaColors.freshText;
+    final iconBgColor =
+        isNotFresh ? SariwaColors.notFreshIconBg : SariwaColors.freshIconBg;
+    final borderColor =
+        isNotFresh ? SariwaColors.notFreshBorder : SariwaColors.freshBorder;
+    final trackColor =
+        isNotFresh ? SariwaColors.notFreshTrack : SariwaColors.freshTrack;
+    final cardBgColor =
+        isNotFresh ? SariwaColors.notFreshCardBg : SariwaColors.freshCardBg;
 
     return Container(
       key: const Key('modal_classification_result_view'),
@@ -1483,7 +1494,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: statusColor.withValues(alpha: 0.35),
+                    color: borderColor,
                     width: 1.5,
                   ),
                 ),
@@ -1495,14 +1506,14 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ),
           const SizedBox(height: 16),
 
-          // 2. SlothUI-style Result Breakdown Card
+          // 2. Refined Result Breakdown Card
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: statusColor.withValues(alpha: 0.30),
+                color: borderColor,
                 width: 1.0,
               ),
               boxShadow: const [
@@ -1524,13 +1535,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: statusColor.withValues(alpha: 0.12),
+                        color: iconBgColor,
                       ),
                       child: Icon(
-                        isFresh
+                        result.isFresh
                             ? CupertinoIcons.checkmark_alt
                             : CupertinoIcons.exclamationmark_triangle,
-                        color: statusColor,
+                        color: primaryColor,
                         size: 22,
                       ),
                     ),
@@ -1556,7 +1567,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                         fontWeight: FontWeight.w800,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
-                                        color: statusColor,
+                                        color: textColor,
                                       ),
                                     ),
                                     if (result.selectedRegionLabel != null)
@@ -1584,59 +1595,58 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                 ),
                               ),
                               Icon(
-                                isFresh
+                                result.isFresh
                                     ? CupertinoIcons.checkmark_circle_fill
                                     : CupertinoIcons.exclamationmark_circle_fill,
-                                color: statusColor,
+                                color: primaryColor,
                                 size: 20,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(99),
-                            child: LinearProgressIndicator(
-                              value: result.confidence.clamp(0.0, 1.0),
-                              minHeight: 7,
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                statusColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
+                          // Single row confidence presentation
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
-                                child: Text(
-                                  'Model Confidence: ${result.formattedConfidence}',
-                                  style: const TextStyle(
-                                    fontFamily: 'Geist',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing:
-                                        AppTypography.defaultLetterSpacing,
-                                    color: SariwaColors.textPrimaryDark,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                              const Text(
+                                'Model Confidence',
+                                style: TextStyle(
+                                  fontFamily: 'Geist',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textPrimaryDark,
                                 ),
                               ),
                               Text(
                                 result.formattedConfidence,
                                 style: TextStyle(
                                   fontFamily: 'Geist',
-                                  fontSize: 12.5,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
-                                  color: statusColor,
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+                          // Dynamic confidence progress bar directly below
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(99),
+                            child: LinearProgressIndicator(
+                              value: result.confidence.clamp(0.0, 1.0),
+                              minHeight: 7,
+                              backgroundColor: trackColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                primaryColor,
+                              ),
+                            ),
+                          ),
                           if (result.modelVersion != null) ...[
-                            const SizedBox(height: 3),
+                            const SizedBox(height: 6),
                             Text(
                               'Model: ${result.modelVersion}',
                               style: const TextStyle(
