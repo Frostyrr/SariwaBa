@@ -1267,8 +1267,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             value: cautionCount.toString(),
             subtitle: 'Needs attention',
             icon: CupertinoIcons.exclamationmark_triangle,
-            iconColor: SariwaColors.statusModerate,
-            iconBg: SariwaColors.statusModerate.withValues(alpha: 0.10),
+            iconColor: SariwaColors.notFreshPrimary,
+            iconBg: SariwaColors.notFreshIconBg,
           ),
           _buildMetricBox(
             title: 'Avg. Confidence',
@@ -2248,6 +2248,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final selectedRegionText = result.selectedRegionLabel;
     final timestampText = result.formattedTimestamp;
 
+    final isNotFresh = result.isNotFresh;
+    final primaryColor =
+        isNotFresh ? SariwaColors.notFreshPrimary : SariwaColors.brandPrimary;
+    final textColor =
+        isNotFresh ? SariwaColors.notFreshText : SariwaColors.freshText;
+    final iconBgColor =
+        isNotFresh ? SariwaColors.notFreshIconBg : SariwaColors.freshIconBg;
+    final cardBorderColor =
+        isNotFresh ? SariwaColors.notFreshBorder : SariwaColors.freshBorder;
+    final trackColor =
+        isNotFresh ? SariwaColors.notFreshTrack : SariwaColors.freshTrack;
+    final cardBgColor =
+        isNotFresh ? SariwaColors.notFreshCardBg : SariwaColors.freshCardBg;
+
     return Container(
       key: const Key('classification_result_view'),
       child: Column(
@@ -2256,10 +2270,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardBgColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: result.statusColor.withValues(alpha: 0.30),
+                color: cardBorderColor,
                 width: 1.0,
               ),
               boxShadow: const [
@@ -2277,18 +2291,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 42,
-                      height: 42,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: result.statusColor.withValues(alpha: 0.12),
+                        color: iconBgColor,
                       ),
                       child: Icon(
                         result.isFresh
                             ? CupertinoIcons.checkmark_alt
                             : CupertinoIcons.exclamationmark_triangle,
-                        color: result.statusColor,
-                        size: 20,
+                        color: primaryColor,
+                        size: 22,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -2313,7 +2327,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         fontWeight: FontWeight.w800,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
-                                        color: result.statusColor,
+                                        color: textColor,
                                       ),
                                     ),
                                     if (selectedRegionText != null)
@@ -2324,17 +2338,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFF1F5F9),
-                                          borderRadius: BorderRadius.circular(
-                                            99,
-                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(99),
                                         ),
                                         child: Text(
                                           selectedRegionText,
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
-                                            letterSpacing: AppTypography
-                                                .defaultLetterSpacing,
+                                            letterSpacing: AppTypography.defaultLetterSpacing,
                                             color: SariwaColors.brandPrimary,
                                           ),
                                         ),
@@ -2353,9 +2365,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          letterSpacing: AppTypography
-                                              .defaultLetterSpacing,
-                                          color: SariwaColors.textSecondaryDark,
+                                          letterSpacing: AppTypography.defaultLetterSpacing,
+                                          color:
+                                              SariwaColors.textSecondaryDark,
                                         ),
                                       ),
                                     ),
@@ -2365,33 +2377,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               Icon(
                                 result.isFresh
                                     ? CupertinoIcons.checkmark_circle_fill
-                                    : CupertinoIcons
-                                          .exclamationmark_circle_fill,
-                                color: result.statusColor,
+                                    : CupertinoIcons.exclamationmark_circle_fill,
+                                color: primaryColor,
                                 size: 20,
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(99),
-                            child: LinearProgressIndicator(
-                              value: result.confidence.clamp(0.0, 1.0),
-                              minHeight: 7,
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                result.statusColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
+                          // Single row confidence presentation
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Flexible(
+                              const Expanded(
                                 child: Text(
-                                  'Model Confidence: ${result.formattedConfidence}',
-                                  style: const TextStyle(
+                                  'Model Confidence',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
                                     fontFamily: 'Geist',
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -2399,24 +2400,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                         AppTypography.defaultLetterSpacing,
                                     color: SariwaColors.textPrimaryDark,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               Text(
                                 result.formattedConfidence,
                                 style: TextStyle(
                                   fontFamily: 'Geist',
-                                  fontSize: 12.5,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
-                                  color: result.statusColor,
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 8),
+                          // Dynamic confidence progress bar directly below
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(99),
+                            child: LinearProgressIndicator(
+                              value: result.confidence.clamp(0.0, 1.0),
+                              minHeight: 7,
+                              backgroundColor: trackColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                primaryColor,
+                              ),
+                            ),
+                          ),
                           if (timestampText != null) ...[
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 8),
                             Text(
                               'Classified at: $timestampText',
                               style: const TextStyle(
@@ -2439,12 +2453,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               ),
                             ),
                           ],
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 4),
                           const Text(
                             ClassificationResult.confidenceExplanation,
                             style: TextStyle(
                               fontSize: 11.5,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              letterSpacing:
+                                  AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textSecondaryDark,
                             ),
                           ),
@@ -4153,9 +4168,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            color: scan.isFresh
-                                ? const Color(0xFFF0FDF4)
-                                : const Color(0xFFFEF2F2),
+                            color: scan.isFresh ? SariwaColors.freshIconBg : SariwaColors.notFreshIconBg,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -4163,9 +4176,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 ? CupertinoIcons.checkmark_seal_fill
                                 : CupertinoIcons.exclamationmark_triangle_fill,
                             size: 15,
-                            color: scan.isFresh
-                                ? const Color(0xFF16A34A)
-                                : const Color(0xFFEF4444),
+                            color: scan.isFresh ? const Color(0xFF16A34A) : SariwaColors.notFreshPrimary,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -4214,12 +4225,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           alignment: Alignment.centerLeft,
                           child: _buildDetailBadge(
                             label: scan.label,
-                            bg: scan.isFresh
-                                ? const Color(0xFFDCFCE7)
-                                : const Color(0xFFFEE2E2),
-                            text: scan.isFresh
-                                ? const Color(0xFF15803D)
-                                : const Color(0xFFB91C1C),
+                            bg: scan.isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
+                            text: scan.isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
                           ),
                         ),
                       ),
@@ -4232,11 +4239,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                 borderRadius: BorderRadius.circular(99),
                                 child: LinearProgressIndicator(
                                   value: scan.confidence,
-                                  backgroundColor: const Color(0xFFE2E8F0),
+                                  backgroundColor: scan.isFresh ? const Color(0xFFE2E8F0) : SariwaColors.notFreshTrack,
                                   valueColor: AlwaysStoppedAnimation(
                                     scan.isFresh
                                         ? const Color(0xFF16A34A)
-                                        : const Color(0xFFEF4444),
+                                        : SariwaColors.notFreshPrimary,
                                   ),
                                   minHeight: 6,
                                 ),
@@ -4355,12 +4362,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   const Spacer(),
                   _buildDetailBadge(
                     label: scan.label,
-                    bg: scan.isFresh
-                        ? const Color(0xFFDCFCE7)
-                        : const Color(0xFFFEE2E2),
-                    text: scan.isFresh
-                        ? const Color(0xFF15803D)
-                        : const Color(0xFFB91C1C),
+                    bg: scan.isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
+                    text: scan.isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
                   ),
                 ],
               ),
@@ -4488,14 +4491,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: scan.isFresh
-                            ? const Color(0xFFF0FDF4)
-                            : const Color(0xFFFEF2F2),
+                        color: scan.isFresh ? SariwaColors.freshIconBg : SariwaColors.notFreshIconBg,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: scan.isFresh
-                              ? const Color(0xFFBBF7D0)
-                              : const Color(0xFFFECACA),
+                          color: scan.isFresh ? SariwaColors.freshBorder : SariwaColors.notFreshBorder,
                         ),
                       ),
                       child: Row(
@@ -4504,9 +4503,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                             scan.isFresh
                                 ? CupertinoIcons.checkmark_seal_fill
                                 : CupertinoIcons.exclamationmark_triangle_fill,
-                            color: scan.isFresh
-                                ? const Color(0xFF16A34A)
-                                : const Color(0xFFEF4444),
+                            color: scan.isFresh ? const Color(0xFF16A34A) : SariwaColors.notFreshPrimary,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -4520,9 +4517,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                   fontWeight: FontWeight.w800,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
-                                  color: scan.isFresh
-                                      ? const Color(0xFF15803D)
-                                      : const Color(0xFFB91C1C),
+                                  color: scan.isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
                                 ),
                               ),
                               Text(
@@ -4772,7 +4767,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                                     Expanded(
                                       flex: notFreshCount,
                                       child: Container(
-                                        color: const Color(0xFFEF4444),
+                                        color: SariwaColors.notFreshPrimary,
                                       ),
                                     ),
                                 ],
@@ -4789,7 +4784,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         const SizedBox(width: 16),
                         _buildDistributionLegend(
                           label: 'Not Fresh: $notFreshPct%',
-                          color: const Color(0xFFEF4444),
+                          color: SariwaColors.notFreshPrimary,
                         ),
                         const Spacer(),
                         Text(

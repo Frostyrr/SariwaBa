@@ -1608,17 +1608,21 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Model Confidence',
-                                style: TextStyle(
-                                  fontFamily: 'Geist',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing:
-                                      AppTypography.defaultLetterSpacing,
-                                  color: SariwaColors.textPrimaryDark,
+                              const Expanded(
+                                child: Text(
+                                  'Model Confidence',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing:
+                                        AppTypography.defaultLetterSpacing,
+                                    color: SariwaColors.textPrimaryDark,
+                                  ),
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               Text(
                                 result.formattedConfidence,
                                 style: TextStyle(

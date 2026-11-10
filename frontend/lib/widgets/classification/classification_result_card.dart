@@ -28,7 +28,7 @@ class ClassificationResultCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardBgColor,
         border: Border.all(color: borderColor, width: 1.0),
@@ -102,16 +102,20 @@ class ClassificationResultCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Model Confidence',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textPrimaryDark,
+              const Expanded(
+                child: Text(
+                  'Model Confidence',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 result.formattedConfidence,
                 style: TextStyle(

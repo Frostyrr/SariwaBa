@@ -472,7 +472,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Assessment scope: Tilapia'), findsOneWidget);
-    expect(find.text('Model Confidence: 94.2%'), findsOneWidget);
+    expect(find.text('Model Confidence'), findsOneWidget);
+    expect(find.text('94.2%'), findsWidgets);
     expect(
       find.text('Confidence is a model prediction score, not a freshness percentage.'),
       findsOneWidget,
