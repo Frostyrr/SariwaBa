@@ -19,7 +19,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+      filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
       child: Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -86,7 +86,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.1,
+                                  letterSpacing: -0.25,
                                   color: Colors.white.withValues(alpha: 0.85),
                                 ),
                               ),
@@ -94,6 +94,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                               const Text(
                                 'PNS/BAFPS 67:2008 & BFAR Standards',
                                 style: TextStyle(
+                                  letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
@@ -135,6 +136,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                           Text(
                             'Organoleptic sensory validation serves as the ground-truth benchmark for SariwaBa AI MobileNetV3 model evaluations. Inspect each anatomical biomarker using the criteria below:',
                             style: TextStyle(
+                              letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
                               fontSize: 13,
                               height: 1.45,
@@ -219,6 +221,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                         Text(
                           'BFAR PNS 67:2008 Compliance',
                           style: TextStyle(
+                            letterSpacing: -0.25,
                             fontFamily: AppTypography.fontFamily,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -286,6 +289,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
+                    letterSpacing: -0.25,
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
@@ -303,6 +307,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                 child: Text(
                   badge,
                   style: const TextStyle(
+                    letterSpacing: -0.25,
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -341,6 +346,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
           child: Text(
             grade,
             style: TextStyle(
+              letterSpacing: -0.25,
               fontFamily: AppTypography.fontFamily,
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
@@ -352,6 +358,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
           child: Text(
             description,
             style: const TextStyle(
+              letterSpacing: -0.25,
               fontFamily: AppTypography.fontFamily,
               fontSize: 11.5,
               height: 1.35,

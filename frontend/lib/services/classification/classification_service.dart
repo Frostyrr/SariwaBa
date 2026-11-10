@@ -1,6 +1,10 @@
+import '../../controllers/auth/auth_controller.dart';
+
 import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../constants/config/api_endpoints.dart';
 import '../../models/classification/classification_result.dart';
 import '../network/api_client.dart';
@@ -118,6 +122,8 @@ abstract class ClassificationService {
   Future<List<ClassificationResult>> fetchHistory();
 
   Future<void> deleteScan(int scanId);
+
+  Future<List<int>> bulkDeleteScans(List<int> scanIds);
 }
 
 typedef ClassificationRepository = ClassificationService;
@@ -126,7 +132,9 @@ typedef ClassificationException = ClassificationApiException;
 class ClassificationServiceImpl implements ClassificationService {
   final Dio _dio;
 
-  ClassificationServiceImpl(this._dio);
+  final bool guestRequest;
+
+  ClassificationServiceImpl(this._dio, {this.guestRequest = false});
 
   static DioMediaType _detectMediaType(Uint8List bytes, String filename) {
     if (bytes.length >= 8 &&
@@ -171,16 +179,19 @@ class ClassificationServiceImpl implements ClassificationService {
     required String filename,
     String regionType = 'eye',
   }) async {
-    final isPng = bytes.length >= 8 &&
+    final isPng =
+        bytes.length >= 8 &&
         bytes[0] == 0x89 &&
         bytes[1] == 0x50 &&
         bytes[2] == 0x4E &&
         bytes[3] == 0x47;
-    final isJpeg = bytes.length >= 3 &&
+    final isJpeg =
+        bytes.length >= 3 &&
         bytes[0] == 0xFF &&
         bytes[1] == 0xD8 &&
         bytes[2] == 0xFF;
-    final isHeic = bytes.length >= 12 &&
+    final isHeic =
+        bytes.length >= 12 &&
         bytes[4] == 0x66 &&
         bytes[5] == 0x74 &&
         bytes[6] == 0x79 &&
@@ -188,8 +199,7 @@ class ClassificationServiceImpl implements ClassificationService {
     if (!isPng && !isJpeg && !isHeic) {
       throw const ClassificationApiException(
         code: 'UNSUPPORTED_IMAGE_TYPE',
-        message:
-            'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
+        message: 'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
       );
     }
     final mediaType = _detectMediaType(bytes, filename);
@@ -206,7 +216,10 @@ class ClassificationServiceImpl implements ClassificationService {
       final response = await _dio.post(
         ApiEndpoints.classify,
         data: formData,
-        options: Options(contentType: 'multipart/form-data'),
+        options: Options(
+          contentType: 'multipart/form-data',
+          extra: {'guestRequest': guestRequest},
+        ),
       );
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
@@ -250,8 +263,7 @@ class ClassificationServiceImpl implements ClassificationService {
           e.type == DioExceptionType.connectionError) {
         throw const ClassificationApiException(
           code: 'NETWORK_ERROR',
-          message:
-              'Unable to reach the classification server. Please check your connection and try again.',
+          message: 'Unable to reach the classification server. Please check your connection and try again.',
         );
       }
 
@@ -265,7 +277,8 @@ class ClassificationServiceImpl implements ClassificationService {
 
       throw ClassificationApiException(
         code: 'REQUEST_FAILED',
-        message: 'Classification request failed (${statusCode ?? 'network error'}).',
+        message:
+            'Classification request failed (${statusCode ?? 'network error'}).',
         statusCode: statusCode,
       );
     }
@@ -278,8 +291,10 @@ class ClassificationServiceImpl implements ClassificationService {
     if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
       final list = (response.data['history'] as List<dynamic>? ?? []);
       return list
-          .map((item) =>
-              ClassificationResult.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) =>
+                ClassificationResult.fromJson(item as Map<String, dynamic>),
+          )
           .toList();
     }
 
@@ -293,11 +308,33 @@ class ClassificationServiceImpl implements ClassificationService {
       throw Exception('Failed to delete scan record.');
     }
   }
+
+  @override
+  Future<List<int>> bulkDeleteScans(List<int> scanIds) async {
+    if (scanIds.isEmpty) return [];
+    try {
+      final response = await _dio.delete(
+        ApiEndpoints.historyBulkDelete,
+        data: {'scan_ids': scanIds},
+      );
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        final list = (response.data['deleted_ids'] as List<dynamic>? ?? []);
+        return list.map((e) => (e as num).toInt()).toList();
+      }
+      return scanIds;
+    } on DioException {
+      rethrow;
+    }
+  }
 }
+
 
 final classificationServiceProvider = Provider<ClassificationService>((ref) {
   final dio = ref.watch(apiClientProvider);
-  return ClassificationServiceImpl(dio);
+  final isGuest = ref.watch(
+    authControllerProvider.select((state) => state.isGuest),
+  );
+  return ClassificationServiceImpl(dio, guestRequest: isGuest);
 });
 
 final classificationRepositoryProvider = classificationServiceProvider;

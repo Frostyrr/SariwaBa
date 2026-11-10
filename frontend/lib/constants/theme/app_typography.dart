@@ -6,6 +6,7 @@ import 'app_colors.dart';
 /// with Fredoka retained exclusively for the SariwaBa brand wordmark/logo.
 class AppTypography {
   static const String fontFamily = 'Geist';
+  static const double defaultLetterSpacing = -0.25;
 
   // Desktop & Mobile Hero Headlines (Geist)
   static TextStyle get heroHeadlineDesktop => const TextStyle(
@@ -13,7 +14,7 @@ class AppTypography {
         fontSize: 48,
         fontWeight: FontWeight.w600,
         height: 1.1,
-        letterSpacing: -1.5,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -22,7 +23,7 @@ class AppTypography {
         fontSize: 32,
         fontWeight: FontWeight.w600,
         height: 1.15,
-        letterSpacing: -0.8,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -32,7 +33,7 @@ class AppTypography {
         fontSize: 36,
         fontWeight: FontWeight.w600,
         height: 1.15,
-        letterSpacing: -0.8,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -40,7 +41,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 26,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -48,7 +49,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.3,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -56,7 +57,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.2,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -66,6 +67,7 @@ class AppTypography {
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 1.5,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -74,6 +76,7 @@ class AppTypography {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.45,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
       );
 
@@ -82,6 +85,7 @@ class AppTypography {
         fontSize: 15.5,
         fontWeight: FontWeight.w400,
         height: 1.5,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
       );
 
@@ -90,7 +94,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 26,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.6,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -98,6 +102,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w400,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
       );
 
@@ -106,7 +111,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 15,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.2,
+        letterSpacing: defaultLetterSpacing,
         color: Colors.white,
       );
 
@@ -114,7 +119,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 14.5,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.2,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -123,6 +128,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 13.5,
         fontWeight: FontWeight.w400,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
       );
 
@@ -130,6 +136,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 13.5,
         fontWeight: FontWeight.w600,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.brandLight,
       );
 
@@ -138,6 +145,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w400,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textMutedLight,
       );
 
@@ -145,6 +153,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 13.5,
         fontWeight: FontWeight.w600,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -152,7 +161,7 @@ class AppTypography {
   static TextStyle get brandLogo => GoogleFonts.fredoka(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
@@ -160,6 +169,7 @@ class AppTypography {
   static TextStyle get monoMetric => GoogleFonts.jetBrainsMono(
         fontSize: 13,
         fontWeight: FontWeight.w600,
+        letterSpacing: defaultLetterSpacing,
         color: SariwaColors.brandLight,
       );
 }

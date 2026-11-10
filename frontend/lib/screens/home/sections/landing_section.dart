@@ -97,6 +97,7 @@ class LandingSection extends StatelessWidget {
                                     child: Text(
                                       'Guest Evaluation Mode',
                                       style: TextStyle(
+                                        letterSpacing: -0.25,
                                         fontFamily: AppTypography.fontFamily,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -110,6 +111,7 @@ class LandingSection extends StatelessWidget {
                               const Text(
                                 'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
                                 style: TextStyle(
+                                  letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 12.5,
                                   color: Color(0xFF64748B),
@@ -169,6 +171,7 @@ class LandingSection extends StatelessWidget {
                                   Text(
                                     'Guest Evaluation Mode',
                                     style: TextStyle(
+                                      letterSpacing: -0.25,
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -179,6 +182,7 @@ class LandingSection extends StatelessWidget {
                                   Text(
                                     'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
                                     style: TextStyle(
+                                      letterSpacing: -0.25,
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 12.5,
                                       color: Color(0xFF64748B),

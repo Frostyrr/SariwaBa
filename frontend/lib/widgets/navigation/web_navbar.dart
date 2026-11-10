@@ -280,6 +280,7 @@ class WebNavbar extends StatelessWidget {
                     Text(
                       currentUser.displayName,
                       style: const TextStyle(
+                        letterSpacing: -0.25,
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
                         color: SariwaColors.textPrimaryDark,
@@ -290,6 +291,7 @@ class WebNavbar extends StatelessWidget {
                     Text(
                       currentUser.email,
                       style: const TextStyle(
+                        letterSpacing: -0.25,
                         fontSize: 11.5,
                         color: SariwaColors.textSecondaryDark,
                       ),
@@ -313,6 +315,7 @@ class WebNavbar extends StatelessWidget {
               Text(
                 'Dashboard',
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -331,6 +334,7 @@ class WebNavbar extends StatelessWidget {
               Text(
                 'Home Page',
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -350,6 +354,7 @@ class WebNavbar extends StatelessWidget {
               Text(
                 'Sign out',
                 style: TextStyle(
+                  letterSpacing: -0.25,
                   color: SariwaColors.statusSpoiled,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -384,6 +389,7 @@ class WebNavbar extends StatelessWidget {
                 Text(
                   currentUser.displayName.split(' ').first,
                   style: TextStyle(
+                    letterSpacing: -0.25,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: isLight
@@ -445,6 +451,7 @@ class WebNavbar extends StatelessWidget {
         child: Text(
           initial,
           style: TextStyle(
+            letterSpacing: -0.25,
             color: Colors.white,
             fontSize: size * 0.45,
             fontWeight: FontWeight.w600,

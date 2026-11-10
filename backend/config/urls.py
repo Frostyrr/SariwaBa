@@ -26,7 +26,7 @@ from drf_spectacular.views import (SpectacularAPIView, SpectacularSwaggerView,)
 
 from authentication.views import profile
 
-from classification.views import list_history, history_detail
+from classification.views import list_history, history_detail, bulk_delete_history
 
 def health_check(request):
     return JsonResponse({
@@ -54,6 +54,7 @@ urlpatterns = [
 
     # Direct History routes (/api/v1/history/...)
     path('api/v1/history/', list_history, name='history-list-root'),
+    path('api/v1/history/bulk/', bulk_delete_history, name='history-bulk-delete-root'),
     path('api/v1/history/<int:scan_id>/', history_detail, name='history-detail-root'),
 ]
 

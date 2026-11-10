@@ -33,8 +33,32 @@ class SariwaColors {
   // Semantic Freshness Classification Tiers
   static const Color statusFresh = Color(0xFF10B981);     // Emerald Green: Sariwa
   static const Color statusModerate = Color(0xFFF59E0B);  // Amber Gold: Katamtaman
-  static const Color statusSpoiled = Color(0xFFEF4444);   // Coral Red: Hindi Sariwa
+  static const Color statusSpoiled = Color(0xFFDC2626);   // Primary Not Fresh red: #DC2626
   static const Color statusInfo = Color(0xFF06B6D4);      // Cyan: Scanning / Info
+
+  // Light Mode Not Fresh Semantic Design Tokens
+  static const Color notFreshPrimary = Color(0xFFDC2626);    // Primary Not Fresh red: #DC2626
+  static const Color notFreshText = Color(0xFFB91C1C);       // Strong red text: #B91C1C
+  static const Color notFreshIconBg = Color(0xFFFEF2F2);     // Icon background: #FEF2F2
+  static const Color notFreshBorder = Color(0xFFFECACA);     // Card border: #FECACA
+  static const Color notFreshTrack = Color(0xFFFEE2E2);      // Progress bar track: #FEE2E2
+  static const Color notFreshCardBg = Color(0xFFFFFFFF);     // Card background: #FFFFFF
+
+  // Light Mode Fresh (Sariwa) Semantic Design Tokens
+  static const Color freshPrimary = Color(0xFF168077);       // Primary brand teal
+  static const Color freshText = Color(0xFF15803D);          // Strong green text: #15803D
+  static const Color freshIconBg = Color(0xFFF0FDF4);        // Icon background: #F0FDF4
+  static const Color freshBorder = Color(0xFFBBF7D0);        // Card border: #BBF7D0
+  static const Color freshTrack = Color(0xFFDCFCE7);         // Progress bar track: #DCFCE7
+  static const Color freshCardBg = Color(0xFFFFFFFF);        // Card background: #FFFFFF
+
+  // Dark Mode Not Fresh Semantic Tokens (for theme-aware contrast)
+  static const Color notFreshPrimaryDark = Color(0xFFF87171); // Soft accessible red on dark
+  static const Color notFreshTextDark = Color(0xFFFECACA);    // Accessible light red on dark
+  static const Color notFreshIconBgDark = Color(0x33DC2626);  // Translucent red icon container
+  static const Color notFreshBorderDark = Color(0x66DC2626);  // Subtle red border
+  static const Color notFreshTrackDark = Color(0x26DC2626);   // Muted track
+  static const Color notFreshCardBgDark = Color(0xFF1E293B);  // Dark slate card surface
 
   // Timber Design System 2.0 Semantic Tokens (Mapped to SariwaBa Palette)
   static const Color colorPrimary = brandPrimary;               // #168077
@@ -77,4 +101,3 @@ class SariwaColors {
 
 // Retain AppColors for backward compatibility across components
 typedef AppColors = SariwaColors;
-

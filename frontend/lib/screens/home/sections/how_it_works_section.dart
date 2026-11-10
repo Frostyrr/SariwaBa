@@ -47,7 +47,7 @@ class HowItWorksSection extends StatelessWidget {
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
+                      letterSpacing: -0.25,
                       color: SariwaColors.brandPrimaryDark,
                     ),
                   ),
@@ -67,7 +67,7 @@ class HowItWorksSection extends StatelessWidget {
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -1.0,
+                    letterSpacing: -0.25,
                     color: const Color(0xFF0A2229),
                   ),
                 ),
@@ -85,6 +85,7 @@ class HowItWorksSection extends StatelessWidget {
                     'Upload a fish image to receive a Fresh or Not Fresh prediction and its model confidence.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      letterSpacing: -0.25,
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 16,
                       height: 1.5,
@@ -218,6 +219,7 @@ class HowItWorksSection extends StatelessWidget {
                       child: Text(
                         title,
                         style: TextStyle(
+                          letterSpacing: -0.25,
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 18.5,
                           fontWeight: FontWeight.w600,
@@ -231,6 +233,7 @@ class HowItWorksSection extends StatelessWidget {
                 Text(
                   description,
                   style: TextStyle(
+                    letterSpacing: -0.25,
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 14,
                     height: 1.55,

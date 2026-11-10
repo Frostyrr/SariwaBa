@@ -102,13 +102,14 @@ class FloatingTopbar extends StatelessWidget {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
                                   color: SariwaColors.colorPrimary,
-                                  letterSpacing: -0.3,
+                                  letterSpacing: -0.25,
                                 ),
                               ),
                               if (!isCompact)
                                 Text(
                                   'Quality Operations',
                                   style: TextStyle(
+                                    letterSpacing: -0.25,
                                     fontFamily: AppTypography.fontFamily,
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w500,
@@ -153,6 +154,7 @@ class FloatingTopbar extends StatelessWidget {
                           Text(
                             'PostgreSQL Active',
                             style: TextStyle(
+                              letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -225,6 +227,7 @@ class FloatingTopbar extends StatelessWidget {
                                     child: Text(
                                       alertCount > 9 ? '9+' : '$alertCount',
                                       style: const TextStyle(
+                                        letterSpacing: -0.25,
                                         fontFamily: AppTypography.fontFamily,
                                         fontSize: 9.5,
                                         fontWeight: FontWeight.w800,
@@ -278,6 +281,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               user?.displayName ?? 'Quality Inspector',
                               style: const TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -287,6 +291,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               user?.email ?? 'active_session@sariwaba.gov',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 11,
                                 color: SariwaColors.colorMutedInk,
@@ -309,6 +314,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               'PNS 67:2008 Protocol',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13,
                               ),
@@ -329,6 +335,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               'Mobile App & Models',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13,
                               ),
@@ -349,6 +356,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               'Public Home Page',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13,
                               ),
@@ -370,6 +378,7 @@ class FloatingTopbar extends StatelessWidget {
                             Text(
                               'Sign Out',
                               style: TextStyle(
+                                letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -415,6 +424,7 @@ class FloatingTopbar extends StatelessWidget {
                               child: Text(
                                 initials,
                                 style: const TextStyle(
+                                  letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
@@ -427,6 +437,7 @@ class FloatingTopbar extends StatelessWidget {
                           Text(
                             displayName,
                             style: const TextStyle(
+                              letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,

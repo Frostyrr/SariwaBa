@@ -1,4 +1,6 @@
+import 'package:frontend/constants/theme/app_colors.dart';
 import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -138,9 +140,16 @@ class FakeClassificationRepository implements ClassificationRepository {
   Future<void> deleteScan(int scanId) async {
     mockHistory.removeWhere((s) => s.scanId == scanId);
   }
+
+  @override
+  Future<List<int>> bulkDeleteScans(List<int> scanIds) async {
+    mockHistory.removeWhere((s) => scanIds.contains(s.scanId));
+    return scanIds;
+  }
 }
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   testWidgets(
       'Desktop web landing renders navbar, clean hero, and navigates to auth page',
       (WidgetTester tester) async {
@@ -265,7 +274,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back, Juan!'), findsOneWidget);
-    expect(find.text('Live Freshness Inspection'), findsOneWidget);
+    expect(find.text('Freshness Inspection'), findsOneWidget);
     expect(find.text('Audit History'), findsOneWidget);
     expect(find.text('Log in'), findsNothing);
     expect(find.text('Juan'), findsOneWidget);
@@ -463,7 +472,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Assessment scope: Tilapia'), findsOneWidget);
-    expect(find.text('Model Confidence: 94.2%'), findsOneWidget);
+    expect(find.text('Model Confidence'), findsOneWidget);
+    expect(find.text('94.2%'), findsWidgets);
     expect(
       find.text('Confidence is a model prediction score, not a freshness percentage.'),
       findsOneWidget,
@@ -1144,7 +1154,11 @@ void main() {
     await tester.tap(find.byKey(const Key('validate_and_classify_button')));
     await tester.pumpAndSettle();
 
-    // Pressing 'Validate & Classify Freshness' automatically accepted the crop position, closed the modal, and classified!
+    // Pressing 'Validate & Classify Freshness' automatically accepts crop position and displays freshness results in the modal
+    expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+    expect(find.byKey(const Key('modal_classification_result_view')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('modal_result_done_button')));
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
     expect(find.byKey(const Key('confirmed_region_preview')), findsOneWidget);
     expect(find.byKey(const Key('classification_result_view')), findsOneWidget);
@@ -1157,4 +1171,233 @@ void main() {
 
     expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
   });
+
+  testWidgets(
+    'UI/UX: image uploading state, in-modal classification progress, and modal freshness results with optimized blur',
+    (tester) async {
+      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final fakeRepo = FakeAuthRepository()
+        ..mockUser = const UserModel(
+          id: 'usr-202',
+          email: 'performance@sariwaba.ph',
+          firstName: 'Marco',
+          lastName: 'Santos',
+          username: 'marcosantos',
+        );
+      final fakeGoogleService = FakeGoogleSignInService();
+      final fakeClassRepo = FakeClassificationRepository()
+        ..resultToReturn = const ClassificationResult(
+          scanId: 888,
+          label: 'Fresh',
+          confidence: 0.94,
+          regionType: 'eye',
+          species: 'Tilapia',
+          saved: true,
+        );
+
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(fakeRepo as dynamic),
+          googleSignInServiceProvider
+              .overrideWithValue(fakeGoogleService as dynamic),
+          classificationRepositoryProvider
+              .overrideWithValue(fakeClassRepo as dynamic),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const SariwaBaApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final controller =
+          container.read(classificationControllerProvider.notifier);
+
+      // 1. Verify Image Uploading Loading State
+      controller.setUploadingImage(true);
+      await tester.pump();
+
+      expect(find.byKey(const Key('image_uploading_state')), findsOneWidget);
+      expect(find.text('Uploading & Processing Photo...'), findsOneWidget);
+
+      // 2. Complete image selection -> Opens ROI modal with optimized blur
+      controller.setSelectedImage(
+        bytes: kValidPngBytes,
+        filename: 'fresh_tilapia.png',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('image_uploading_state')), findsNothing);
+      expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+
+      // 3. Trigger classification with pending completer to inspect in-modal classifying state
+      final completer = Completer<ClassificationResult>();
+      fakeClassRepo.pendingCompleter = completer;
+
+      await tester.tap(find.byKey(const Key('validate_and_classify_button')));
+      await tester.pump();
+
+      expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+      expect(find.byKey(const Key('modal_classifying_status')), findsOneWidget);
+      expect(find.text('Evaluating Tilapia Freshness...'), findsOneWidget);
+
+      // 4. Resolve classification -> Modal directly presents Freshness Result
+      completer.complete(fakeClassRepo.resultToReturn);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+      expect(
+        find.byKey(const Key('modal_classification_result_view')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('modal_result_done_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('modal_result_edit_crop_button')),
+        findsOneWidget,
+      );
+
+      // 5. Test in-modal 'Adjust Crop' clears result and returns to crop reticle without closing modal
+      await tester.tap(find.byKey(const Key('modal_result_edit_crop_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
+      expect(
+        find.byKey(const Key('modal_classification_result_view')),
+        findsNothing,
+      );
+      expect(find.byKey(const Key('interactive_crop_viewport')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Audit History supports bulk selection, select all, bulk deletion, and high-contrast visible delete dialogs with optimized blur',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final fakeRepo = FakeAuthRepository()
+        ..mockUser = const UserModel(
+          id: 'usr-bulk-1',
+          email: 'bulk@sariwaba.ph',
+          firstName: 'Juan',
+          lastName: 'Dela Cruz',
+        );
+
+      final scan1 = ClassificationResult(
+        scanId: 51,
+        label: 'Fresh',
+        confidence: 0.94,
+        regionType: 'eye',
+        createdAt: DateTime(2026, 11, 10, 10, 30),
+      );
+      final scan2 = ClassificationResult(
+        scanId: 52,
+        label: 'Not Fresh',
+        confidence: 0.88,
+        regionType: 'gill',
+        createdAt: DateTime(2026, 11, 10, 11, 15),
+      );
+      final scan3 = ClassificationResult(
+        scanId: 53,
+        label: 'Fresh',
+        confidence: 0.91,
+        regionType: 'eye',
+        createdAt: DateTime(2026, 11, 10, 12, 00),
+      );
+
+      final fakeClassRepo = FakeClassificationRepository()
+        ..mockHistory = [scan1, scan2, scan3];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(fakeRepo),
+            classificationRepositoryProvider.overrideWithValue(fakeClassRepo),
+          ],
+          child: const SariwaBaApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // 1. Audit History shows 3 saved scans
+      expect(find.text('Audit History'), findsOneWidget);
+      expect(find.text('3 saved scans'), findsOneWidget);
+
+      // 2. Test Single Delete Dialog visibility & high contrast text
+      await tester.tap(find.byTooltip('Delete scan').first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete Scan Record?'), findsOneWidget);
+      expect(
+        find.text(
+          'Are you sure you want to permanently delete Scan #51 from your history?',
+        ),
+        findsOneWidget,
+      );
+
+      final titleTextWidget = tester.widget<Text>(find.text('Delete Scan Record?'));
+      expect(titleTextWidget.style?.color, SariwaColors.textPrimaryDark);
+
+      final contentTextWidget = tester.widget<Text>(
+        find.text(
+          'Are you sure you want to permanently delete Scan #51 from your history?',
+        ),
+      );
+      expect(contentTextWidget.style?.color, SariwaColors.textSecondaryDark);
+
+      // Cancel single delete
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete Scan Record?'), findsNothing);
+      expect(find.text('3 saved scans'), findsOneWidget);
+
+      // 3. Enter Selection Mode
+      await tester.tap(find.byKey(const Key('history_toggle_selection_mode_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('history_bulk_action_bar')), findsOneWidget);
+      expect(find.text('0 of 3 selected'), findsOneWidget);
+
+      // 4. Select item 51 individually via its checkbox
+      await tester.tap(find.byKey(const Key('history_item_checkbox_51')));
+      await tester.pumpAndSettle();
+      expect(find.text('1 of 3 selected'), findsOneWidget);
+
+      // 5. Select All
+      await tester.tap(find.byKey(const Key('history_select_all_button')));
+      await tester.pumpAndSettle();
+      expect(find.text('3 of 3 selected'), findsOneWidget);
+      expect(find.text('Deselect All'), findsOneWidget);
+
+      // 6. Bulk Delete
+      await tester.tap(find.byKey(const Key('history_bulk_delete_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete 3 Scan Records?'), findsOneWidget);
+      expect(
+        find.text(
+          'Are you sure you want to permanently delete 3 selected scans from your history?',
+        ),
+        findsOneWidget,
+      );
+
+      // Confirm bulk deletion
+      await tester.tap(find.byKey(const Key('confirm_bulk_delete_button')));
+      await tester.pumpAndSettle();
+
+      // All scans deleted -> empty state displayed
+      expect(find.text('No classification history'), findsOneWidget);
+      expect(find.text('3 scan records permanently removed.'), findsOneWidget);
+    },
+  );
 }

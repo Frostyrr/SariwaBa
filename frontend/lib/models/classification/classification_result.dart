@@ -186,7 +186,32 @@ class ClassificationResult {
 
   Color get statusColor {
     if (isFresh) return SariwaColors.statusFresh;
-    return SariwaColors.statusSpoiled;
+    return SariwaColors.notFreshPrimary;
+  }
+
+  Color get textColor {
+    if (isFresh) return SariwaColors.freshText;
+    return SariwaColors.notFreshText;
+  }
+
+  Color get iconBgColor {
+    if (isFresh) return SariwaColors.freshIconBg;
+    return SariwaColors.notFreshIconBg;
+  }
+
+  Color get borderColor {
+    if (isFresh) return SariwaColors.freshBorder;
+    return SariwaColors.notFreshBorder;
+  }
+
+  Color get trackColor {
+    if (isFresh) return SariwaColors.freshTrack;
+    return SariwaColors.notFreshTrack;
+  }
+
+  Color get cardBgColor {
+    if (isFresh) return SariwaColors.freshCardBg;
+    return SariwaColors.notFreshCardBg;
   }
 
   String get formattedConfidence => '${(confidence * 100).toStringAsFixed(1)}%';

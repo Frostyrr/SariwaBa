@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../models/classification/classification_result.dart';
 
 class GuestHistoryCache {
@@ -11,7 +13,7 @@ class GuestHistoryCache {
   List<ClassificationResult> _memoryCache = [];
 
   GuestHistoryCache({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   Future<List<ClassificationResult>> getCachedHistory() async {
     try {
@@ -29,16 +31,25 @@ class GuestHistoryCache {
     return List<ClassificationResult>.unmodifiable(_memoryCache);
   }
 
-  Future<List<ClassificationResult>> addScan(ClassificationResult result) async {
+  Future<List<ClassificationResult>> addScan(
+    ClassificationResult result,
+  ) async {
     await getCachedHistory();
 
-    final localId = result.scanId ??
-        -(DateTime.now().millisecondsSinceEpoch % 1000000);
+    var localId = -DateTime.now().microsecondsSinceEpoch;
+    while (_memoryCache.any((scan) => scan.scanId == localId)) {
+      localId--;
+    }
     final cachedItem = ClassificationResult(
       scanId: localId,
       label: result.label,
       confidence: result.confidence,
       saved: false,
+      regionType: result.regionType,
+      species: result.species,
+      disclaimer: result.disclaimer,
+      modelVersion: result.modelVersion,
+      regionVerified: result.regionVerified,
       imageUrl: result.imageUrl,
       createdAt: result.createdAt ?? DateTime.now(),
     );

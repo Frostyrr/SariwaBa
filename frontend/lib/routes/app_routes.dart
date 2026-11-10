@@ -94,11 +94,11 @@ class AppRoutes {
       case AuthViewStatus.initializing:
         return splash;
       case AuthViewStatus.authenticated:
+      case AuthViewStatus.guestMode:
         return dashboard;
       case AuthViewStatus.landing:
       case AuthViewStatus.features:
       case AuthViewStatus.howItWorks:
-      case AuthViewStatus.guestMode:
         return home;
       case AuthViewStatus.downloads:
         return downloads;

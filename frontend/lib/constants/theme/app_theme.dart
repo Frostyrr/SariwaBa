@@ -5,12 +5,37 @@ import 'app_typography.dart';
 
 /// SariwaBa Glassmorphism & Squircle Theme
 class AppTheme {
+  static const TextStyle _trackingStyle = TextStyle(
+    fontFamily: AppTypography.fontFamily,
+    letterSpacing: AppTypography.defaultLetterSpacing,
+  );
+
   static ThemeData get darkOceanTheme {
+    final baseTextTheme = ThemeData.dark().textTheme.apply(
+      fontFamily: AppTypography.fontFamily,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       fontFamily: AppTypography.fontFamily,
       scaffoldBackgroundColor: SariwaColors.bgAbyssDark,
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: baseTextTheme.displayLarge?.merge(_trackingStyle),
+        displayMedium: baseTextTheme.displayMedium?.merge(_trackingStyle),
+        displaySmall: baseTextTheme.displaySmall?.merge(_trackingStyle),
+        headlineLarge: baseTextTheme.headlineLarge?.merge(_trackingStyle),
+        headlineMedium: baseTextTheme.headlineMedium?.merge(_trackingStyle),
+        headlineSmall: baseTextTheme.headlineSmall?.merge(_trackingStyle),
+        titleLarge: baseTextTheme.titleLarge?.merge(_trackingStyle),
+        titleMedium: baseTextTheme.titleMedium?.merge(_trackingStyle),
+        titleSmall: baseTextTheme.titleSmall?.merge(_trackingStyle),
+        bodyLarge: baseTextTheme.bodyLarge?.merge(_trackingStyle),
+        bodyMedium: baseTextTheme.bodyMedium?.merge(_trackingStyle),
+        bodySmall: baseTextTheme.bodySmall?.merge(_trackingStyle),
+        labelLarge: baseTextTheme.labelLarge?.merge(_trackingStyle),
+        labelMedium: baseTextTheme.labelMedium?.merge(_trackingStyle),
+        labelSmall: baseTextTheme.labelSmall?.merge(_trackingStyle),
+      ),
       colorScheme: const ColorScheme.dark(
         primary: SariwaColors.brandPrimary,
         secondary: SariwaColors.brandGlow,
@@ -43,6 +68,28 @@ class AppTheme {
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadius.circular(40), // Smooth squircle
           side: const BorderSide(color: SariwaColors.borderGlass, width: 1.5),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        titleTextStyle: const TextStyle(
+          fontFamily: AppTypography.fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: SariwaColors.textPrimaryDark,
+          letterSpacing: AppTypography.defaultLetterSpacing,
+        ),
+        contentTextStyle: const TextStyle(
+          fontFamily: AppTypography.fontFamily,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: SariwaColors.textSecondaryDark,
+          letterSpacing: AppTypography.defaultLetterSpacing,
+          height: 1.45,
         ),
       ),
     );

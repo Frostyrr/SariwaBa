@@ -11,5 +11,6 @@ class ApiEndpoints {
   // Fish Freshness Classification & Audit History
   static const String classify = '/api/v1/classify/';
   static const String history = '/api/v1/history/';
+  static const String historyBulkDelete = '/api/v1/history/bulk/';
   static String historyDetail(int scanId) => '/api/v1/history/$scanId/';
 }

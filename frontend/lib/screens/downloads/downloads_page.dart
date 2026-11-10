@@ -76,7 +76,7 @@ class DownloadsPage extends ConsumerWidget {
                                     style: AppTypography.caption.copyWith(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      letterSpacing: 1.2,
+                                      letterSpacing: -0.25,
                                       color: SariwaColors.brandGlow,
                                     ),
                                   ),
@@ -93,7 +93,7 @@ class DownloadsPage extends ConsumerWidget {
                                   style: AppTypography.displayLarge.copyWith(
                                     fontSize: 46,
                                     fontWeight: FontWeight.w600,
-                                    letterSpacing: -1.2,
+                                    letterSpacing: -0.25,
                                   ),
                                 ),
                               ),
