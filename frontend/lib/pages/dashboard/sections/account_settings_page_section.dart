@@ -1,3 +1,4 @@
+import '../../../widgets/common/user_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../constants/theme/app_colors.dart';
@@ -77,7 +78,7 @@ class _AccountSettingsPageSectionState
           ],
         ),
         content: const Text(
-          'This will permanently delete all your past classification scan records and uploaded images from our servers.\n\nYour account and preferences will remain active. This action cannot be undone.',
+          'This permanently deletes your saved scans and their photos. Your account stays active. This cannot be undone.',
           style: TextStyle(
             fontFamily: 'Geist',
             fontSize: 13,
@@ -111,7 +112,7 @@ class _AccountSettingsPageSectionState
       try {
         await widget.classificationController.clearAllHistory();
         if (mounted) {
-          _showFeedback('All classification history has been permanently removed.');
+          _showFeedback('Your scan history has been deleted.');
         }
       } catch (e) {
         if (mounted) {
@@ -167,7 +168,7 @@ class _AccountSettingsPageSectionState
             ),
             SizedBox(height: 10),
             Text(
-              '• All your personal data and classification history will be wiped.\n• Your active session tokens will be permanently revoked.\n• Deleting your SariwaBa? account does NOT delete or affect your Google account.\n• This action is irreversible.',
+              'Your account and saved scans will be deleted, and you will be signed out. Your Google account will not be deleted. This cannot be undone.',
               style: TextStyle(
                 fontFamily: 'Geist',
                 fontSize: 12.5,
@@ -207,7 +208,7 @@ class _AccountSettingsPageSectionState
         if (mounted) {
           final errorMsg = e.toString().replaceFirst('Exception: ', '');
           _showFeedback(errorMsg, isError: true);
-          _showErrorDialog('Account Deletion Prohibited', errorMsg);
+          _showErrorDialog('Unable to Delete Account', errorMsg);
         }
       } finally {
         if (mounted) {
@@ -361,7 +362,7 @@ class _AccountSettingsPageSectionState
         ),
         const SizedBox(height: 6),
         const Text(
-          'Manage your profile credentials, data retention policies, and account security.',
+          'Manage your profile, saved scans, and account.',
           style: TextStyle(
             fontFamily: 'Geist',
             fontSize: 14,
@@ -456,7 +457,7 @@ class _AccountSettingsPageSectionState
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'You are currently in guest mode. Scans are saved on this device only. Sign in with Google to cloud-sync your history.',
+                  'Guest scans stay on this device. Sign in with Google to save future scans to your account.',
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 12.5,
@@ -515,7 +516,7 @@ class _AccountSettingsPageSectionState
           ),
           const SizedBox(height: 4),
           const Text(
-            'Your identity details verified through Google Single Sign-On.',
+            'Your name and photo come from your Google account.',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 12.5,
@@ -527,26 +528,7 @@ class _AccountSettingsPageSectionState
 
           Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: SariwaColors.brandPrimary.withValues(alpha: 0.15),
-                backgroundImage: widget.user?.profilePicture != null &&
-                        widget.user!.profilePicture!.isNotEmpty
-                    ? NetworkImage(widget.user!.profilePicture!)
-                    : null,
-                child: widget.user?.profilePicture == null ||
-                        widget.user!.profilePicture!.isEmpty
-                    ? Text(
-                        displayName.isNotEmpty ? displayName[0].toUpperCase() : 'S',
-                        style: const TextStyle(
-                          fontFamily: 'Geist',
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: SariwaColors.brandPrimary,
-                        ),
-                      )
-                    : null,
-              ),
+              UserAvatar(user: widget.user, radius: 28),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -634,7 +616,7 @@ class _AccountSettingsPageSectionState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Privacy & Data Handling',
+            'Privacy & Saved Scans',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 16,
@@ -644,7 +626,7 @@ class _AccountSettingsPageSectionState
           ),
           const SizedBox(height: 4),
           const Text(
-            'Control your stored inspection audit records and review data protection terms.',
+            'Review or delete your saved scans.',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 12.5,
@@ -668,7 +650,7 @@ class _AccountSettingsPageSectionState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'End-to-End Encryption & Zero Credential Storage',
+                      'Your photos and account',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13.5,
@@ -678,7 +660,7 @@ class _AccountSettingsPageSectionState
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'All uploads and inference results are transferred via TLS 1.3 encryption. SariwaBa? never stores plain passwords or raw Google OAuth tokens. Your classification images are preserved solely for your audit trail.',
+                      'Signed-in scans are saved to your account. You can delete them below. Guest history stays on this device.',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 12,
@@ -704,7 +686,7 @@ class _AccountSettingsPageSectionState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Clear Classification History',
+                      'Clear Scan History',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13.5,
@@ -771,7 +753,7 @@ class _AccountSettingsPageSectionState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Sessions & Security',
+            'Sign-in & Security',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 16,
@@ -781,7 +763,7 @@ class _AccountSettingsPageSectionState
           ),
           const SizedBox(height: 4),
           const Text(
-            'Verified identity providers and authenticated session state.',
+            'You sign in using your Google account.',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 12.5,
@@ -813,7 +795,7 @@ class _AccountSettingsPageSectionState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Google Single Sign-On (OAuth 2.0)',
+                      'Google sign-in',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13.5,
@@ -823,7 +805,7 @@ class _AccountSettingsPageSectionState
                     ),
                     SizedBox(height: 2),
                     Text(
-                      'Identity validated via Google Identity Services. Cryptographic JWT authentication active.',
+                      'Manage your Google password and sign-in options in your Google account.',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 12,
@@ -889,7 +871,7 @@ class _AccountSettingsPageSectionState
           ),
           const SizedBox(height: 6),
           const Text(
-            'Irreversible and destructive account actions. Please proceed with caution.',
+            'Deleting your account is permanent.',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 12.5,
@@ -916,7 +898,7 @@ class _AccountSettingsPageSectionState
                     ),
                     SizedBox(height: 3),
                     Text(
-                      'Permanently remove your account profile, role assignments, and all linked classification audits. This cannot be undone.',
+                      'Delete your account and all saved scans. This cannot be undone.',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 12,

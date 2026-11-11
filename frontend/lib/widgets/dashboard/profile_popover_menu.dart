@@ -1,3 +1,4 @@
+import '../common/user_avatar.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
@@ -130,7 +131,6 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
   @override
   Widget build(BuildContext context) {
     final displayName = widget.user?.displayName ?? 'Evaluator';
-    final firstName = displayName.split(' ').first;
     final email = widget.user?.email ?? 'Guest Session';
 
     if (widget.isCollapsed) {
@@ -160,27 +160,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
                     width: 1.5,
                   ),
                 ),
-                child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor:
-                      SariwaColors.brandPrimary.withValues(alpha: 0.14),
-                  backgroundImage: widget.user?.profilePicture != null &&
-                          widget.user!.profilePicture!.isNotEmpty
-                      ? NetworkImage(widget.user!.profilePicture!)
-                      : null,
-                  child: widget.user?.profilePicture == null ||
-                          widget.user!.profilePicture!.isEmpty
-                      ? Text(
-                          firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: SariwaColors.brandPrimary,
-                          ),
-                        )
-                      : null,
-                ),
+                child: UserAvatar(user: widget.user, radius: 18),
               ),
             ),
           ),
@@ -216,27 +196,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
           ),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 17,
-                backgroundColor:
-                    SariwaColors.brandPrimary.withValues(alpha: 0.14),
-                backgroundImage: widget.user?.profilePicture != null &&
-                        widget.user!.profilePicture!.isNotEmpty
-                    ? NetworkImage(widget.user!.profilePicture!)
-                    : null,
-                child: widget.user?.profilePicture == null ||
-                        widget.user!.profilePicture!.isEmpty
-                    ? Text(
-                        firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: AppTypography.defaultLetterSpacing,
-                          color: SariwaColors.brandPrimary,
-                        ),
-                      )
-                    : null,
-              ),
+              UserAvatar(user: widget.user, radius: 17),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

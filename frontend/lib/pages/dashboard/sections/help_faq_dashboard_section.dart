@@ -124,7 +124,7 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
                 ),
               ),
               child: const Text(
-                'KNOWLEDGE BASE & SUPPORT',
+                'HELP & SUPPORT',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11,
@@ -149,7 +149,7 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
         ),
         const SizedBox(height: 6),
         const Text(
-          'Find answers regarding image requirements, AI classification metrics, account data retention, and troubleshooting.',
+          'Get help with photos, results, your account, and saved scans.',
           style: TextStyle(
             fontFamily: 'Geist',
             fontSize: 14,

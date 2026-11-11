@@ -571,45 +571,63 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       children: [
         // Search & Filter Bar
         FrostedGlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const Icon(
+                CupertinoIcons.search,
+                size: 16,
+                color: Color(0xFF64748B),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: _userSearchCtrl,
-                  style: const TextStyle(fontFamily: 'Geist', fontSize: 13, color: Color(0xFF0F172A)),
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF0F172A),
+                  ),
                   cursorColor: const Color(0xFF0F766E),
                   onChanged: (val) => ctrl.searchUsers(val),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search by inspector name, email, or username...',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 13,
                       fontWeight: FontWeight.w300,
                       color: Color(0xFF94A3B8),
                     ),
-                    prefixIcon: const Icon(CupertinoIcons.search, size: 16, color: Color(0xFF64748B)),
-                    suffixIcon: _userSearchCtrl.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(CupertinoIcons.clear_circled, size: 14),
-                            onPressed: () {
-                              _userSearchCtrl.clear();
-                              ctrl.searchUsers('');
-                            },
-                          )
-                        : null,
                     border: InputBorder.none,
                     isDense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ),
+              if (_userSearchCtrl.text.isNotEmpty)
+                IconButton(
+                  icon: const Icon(CupertinoIcons.clear_circled, size: 15),
+                  color: const Color(0xFF94A3B8),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+                  onPressed: () {
+                    _userSearchCtrl.clear();
+                    ctrl.searchUsers('');
+                  },
+                ),
               const SizedBox(width: 12),
               // Filter by role
               _buildFilterDropdown(
                 value: state.selectedRoleFilter == 'admin'
                     ? 'Admins'
-                    : state.selectedRoleFilter == 'user' ? 'Inspectors' : 'All Roles',
+                    : state.selectedRoleFilter == 'user'
+                        ? 'Inspectors'
+                        : 'All Roles',
                 items: const ['All Roles', 'Admins', 'Inspectors'],
+                icon: CupertinoIcons.person_2,
                 onChanged: (val) {
                   if (val == 'All Roles') {
                     ctrl.filterUsersByRole(null);
@@ -845,7 +863,28 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     return PopupMenuButton<String>(
       icon: const Icon(CupertinoIcons.ellipsis_vertical, size: 16, color: Color(0xFF64748B)),
       tooltip: isSelf ? 'Protected Self Account' : 'Manage Inspector',
+      elevation: 12,
+      shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.12),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+      ),
+      offset: const Offset(0, 36),
       onSelected: (action) {
+        if (action == 'self_notice') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Your own administrator account is protected against self-demotion and self-suspension.',
+                style: TextStyle(fontFamily: 'Geist'),
+              ),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          return;
+        }
         if (action == 'toggle_role') {
           final newRole = user.isAdmin ? 'user' : 'admin';
           _confirmRoleChange(user, newRole, ctrl);
@@ -853,58 +892,195 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           _confirmSuspensionChange(user, !user.isSuspended, ctrl);
         }
       },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'toggle_role',
-          enabled: !isSelf,
-          child: Row(
-            children: [
-              Icon(
-                user.isAdmin ? CupertinoIcons.person : CupertinoIcons.shield,
-                size: 15,
-                color: isSelf ? Colors.grey : const Color(0xFF0F172A),
+      itemBuilder: (context) {
+        if (isSelf) {
+          return [
+            PopupMenuItem(
+              value: 'self_notice',
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F766E).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.shield_fill,
+                      size: 15,
+                      color: Color(0xFF0F766E),
+                    ),
+                  ),
+                  const SizedBox(width: 9),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Your Account (Admin)',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                        Text(
+                          'Self-demotion & suspension protected',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                user.isAdmin ? 'Demote to Inspector' : 'Promote to Admin',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w400,
-                  color: isSelf ? Colors.grey : const Color(0xFF0F172A),
+            ),
+            const PopupMenuDivider(height: 1),
+            PopupMenuItem(
+              value: 'self_notice',
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.lock_fill,
+                    size: 14,
+                    color: Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 9),
+                  const Text(
+                    'Demote to Inspector',
+                    style: TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'Locked',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'self_notice',
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.lock_fill,
+                    size: 14,
+                    color: Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 9),
+                  const Text(
+                    'Suspend Account',
+                    style: TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'Locked',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ];
+        }
+
+        return [
+          PopupMenuItem(
+            value: 'toggle_role',
+            height: 42,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(
+                  user.isAdmin ? CupertinoIcons.person_badge_minus : CupertinoIcons.shield_fill,
+                  size: 16,
+                  color: user.isAdmin ? const Color(0xFF475569) : const Color(0xFF0F766E),
                 ),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'toggle_suspension',
-          enabled: !isSelf,
-          child: Row(
-            children: [
-              Icon(
-                user.isSuspended ? CupertinoIcons.check_mark_circled : CupertinoIcons.slash_circle,
-                size: 15,
-                color: isSelf
-                    ? Colors.grey
-                    : (user.isSuspended ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                user.isSuspended ? 'Reactivate Account' : 'Suspend Account',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w400,
-                  color: isSelf
-                      ? Colors.grey
-                      : (user.isSuspended ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
+                const SizedBox(width: 10),
+                Text(
+                  user.isAdmin ? 'Demote to Inspector' : 'Promote to Admin',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: user.isAdmin ? const Color(0xFF1E293B) : const Color(0xFF0F766E),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+          const PopupMenuDivider(height: 1),
+          PopupMenuItem(
+            value: 'toggle_suspension',
+            height: 42,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(
+                  user.isSuspended ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.slash_circle_fill,
+                  size: 16,
+                  color: user.isSuspended ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  user.isSuspended ? 'Reactivate Account' : 'Suspend Account',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: user.isSuspended ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ];
+      },
     );
   }
 
@@ -1748,10 +1924,25 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         FrostedGlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const Icon(
+                CupertinoIcons.search,
+                size: 16,
+                color: Color(0xFF64748B),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: _auditSearchCtrl,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF0F172A),
+                  ),
+                  cursorColor: const Color(0xFF0F766E),
                   onChanged: (val) => ctrl.filterAudits(search: val),
                   decoration: InputDecoration(
                     hintText: 'Search audits by inspector email or name...',
@@ -1761,10 +1952,12 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       fontWeight: FontWeight.w300,
                       color: Color(0xFF94A3B8),
                     ),
-                    prefixIcon: const Icon(CupertinoIcons.search, size: 16, color: Color(0xFF64748B)),
                     suffixIcon: _auditSearchCtrl.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(CupertinoIcons.clear_circled, size: 14),
+                            icon: const Icon(CupertinoIcons.clear_circled, size: 15),
+                            color: const Color(0xFF94A3B8),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                             onPressed: () {
                               _auditSearchCtrl.clear();
                               ctrl.filterAudits(search: '');
@@ -1773,12 +1966,19 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         : null,
                     border: InputBorder.none,
                     isDense: true,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               _buildFilterDropdown(
-                value: state.auditRegionFilter ?? 'All Regions',
+                value: state.auditRegionFilter != null
+                    ? (state.auditRegionFilter == 'eye'
+                        ? 'Eye'
+                        : state.auditRegionFilter == 'gill'
+                            ? 'Gill'
+                            : state.auditRegionFilter!)
+                    : 'All Regions',
                 items: const ['All Regions', 'Eye', 'Gill'],
                 onChanged: (val) {
                   if (val == 'All Regions') {
@@ -1974,32 +2174,91 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     required String value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
+    IconData? icon,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
+    return PopupMenuButton<String>(
+      tooltip: 'Filter options',
+      elevation: 12,
+      shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.12),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          dropdownColor: const Color(0xFAFFFFFF),
-          borderRadius: BorderRadius.circular(14),
-          elevation: 8,
-          value: items.contains(value) ? value : items.first,
-          isDense: true,
-          style: const TextStyle(
-            fontFamily: 'Geist',
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            color: Color(0xFF334155),
+      offset: const Offset(0, 36),
+      onSelected: onChanged,
+      itemBuilder: (context) => items.map((i) {
+        final isSelected = i == value;
+        return PopupMenuItem<String>(
+          value: i,
+          height: 38,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? CupertinoIcons.checkmark_alt : null,
+                size: 14,
+                color: isSelected ? const Color(0xFF0F766E) : Colors.transparent,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                i,
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected
+                      ? const Color(0xFF0F766E)
+                      : const Color(0xFF1E293B),
+                ),
+              ),
+            ],
           ),
-          icon: const Icon(CupertinoIcons.chevron_down, size: 12, color: Color(0xFF64748B)),
-          items: items
-              .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-              .toList(),
-          onChanged: onChanged,
+        );
+      }).toList(),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 12, color: const Color(0xFF64748B)),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF334155),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(
+                CupertinoIcons.chevron_down,
+                size: 11,
+                color: Color(0xFF64748B),
+              ),
+            ],
+          ),
         ),
       ),
     );

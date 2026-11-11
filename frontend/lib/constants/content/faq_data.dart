@@ -21,10 +21,10 @@ class FaqData {
     'All',
     'Getting Started',
     'Image Upload and Camera',
-    'Classification Results',
+    'Results',
     'Supported Fish and Image Requirements',
-    'Accounts and Classification History',
-    'Privacy and Data Handling',
+    'Accounts and Saved Scans',
+    'Privacy',
     'Troubleshooting',
   ];
 
@@ -37,7 +37,7 @@ class FaqData {
       category: 'Getting Started',
       question: 'What is SariwaBa? and how does it evaluate fish freshness?',
       answer:
-          'SariwaBa? is an AI-powered fish freshness inspection platform. It leverages computer vision and a lightweight MobileNetV3 deep learning model to inspect key organoleptic freshness markers in fish eyes and gills, providing a rapid visual assessment within milliseconds.',
+          'SariwaBa? checks a photo of a Tilapia eye or exposed gills and returns Fresh or Not Fresh with a confidence score.',
       isHomepageFeatured: true,
     ),
     FaqItemModel(
@@ -45,7 +45,7 @@ class FaqData {
       category: 'Getting Started',
       question: 'Can I check fish without creating an account?',
       answer:
-          'Yes! You can try the freshness checker right away in Guest mode without signing up. Guest scans are processed using the exact same AI model. If you create a free account, you can also save your scan history, view past checks anytime, and access them across all your devices.',
+          'Yes. Guests can check photos and keep their latest 10 scans on this device. Sign in with Google to save future scans to your account.',
       isHomepageFeatured: true,
     ),
     FaqItemModel(
@@ -53,7 +53,7 @@ class FaqData {
       category: 'Getting Started',
       question: 'Do I need an internet connection to use the app?',
       answer:
-          'You can take photos and browse your saved history offline. However, you need an active internet connection (Wi-Fi or cellular data) to run a new freshness check with our server-side AI model.',
+          'You need an internet connection to check photos and load scans saved to your account.',
       isHomepageFeatured: true,
     ),
 
@@ -81,35 +81,35 @@ class FaqData {
       category: 'Image Upload and Camera',
       question: 'How should I position the camera for eye vs. gill inspections?',
       answer:
-          'For Eye checks, hold your camera perpendicular to the fish head, roughly 15–25 cm away, centering the eyeball in the reticle. For Gill checks, lift the operculum (gill cover) slightly so the red branchial filaments are clearly visible without casting a shadow.',
+          'For an eye photo, face the fish head directly and include the whole eye. For a gill photo, lift the gill cover so the gills are visible. Avoid glare and shadows.',
       isHomepageFeatured: false,
     ),
 
     // -------------------------------------------------------------------------
-    // Classification Results
+    // Results
     // -------------------------------------------------------------------------
     FaqItemModel(
       id: 'res_1',
-      category: 'Classification Results',
+      category: 'Results',
       question: 'What does the Confidence score mean?',
       answer:
-          'The confidence score shows how certain the AI is based on what it sees in the photo—such as cornea clarity, color saturation, and gill texture. It is a quick visual guide to help you choose fresh fish, but it is not a laboratory test or health guarantee.',
+          'Confidence shows how strongly the checker favors its result for your photo. It is not a freshness grade or a guarantee that the fish is safe to eat.',
       isHomepageFeatured: true,
     ),
     FaqItemModel(
       id: 'res_2',
-      category: 'Classification Results',
-      question: 'Is SariwaBa? a guarantee of food safety or edible suitability?',
+      category: 'Results',
+      question: 'Can SariwaBa? tell me if fish is safe to eat?',
       answer:
-          'No. SariwaBa? provides a preliminary visual assessment based on external optical characteristics. It cannot detect internal bacterial contamination, chemical preservatives (such as formalin), histamine levels, or toxic pathogens. Always rely on multi-sensory organoleptic checks (smell, firmness) and practice safe cooking practices.',
+          'No. A photo cannot confirm that a fish is safe to eat. SariwaBa? provides a visual check only.',
       isHomepageFeatured: false,
     ),
     FaqItemModel(
       id: 'res_3',
-      category: 'Classification Results',
+      category: 'Results',
       question: 'What should I do if the AI classifies a fish as "Not Fresh"?',
       answer:
-          'When a fish receives a "Not Fresh" classification, its external markers—such as milky eyes or dull, brownish gills—strongly suggest post-mortem decay. We advise selecting another fish or verifying texture and odor before purchasing or consuming.',
+          'The checker labeled your photo Not Fresh. If the photo is blurry or poorly lit, try a clearer one. The result does not identify specific changes in the eyes or gills.',
       isHomepageFeatured: false,
     ),
 
@@ -121,7 +121,7 @@ class FaqData {
       category: 'Supported Fish and Image Requirements',
       question: 'Which fish species does SariwaBa? support?',
       answer:
-          'SariwaBa? is specifically trained for Nile Tilapia (Oreochromis niloticus). By focusing on Tilapia, our system accurately reads the natural signs of freshness in its eyes and gills without getting confused by anatomical variations in other fish species.',
+          'SariwaBa? is designed for Nile Tilapia. Results for other fish may be unreliable.',
       isHomepageFeatured: true,
     ),
     FaqItemModel(
@@ -129,47 +129,47 @@ class FaqData {
       category: 'Supported Fish and Image Requirements',
       question: 'Can I upload whole fish, fillets, or cooked fish?',
       answer:
-          'No. The AI model is trained specifically on whole fresh/raw Tilapia heads displaying intact eyes or exposed gills. Uploading fillets, cut slices, cooked dishes, or non-fish subjects will lead to validation rejections or unreliable predictions.',
+          'Use a close-up of a raw Tilapia eye or exposed gills. Fillets, cooked fish, and unrelated photos are not supported and may give unreliable results.',
       isHomepageFeatured: false,
     ),
 
     // -------------------------------------------------------------------------
-    // Accounts and Classification History
+    // Accounts and Saved Scans
     // -------------------------------------------------------------------------
     FaqItemModel(
       id: 'acc_1',
-      category: 'Accounts and Classification History',
-      question: 'How do I save and sync my classification scans?',
+      category: 'Accounts and Saved Scans',
+      question: 'How do I save my scans?',
       answer:
-          'Sign in with your Google account. Every time you classify a fish while logged in, your scan result, confidence score, anatomical region, and timestamp are automatically saved to your cloud profile and synced across your devices.',
+          'Sign in with Google before scanning. Saved results appear in History with the photo, selected fish part, confidence score, and date.',
       isHomepageFeatured: false,
     ),
     FaqItemModel(
       id: 'acc_2',
-      category: 'Accounts and Classification History',
+      category: 'Accounts and Saved Scans',
       question: 'How can I delete my scan history or delete my account?',
       answer:
-          'In the dashboard, click on your profile picture at the bottom-left of the sidebar and select "Account Settings". Under Privacy & Data, you can delete your entire classification history. Under Danger Zone, you can permanently delete your SariwaBa? account.',
+          'Open your profile menu and choose Account Settings. Use Clear Scan History to remove saved scans, or Delete Account to remove your account. These actions cannot be undone.',
       isHomepageFeatured: false,
     ),
 
     // -------------------------------------------------------------------------
-    // Privacy and Data Handling
+    // Privacy
     // -------------------------------------------------------------------------
     FaqItemModel(
       id: 'priv_1',
-      category: 'Privacy and Data Handling',
+      category: 'Privacy',
       question: 'How does SariwaBa? protect my photos and privacy?',
       answer:
-          'Your photos are transmitted over encrypted TLS connections. We never sell, share, or monetize your images. Scans performed in Guest mode are not saved on our servers. Authenticated scans are strictly access-controlled and visible only to you and authorized inspectors.',
+          'Signed-in scans are saved to your account. Guest scan history stays on your device. You can remove your saved scans in History or Account Settings.',
       isHomepageFeatured: true,
     ),
     FaqItemModel(
       id: 'priv_2',
-      category: 'Privacy and Data Handling',
-      question: 'Are my audit logs and credentials protected?',
+      category: 'Privacy',
+      question: 'How do I keep my account safe?',
       answer:
-          'Yes. All system audit logs are strictly append-only, access-controlled, and protected against unauthorized tampering or administrative deletion. We never store passwords, raw Google OAuth tokens, or sensitive credentials in database logs.',
+          'You sign in through Google instead of creating a SariwaBa? password. Sign out when using a shared device.',
       isHomepageFeatured: false,
     ),
 
@@ -181,7 +181,7 @@ class FaqData {
       category: 'Troubleshooting',
       question: 'Why did my image upload get rejected?',
       answer:
-          'Uploads may be rejected if: (1) The file is not a supported image format (JPEG, PNG, HEIC); (2) The file exceeds the 5 MB limit; (3) The dimensions are smaller than 32x32 px or larger than 4096x4096 px; or (4) The image file stream was corrupted. Try taking a fresh photo or re-saving your image.',
+          'Try a JPG, PNG, or HEIC photo up to 5 MB. If it still fails, take a new photo or save another copy and try again.',
       isHomepageFeatured: false,
     ),
     FaqItemModel(
@@ -189,7 +189,7 @@ class FaqData {
       category: 'Troubleshooting',
       question: 'The app says "Model Unavailable". What should I do?',
       answer:
-          'This happens when the backend server is temporarily starting up or warming the PyTorch model checkpoint. Wait 5–10 seconds and tap "Try Again". If the issue persists, verify that the backend Docker container is healthy.',
+          'The photo checker is temporarily unavailable. Wait a moment and try again. If it keeps happening, contact the app administrator.',
       isHomepageFeatured: false,
     ),
   ];

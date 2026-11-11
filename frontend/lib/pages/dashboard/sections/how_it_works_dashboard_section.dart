@@ -113,7 +113,7 @@ class HowItWorksDashboardSection extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'GUIDE & PROTOCOL',
+                'QUICK GUIDE',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11,
@@ -138,7 +138,7 @@ class HowItWorksDashboardSection extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         const Text(
-          'A task-oriented breakdown of image capture, region selection, MobileNetV3 inference, and organoleptic validation.',
+          'Learn how to take a photo, choose the eye or gills, and read your result.',
           style: TextStyle(
             fontFamily: 'Geist',
             fontSize: 14,
@@ -177,7 +177,7 @@ class HowItWorksDashboardSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Food Safety & Preliminary Assessment Notice',
+                  'Before you use your result',
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 14,
@@ -377,7 +377,7 @@ class HowItWorksDashboardSection extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Golden Rules for Accurate Freshness Evaluation',
+                'Tips for a clear photo',
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 15,
@@ -393,17 +393,17 @@ class HowItWorksDashboardSection extends StatelessWidget {
             children: [
               Expanded(
                 child: _TipItem(
-                  title: 'Diffused Lighting',
+                  title: 'Even lighting',
                   description:
-                      'Use bright, natural daylight or clean white market stalls. Avoid direct camera flash, which bleaches eye corneas.',
+                      'Use bright, even light. Avoid flash or glare that hides the eye or gills.',
                 ),
               ),
               SizedBox(width: 16),
               Expanded(
                 child: _TipItem(
-                  title: 'Tight Framing',
+                  title: 'Fill the frame',
                   description:
-                      'Center the eye or lifted gill cover in the camera viewfinder. The feature should occupy at least 40% of the frame.',
+                      'Keep the eye or exposed gills near the center and large enough to see clearly.',
                 ),
               ),
             ],
@@ -414,17 +414,17 @@ class HowItWorksDashboardSection extends StatelessWidget {
             children: [
               Expanded(
                 child: _TipItem(
-                  title: 'Perpendicular Angle',
+                  title: 'Face the fish straight on',
                   description:
-                      'Hold your phone at a 90° angle to the fish head to prevent optical distortion and perspective tilt.',
+                      'Hold your phone facing the eye or gills directly.',
                 ),
               ),
               SizedBox(width: 16),
               Expanded(
                 child: _TipItem(
-                  title: 'Sharp Focus',
+                  title: 'Keep it in focus',
                   description:
-                      'Tap your screen on the fish eye or gill filament before capturing to ensure pin-sharp micro-contrast.',
+                      'Tap the eye or gills on your camera screen to focus before taking the photo.',
                 ),
               ),
             ],

@@ -490,6 +490,7 @@ class WebNavbar extends StatelessWidget {
         child: pictureUrl != null && pictureUrl.isNotEmpty
             ? Image.network(
                 pictureUrl,
+                webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
                 width: size,
                 height: size,
                 fit: BoxFit.cover,

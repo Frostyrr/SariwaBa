@@ -28,7 +28,7 @@ class WorkflowStepsData {
   const WorkflowStepsData._();
 
   static const String preliminaryDisclaimer =
-      'SariwaBa? provides an AI-assisted visual freshness assessment and does not guarantee food safety, microbiological sterility, or absolute suitability for consumption. Always exercise organoleptic judgment and culinary prudence before preparing or eating seafood.';
+      'SariwaBa? checks how a fish looks in a photo. It cannot confirm that a fish is safe to eat.';
 
   static const List<WorkflowStepModel> steps = [
     WorkflowStepModel(
@@ -39,47 +39,47 @@ class WorkflowStepsData {
       summary:
           'Take a clear, focused photo of your fish in good lighting, or choose an existing photo (up to 5 MB) from your device.',
       detailedInstruction:
-          'Position your camera 15–30 cm away from the fish. Tap or drag the image into the inspection zone. The system accepts JPG, JPEG, PNG, and HEIC files up to 5 MB with resolutions between 32x32 and 4096x4096 px.',
+          'Upload a clear photo of a Tilapia eye or exposed gills. Choose a JPG, PNG, or HEIC image up to 5 MB.',
       metaRecord: 'CLEAR PHOTO • UP TO 5 MB',
       icon: CupertinoIcons.camera,
       practicalTips: [
         'Use bright, even lighting; avoid harsh camera flash glare on wet fish scales.',
-        'Keep the camera steady to prevent motion blur and optical distortion.',
-        'Ensure the anatomical feature fills at least 40% of the camera viewfinder.',
+        'Keep the camera steady so the photo stays sharp.',
+        'Make the eye or exposed gills large enough to see clearly.',
       ],
     ),
     WorkflowStepModel(
       id: 'anatomy_selection',
       stepNumber: '02',
       stepTag: 'STEP 02 — CHOOSE PART',
-      title: 'Select Eye or Gill Region',
+      title: 'Choose Eye or Gills',
       summary:
           'Choose whether you want to inspect the fish eye (Mata) or the gills (Hasang). Focusing on one specific part gives you the most reliable check.',
       detailedInstruction:
-          'Select "Eye" (default) to evaluate cornea transparency, pupil clarity, and sunkenness. Select "Gill" to evaluate branchial filament redness, slime consistency, and pallor.',
+          'Choose "Eye" for an eye photo or "Gill" for a photo of exposed gills. Match your selection to the photo.',
       metaRecord: 'EYE (MATA) • GILLS (HASANG)',
       icon: CupertinoIcons.crop_rotate,
       practicalTips: [
-        'For Eye checks, photograph the whole cornea without cutting off the eye socket.',
-        'For Gill checks, gently lift the opercular gill cover to expose the red gill filaments.',
-        'Use the built-in ROI crop tool to precisely frame the targeted anatomical feature.',
+        'Include the whole eye in your photo.',
+        'Lift the gill cover so the gills are clearly visible.',
+        'Use the crop tool to frame the eye or gills.',
       ],
     ),
     WorkflowStepModel(
       id: 'ai_classification',
       stepNumber: '03',
       stepTag: 'STEP 03 — SMART SCAN',
-      title: 'AI Freshness Inference',
+      title: 'Check the Photo',
       summary:
-          'Our smart AI examines key freshness signs in seconds—checking color vibrancy, clarity, and texture to see if the fish is fresh.',
+          'SariwaBa? checks your photo and returns a Fresh or Not Fresh result.',
       detailedInstruction:
-          'The image is processed by our server-side MobileNetV3-Small neural network trained specifically on Tilapia organoleptic datasets, extracting high-level chromatic and textural feature representations.',
-      metaRecord: 'INSTANT SCAN • COLOR & CLARITY',
+          'Select the check button and wait for your result. Keep your internet connection on.',
+      metaRecord: 'PHOTO CHECK • INTERNET REQUIRED',
       icon: CupertinoIcons.sparkles,
       practicalTips: [
-        'Inference completes in approximately 30–60 milliseconds.',
-        'No image alterations or destructive filters are applied during tensor normalization.',
-        'Both guest and authenticated inspectors benefit from the same high-accuracy model.',
+        'Wait for the check to finish before starting another scan.',
+        'If the photo is unclear, try another photo with better lighting.',
+        'Guests and signed-in users use the same photo checker.',
       ],
     ),
     WorkflowStepModel(
@@ -88,32 +88,32 @@ class WorkflowStepsData {
       stepTag: 'STEP 04 — RESULTS',
       title: 'Understand Freshness & Confidence',
       summary:
-          'Get a clear Fresh or Not Fresh verdict along with a confidence rating and practical advice on what to look for when buying.',
+          'See a Fresh or Not Fresh result and a confidence score.',
       detailedInstruction:
-          'The model outputs a binary verdict ("Fresh" or "Not Fresh") accompanied by a confidence score (0%–100%). Scores above 85% indicate high certainty based on recognized optical freshness indicators.',
-      metaRecord: 'CONFIDENCE SCORE • BUYER TIPS',
+          'Confidence shows how strongly the checker favors its result. It is not a freshness grade or a guarantee of food safety.',
+      metaRecord: 'RESULT • CONFIDENCE',
       icon: CupertinoIcons.checkmark_seal,
       practicalTips: [
-        'Fresh Eye: Transparent, convex cornea with deep black pupil.',
-        'Not Fresh Eye: Cloudy, sunken cornea with milky or dull pupil.',
-        'Fresh Gill: Bright red or vibrant pink lamellae with clean, transparent mucus.',
-        'Not Fresh Gill: Brownish, grey, or bleached filaments with turbid mucus and sour odor.',
+        'The result applies to the photo you submitted.',
+        'An unclear photo can affect the result.',
+        'The app does not provide separate findings about eye color or gill texture.',
+        'Even a high-confidence result cannot confirm food safety.',
       ],
     ),
     WorkflowStepModel(
       id: 'classification_history',
       stepNumber: '05',
-      stepTag: 'STEP 05 — HISTORY & AUDITS',
-      title: 'Review Classification History',
+      stepTag: 'STEP 05 — HISTORY',
+      title: 'Review Your Scans',
       summary:
-          'Authenticated users can access, search, and manage their complete historical classification records across all their devices.',
+          'Sign in to review your saved scans across your devices.',
       detailedInstruction:
-          'Authenticated scans are securely linked to your account. View timestamps, confidence metrics, and original inspection photos in the History tab. You can filter by Freshness status, review individual details, or bulk delete records.',
-      metaRecord: 'CLOUD SYNC • AUDIT HISTORY',
+          'Open History to see saved photos, results, confidence scores, and dates. Search, filter, or delete scans there.',
+      metaRecord: 'SAVED SCANS • HISTORY',
       icon: CupertinoIcons.time,
       practicalTips: [
-        'Guest users have access to a local session cache of their last 10 scans.',
-        'Sign in with Google to permanently preserve and cloud-sync your classification audit trail.',
+        'Guests can review their latest 10 scans on this device.',
+        'Sign in with Google to save future scans to your account.',
         'You can delete individual scans or clear your entire history at any time in Account Settings.',
       ],
     ),

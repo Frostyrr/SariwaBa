@@ -550,25 +550,6 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         horizontal: isDesktop ? 16 : 10,
         vertical: 8,
       ),
-      decoration: BoxDecoration(
-        color: hasSelection
-            ? const Color(0xFF0F172A)
-            : Colors.white.withValues(alpha: 0.60),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasSelection
-              ? const Color(0xFF1E293B)
-              : Colors.white.withValues(alpha: 0.85),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: hasSelection ? 0.12 : 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
       child: Row(
         children: [
           // Master Checkbox button ready to be checked immediately
@@ -576,18 +557,24 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             width: 32,
             height: 32,
             child: Transform.scale(
-              scale: 0.92,
+              scale: 0.90,
               child: Checkbox(
                 key: const Key('history_toggle_selection_mode_button'),
                 tristate: true,
                 value: allOnPageSelected ? true : (someOnPageSelected ? null : false),
                 activeColor: SariwaColors.brandPrimary,
                 checkColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                side: BorderSide(
-                  color: hasSelection ? Colors.white70 : const Color(0xFF64748B),
-                  width: 1.8,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+                  color: states.contains(WidgetState.selected)
+                      ? SariwaColors.brandPrimary
+                      : const Color(0xFF8FA6BF),
+                  width: 1.2,
+                )),
+                fillColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.selected)
+                        ? SariwaColors.brandPrimary
+                        : const Color(0xFFF8FAFC)),
                 onChanged: (val) {
                   setState(() {
                     if (allOnPageSelected) {
@@ -610,7 +597,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 fontFamily: AppTypography.fontFamily,
                 fontSize: isDesktop ? 13 : 11.5,
                 fontWeight: FontWeight.w400,
-                color: Colors.white,
+                color: const Color(0xFF334155),
               ),
             ),
             SizedBox(width: isDesktop ? 14 : 8),
@@ -644,7 +631,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                   fontFamily: AppTypography.fontFamily,
                   fontSize: isDesktop ? 12 : 11,
                   fontWeight: FontWeight.w400,
-                  color: const Color(0xFF5EEAD4),
+                  color: const Color(0xFF0F766E),
                 ),
               ),
             ),
@@ -656,14 +643,15 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 backgroundColor: SariwaColors.statusSpoiled,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 12 : 8,
-                  vertical: 6,
+                  horizontal: isDesktop ? 16 : 12,
+                  vertical: 10,
                 ),
-                minimumSize: Size.zero,
+                minimumSize: const Size(0, 36),
+                tapTargetSize: MaterialTapTargetSize.padded,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
               ),
-              icon: const Icon(CupertinoIcons.trash, size: 12),
+              icon: const Icon(CupertinoIcons.trash, size: 14),
               label: Text(
                 isDesktop ? 'Delete (${_selectedHistoryScanIds.length})' : 'Delete',
                 style: TextStyle(
@@ -677,7 +665,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             IconButton(
               tooltip: 'Deselect all',
               onPressed: () => setState(() => _selectedHistoryScanIds.clear()),
-              icon: const Icon(CupertinoIcons.clear, size: 13, color: Colors.white70),
+              icon: const Icon(CupertinoIcons.clear, size: 13, color: Color(0xFF64748B)),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
             ),
@@ -701,7 +689,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             startIndex: startIndex,
             endIndex: endIndex,
             totalPages: totalPages,
-            isDarkTheme: hasSelection,
+            isDarkTheme: false,
           ),
         ],
       ),
@@ -869,7 +857,17 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                         tristate: true,
                         value: allOnPageSelected ? true : (someOnPageSelected ? null : false),
                         activeColor: SariwaColors.brandPrimary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+                          color: states.contains(WidgetState.selected)
+                              ? SariwaColors.brandPrimary
+                              : const Color(0xFF8FA6BF),
+                          width: 1.2,
+                        )),
+                        fillColor: WidgetStateProperty.resolveWith((states) =>
+                            states.contains(WidgetState.selected)
+                                ? SariwaColors.brandPrimary
+                                : const Color(0xFFF8FAFC)),
                         onChanged: (val) {
                           setState(() {
                             if (allOnPageSelected) {
@@ -999,7 +997,17 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                                 : null,
                             value: isSelected,
                             activeColor: SariwaColors.brandPrimary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                            side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+                              color: states.contains(WidgetState.selected)
+                                  ? SariwaColors.brandPrimary
+                                  : const Color(0xFF8FA6BF),
+                              width: 1.2,
+                            )),
+                            fillColor: WidgetStateProperty.resolveWith((states) =>
+                                states.contains(WidgetState.selected)
+                                    ? SariwaColors.brandPrimary
+                                    : const Color(0xFFF8FAFC)),
                             onChanged: (val) {
                               if (scanId == null) return;
                               setState(() {
@@ -1191,7 +1199,17 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                               : null,
                           value: isSelected,
                           activeColor: SariwaColors.brandPrimary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+                          side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+                            color: states.contains(WidgetState.selected)
+                                ? SariwaColors.brandPrimary
+                                : const Color(0xFF8FA6BF),
+                            width: 1.2,
+                          )),
+                          fillColor: WidgetStateProperty.resolveWith((states) =>
+                              states.contains(WidgetState.selected)
+                                  ? SariwaColors.brandPrimary
+                                  : const Color(0xFFF8FAFC)),
                           onChanged: (val) {
                             if (scanId == null) return;
                             setState(() {

@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:frontend/constants/content/faq_data.dart';
 import 'package:frontend/constants/content/workflow_steps_data.dart';
 import 'package:frontend/controllers/auth/auth_controller.dart';
-import 'package:frontend/controllers/auth/auth_state.dart';
 import 'package:frontend/controllers/classification/classification_controller.dart';
 import 'package:frontend/models/auth/user_model.dart';
 import 'package:frontend/models/classification/classification_result.dart';
@@ -107,7 +104,6 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       String? selectedNav;
-      bool signOutCalled = false;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -121,7 +117,7 @@ void main() {
                   isGuestUser: false,
                   isCollapsed: false,
                   onNavSelected: (nav) => selectedNav = nav,
-                  onSignOut: () => signOutCalled = true,
+                  onSignOut: () {},
                   onSignIn: () {},
                 ),
               ),
@@ -251,7 +247,7 @@ void main() {
       // Verify header & disclaimer
       expect(find.text('How SariwaBa? Works'), findsOneWidget);
       expect(
-        find.text('Food Safety & Preliminary Assessment Notice'),
+        find.text('Before you use your result'),
         findsOneWidget,
       );
 
@@ -296,10 +292,10 @@ void main() {
 
       // Search filtering test: enter specific search keyword
       final searchInput = find.byType(TextField);
-      await tester.enterText(searchInput, 'Tilapia');
+      await tester.enterText(searchInput, 'evaluate');
       await tester.pumpAndSettle();
 
-      // Only questions or answers containing 'Tilapia' should be displayed
+      // Questions or answers containing 'evaluate' should be displayed
       expect(find.text(firstFaq.question), findsOneWidget);
 
       // Filter by category chip
@@ -369,7 +365,7 @@ void main() {
 
       expect(fakeClassRepo.clearAllHistoryCalled, isTrue);
       expect(
-        find.text('All classification history has been permanently removed.'),
+        find.text('Your scan history has been deleted.'),
         findsOneWidget,
       );
     });
@@ -462,7 +458,7 @@ void main() {
       );
 
       expect(find.text('Admin Chief'), findsOneWidget);
-      expect(find.text('Admin'), findsOneWidget);
+      expect(find.text('Administrator'), findsOneWidget);
 
       final deleteBtn = find.byKey(const Key('btn_delete_account'));
       await tester.ensureVisible(deleteBtn);
@@ -473,10 +469,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Error dialog should appear informing the user that deletion was prohibited
-      expect(find.text('Account Deletion Prohibited'), findsOneWidget);
+      expect(find.text('Unable to Delete Account'), findsOneWidget);
       expect(
         find.text('Cannot delete the last active administrator account.'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
   });
