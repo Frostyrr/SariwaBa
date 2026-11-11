@@ -702,6 +702,30 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       );
     }
   }
+
+  /// Clear all scans from user history (or guest cache)
+  Future<void> clearAllHistory() async {
+    state = state.copyWith(clearError: true);
+    try {
+      if (isAuthenticated) {
+        await _service.clearAllHistory();
+      } else {
+        await _guestCache.clearCache();
+      }
+      if (!mounted) return;
+      state = state.copyWith(
+        history: const [],
+        clearDeleting: true,
+        successMessage: 'All classification history has been cleared.',
+      );
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(
+        clearDeleting: true,
+        errorMessage: 'Could not clear classification history. Please try again.',
+      );
+    }
+  }
 }
 
 final classificationControllerProvider =

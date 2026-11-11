@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import '../../../constants/content/workflow_steps_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/timber_typography.dart';
 import '../../../widgets/common/staggered_reveal.dart';
@@ -38,44 +39,17 @@ class HowItWorksSection extends StatelessWidget {
     this.onTryInspection,
   });
 
-  static const List<_WorkflowStepData> _steps = [
-    _WorkflowStepData(
-      stepNumber: '01',
-      stepTag: 'STEP 01 — TAKE A PHOTO',
-      title: 'Take or Upload a Fish Photo',
-      description:
-          'Take a clear, focused photo of your Tilapia in good lighting, or choose an existing photo (up to 5 MB) from your device.',
-      metaRecord: 'CLEAR PHOTO • UP TO 5 MB',
-      icon: Icons.camera_alt_outlined,
-    ),
-    _WorkflowStepData(
-      stepNumber: '02',
-      stepTag: 'STEP 02 — CHOOSE PART',
-      title: 'Select Eye or Gills',
-      description:
-          'Choose whether you want to inspect the fish eye (Mata) or the gills (Hasang). Focusing on one specific part gives you the most reliable check.',
-      metaRecord: 'EYE (MATA) • GILLS (HASANG)',
-      icon: Icons.crop_free_rounded,
-    ),
-    _WorkflowStepData(
-      stepNumber: '03',
-      stepTag: 'STEP 03 — SMART SCAN',
-      title: 'Scan Freshness with AI',
-      description:
-          'Our smart AI examines key freshness signs in seconds—checking color vibrancy, clarity, and texture to see if the fish is fresh.',
-      metaRecord: 'INSTANT SCAN • COLOR & CLARITY',
-      icon: Icons.auto_awesome_outlined,
-    ),
-    _WorkflowStepData(
-      stepNumber: '04',
-      stepTag: 'STEP 04 — RESULTS',
-      title: 'See Results & Helpful Tips',
-      description:
-          'Get a clear Fresh or Not Fresh verdict along with a confidence rating and practical advice on what to look for when buying.',
-      metaRecord: 'CONFIDENCE SCORE • BUYER TIPS',
-      icon: Icons.task_alt_outlined,
-    ),
-  ];
+  static final List<_WorkflowStepData> _steps = WorkflowStepsData.steps
+      .take(4)
+      .map((s) => _WorkflowStepData(
+            stepNumber: s.stepNumber,
+            stepTag: s.stepTag,
+            title: s.title,
+            description: s.summary,
+            metaRecord: s.metaRecord,
+            icon: s.icon,
+          ))
+      .toList();
 
   @override
   Widget build(BuildContext context) {

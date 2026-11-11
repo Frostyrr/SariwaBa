@@ -521,3 +521,57 @@ class ClassificationAPITests(TestCase):
         # Verify scan3 belonging to other_user was NOT deleted
         self.assertTrue(ClassificationHistory.objects.filter(scan_id=scan3.scan_id).exists())
 
+    def test_classification_telemetry_logged_on_success_and_rejection(self):
+        from .models import ClassificationTelemetryLog
+
+        # Rejection: invalid region
+        img = _create_test_image("JPEG")
+        res_rej = self.client.post("/api/v1/classify/", {"image": img, "region_type": "tail"}, format="multipart")
+        self.assertEqual(res_rej.status_code, status.HTTP_400_BAD_REQUEST)
+        rej_log = ClassificationTelemetryLog.objects.filter(status="REJECTED_INVALID_REGION").first()
+        self.assertIsNotNone(rej_log)
+        self.assertEqual(rej_log.error_code, "INVALID_REGION_TYPE")
+
+        # Success: valid classification
+        img2 = _create_test_image("JPEG")
+        with patch("classification.views.predict_image") as mock_pred:
+            mock_pred.return_value = {"label": "Fresh", "confidence": 0.96}
+            res_succ = self.client.post("/api/v1/classify/", {"image": img2, "region_type": "eye"}, format="multipart")
+            self.assertEqual(res_succ.status_code, status.HTTP_200_OK)
+
+        succ_log = ClassificationTelemetryLog.objects.filter(status="SUCCESS").first()
+        self.assertIsNotNone(succ_log)
+        self.assertEqual(succ_log.label, "Fresh")
+        self.assertEqual(succ_log.confidence, 0.96)
+        self.assertIsNotNone(succ_log.latency_ms)
+
+    def test_clear_all_history_deletes_only_authenticated_user_records(self):
+        img1 = _create_test_image("JPEG")
+        img2 = _create_test_image("JPEG")
+        ClassificationHistory.objects.create(
+            user=self.user,
+            image=img1,
+            region_type="eye",
+            label="Fresh",
+            confidence=0.95,
+        )
+        ClassificationHistory.objects.create(
+            user=self.other_user,
+            image=img2,
+            region_type="gill",
+            label="Not Fresh",
+            confidence=0.88,
+        )
+
+        # Clear history for self.user
+        res = self.client.delete("/api/v1/history/clear/", HTTP_AUTHORIZATION=self.auth_header)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["deleted_count"], 1)
+
+        # self.user has 0 history records left
+        self.assertEqual(ClassificationHistory.objects.filter(user=self.user).count(), 0)
+        # self.other_user history records are preserved
+        self.assertEqual(ClassificationHistory.objects.filter(user=self.other_user).count(), 1)
+
+
+

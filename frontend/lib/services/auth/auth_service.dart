@@ -67,6 +67,27 @@ class AuthService {
     await tokenStorage.clearTokens();
     await googleSignInService.signOut();
   }
+
+  Future<void> deleteAccount() async {
+    try {
+      final response = await dio.delete(ApiEndpoints.deleteAccount);
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await tokenStorage.clearTokens();
+        try {
+          await googleSignInService.signOut();
+        } catch (_) {}
+        return;
+      }
+      throw Exception('Failed to delete account.');
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      if (data is Map && data['error'] is Map) {
+        final err = data['error'] as Map;
+        throw Exception(err['message'] ?? 'Account deletion failed.');
+      }
+      rethrow;
+    }
+  }
 }
 
 typedef AuthRepository = AuthService;

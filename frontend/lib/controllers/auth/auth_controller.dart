@@ -198,6 +198,22 @@ class AuthController extends StateNotifier<AuthState> {
     state = const AuthState(viewStatus: AuthViewStatus.landing);
   }
 
+  /// Delete the current authenticated user's account
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await repository.deleteAccount();
+      state = const AuthState(viewStatus: AuthViewStatus.landing);
+    } catch (e) {
+      final msg = e.toString().replaceFirst('Exception: ', '');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: msg,
+      );
+      rethrow;
+    }
+  }
+
   @override
   void dispose() {
     _eventSub?.cancel();

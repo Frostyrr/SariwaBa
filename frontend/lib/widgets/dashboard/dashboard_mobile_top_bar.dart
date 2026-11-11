@@ -194,6 +194,14 @@ class DashboardMobileTopBar extends StatelessWidget {
                         onTap: () => onNavSelected('Analytics'),
                       ),
                     ),
+                    if (user?.isAdmin == true)
+                      Expanded(
+                        child: _buildMobileTabButton(
+                          label: 'Admin',
+                          isActive: activeNav == 'Admin',
+                          onTap: () => onNavSelected('Admin'),
+                        ),
+                      ),
                   ],
                 ),
               ),

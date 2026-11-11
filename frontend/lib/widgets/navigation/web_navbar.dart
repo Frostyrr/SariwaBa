@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
@@ -343,6 +344,27 @@ class WebNavbar extends StatelessWidget {
           ),
         ),
         const PopupMenuDivider(),
+        if (currentUser.isAdmin) ...[
+          const PopupMenuItem<String>(
+            value: 'dashboard',
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.shield_fill,
+                    size: 18, color: Color(0xFF0D9488)),
+                SizedBox(width: 10),
+                Text(
+                  'Admin Console',
+                  style: TextStyle(
+                    letterSpacing: -0.25,
+                    color: Color(0xFF0D9488),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const PopupMenuItem<String>(
           value: 'dashboard',
           child: Row(
@@ -468,6 +490,7 @@ class WebNavbar extends StatelessWidget {
         child: pictureUrl != null && pictureUrl.isNotEmpty
             ? Image.network(
                 pictureUrl,
+                webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
                 width: size,
                 height: size,
                 fit: BoxFit.cover,

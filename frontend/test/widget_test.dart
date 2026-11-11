@@ -146,6 +146,11 @@ class FakeClassificationRepository implements ClassificationRepository {
     mockHistory.removeWhere((s) => scanIds.contains(s.scanId));
     return scanIds;
   }
+
+  @override
+  Future<void> clearAllHistory() async {
+    mockHistory.clear();
+  }
 }
 
 void main() {
@@ -277,7 +282,7 @@ void main() {
     expect(find.text('Freshness Inspection'), findsOneWidget);
     expect(find.text('Audit History'), findsOneWidget);
     expect(find.text('Log in'), findsNothing);
-    expect(find.text('Juan'), findsOneWidget);
+    expect(find.text('Juan Dela Cruz'), findsOneWidget);
   });
 
   testWidgets(

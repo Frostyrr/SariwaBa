@@ -124,6 +124,8 @@ abstract class ClassificationService {
   Future<void> deleteScan(int scanId);
 
   Future<List<int>> bulkDeleteScans(List<int> scanIds);
+
+  Future<void> clearAllHistory();
 }
 
 typedef ClassificationRepository = ClassificationService;
@@ -326,8 +328,15 @@ class ClassificationServiceImpl implements ClassificationService {
       rethrow;
     }
   }
-}
 
+  @override
+  Future<void> clearAllHistory() async {
+    final response = await _dio.delete(ApiEndpoints.historyClearAll);
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to clear classification history.');
+    }
+  }
+}
 
 final classificationServiceProvider = Provider<ClassificationService>((ref) {
   final dio = ref.watch(apiClientProvider);
