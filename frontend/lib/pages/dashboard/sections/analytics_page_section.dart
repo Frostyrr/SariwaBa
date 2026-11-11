@@ -63,7 +63,7 @@ class AnalyticsPageSection extends StatelessWidget {
                       'Freshness Insights',
                       style: TextStyle(
                         fontSize: 26,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500, // Medium
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: Colors.white,
                       ),
@@ -95,7 +95,7 @@ class AnalyticsPageSection extends StatelessWidget {
                       'Freshness Ratio Distribution',
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
                       ),
@@ -154,7 +154,7 @@ class AnalyticsPageSection extends StatelessWidget {
                           'Avg Conf: ${avgConf.toStringAsFixed(1)}%',
                           style: const TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: Color(0xFF64748B),
                           ),
@@ -188,7 +188,7 @@ class AnalyticsPageSection extends StatelessWidget {
                                 'Eye Inspections',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w400,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
@@ -201,7 +201,7 @@ class AnalyticsPageSection extends StatelessWidget {
                             '$eyeCount scans',
                             style: const TextStyle(
                               fontSize: 22,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w400,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -240,7 +240,7 @@ class AnalyticsPageSection extends StatelessWidget {
                                 'Gill Inspections',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w400,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
@@ -253,7 +253,7 @@ class AnalyticsPageSection extends StatelessWidget {
                             '$gillCount scans',
                             style: const TextStyle(
                               fontSize: 22,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w400,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -300,7 +300,7 @@ class AnalyticsPageSection extends StatelessWidget {
           label,
           style: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             letterSpacing: AppTypography.defaultLetterSpacing,
             color: Color(0xFF334155),
           ),

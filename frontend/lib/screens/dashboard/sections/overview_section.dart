@@ -151,6 +151,7 @@ class OverviewSection extends StatelessWidget {
                   searchQuery: searchQuery,
                   isGuest: isGuest,
                   onSignIn: onSignIn,
+                  onViewMore: () => onNavigateSection('Scan Logs'),
                 ),
               ),
             ),

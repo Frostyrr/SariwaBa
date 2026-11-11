@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import '../../models/classification/classification_result.dart';
 import '../../constants/theme/app_colors.dart';
@@ -119,7 +120,7 @@ class KpiMetricsRow extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500, // Medium
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textSecondaryDark,
                   ),
@@ -143,7 +144,8 @@ class KpiMetricsRow extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Geist',
               fontSize: 24,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w400,
+              fontFeatures: [ui.FontFeature.tabularFigures()],
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),
@@ -153,6 +155,7 @@ class KpiMetricsRow extends StatelessWidget {
             subtitle,
             style: const TextStyle(
               fontSize: 11,
+              fontWeight: FontWeight.w300,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textMutedDark,
             ),

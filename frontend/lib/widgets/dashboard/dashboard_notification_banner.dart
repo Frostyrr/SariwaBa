@@ -69,7 +69,7 @@ class DashboardNotificationBanner extends StatelessWidget {
                         style: TextStyle(
                           color: color,
                           fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                         ),
                       ),
@@ -80,7 +80,7 @@ class DashboardNotificationBanner extends StatelessWidget {
                       style: const TextStyle(
                         color: SariwaColors.textPrimaryDark,
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                       ),
                     ),

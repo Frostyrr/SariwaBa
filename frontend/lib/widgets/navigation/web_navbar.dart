@@ -60,46 +60,57 @@ class WebNavbar extends StatelessWidget {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1140.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(36),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOutCubic,
-                        height: 58,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isDesktop ? 22.0 : 10.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(36),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0F172A)
+                              .withValues(alpha: isScrolled ? 0.06 : 0.03),
+                          blurRadius: isScrolled ? 22 : 16,
+                          offset: const Offset(0, 4),
+                          spreadRadius: -2,
                         ),
-                        decoration: BoxDecoration(
-                          color: isLight
-                              ? Colors.white.withValues(alpha: isScrolled ? 0.75 : 0.62)
-                              : SariwaColors.bgAbyssDark
-                                  .withValues(alpha: isScrolled ? 0.80 : 0.60),
-                          borderRadius: BorderRadius.circular(36),
-                          border: Border.all(
-                            color: isLight
-                                ? Colors.white.withValues(alpha: 0.85)
-                                : Colors.white.withValues(alpha: 0.16),
-                            width: 1.2,
+                        BoxShadow(
+                          color: const Color(0xFF0F172A)
+                              .withValues(alpha: isScrolled ? 0.035 : 0.02),
+                          blurRadius: isScrolled ? 36 : 28,
+                          offset: const Offset(0, 10),
+                          spreadRadius: -4,
+                        ),
+                        BoxShadow(
+                          color: const Color(0xFF14B8A6)
+                              .withValues(alpha: isScrolled ? 0.05 : 0.025),
+                          blurRadius: isScrolled ? 28 : 20,
+                          offset: const Offset(0, 6),
+                          spreadRadius: -4,
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(36),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOutCubic,
+                          height: 58,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? 22.0 : 10.0,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF0F172A)
-                                  .withValues(alpha: isScrolled ? 0.08 : 0.04),
-                              blurRadius: isScrolled ? 24 : 16,
-                              offset: const Offset(0, 6),
-                              spreadRadius: -2,
+                          decoration: BoxDecoration(
+                            color: isLight
+                                ? Colors.white.withValues(alpha: isScrolled ? 0.75 : 0.62)
+                                : SariwaColors.bgAbyssDark
+                                    .withValues(alpha: isScrolled ? 0.80 : 0.60),
+                            borderRadius: BorderRadius.circular(36),
+                            border: Border.all(
+                              color: isLight
+                                  ? Colors.white.withValues(alpha: 0.85)
+                                  : Colors.white.withValues(alpha: 0.16),
+                              width: 1.2,
                             ),
-                            BoxShadow(
-                              color: const Color(0xFF14B8A6)
-                                  .withValues(alpha: isScrolled ? 0.08 : 0.05),
-                              blurRadius: 32,
-                              offset: const Offset(0, 8),
-                              spreadRadius: -4,
-                            ),
-                          ],
-                        ),
+                          ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -225,7 +236,7 @@ class WebNavbar extends StatelessWidget {
                                           color: isLight
                                               ? SariwaColors.textPrimaryDark
                                               : SariwaColors.textPrimaryLight,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
                                     ),
@@ -246,6 +257,7 @@ class WebNavbar extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
                 ),
               ),
             ),
@@ -308,7 +320,7 @@ class WebNavbar extends StatelessWidget {
                       style: const TextStyle(
                         letterSpacing: -0.25,
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: SariwaColors.textPrimaryDark,
                       ),
                       maxLines: 1,
@@ -344,7 +356,7 @@ class WebNavbar extends StatelessWidget {
                   letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -363,7 +375,7 @@ class WebNavbar extends StatelessWidget {
                   letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -383,7 +395,7 @@ class WebNavbar extends StatelessWidget {
                   letterSpacing: -0.25,
                   color: SariwaColors.statusSpoiled,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
@@ -417,7 +429,7 @@ class WebNavbar extends StatelessWidget {
                   style: TextStyle(
                     letterSpacing: -0.25,
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: isLight
                         ? SariwaColors.textPrimaryDark
                         : SariwaColors.textPrimaryLight,
@@ -480,7 +492,7 @@ class WebNavbar extends StatelessWidget {
             letterSpacing: -0.25,
             color: Colors.white,
             fontSize: size * 0.45,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ),

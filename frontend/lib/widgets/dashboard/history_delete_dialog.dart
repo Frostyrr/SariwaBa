@@ -41,7 +41,7 @@ class HistoryDeleteDialog {
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 17,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                   ),
@@ -54,7 +54,7 @@ class HistoryDeleteDialog {
             style: const TextStyle(
               fontFamily: 'Geist',
               fontSize: 13.5,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: SariwaColors.textSecondaryDark,
               letterSpacing: AppTypography.defaultLetterSpacing,
               height: 1.45,
@@ -70,7 +70,7 @@ class HistoryDeleteDialog {
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: SariwaColors.textSecondaryDark,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                 ),
@@ -95,7 +95,7 @@ class HistoryDeleteDialog {
                 'Delete',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                 ),
               ),
@@ -145,7 +145,7 @@ class HistoryDeleteDialog {
                   style: const TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 17,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                   ),
@@ -160,7 +160,7 @@ class HistoryDeleteDialog {
             style: const TextStyle(
               fontFamily: 'Geist',
               fontSize: 13.5,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: SariwaColors.textSecondaryDark,
               letterSpacing: AppTypography.defaultLetterSpacing,
               height: 1.45,
@@ -176,7 +176,7 @@ class HistoryDeleteDialog {
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: SariwaColors.textSecondaryDark,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                 ),
@@ -201,7 +201,7 @@ class HistoryDeleteDialog {
                 count == 1 ? 'Delete' : 'Delete ($count)',
                 style: const TextStyle(
                   fontFamily: 'Geist',
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                 ),
               ),

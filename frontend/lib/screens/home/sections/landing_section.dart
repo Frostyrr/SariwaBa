@@ -103,7 +103,7 @@ class LandingSection extends StatelessWidget {
                                         letterSpacing: -0.25,
                                         fontFamily: AppTypography.fontFamily,
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                         color: Color(0xFF0A2229),
                                       ),
                                     ),
@@ -117,6 +117,7 @@ class LandingSection extends StatelessWidget {
                                   letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 12.5,
+                                  fontWeight: FontWeight.w300,
                                   color: Color(0xFF64748B),
                                 ),
                               ),
@@ -178,7 +179,7 @@ class LandingSection extends StatelessWidget {
                                       letterSpacing: -0.25,
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w400,
                                       color: Color(0xFF0A2229),
                                     ),
                                   ),
@@ -264,7 +265,7 @@ class LandingSection extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
                             fontSize: isDesktop ? 54 : 36,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500, // Medium
                             letterSpacing: -0.25,
                             height: 1.14,
                             color: const Color(0xFF0A2B24), // Deep forest-green
@@ -286,6 +287,7 @@ class LandingSection extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
                             fontSize: isDesktop ? 17.5 : 15,
+                            fontWeight: FontWeight.w300,
                             height: 1.55,
                             letterSpacing: -0.25,
                             color: const Color(0xFF334E48), // Muted coastal forest-slate

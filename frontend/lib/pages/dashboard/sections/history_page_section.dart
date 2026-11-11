@@ -4,8 +4,8 @@ import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
-import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
+import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/history_delete_dialog.dart';
 import '../../../widgets/dashboard/inspection_details_modal.dart';
 
@@ -129,7 +129,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Atmospheric Banner
+              // Image-backed section header
               const DashboardAtmosphericBanner(
                 content: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +138,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       'Inspection History',
                       style: TextStyle(
                         fontSize: 26,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500, // Medium for titles
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: Colors.white,
                       ),
@@ -148,6 +148,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       'Review and manage your previous freshness assessments.',
                       style: TextStyle(
                         fontSize: 14,
+                        fontWeight: FontWeight.w300, // Lighter for body
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: Color(0xFFD1FAF4),
                       ),
@@ -332,7 +333,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               letterSpacing: -0.2,
               color: Color(0xFF0F172A),
             ),
@@ -389,7 +390,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               letterSpacing: -0.2,
               color: Color(0xFF0F172A),
             ),
@@ -446,7 +447,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               letterSpacing: -0.2,
               color: Color(0xFF0F172A),
             ),
@@ -518,7 +519,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           style: const TextStyle(
             fontFamily: AppTypography.fontFamily,
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             letterSpacing: -0.2,
             color: Color(0xFF475569),
           ),
@@ -608,7 +609,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
                 fontSize: isDesktop ? 13 : 11.5,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w400,
                 color: Colors.white,
               ),
             ),
@@ -642,7 +643,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: isDesktop ? 12 : 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: const Color(0xFF5EEAD4),
                 ),
               ),
@@ -668,7 +669,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: isDesktop ? 12 : 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -686,7 +687,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 color: Color(0xFF64748B),
               ),
             ),
@@ -730,7 +731,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           style: TextStyle(
             fontFamily: AppTypography.fontFamily,
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             letterSpacing: -0.2,
             color: textColor,
           ),
@@ -803,7 +804,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                   style: const TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: Color(0xFF0F172A),
                   ),
                   items: const [
@@ -888,7 +889,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -901,7 +902,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -914,7 +915,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -927,7 +928,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -940,7 +941,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -954,7 +955,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
                         color: Color(0xFF64748B),
                       ),
@@ -1022,7 +1023,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                               style: TextStyle(
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: -0.2,
                                 color: isSelected
                                     ? SariwaColors.brandPrimary
@@ -1052,7 +1053,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                             style: const TextStyle(
                               fontFamily: AppTypography.fontFamily,
                               fontSize: 13,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               letterSpacing: -0.2,
                               color: Color(0xFF334155),
                             ),
@@ -1097,7 +1098,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                               style: const TextStyle(
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: -0.2,
                                 color: Color(0xFF1E293B),
                               ),
@@ -1230,7 +1231,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   color: Color(0xFF0F172A),
                 ),
               ),
@@ -1267,7 +1268,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                     style: const TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF334155),
                     ),
                   ),
@@ -1308,7 +1309,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               letterSpacing: -0.2,
               color: textColor,
             ),
@@ -1416,7 +1417,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             emptyTitle,
             style: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),

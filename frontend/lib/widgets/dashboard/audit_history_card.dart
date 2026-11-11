@@ -11,11 +11,15 @@ import 'history_delete_dialog.dart';
 class AuditHistoryCard extends StatefulWidget {
   final ClassificationState state;
   final ClassificationController controller;
+  final VoidCallback? onViewMore;
+  final int maxDisplayItems;
 
   const AuditHistoryCard({
     super.key,
     required this.state,
     required this.controller,
+    this.onViewMore,
+    this.maxDisplayItems = 5,
   });
 
   @override
@@ -82,7 +86,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                             'Audit History',
                             style: TextStyle(
                               fontSize: 17,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500, // Medium
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -135,7 +139,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                         ),
                         textStyle: const TextStyle(
                           fontFamily: 'Geist',
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                           fontSize: 13,
                         ),
@@ -239,7 +243,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                     style: const TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       color: SariwaColors.textPrimaryDark,
                       letterSpacing: AppTypography.defaultLetterSpacing,
                     ),
@@ -285,7 +289,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           style: const TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                           ),
                         ),
@@ -321,7 +325,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           textStyle: const TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                           ),
                         ),
@@ -345,17 +349,74 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
               activeFilter: _historyFilter,
               hasAnyHistory: state.history.isNotEmpty,
             )
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filtered.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final scan = filtered[index];
-                return _buildHistoryItemRow(scan, controller, state);
+          else ...[
+            Builder(
+              builder: (context) {
+                final displayList = filtered.take(widget.maxDisplayItems).toList();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: displayList.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final scan = displayList[index];
+                        return _buildHistoryItemRow(scan, controller, state);
+                      },
+                    ),
+                    if (filtered.length > widget.maxDisplayItems || widget.onViewMore != null) ...[
+                      const SizedBox(height: 14),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          key: const Key('audit_history_view_more_button'),
+                          onTap: widget.onViewMore,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 11,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SariwaColors.brandPrimary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: SariwaColors.brandPrimary.withValues(alpha: 0.20),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'View more',
+                                  style: TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    letterSpacing: AppTypography.defaultLetterSpacing,
+                                    color: SariwaColors.brandPrimary,
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Icon(
+                                  CupertinoIcons.arrow_right,
+                                  size: 14,
+                                  color: SariwaColors.brandPrimary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
               },
             ),
+          ],
         ],
       ),
     );
@@ -410,7 +471,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
             emptyTitle,
             style: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),
@@ -573,7 +634,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                               scan.label,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing:
                                     AppTypography.defaultLetterSpacing,
                                 color: scan.statusColor,
@@ -593,7 +654,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                                   'Selected region: ${scan.regionDisplayName!}',
                                   style: const TextStyle(
                                     fontSize: 10.5,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     letterSpacing:
                                         AppTypography.defaultLetterSpacing,
                                     color: SariwaColors.brandPrimary,
@@ -660,7 +721,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                         scan.formattedConfidence,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                           color: scan.statusColor,
                         ),

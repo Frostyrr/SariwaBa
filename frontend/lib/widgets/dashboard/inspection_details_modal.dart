@@ -44,35 +44,45 @@ class InspectionDetailsModal {
             insetPadding: const EdgeInsets.all(20),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 500),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.88),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.95),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF0F172A).withValues(alpha: 0.08),
-                          blurRadius: 30,
-                          offset: const Offset(0, 10),
-                          spreadRadius: -2,
-                        ),
-                        BoxShadow(
-                          color: const Color(0xFF14B8A6).withValues(alpha: 0.06),
-                          blurRadius: 36,
-                          offset: const Offset(0, 12),
-                          spreadRadius: -4,
-                        ),
-                      ],
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0E0F172A),
+                      blurRadius: 28,
+                      offset: Offset(0, 8),
+                      spreadRadius: -2,
                     ),
-                    child: Column(
+                    BoxShadow(
+                      color: Color(0x0A0F172A),
+                      blurRadius: 44,
+                      offset: Offset(0, 16),
+                      spreadRadius: -4,
+                    ),
+                    BoxShadow(
+                      color: Color(0x0814B8A6),
+                      blurRadius: 32,
+                      offset: Offset(0, 10),
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.95),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -83,7 +93,7 @@ class InspectionDetailsModal {
                               'Inspection #${scan.scanId ?? ''}',
                               style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing: AppTypography.defaultLetterSpacing,
                                 color: SariwaColors.textPrimaryDark,
                               ),
@@ -127,7 +137,7 @@ class InspectionDetailsModal {
                                     scan.label,
                                     style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w400,
                                       letterSpacing:
                                           AppTypography.defaultLetterSpacing,
                                       color: scan.isFresh
@@ -139,7 +149,7 @@ class InspectionDetailsModal {
                                     'Model Confidence: ${(scan.confidence * 100).toStringAsFixed(1)}%',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.w400,
                                       letterSpacing:
                                           AppTypography.defaultLetterSpacing,
                                       color: SariwaColors.textSecondaryDark,
@@ -193,6 +203,7 @@ class InspectionDetailsModal {
                   ),
                 ),
               ),
+              ),
             ),
           ),
         );
@@ -210,7 +221,7 @@ class InspectionDetailsModal {
             label,
             style: const TextStyle(
               fontSize: 12.5,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: Color(0xFF64748B),
             ),
@@ -219,7 +230,7 @@ class InspectionDetailsModal {
             value,
             style: const TextStyle(
               fontSize: 12.5,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),

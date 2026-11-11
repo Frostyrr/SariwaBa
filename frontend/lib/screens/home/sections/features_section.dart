@@ -45,7 +45,7 @@ class FeaturesSection extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                           color: SariwaColors.brandPrimaryDark,
                         ),
@@ -67,7 +67,7 @@ class FeaturesSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 38,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500, // Medium
                     letterSpacing: -0.25,
                     color: const Color(0xFF0A2229),
                   ),
@@ -89,6 +89,7 @@ class FeaturesSection extends StatelessWidget {
                       letterSpacing: -0.25,
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 16,
+                      fontWeight: FontWeight.w300,
                       height: 1.5,
                       color: const Color(0xFF475569),
                     ),
@@ -171,35 +172,45 @@ class FeaturesSection extends StatelessWidget {
     required String title,
     required String desc,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.72),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.85),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-                spreadRadius: -2,
-              ),
-              BoxShadow(
-                color: const Color(0xFF14B8A6).withValues(alpha: 0.05),
-                blurRadius: 28,
-                offset: const Offset(0, 8),
-                spreadRadius: -4,
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A0F172A),
+            blurRadius: 18,
+            offset: Offset(0, 4),
+            spreadRadius: -2,
           ),
-          child: Column(
+          BoxShadow(
+            color: Color(0x060F172A),
+            blurRadius: 32,
+            offset: Offset(0, 10),
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: Color(0x0814B8A6),
+            blurRadius: 24,
+            offset: Offset(0, 6),
+            spreadRadius: -4,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.76),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.88),
+                width: 1.2,
+              ),
+            ),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
@@ -225,7 +236,7 @@ class FeaturesSection extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 18.5,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500, // Medium
                   letterSpacing: -0.25,
                   color: Color(0xFF0A2229),
                 ),
@@ -237,6 +248,7 @@ class FeaturesSection extends StatelessWidget {
                   letterSpacing: -0.25,
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 14,
+                  fontWeight: FontWeight.w300,
                   height: 1.55,
                   color: Color(0xFF475569),
                 ),
@@ -245,6 +257,7 @@ class FeaturesSection extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

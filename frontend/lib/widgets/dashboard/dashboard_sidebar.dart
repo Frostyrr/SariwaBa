@@ -46,33 +46,36 @@ class DashboardSidebar extends StatelessWidget {
         .first;
     final email = (user?.email ?? 'Guest Session').toString();
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.72),
-            border: Border(
-              right: BorderSide(
-                color: Colors.white.withValues(alpha: 0.85),
-                width: 1.2,
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.035),
+            blurRadius: 18,
+            offset: const Offset(4, 0),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: const Color(0xFF14B8A6).withValues(alpha: 0.03),
+            blurRadius: 28,
+            offset: const Offset(6, 0),
+            spreadRadius: -4,
+          ),
+        ],
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              border: Border(
+                right: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  width: 1.2,
+                ),
               ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-                blurRadius: 24,
-                offset: const Offset(4, 0),
-                spreadRadius: -2,
-              ),
-              BoxShadow(
-                color: const Color(0xFF14B8A6).withValues(alpha: 0.04),
-                blurRadius: 32,
-                offset: const Offset(6, 0),
-                spreadRadius: -4,
-              ),
-            ],
-          ),
           padding: EdgeInsets.fromLTRB(
             isCollapsed ? 12 : 18,
             20,
@@ -98,7 +101,7 @@ class DashboardSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: 0.8,
                       color: Color(0xFF94A3B8),
                     ),
@@ -145,7 +148,7 @@ class DashboardSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: 0.8,
                       color: Color(0xFF94A3B8),
                     ),
@@ -187,6 +190,7 @@ class DashboardSidebar extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -263,7 +267,7 @@ class DashboardSidebar extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
                       ),
@@ -300,29 +304,54 @@ class DashboardSidebar extends StatelessWidget {
             ? 'Guest Evaluation Mode • Connect with Google'
             : 'Quick Tilapia Tip',
         preferBelow: false,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isGuestUser ? onConnectGoogle : onOpenGuidelines,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE6F6F4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFBBE5DF),
-                  width: 1.0,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isGuestUser ? onConnectGoogle : onOpenGuidelines,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0x33CCEAE6),
+                    width: 1.0,
+                  ),
                 ),
-              ),
-              child: Center(
-                child: Icon(
-                  isGuestUser
-                      ? CupertinoIcons.person_crop_circle_badge_exclam
-                      : CupertinoIcons.sparkles,
-                  size: 20,
-                  color: SariwaColors.brandPrimary,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        'assets/images/backgroundBlurred.jpg',
+                        fit: BoxFit.cover,
+                        alignment: Alignment.center,
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
+                              const Color(0xFF0D2F38).withValues(alpha: 0.84),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      isGuestUser
+                          ? CupertinoIcons.person_crop_circle_badge_exclam
+                          : CupertinoIcons.sparkles,
+                      size: 20,
+                      color: const Color(0xFF5EEAD4),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -333,83 +362,160 @@ class DashboardSidebar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.90),
-          width: 1.2,
-        ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Color(0x280A2229),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Color(0x1814B8A6),
+            blurRadius: 22,
+            offset: Offset(0, 10),
+            spreadRadius: -3,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6F6F4),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFFBBE5DF),
-                width: 0.8,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Stack(
+          children: [
+            // Layer 1: Blurred Underwater Aquatic Backdrop (same as CTA)
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/backgroundBlurred.jpg',
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
               ),
             ),
-            child: Icon(
-              isGuestUser
-                  ? CupertinoIcons.person_crop_circle_badge_exclam
-                  : CupertinoIcons.sparkles,
-              size: 16,
-              color: SariwaColors.brandPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            isGuestUser
-                ? 'Guest Evaluation Mode'
-                : 'Quick Tilapia Tip',
-            style: const TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              color: SariwaColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            isGuestUser
-                ? 'Sign in with Google to save your freshness scans to your history.'
-                : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
-            style: const TextStyle(
-              fontSize: 11.5,
-              height: 1.35,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              color: SariwaColors.textSecondaryDark,
-            ),
-          ),
-          if (isGuestUser) ...[
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: onConnectGoogle,
-              child: const Text(
-                'Connect with Google',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.brandPrimary,
+            // Layer 2: Deep Abyss Gradient Overlay (ensures high contrast & legibility)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
+                      const Color(0xFF0D2F38).withValues(alpha: 0.82),
+                      SariwaColors.bgAbyssDark.withValues(alpha: 0.92),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: const Color(0x28CCEAE6),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
             ),
+            // Layer 3: Ambient Radial Glow Flare
+            Positioned(
+              top: -30,
+              right: -25,
+              child: Container(
+                width: 110,
+                height: 110,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x3514B8A6),
+                      Color(0x0E2DD4BF),
+                      Color(0x002DD4BF),
+                    ],
+                    stops: [0.0, 0.55, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            // Layer 4: Foreground Content
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: const Color(0x2414B8A6),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0x402DD4BF),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Icon(
+                      isGuestUser
+                          ? CupertinoIcons.person_crop_circle_badge_exclam
+                          : CupertinoIcons.sparkles,
+                      size: 16,
+                      color: const Color(0xFF5EEAD4),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    isGuestUser
+                        ? 'Guest Evaluation Mode'
+                        : 'Quick Tilapia Tip',
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500, // Medium
+                      letterSpacing: AppTypography.defaultLetterSpacing,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isGuestUser
+                        ? 'Sign in with Google to save your freshness scans to your history.'
+                        : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w300,
+                      height: 1.38,
+                      letterSpacing: AppTypography.defaultLetterSpacing,
+                      color: Colors.white.withValues(alpha: 0.82),
+                    ),
+                  ),
+                  if (isGuestUser) ...[
+                    const SizedBox(height: 12),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: onConnectGoogle,
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Connect with Google',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: AppTypography.defaultLetterSpacing,
+                                color: Color(0xFF5EEAD4),
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              CupertinoIcons.arrow_right,
+                              size: 11,
+                              color: Color(0xFF5EEAD4),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -429,7 +535,7 @@ class DashboardSidebar extends StatelessWidget {
                 firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
                 style: const TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: SariwaColors.brandPrimary,
                 ),
@@ -463,7 +569,7 @@ class DashboardSidebar extends StatelessWidget {
             firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
             style: const TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.brandPrimary,
             ),
@@ -478,7 +584,7 @@ class DashboardSidebar extends StatelessWidget {
                 firstName,
                 style: const TextStyle(
                   fontSize: 13.5,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: SariwaColors.textPrimaryDark,
                 ),
@@ -512,7 +618,7 @@ class DashboardSidebar extends StatelessWidget {
                       isGuestUser ? 'Guest Evaluator' : 'Verified Account',
                       style: const TextStyle(
                         fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textSecondaryDark,
                       ),
@@ -638,7 +744,7 @@ class DashboardSidebar extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 13.5,
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: isActive
                         ? SariwaColors.brandPrimary
@@ -661,7 +767,7 @@ class DashboardSidebar extends StatelessWidget {
                     badgeCount.toString(),
                     style: const TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: AppTypography.defaultLetterSpacing,
                       color: SariwaColors.brandPrimary,
                     ),

@@ -22,6 +22,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
   final VoidCallback onConnectGoogle;
   final VoidCallback onBackHome;
   final VoidCallback onOpenCropModal;
+  final VoidCallback? onViewMore;
   final ScrollController? scrollController;
 
   const InspectionWorkspaceSection({
@@ -35,6 +36,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
     required this.onConnectGoogle,
     required this.onBackHome,
     required this.onOpenCropModal,
+    this.onViewMore,
     this.scrollController,
   });
 
@@ -107,6 +109,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                             child: AuditHistoryCard(
                               state: classState,
                               controller: classController,
+                              onViewMore: onViewMore,
                             ),
                           ),
                         ),
@@ -132,6 +135,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                         child: AuditHistoryCard(
                           state: classState,
                           controller: classController,
+                          onViewMore: onViewMore,
                         ),
                       ),
                     ],
@@ -148,57 +152,30 @@ class InspectionWorkspaceSection extends StatelessWidget {
   }
 
   Widget _buildDashboardHeader(BuildContext context) {
-    final name = (user?.displayName ?? 'Evaluator').toString().split(' ').first;
+    final name = (user != null && user.displayName != null && user.displayName.toString().isNotEmpty)
+        ? user.displayName.toString().split(' ').first
+        : (isGuestUser ? 'Guest Evaluator' : 'Inspector');
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 560;
+        final isCompact = constraints.maxWidth < 640;
 
         final headerInfo = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 10,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            Row(
               children: [
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: onBackHome,
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          CupertinoIcons.chevron_left,
-                          size: 13,
-                          color: Color(0xFF5EEAD4),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Back to Home',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: Color(0xFF5EEAD4),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 3.5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0x2814B8A6),
+                    color: const Color(0xFFE6F6F4),
                     borderRadius: BorderRadius.circular(99),
                     border: Border.all(
-                      color: const Color(0x402DD4BF),
-                      width: 0.8,
+                      color: const Color(0xFFBBE5DF),
+                      width: 1.0,
                     ),
                   ),
                   child: Row(
@@ -209,7 +186,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                         height: 6,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFF2DD4BF),
+                          color: SariwaColors.brandPrimary,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -219,9 +196,9 @@ class InspectionWorkspaceSection extends StatelessWidget {
                             : 'Account Synced',
                         style: const TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: AppTypography.defaultLetterSpacing,
-                          color: Colors.white,
+                          color: Color(0xFF0F766E),
                         ),
                       ),
                     ],
@@ -235,7 +212,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
               style: AppTypography.displayLarge.copyWith(
                 color: Colors.white,
                 fontSize: isCompact ? 23 : 28,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w500, // Medium
                 letterSpacing: AppTypography.defaultLetterSpacing,
               ),
             ),
@@ -269,16 +246,16 @@ class InspectionWorkspaceSection extends StatelessWidget {
                 icon: const Icon(
                   CupertinoIcons.person_badge_plus,
                   size: 15,
-                  color: Color(0xFF5EEAD4),
+                  color: SariwaColors.brandPrimary,
                 ),
                 label: const Text('Connect with Google'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
+                  foregroundColor: SariwaColors.brandPrimary,
                   side: const BorderSide(
-                    color: Color(0x402DD4BF),
+                    color: Color(0xFFBBE5DF),
                     width: 1.0,
                   ),
-                  backgroundColor: const Color(0x2414B8A6),
+                  backgroundColor: const Color(0xFFE6F6F4),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -294,13 +271,13 @@ class InspectionWorkspaceSection extends StatelessWidget {
                 icon: const Icon(
                   CupertinoIcons.refresh,
                   size: 14,
-                  color: Color(0xFF5EEAD4),
+                  color: SariwaColors.brandPrimary,
                 ),
                 label: const Text('Sync History'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Color(0x402DD4BF), width: 1.0),
-                  backgroundColor: const Color(0x2414B8A6),
+                  foregroundColor: SariwaColors.brandPrimary,
+                  side: const BorderSide(color: Color(0xFFBBE5DF), width: 1.0),
+                  backgroundColor: const Color(0xFFE6F6F4),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
@@ -354,11 +331,11 @@ class InspectionWorkspaceSection extends StatelessWidget {
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
           child: Material(
-            color: isDark ? const Color(0x24FFFFFF) : const Color(0xD9FFFFFF),
+            color: isDark ? const Color(0x24FFFFFF) : Colors.white,
             child: InkWell(
               onTap: onTap,
               customBorder: const CircleBorder(),
-              splashColor: isDark ? const Color(0x2014B8A6) : null,
+              splashColor: const Color(0x2014B8A6),
               child: Container(
                 width: 38,
                 height: 38,
@@ -370,6 +347,15 @@ class InspectionWorkspaceSection extends StatelessWidget {
                         : const Color(0xFFE2E8F0),
                     width: 1.0,
                   ),
+                  boxShadow: isDark
+                      ? null
+                      : const [
+                          BoxShadow(
+                            color: Color(0x0A0F172A),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                 ),
                 child: Icon(
                   icon,

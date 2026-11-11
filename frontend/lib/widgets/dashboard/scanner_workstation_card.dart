@@ -74,7 +74,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             'Freshness Inspection',
                             style: TextStyle(
                               fontSize: 17,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w400,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -121,7 +121,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: Color(0xFF334155),
                       ),
@@ -242,7 +242,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: SariwaColors.textPrimaryDark,
                 ),
@@ -286,7 +286,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       textStyle: const TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                       ),
                     ),
@@ -314,7 +314,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       textStyle: const TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                       ),
                     ),
@@ -327,7 +327,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: Color(0xFF64748B),
                 ),
@@ -339,7 +339,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: SariwaColors.brandPrimary,
                 ),
@@ -387,7 +387,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),
@@ -450,7 +450,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   state.selectedImageName ?? 'tilapia_scan.jpg',
                   style: const TextStyle(
                     fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -544,7 +544,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         statusText,
                         style: const TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                           color: SariwaColors.textPrimaryDark,
                         ),
@@ -629,7 +629,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           style: TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 15.5,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textPrimaryDark,
                           ),
@@ -653,7 +653,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                               code,
                               style: const TextStyle(
                                 fontSize: 10.5,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w400,
                                 letterSpacing:
                                     AppTypography.defaultLetterSpacing,
                                 color: SariwaColors.statusSpoiled,
@@ -679,7 +679,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       'The uploaded image could not be verified as a supported fish eye or exposed-gill photograph.',
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
                       ),
@@ -705,7 +705,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   serverMessage,
                   style: const TextStyle(
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -837,7 +837,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   'Service or Connection Issue (${state.errorCode ?? 'ERROR'})',
                   style: const TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -978,7 +978,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                       style: TextStyle(
                                         fontFamily: 'Geist',
                                         fontSize: 18,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w400,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
                                         color: textColor,
@@ -999,7 +999,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                           selectedRegionText,
                                           style: const TextStyle(
                                             fontSize: 11,
-                                            fontWeight: FontWeight.w700,
+                                            fontWeight: FontWeight.w400,
                                             letterSpacing:
                                                 AppTypography.defaultLetterSpacing,
                                             color: SariwaColors.brandPrimary,
@@ -1019,7 +1019,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                         result.assessmentScopeLabel,
                                         style: const TextStyle(
                                           fontSize: 11,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w400,
                                           letterSpacing:
                                               AppTypography.defaultLetterSpacing,
                                           color:
@@ -1050,7 +1050,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                   style: TextStyle(
                                     fontFamily: 'Geist',
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w400,
                                     letterSpacing:
                                         AppTypography.defaultLetterSpacing,
                                     color: SariwaColors.textPrimaryDark,
@@ -1063,7 +1063,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                 style: TextStyle(
                                   fontFamily: 'Geist',
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w400,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: primaryColor,
@@ -1151,7 +1151,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     result.saveStatusLabel,
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                       letterSpacing: AppTypography.defaultLetterSpacing,
                       color: result.saved
                           ? SariwaColors.brandPrimary
@@ -1176,7 +1176,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               style: const TextStyle(
                 fontSize: 11.5,
                 height: 1.4,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 letterSpacing: AppTypography.defaultLetterSpacing,
                 color: SariwaColors.textSecondaryDark,
               ),

@@ -121,7 +121,7 @@ class _FaqSectionState extends State<FaqSection> {
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                           color: SariwaColors.brandPrimaryDark,
                         ),
@@ -141,7 +141,7 @@ class _FaqSectionState extends State<FaqSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: isMobile ? 32.0 : 38.0,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500, // Medium
                         letterSpacing: -0.25,
                         color: const Color(0xFF0A2229),
                       ),
@@ -170,7 +170,7 @@ class _FaqSectionState extends State<FaqSection> {
                     ),
                   ),
 
-                  SizedBox(height: isMobile ? 36 : 48),
+                  SizedBox(height: isMobile ? 28 : 36),
 
                   // Accordion List
                   ...List.generate(_faqList.length, (index) {
@@ -181,7 +181,7 @@ class _FaqSectionState extends State<FaqSection> {
                       revealOnScroll: true,
                       staggerIndex: index,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 14.0),
+                        padding: const EdgeInsets.only(bottom: 10.0),
                         child: _buildAccordionCard(
                           isMobile: isMobile,
                           index: index,
@@ -192,7 +192,7 @@ class _FaqSectionState extends State<FaqSection> {
                     );
                   }),
 
-                  const SizedBox(height: 64),
+                  SizedBox(height: isMobile ? 40 : 52),
 
                   // Final Call-To-Action Banner
                   StaggeredReveal(
@@ -215,36 +215,46 @@ class _FaqSectionState extends State<FaqSection> {
     required FaqItem item,
     required bool isExpanded,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: isExpanded ? 0.85 : 0.75),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isExpanded
-                  ? const Color(0xFF0D9488).withValues(alpha: 0.45)
-                  : Colors.white.withValues(alpha: 0.88),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: isExpanded ? 0.05 : 0.03),
-                blurRadius: isExpanded ? 24 : 16,
-                offset: const Offset(0, 6),
-                spreadRadius: -2,
-              ),
-              BoxShadow(
-                color: const Color(0xFF14B8A6).withValues(alpha: isExpanded ? 0.07 : 0.03),
-                blurRadius: 30,
-                offset: const Offset(0, 8),
-                spreadRadius: -4,
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: isExpanded ? 0.05 : 0.03),
+            blurRadius: isExpanded ? 22 : 16,
+            offset: const Offset(0, 4),
+            spreadRadius: -2,
           ),
-          child: Column(
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: isExpanded ? 0.035 : 0.02),
+            blurRadius: isExpanded ? 34 : 26,
+            offset: const Offset(0, 10),
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: const Color(0xFF14B8A6).withValues(alpha: isExpanded ? 0.05 : 0.025),
+            blurRadius: isExpanded ? 26 : 20,
+            offset: const Offset(0, 6),
+            spreadRadius: -4,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: isExpanded ? 0.86 : 0.76),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isExpanded
+                    ? const Color(0xFF0D9488).withValues(alpha: 0.45)
+                    : Colors.white.withValues(alpha: 0.88),
+                width: 1.2,
+              ),
+            ),
+            child: Column(
             children: [
               // Clickable Question Header
               Material(
@@ -256,8 +266,8 @@ class _FaqSectionState extends State<FaqSection> {
                   highlightColor: const Color(0x080D9488),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 20.0 : 26.0,
-                      vertical: isMobile ? 18.0 : 22.0,
+                      horizontal: isMobile ? 18.0 : 22.0,
+                      vertical: isMobile ? 14.0 : 16.0,
                     ),
                     child: Row(
                       children: [
@@ -266,8 +276,8 @@ class _FaqSectionState extends State<FaqSection> {
                             item.question,
                             style: TextStyle(
                               fontFamily: AppTypography.fontFamily,
-                              fontSize: isMobile ? 16.0 : 17.5,
-                              fontWeight: FontWeight.w600,
+                              fontSize: isMobile ? 15.0 : 16.0,
+                              fontWeight: FontWeight.w500, // Medium
                               letterSpacing: -0.2,
                               color: isExpanded
                                   ? const Color(0xFF0D9488)
@@ -275,14 +285,14 @@ class _FaqSectionState extends State<FaqSection> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 14),
                         AnimatedRotation(
                           turns: isExpanded ? 0.5 : 0.0,
                           duration: const Duration(milliseconds: 250),
                           curve: Curves.easeInOutCubic,
                           child: Container(
-                            width: 32,
-                            height: 32,
+                            width: 28,
+                            height: 28,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: isExpanded
@@ -296,7 +306,7 @@ class _FaqSectionState extends State<FaqSection> {
                             alignment: Alignment.center,
                             child: Icon(
                               Icons.keyboard_arrow_down_rounded,
-                              size: 20,
+                              size: 18,
                               color: isExpanded
                                   ? const Color(0xFF0D9488)
                                   : const Color(0xFF64748B),
@@ -317,24 +327,24 @@ class _FaqSectionState extends State<FaqSection> {
                   children: [
                     Container(
                       margin: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 20.0 : 26.0,
+                        horizontal: isMobile ? 18.0 : 22.0,
                       ),
                       height: 1,
                       color: const Color(0xFFF1F5F9).withValues(alpha: 0.70),
                     ),
                     Padding(
                       padding: EdgeInsets.fromLTRB(
-                        isMobile ? 20.0 : 26.0,
-                        14.0,
-                        isMobile ? 20.0 : 26.0,
-                        22.0,
+                        isMobile ? 18.0 : 22.0,
+                        10.0,
+                        isMobile ? 18.0 : 22.0,
+                        16.0,
                       ),
                       child: Text(
                         item.answer,
                         style: const TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 14.5,
-                          height: 1.6,
+                          fontSize: 13.5,
+                          height: 1.5,
                           letterSpacing: -0.2,
                           color: Color(0xFF475569),
                         ),
@@ -352,6 +362,7 @@ class _FaqSectionState extends State<FaqSection> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -436,7 +447,10 @@ class _FaqSectionState extends State<FaqSection> {
             // Layer 4: Foreground Content (Centered across full width)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 36),
+              padding: EdgeInsets.symmetric(
+                vertical: MediaQuery.of(context).size.width < 768 ? 44 : 48,
+                horizontal: MediaQuery.of(context).size.width < 768 ? 24 : 32,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -460,7 +474,7 @@ class _FaqSectionState extends State<FaqSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
                         color: Color(0xFF5EEAD4),
                       ),
@@ -475,7 +489,7 @@ class _FaqSectionState extends State<FaqSection> {
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 30,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500, // Medium
                       letterSpacing: -0.25,
                       height: 1.2,
                       color: Colors.white,
@@ -492,6 +506,7 @@ class _FaqSectionState extends State<FaqSection> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 15.5,
+                        fontWeight: FontWeight.w300,
                         height: 1.55,
                         letterSpacing: -0.25,
                         color: Color(0xFFD1FAF4),

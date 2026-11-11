@@ -12,6 +12,7 @@ class AuditHistorySection extends StatelessWidget {
   final String searchQuery;
   final bool isGuest;
   final VoidCallback? onSignIn;
+  final VoidCallback? onViewMore;
 
   const AuditHistorySection({
     super.key,
@@ -22,6 +23,7 @@ class AuditHistorySection extends StatelessWidget {
     required this.searchQuery,
     this.isGuest = false,
     this.onSignIn,
+    this.onViewMore,
   });
 
   @override
@@ -173,17 +175,74 @@ class AuditHistorySection extends StatelessWidget {
             )
           else if (filtered.isEmpty)
             _buildEmptyHistoryState()
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filtered.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final scan = filtered[index];
-                return _buildHistoryItemRow(context, scan);
+          else ...[
+            Builder(
+              builder: (context) {
+                final displayList = filtered.take(5).toList();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: displayList.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final scan = displayList[index];
+                        return _buildHistoryItemRow(context, scan);
+                      },
+                    ),
+                    if (filtered.length > 5 || onViewMore != null) ...[
+                      const SizedBox(height: 14),
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          key: const Key('audit_history_section_view_more_button'),
+                          onTap: onViewMore,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 11,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: SariwaColors.brandPrimary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: SariwaColors.brandPrimary.withValues(alpha: 0.20),
+                                width: 1.0,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'View more',
+                                  style: TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.25,
+                                    color: SariwaColors.brandPrimary,
+                                  ),
+                                ),
+                                SizedBox(width: 6),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 15,
+                                  color: SariwaColors.brandPrimary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
               },
             ),
+          ],
         ],
       ),
     );
