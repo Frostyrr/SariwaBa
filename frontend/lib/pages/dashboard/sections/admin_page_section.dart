@@ -577,6 +577,8 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
               Expanded(
                 child: TextField(
                   controller: _userSearchCtrl,
+                  style: const TextStyle(fontFamily: 'Geist', fontSize: 13, color: Color(0xFF0F172A)),
+                  cursorColor: const Color(0xFF0F766E),
                   onChanged: (val) => ctrl.searchUsers(val),
                   decoration: InputDecoration(
                     hintText: 'Search by inspector name, email, or username...',
@@ -604,7 +606,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
               const SizedBox(width: 12),
               // Filter by role
               _buildFilterDropdown(
-                value: state.selectedRoleFilter ?? 'All Roles',
+                value: state.selectedRoleFilter == 'admin'
+                    ? 'Admins'
+                    : state.selectedRoleFilter == 'user' ? 'Inspectors' : 'All Roles',
                 items: const ['All Roles', 'Admins', 'Inspectors'],
                 onChanged: (val) {
                   if (val == 'All Roles') {
@@ -1980,6 +1984,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
+          dropdownColor: const Color(0xFAFFFFFF),
+          borderRadius: BorderRadius.circular(14),
+          elevation: 8,
           value: items.contains(value) ? value : items.first,
           isDense: true,
           style: const TextStyle(

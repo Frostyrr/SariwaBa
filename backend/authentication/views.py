@@ -48,6 +48,7 @@ def _serialize_user(user, profile=None):
         "is_admin": profile.is_admin if profile else (user.is_staff or user.is_superuser),
         "is_suspended": profile.is_suspended if profile else False,
         "suspended_at": profile.suspended_at.isoformat() if (profile and profile.suspended_at) else None,
+        "date_joined": user.date_joined.isoformat() if getattr(user, "date_joined", None) else None,
         "is_guest": False,
         "is_registered": True,
     }

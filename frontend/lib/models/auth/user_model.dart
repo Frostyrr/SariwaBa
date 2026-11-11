@@ -9,6 +9,7 @@ class UserModel {
   final bool isAdmin;
   final bool isSuspended;
   final DateTime? suspendedAt;
+  final DateTime? dateJoined;
   final bool isGuest;
   final bool isRegistered;
 
@@ -23,6 +24,7 @@ class UserModel {
     this.isAdmin = false,
     this.isSuspended = false,
     this.suspendedAt,
+    this.dateJoined,
     this.isGuest = false,
     this.isRegistered = true,
   });
@@ -41,6 +43,9 @@ class UserModel {
       suspendedAt: json['suspended_at'] != null
           ? DateTime.tryParse(json['suspended_at'].toString())
           : null,
+      dateJoined: json['date_joined'] != null
+          ? DateTime.tryParse(json['date_joined'].toString())
+          : null,
       isGuest: json['is_guest'] as bool? ?? false,
       isRegistered: json['is_registered'] as bool? ?? true,
     );
@@ -58,6 +63,7 @@ class UserModel {
       'is_admin': isAdmin,
       'is_suspended': isSuspended,
       'suspended_at': suspendedAt?.toIso8601String(),
+      'date_joined': dateJoined?.toIso8601String(),
       'is_guest': isGuest,
       'is_registered': isRegistered,
     };
@@ -88,6 +94,7 @@ class UserModel {
     bool? isAdmin,
     bool? isSuspended,
     DateTime? suspendedAt,
+    DateTime? dateJoined,
     bool? isGuest,
     bool? isRegistered,
   }) {
@@ -102,6 +109,7 @@ class UserModel {
       isAdmin: isAdmin ?? this.isAdmin,
       isSuspended: isSuspended ?? this.isSuspended,
       suspendedAt: suspendedAt ?? this.suspendedAt,
+      dateJoined: dateJoined ?? this.dateJoined,
       isGuest: isGuest ?? this.isGuest,
       isRegistered: isRegistered ?? this.isRegistered,
     );

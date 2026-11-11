@@ -7,11 +7,13 @@ class ApiEndpoints {
   static const String tokenRefresh = '/api/v1/auth/token/refresh/';
   static const String logout = '/api/v1/auth/logout/';
   static const String profile = '/api/v1/profile/';
+  static const String deleteAccount = '/api/v1/auth/account/delete/';
 
   // Fish Freshness Classification & Audit History
   static const String classify = '/api/v1/classify/';
   static const String history = '/api/v1/history/';
   static const String historyBulkDelete = '/api/v1/history/bulk/';
+  static const String historyClearAll = '/api/v1/history/clear/';
   static String historyDetail(int scanId) => '/api/v1/history/$scanId/';
 
   // Admin & RBAC Endpoints

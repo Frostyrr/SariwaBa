@@ -1,6 +1,10 @@
+import '../../widgets/dashboard/dashboard_light_theme.dart';
+
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/classification/classification_controller.dart';
 
@@ -11,7 +15,10 @@ import '../../widgets/dashboard/dashboard_sidebar.dart';
 import '../../widgets/dashboard/organoleptic_guidelines_dialog.dart';
 import 'sections/admin_page_section.dart';
 import 'sections/analytics_page_section.dart';
+import 'sections/account_settings_page_section.dart';
+import 'sections/help_faq_dashboard_section.dart';
 import 'sections/history_page_section.dart';
+import 'sections/how_it_works_dashboard_section.dart';
 import 'sections/inspection_workspace_section.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -162,7 +169,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       historyCount: classState.history.length,
       activeNav: _activeNav,
       isCollapsed: _isSidebarCollapsed,
-      onToggleCollapse: () => setState(() => _isSidebarCollapsed = !_isSidebarCollapsed),
+      onToggleCollapse: () =>
+          setState(() => _isSidebarCollapsed = !_isSidebarCollapsed),
       onNavSelected: (nav) {
         if (nav == 'Admin' && user?.isAdmin != true) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -183,23 +191,82 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       onOpenGuidelines: () => OrganolepticGuidelinesDialog.show(context),
     );
 
-    return DefaultTextStyle.merge(
-      style: const TextStyle(
-        fontFamily: 'Geist',
-        letterSpacing: AppTypography.defaultLetterSpacing,
-      ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        drawer: MediaQuery.of(context).size.width >= 900
-            ? null
-            : Drawer(child: sidebar),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final isDesktop = constraints.maxWidth >= 900;
+    return DashboardLightTheme(
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(
+          fontFamily: 'Geist',
+          letterSpacing: AppTypography.defaultLetterSpacing,
+        ),
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          drawer: MediaQuery.of(context).size.width >= 900
+              ? null
+              : Drawer(child: sidebar),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final isDesktop = constraints.maxWidth >= 900;
 
-            Widget activeView;
-            if (_activeNav == 'Admin') {
-              if (user?.isAdmin != true) {
+              Widget activeView;
+              if (_activeNav == 'Admin') {
+                if (user?.isAdmin != true) {
+                  activeView = InspectionWorkspaceSection(
+                    user: user,
+                    isGuestUser: isGuestUser,
+                    isDesktop: isDesktop,
+                    isModalEffectivelyOpen: isModalEffectivelyOpen,
+                    classState: classState,
+                    classController: classController,
+                    onConnectGoogle: () => authController.continueWithGoogle(),
+                    onBackHome: () => authController.goToLanding(),
+                    onOpenCropModal: _showRoiCropperModal,
+                    onViewMore: () => setState(() => _activeNav = 'History'),
+                    scrollController: _scrollController,
+                  );
+                } else {
+                  activeView = AdminPageSection(
+                    isDesktop: isDesktop,
+                    scrollController: _scrollController,
+                  );
+                }
+              } else if (_activeNav == 'History') {
+                activeView = HistoryPageSection(
+                  history: classState.history,
+                  controller: classController,
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                );
+              } else if (_activeNav == 'Analytics' || _activeNav == 'Summary') {
+                activeView = AnalyticsPageSection(
+                  history: classState.history,
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                );
+              } else if (_activeNav == 'Settings' || _activeNav == 'Account') {
+                activeView = AccountSettingsPageSection(
+                  user: user,
+                  isGuestUser: isGuestUser,
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                  authController: authController,
+                  classificationController: classController,
+                  onSignIn: () => authController.goToLogin(),
+                );
+              } else if (_activeNav == 'HowItWorks' ||
+                  _activeNav == 'How It Works') {
+                activeView = HowItWorksDashboardSection(
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                  onStartInspection: () =>
+                      setState(() => _activeNav = 'Inspection'),
+                );
+              } else if (_activeNav == 'Help' ||
+                  _activeNav == 'FAQs' ||
+                  _activeNav == 'Help & FAQs') {
+                activeView = HelpFaqDashboardSection(
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                );
+              } else {
                 activeView = InspectionWorkspaceSection(
                   user: user,
                   isGuestUser: isGuestUser,
@@ -213,74 +280,41 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   onViewMore: () => setState(() => _activeNav = 'History'),
                   scrollController: _scrollController,
                 );
-              } else {
-                activeView = AdminPageSection(
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
+              }
+
+              if (isDesktop) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 240),
+                      curve: Curves.easeInOutCubic,
+                      width: _isSidebarCollapsed ? 76 : 264,
+                      child: sidebar,
+                    ),
+                    Expanded(child: activeView),
+                  ],
                 );
               }
-            } else if (_activeNav == 'History') {
-              activeView = HistoryPageSection(
-                history: classState.history,
-                controller: classController,
-                isDesktop: isDesktop,
-                scrollController: _scrollController,
-              );
-            } else if (_activeNav == 'Analytics' ||
-                _activeNav == 'Summary') {
-              activeView = AnalyticsPageSection(
-                history: classState.history,
-                isDesktop: isDesktop,
-                scrollController: _scrollController,
-              );
-            } else {
-              activeView = InspectionWorkspaceSection(
-                user: user,
-                isGuestUser: isGuestUser,
-                isDesktop: isDesktop,
-                isModalEffectivelyOpen: isModalEffectivelyOpen,
-                classState: classState,
-                classController: classController,
-                onConnectGoogle: () => authController.continueWithGoogle(),
-                onBackHome: () => authController.goToLanding(),
-                onOpenCropModal: _showRoiCropperModal,
-                onViewMore: () => setState(() => _activeNav = 'History'),
-                scrollController: _scrollController,
-              );
-            }
 
-            if (isDesktop) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              return Column(
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 240),
-                    curve: Curves.easeInOutCubic,
-                    width: _isSidebarCollapsed ? 76 : 264,
-                    child: sidebar,
+                  DashboardMobileTopBar(
+                    user: user,
+                    isGuestUser: isGuestUser,
+                    activeNav: _activeNav,
+                    onNavSelected: (nav) => setState(() => _activeNav = nav),
+                    onGoHome: () => authController.goToLanding(),
+                    onSignOut: () => authController.signOut(),
+                    onSignIn: () => authController.goToLogin(),
+                    onSyncHistory: () => classController.loadHistory(),
+                    onOpenDrawer: () => Scaffold.of(context).openDrawer(),
                   ),
                   Expanded(child: activeView),
                 ],
               );
-            }
-
-            return Column(
-              children: [
-                DashboardMobileTopBar(
-                  user: user,
-                  isGuestUser: isGuestUser,
-                  activeNav: _activeNav,
-                  onNavSelected: (nav) => setState(() => _activeNav = nav),
-                  onGoHome: () => authController.goToLanding(),
-                  onSignOut: () => authController.signOut(),
-                  onSignIn: () => authController.goToLogin(),
-                  onSyncHistory: () => classController.loadHistory(),
-                  onOpenDrawer: () => Scaffold.of(context).openDrawer(),
-                ),
-                Expanded(child: activeView),
-              ],
-            );
-          },
+            },
+          ),
         ),
       ),
     );

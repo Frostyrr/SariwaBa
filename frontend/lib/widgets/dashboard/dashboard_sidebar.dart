@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import '../../models/auth/user_model.dart';
+import 'profile_popover_menu.dart';
 
 /// Glassmorphic desktop sidebar with collapsible/expandable states,
 /// navigation items, status indicator, guest evaluation mode card, and user profile.
@@ -40,12 +42,6 @@ class DashboardSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstName = (user?.displayName ?? 'Evaluator')
-        .toString()
-        .split(' ')
-        .first;
-    final email = (user?.email ?? 'Guest Session').toString();
-
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
@@ -212,8 +208,15 @@ class DashboardSidebar extends StatelessWidget {
               const Divider(height: 1, color: Color(0xFFE2E8F0)),
               const SizedBox(height: 12),
 
-              // User Profile Footer
-              _buildProfileFooter(firstName, email),
+              // User Profile Footer with Popover Menu
+              ProfilePopoverButton(
+                user: user is UserModel ? user : null,
+                isGuestUser: isGuestUser,
+                isCollapsed: isCollapsed,
+                onNavSelected: onNavSelected,
+                onSignOut: onSignOut,
+                onSignIn: onSignIn,
+              ),
             ],
           ),
         ),
@@ -545,131 +548,6 @@ class DashboardSidebar extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  /// Bottom User Profile and Sign out/in
-  Widget _buildProfileFooter(String firstName, String email) {
-    if (isCollapsed) {
-      return Column(
-        children: [
-          Tooltip(
-            message: '$firstName • $email',
-            preferBelow: false,
-            child: CircleAvatar(
-              radius: 17,
-              backgroundColor: SariwaColors.brandPrimary.withValues(alpha: 0.14),
-              child: Text(
-                firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.brandPrimary,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          IconButton(
-            tooltip: isGuestUser ? 'Sign in' : 'Sign out',
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            onPressed: isGuestUser ? onSignIn : onSignOut,
-            icon: Icon(
-              isGuestUser
-                  ? CupertinoIcons.arrow_right_circle
-                  : CupertinoIcons.square_arrow_right,
-              size: 17,
-              color: const Color(0xFF64748B),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 18,
-          backgroundColor: SariwaColors.brandPrimary.withValues(alpha: 0.14),
-          child: Text(
-            firstName.isNotEmpty ? firstName[0].toUpperCase() : 'S',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              color: SariwaColors.brandPrimary,
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                firstName,
-                style: const TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textPrimaryDark,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                email,
-                style: const TextStyle(
-                  fontSize: 11,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textSecondaryDark,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isGuestUser
-                          ? const Color(0xFFF59E0B)
-                          : const Color(0xFF10B981),
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Flexible(
-                    child: Text(
-                      isGuestUser ? 'Guest Evaluator' : 'Verified Account',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textSecondaryDark,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          tooltip: isGuestUser ? 'Sign in' : 'Sign out',
-          onPressed: isGuestUser ? onSignIn : onSignOut,
-          icon: Icon(
-            isGuestUser
-                ? CupertinoIcons.arrow_right_circle
-                : CupertinoIcons.square_arrow_right,
-            size: 18,
-            color: const Color(0xFF64748B),
-          ),
-        ),
-      ],
     );
   }
 

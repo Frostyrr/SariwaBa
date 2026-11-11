@@ -146,6 +146,11 @@ class FakeClassificationRepository implements ClassificationRepository {
     mockHistory.removeWhere((s) => scanIds.contains(s.scanId));
     return scanIds;
   }
+
+  @override
+  Future<void> clearAllHistory() async {
+    mockHistory.clear();
+  }
 }
 
 void main() {

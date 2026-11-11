@@ -585,8 +585,8 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                 checkColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 side: BorderSide(
-                  color: hasSelection ? Colors.white70 : const Color(0xFF94A3B8),
-                  width: 1.4,
+                  color: hasSelection ? Colors.white70 : const Color(0xFF64748B),
+                  width: 1.8,
                 ),
                 onChanged: (val) {
                   setState(() {
@@ -1331,8 +1331,10 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         color: Color(0xFF64748B),
       ),
       tooltip: 'Actions',
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFDCE8E5)),
+      ),
       onSelected: (action) {
         if (action == 'view') {
           InspectionDetailsModal.show(context, scan);
