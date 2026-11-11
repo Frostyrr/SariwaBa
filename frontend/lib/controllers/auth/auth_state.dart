@@ -29,6 +29,8 @@ class AuthState {
 
   bool get isGuest => viewStatus == AuthViewStatus.guestMode;
 
+  bool get isAdmin => isAuthenticated && (user?.isAdmin ?? false);
+
   AuthState copyWith({
     AuthViewStatus? viewStatus,
     UserModel? user,

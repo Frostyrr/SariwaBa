@@ -1,3 +1,4 @@
+import time
 from PIL import Image, UnidentifiedImageError
 try:
     from pillow_heif import register_heif_opener
@@ -20,7 +21,7 @@ from ml.predict import (
     predict_image,
 )
 
-from .models import ClassificationHistory
+from .models import ClassificationHistory, ClassificationTelemetryLog
 from .serializers import ClassificationHistorySerializer
 
 
@@ -53,8 +54,14 @@ PRELIMINARY_DISCLAIMER = (
 @parser_classes([MultiPartParser, FormParser])
 def classify_fish(request):
     image_file = request.FILES.get("image")
+    user = request.user if request.user.is_authenticated else None
 
     if image_file is None:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            status="REJECTED_EMPTY",
+            error_code="MISSING_IMAGE",
+        )
         return Response(
             {
                 "error": {
@@ -70,6 +77,12 @@ def classify_fish(request):
         str(raw_region).strip().lower() if raw_region is not None else ""
     )
     if region_type not in ALLOWED_REGION_TYPES:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type[:20],
+            status="REJECTED_INVALID_REGION",
+            error_code="INVALID_REGION_TYPE",
+        )
         return Response(
             {
                 "error": {
@@ -81,6 +94,12 @@ def classify_fish(request):
         )
 
     if image_file.size <= 0:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="REJECTED_EMPTY",
+            error_code="EMPTY_IMAGE",
+        )
         return Response(
             {
                 "error": {
@@ -92,6 +111,12 @@ def classify_fish(request):
         )
 
     if image_file.size > MAX_FILE_SIZE_BYTES:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="REJECTED_SIZE",
+            error_code="IMAGE_TOO_LARGE",
+        )
         return Response(
             {
                 "error": {
@@ -104,6 +129,12 @@ def classify_fish(request):
 
     content_type = (image_file.content_type or "").lower().strip()
     if content_type not in ALLOWED_CONTENT_TYPES:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="REJECTED_UNSUPPORTED_TYPE",
+            error_code="UNSUPPORTED_IMAGE_TYPE",
+        )
         return Response(
             {
                 "error": {
@@ -122,6 +153,12 @@ def classify_fish(request):
             img.verify()
 
         if decoded_format not in ALLOWED_DECODED_FORMATS:
+            ClassificationTelemetryLog.objects.create(
+                user=user,
+                region_type=region_type,
+                status="REJECTED_UNSUPPORTED_TYPE",
+                error_code="UNSUPPORTED_IMAGE_TYPE",
+            )
             return Response(
                 {
                     "error": {
@@ -139,6 +176,12 @@ def classify_fish(request):
             or height > MAX_IMAGE_DIMENSION
             or (width * height) > MAX_IMAGE_PIXELS
         ):
+            ClassificationTelemetryLog.objects.create(
+                user=user,
+                region_type=region_type,
+                status="REJECTED_DIMENSIONS",
+                error_code="INVALID_IMAGE_DIMENSIONS",
+            )
             return Response(
                 {
                     "error": {
@@ -159,6 +202,12 @@ def classify_fish(request):
 
         image_file.seek(0)
     except Image.DecompressionBombError:
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="REJECTED_DIMENSIONS",
+            error_code="INVALID_IMAGE_DIMENSIONS",
+        )
         return Response(
             {
                 "error": {
@@ -169,6 +218,12 @@ def classify_fish(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
     except (UnidentifiedImageError, OSError, SyntaxError, ValueError):
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="REJECTED_CORRUPTED",
+            error_code="INVALID_IMAGE",
+        )
         return Response(
             {
                 "error": {
@@ -179,10 +234,20 @@ def classify_fish(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    start_time = time.perf_counter()
     try:
         image_file.seek(0)
         prediction = predict_image(image_file, region_type=region_type)
+        latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
     except ModelUnavailableError as exc:
+        latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="ERROR_MODEL_UNAVAILABLE",
+            latency_ms=latency_ms,
+            error_code="MODEL_UNAVAILABLE",
+        )
         return Response(
             {
                 "error": {
@@ -193,6 +258,14 @@ def classify_fish(request):
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
     except (ModelInferenceError, Exception):
+        latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        ClassificationTelemetryLog.objects.create(
+            user=user,
+            region_type=region_type,
+            status="ERROR_INFERENCE",
+            latency_ms=latency_ms,
+            error_code="INFERENCE_FAILED",
+        )
         return Response(
             {
                 "error": {
@@ -205,6 +278,16 @@ def classify_fish(request):
 
     label = prediction["label"]
     confidence = prediction["confidence"]
+
+    # Record successful classification telemetry log
+    ClassificationTelemetryLog.objects.create(
+        user=user,
+        region_type=region_type,
+        status="SUCCESS",
+        label=label,
+        confidence=confidence,
+        latency_ms=latency_ms,
+    )
 
     image_file.seek(0)
     scan_id = None
@@ -348,4 +431,30 @@ def bulk_delete_history(request):
         },
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["DELETE", "POST"])
+@permission_classes([IsAuthenticated])
+def clear_all_history(request):
+    """
+    Deletes all classification history records owned by the authenticated user,
+    cleaning up associated fish scan image files on disk.
+    """
+    records = list(ClassificationHistory.objects.filter(user=request.user))
+    count = len(records)
+    for record in records:
+        if record.image:
+            try:
+                record.image.delete(save=False)
+            except Exception:
+                pass
+    ClassificationHistory.objects.filter(user=request.user).delete()
+    return Response(
+        {
+            "message": "All classification history has been permanently deleted.",
+            "deleted_count": count,
+        },
+        status=status.HTTP_200_OK,
+    )
+
 

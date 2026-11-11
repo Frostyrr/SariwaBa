@@ -9,6 +9,7 @@ import '../../widgets/classification/roi_cropper_widget.dart';
 import '../../widgets/dashboard/dashboard_mobile_top_bar.dart';
 import '../../widgets/dashboard/dashboard_sidebar.dart';
 import '../../widgets/dashboard/organoleptic_guidelines_dialog.dart';
+import 'sections/admin_page_section.dart';
 import 'sections/analytics_page_section.dart';
 import 'sections/history_page_section.dart';
 import 'sections/inspection_workspace_section.dart';
@@ -162,7 +163,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       activeNav: _activeNav,
       isCollapsed: _isSidebarCollapsed,
       onToggleCollapse: () => setState(() => _isSidebarCollapsed = !_isSidebarCollapsed),
-      onNavSelected: (nav) => setState(() => _activeNav = nav),
+      onNavSelected: (nav) {
+        if (nav == 'Admin' && user?.isAdmin != true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Administrator privileges required.'),
+              backgroundColor: Color(0xFFEF4444),
+            ),
+          );
+          return;
+        }
+        setState(() => _activeNav = nav);
+      },
       onSignOut: () => authController.signOut(),
       onSignIn: () => authController.goToLogin(),
       onGoHome: () => authController.goToLanding(),
@@ -186,7 +198,28 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             final isDesktop = constraints.maxWidth >= 900;
 
             Widget activeView;
-            if (_activeNav == 'History') {
+            if (_activeNav == 'Admin') {
+              if (user?.isAdmin != true) {
+                activeView = InspectionWorkspaceSection(
+                  user: user,
+                  isGuestUser: isGuestUser,
+                  isDesktop: isDesktop,
+                  isModalEffectivelyOpen: isModalEffectivelyOpen,
+                  classState: classState,
+                  classController: classController,
+                  onConnectGoogle: () => authController.continueWithGoogle(),
+                  onBackHome: () => authController.goToLanding(),
+                  onOpenCropModal: _showRoiCropperModal,
+                  onViewMore: () => setState(() => _activeNav = 'History'),
+                  scrollController: _scrollController,
+                );
+              } else {
+                activeView = AdminPageSection(
+                  isDesktop: isDesktop,
+                  scrollController: _scrollController,
+                );
+              }
+            } else if (_activeNav == 'History') {
               activeView = HistoryPageSection(
                 history: classState.history,
                 controller: classController,

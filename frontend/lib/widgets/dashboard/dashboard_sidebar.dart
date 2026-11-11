@@ -137,6 +137,34 @@ class DashboardSidebar extends StatelessWidget {
                 onTap: () => onNavSelected('Analytics'),
               ),
 
+              if (user?.isAdmin == true) ...[
+                const SizedBox(height: 18),
+                if (!isCollapsed)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Text(
+                      'ADMINISTRATION',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.8,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  )
+                else
+                  const Divider(height: 12, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 4),
+                _buildSidebarNavItem(
+                  icon: CupertinoIcons.shield_fill,
+                  label: 'Admin Console',
+                  isActive: activeNav == 'Admin',
+                  isCollapsed: isCollapsed,
+                  onTap: () => onNavSelected('Admin'),
+                ),
+              ],
+
               const SizedBox(height: 18),
 
               // General section header or subtle divider

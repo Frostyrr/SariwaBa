@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../../constants/content/faq_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/app_button.dart';
@@ -37,38 +38,12 @@ class _FaqSectionState extends State<FaqSection> {
   // First item open by default for immediate discoverability
   final Set<int> _expandedIndices = {0};
 
-  static const List<FaqItem> _faqList = [
-    FaqItem(
-      question: 'Which fish species does SariwaBa? support?',
-      answer:
-          'SariwaBa? is specifically trained for Nile Tilapia. By focusing on Tilapia, our system can accurately read the natural signs of freshness in its eyes and gills without getting confused by differences in other fish species.',
-    ),
-    FaqItem(
-      question: 'What kind of photo gives the best results?',
-      answer:
-          'Take a clear, steady photo in bright, even lighting (like daylight or a well-lit stall). Avoid strong flash glare, heavy shadows, or blurry shots. Make sure the eye or open gills fill most of the frame for the most accurate check.',
-    ),
-    FaqItem(
-      question: 'What does the Confidence score mean?',
-      answer:
-          'The confidence score shows how certain the AI is based on what it sees in the photo—such as eye clarity and gill color. It is a quick visual guide to help you choose fresh fish, but it is not a laboratory test or health guarantee.',
-    ),
-    FaqItem(
-      question: 'Can I check fish without creating an account?',
-      answer:
-          'Yes! You can try the freshness checker right away in Guest mode without signing up. If you create a free account, you can also save your scan history, view past checks anytime, and access them across all your devices.',
-    ),
-    FaqItem(
-      question: 'How does SariwaBa? protect my photos and privacy?',
-      answer:
-          'Your photos are uploaded securely through encrypted connections and are only used to check freshness and maintain your scan history. We never sell or share your photos, and photos uploaded in Guest mode are not saved on our servers.',
-    ),
-    FaqItem(
-      question: 'Do I need an internet connection to use the app?',
-      answer:
-          'You can take photos and browse your saved history offline. However, you need an active internet connection (Wi-Fi or mobile data) to run a new freshness check with our AI.',
-    ),
-  ];
+  static final List<FaqItem> _faqList = FaqData.homepageFaqs
+      .map((item) => FaqItem(
+            question: item.question,
+            answer: item.answer,
+          ))
+      .toList();
 
   void _toggleIndex(int index) {
     setState(() {

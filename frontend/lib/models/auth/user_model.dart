@@ -7,6 +7,8 @@ class UserModel {
   final String? profilePicture;
   final String role;
   final bool isAdmin;
+  final bool isSuspended;
+  final DateTime? suspendedAt;
   final bool isGuest;
   final bool isRegistered;
 
@@ -19,6 +21,8 @@ class UserModel {
     this.profilePicture,
     this.role = 'user',
     this.isAdmin = false,
+    this.isSuspended = false,
+    this.suspendedAt,
     this.isGuest = false,
     this.isRegistered = true,
   });
@@ -33,6 +37,10 @@ class UserModel {
       profilePicture: json['profile_picture'] as String?,
       role: json['role'] as String? ?? 'user',
       isAdmin: json['is_admin'] as bool? ?? false,
+      isSuspended: json['is_suspended'] as bool? ?? false,
+      suspendedAt: json['suspended_at'] != null
+          ? DateTime.tryParse(json['suspended_at'].toString())
+          : null,
       isGuest: json['is_guest'] as bool? ?? false,
       isRegistered: json['is_registered'] as bool? ?? true,
     );
@@ -48,6 +56,8 @@ class UserModel {
       'profile_picture': profilePicture,
       'role': role,
       'is_admin': isAdmin,
+      'is_suspended': isSuspended,
+      'suspended_at': suspendedAt?.toIso8601String(),
       'is_guest': isGuest,
       'is_registered': isRegistered,
     };
@@ -76,6 +86,8 @@ class UserModel {
     String? profilePicture,
     String? role,
     bool? isAdmin,
+    bool? isSuspended,
+    DateTime? suspendedAt,
     bool? isGuest,
     bool? isRegistered,
   }) {
@@ -88,6 +100,8 @@ class UserModel {
       profilePicture: profilePicture ?? this.profilePicture,
       role: role ?? this.role,
       isAdmin: isAdmin ?? this.isAdmin,
+      isSuspended: isSuspended ?? this.isSuspended,
+      suspendedAt: suspendedAt ?? this.suspendedAt,
       isGuest: isGuest ?? this.isGuest,
       isRegistered: isRegistered ?? this.isRegistered,
     );
