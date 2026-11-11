@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import '../../constants/theme/timber_typography.dart';
+import '../classification/responsive_image_upload_zone.dart';
 import '../classification/roi_cropper_widget.dart';
 import '../common/app_button.dart';
 import 'frosted_glass_card.dart';
@@ -30,8 +31,6 @@ class ScannerWorkstationCard extends StatefulWidget {
 }
 
 class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
-  bool _isDropzoneHovered = false;
-
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
@@ -135,7 +134,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           if (state.isUploadingImage)
             _buildImageUploadingCard()
           else if (state.selectedImageBytes == null)
-            _buildEmptyUploadDropzone(controller)
+            ResponsiveImageUploadZone(
+              state: state,
+              controller: controller,
+            )
           else if (widget.isCropModalOpen && !state.isCropConfirmed)
             _buildActiveModalPlaceholderCard(state)
           else
@@ -172,186 +174,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     );
   }
 
-  Widget _buildEmptyUploadDropzone(ClassificationController controller) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isDropzoneHovered = true),
-      onExit: (_) => setState(() => _isDropzoneHovered = false),
-      child: GestureDetector(
-        key: const Key('empty_upload_dropzone'),
-        onTap: () => controller.pickImage(ImageSource.gallery),
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          decoration: BoxDecoration(
-            color: _isDropzoneHovered
-                ? SariwaColors.brandPrimary.withValues(alpha: 0.05)
-                : Colors.white.withValues(alpha: 0.60),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: _isDropzoneHovered
-                  ? SariwaColors.brandPrimary.withValues(alpha: 0.5)
-                  : Colors.white.withValues(alpha: 0.85),
-              width: 1.5,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: _isDropzoneHovered
-                      ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
-                      : Colors.white.withValues(alpha: 0.80),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _isDropzoneHovered
-                        ? SariwaColors.brandPrimary.withValues(alpha: 0.25)
-                        : Colors.white.withValues(alpha: 0.90),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _isDropzoneHovered
-                          ? SariwaColors.brandPrimary.withValues(alpha: 0.15)
-                          : const Color(0x0A0F172A),
-                      blurRadius: _isDropzoneHovered ? 16 : 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    CupertinoIcons.arrow_up_doc,
-                    size: 24,
-                    color: _isDropzoneHovered
-                        ? SariwaColors.brandPrimary
-                        : const Color(0xFF475569),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'Drop your image here',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textPrimaryDark,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Or select an image from your device.',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textSecondaryDark,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 22),
-              Wrap(
-                spacing: 12,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    key: const Key('browse_gallery_button'),
-                    onPressed: () => controller.pickImage(ImageSource.gallery),
-                    icon: const Icon(CupertinoIcons.photo, size: 15),
-                    label: const Text('Choose Image'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: SariwaColors.brandPrimary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                      ),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    key: const Key('use_camera_button'),
-                    onPressed: () => controller.pickImage(ImageSource.camera),
-                    icon: const Icon(CupertinoIcons.camera, size: 15),
-                    label: const Text('Use Camera'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF334155),
-                      side: const BorderSide(
-                        color: Color(0xFFCBD5E1),
-                        width: 1.2,
-                      ),
-                      backgroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              const Text(
-                'JPG, JPEG, PNG, HEIC · Max 5 MB',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: Color(0xFF64748B),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 5),
-              const Text(
-                'Active region: Eye (default)',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.brandPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildImageUploadingCard() {
     return Container(
       key: const Key('image_uploading_state'),
@@ -382,22 +204,24 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             child: const Center(child: CupertinoActivityIndicator(radius: 12)),
           ),
           const SizedBox(height: 18),
-          const Text(
+          Text(
             'Uploading & Processing Photo...',
             style: TextStyle(
-              fontFamily: 'Geist',
+              fontFamily: TimberTypography.primarySansFamily,
               fontSize: 15,
-              fontWeight: FontWeight.w400,
-              letterSpacing: AppTypography.defaultLetterSpacing,
+              fontWeight: FontWeight.w500,
+              letterSpacing: -0.2,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Verifying image headers and preparing viewer...',
             style: TextStyle(
+              fontFamily: TimberTypography.primarySansFamily,
               fontSize: 12,
-              letterSpacing: AppTypography.defaultLetterSpacing,
+              fontWeight: FontWeight.w300,
+              letterSpacing: -0.1,
               color: SariwaColors.textSecondaryDark,
             ),
           ),
