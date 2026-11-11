@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_typography.dart';
+import '../../constants/theme/app_colors.dart';
+import '../../constants/theme/app_typography.dart';
 import 'organoleptic_guidelines_dialog.dart';
 
 /// Glassmorphic mobile top navigation bar with brand icon, hamburger menu, actions, and tab selector.

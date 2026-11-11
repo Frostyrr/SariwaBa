@@ -25,10 +25,7 @@ class HeroBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
-    final spoiledCount = history
-        .where((s) => !s.isFresh && s.grade.contains('Grade C'))
-        .length;
-    final cautionCount = total - freshCount - spoiledCount;
+    final notFreshCount = history.where((s) => s.isNotFresh).length;
     final avgConfidence = total > 0
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
         : 95.8;
@@ -312,29 +309,22 @@ class HeroBanner extends StatelessWidget {
                   title: 'Sariwa (Fresh)',
                   value: freshCount.toString(),
                   subtitle: total > 0
-                      ? '${((freshCount / total) * 100).toStringAsFixed(0)}% Grade A'
-                      : 'Grade A benchmark',
+                      ? '${((freshCount / total) * 100).toStringAsFixed(0)}% Fresh'
+                      : 'Fresh benchmark',
                   icon: Icons.check_circle_outline_rounded,
                   accentColor: SariwaColors.brandLight,
                 ),
                 _buildKpiCard(
-                  title: 'Katamtaman',
-                  value: cautionCount.toString(),
-                  subtitle: 'Grade B moderate',
-                  icon: Icons.warning_amber_rounded,
-                  accentColor: const Color(0xFFFCD34D),
-                ),
-                _buildKpiCard(
-                  title: 'Needs review',
-                  value: spoiledCount.toString(),
-                  subtitle: 'Critical alerts',
+                  title: 'Not Fresh',
+                  value: notFreshCount.toString(),
+                  subtitle: 'Spoilage alerts',
                   icon: Icons.gpp_bad_outlined,
                   accentColor: const Color(0xFFFCA5A5),
                 ),
                 _buildKpiCard(
                   title: 'AI Precision',
                   value: '${avgConfidence.toStringAsFixed(1)}%',
-                  subtitle: 'MobileNetV3 score',
+                  subtitle: 'Confidence score',
                   icon: Icons.auto_awesome_outlined,
                   accentColor: SariwaColors.brandGlow,
                 ),
@@ -355,28 +345,15 @@ class HeroBanner extends StatelessWidget {
                     ),
                   ),
                 );
-              } else if (width >= 600) {
-                // 3 + 2 layout on tablet
-                return Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: List.generate(
-                    kpiCards.length,
-                    (i) => SizedBox(
-                      width: (width - 20) / (i < 3 ? 3 : 2),
-                      child: kpiCards[i],
-                    ),
-                  ),
-                );
               } else {
-                // 2 columns on mobile
+                // 2 columns on tablet/mobile
                 return Wrap(
                   spacing: 10,
                   runSpacing: 10,
                   children: List.generate(
                     kpiCards.length,
                     (i) => SizedBox(
-                      width: i == 4 ? width : (width - 10) / 2,
+                      width: (width - 10) / 2,
                       child: kpiCards[i],
                     ),
                   ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
+import '../../constants/theme/app_colors.dart';
 
 /// Atmospheric banner with blurred underwater background and high-contrast deep gradient overlay.
 class DashboardAtmosphericBanner extends StatelessWidget {

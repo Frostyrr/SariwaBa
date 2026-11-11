@@ -9,18 +9,19 @@ import 'walkthrough/scanning_reticle_painter.dart';
 /// Displays a high-fidelity static presentation of the actual existing SariwaBa? dashboard
 /// inside an elegant, subtle browser / macOS window frame with realistic depth shadows.
 ///
-/// Supports an optional static screenshot asset (`assets/images/dashboard_screenshot.png`),
-/// with a pixel-faithful static presentation of the real SariwaBa? workstation as fallback.
+/// If an optional [screenshotAsset] path is provided, it attempts to load that image,
+/// falling back to the built-in pixel-faithful static presentation of the SariwaBa? workstation.
+/// By default, it directly renders the built-in workstation view without making unnecessary asset requests.
 class DashboardShowcase extends StatelessWidget {
   final double? width;
   final double? height;
-  final String screenshotAsset;
+  final String? screenshotAsset;
 
   const DashboardShowcase({
     super.key,
     this.width,
     this.height,
-    this.screenshotAsset = 'assets/images/dashboard_screenshot.png',
+    this.screenshotAsset,
   });
 
   @override
@@ -74,13 +75,15 @@ class DashboardShowcase extends StatelessWidget {
                   SizedBox(
                     height: targetHeight - 40.0,
                     width: double.infinity,
-                    child: Image.asset(
-                      screenshotAsset,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildStaticDashboard(isMobile);
-                      },
-                    ),
+                    child: (screenshotAsset != null && screenshotAsset!.isNotEmpty)
+                        ? Image.asset(
+                            screenshotAsset!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildStaticDashboard(isMobile);
+                            },
+                          )
+                        : _buildStaticDashboard(isMobile),
                   ),
                 ],
               ),

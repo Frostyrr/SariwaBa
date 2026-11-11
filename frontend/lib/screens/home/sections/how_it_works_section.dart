@@ -28,11 +28,11 @@ class HowItWorksSection extends StatelessWidget {
           color: const Color(0xFFF0F7F6), // Consistent off-white leaning primary teal
           padding: EdgeInsets.symmetric(
             vertical: isMobile ? 64.0 : 88.0,
-            horizontal: isMobile ? 20.0 : 36.0,
+            horizontal: isMobile ? 20.0 : 24.0,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 960.0),
+              constraints: const BoxConstraints(maxWidth: 1140.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -54,7 +54,7 @@ class HowItWorksSection extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'INSPECTION WORKFLOW',
+                        'HOW IT WORKS',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 12,
@@ -73,7 +73,7 @@ class HowItWorksSection extends StatelessWidget {
                     revealOnScroll: true,
                     staggerIndex: 1,
                     child: Text(
-                      'Four Steps to Quality Assurance',
+                      'Four Simple Steps to Check Freshness',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
@@ -94,7 +94,7 @@ class HowItWorksSection extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 620),
                       child: const Text(
-                        'From specimen capture to verified inference, inspect Tilapia freshness in seconds through intelligent computer vision.',
+                        'From snapping a photo to getting instant results, check Tilapia freshness in seconds with clear, smart AI.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           letterSpacing: -0.25,
@@ -116,11 +116,11 @@ class HowItWorksSection extends StatelessWidget {
                     child: _buildEditorialStep(
                       isMobile: isMobile,
                       stepNumber: '01',
-                      stepTag: 'STEP 01 — CAPTURE',
-                      title: 'Capture or Upload Specimen',
+                      stepTag: 'STEP 01 — TAKE A PHOTO',
+                      title: 'Take or Upload a Fish Photo',
                       description:
-                          'Take a focused photograph of your Tilapia under natural, even illumination, or select an existing high-resolution image up to 5 MB.',
-                      metaRecord: 'ANATOMICAL_SPECIMEN • 5 MB MAX',
+                          'Take a clear, focused photo of your Tilapia in good lighting, or choose an existing photo (up to 5 MB) from your device.',
+                      metaRecord: 'CLEAR PHOTO • UP TO 5 MB',
                       icon: Icons.camera_alt_outlined,
                     ),
                   ),
@@ -133,11 +133,11 @@ class HowItWorksSection extends StatelessWidget {
                     child: _buildEditorialStep(
                       isMobile: isMobile,
                       stepNumber: '02',
-                      stepTag: 'STEP 02 — ISOLATE',
-                      title: 'Select Inspection Region',
+                      stepTag: 'STEP 02 — CHOOSE PART',
+                      title: 'Select Eye or Gills',
                       description:
-                          'Designate whether the model should analyze the ocular cornea (Eye) or exposed gill arch (Hasang) for targeted inference.',
-                      metaRecord: 'OCULAR_CORNEA • GILL_ARCH',
+                          'Choose whether you want to inspect the fish eye (Mata) or the gills (Hasang). Focusing on one specific part gives you the most reliable check.',
+                      metaRecord: 'EYE (MATA) • GILLS (HASANG)',
                       icon: Icons.crop_free_rounded,
                     ),
                   ),
@@ -150,12 +150,12 @@ class HowItWorksSection extends StatelessWidget {
                     child: _buildEditorialStep(
                       isMobile: isMobile,
                       stepNumber: '03',
-                      stepTag: 'STEP 03 — INFERENCE',
-                      title: 'Validate & Run AI Inference',
+                      stepTag: 'STEP 03 — SMART SCAN',
+                      title: 'Scan Freshness with AI',
                       description:
-                          'Our fine-tuned dual-backbone MobileNetV3 / ResNet classifier scans macro visual indicators across pigmentation, clouding, and tissue texture.',
-                      metaRecord: 'DEEP_CONVNET • MULTI_FEATURE_EXTRACTION',
-                      icon: Icons.memory_outlined,
+                          'Our smart AI examines key freshness signs in seconds—checking color vibrancy, clarity, and texture to see if the fish is fresh.',
+                      metaRecord: 'INSTANT SCAN • COLOR & CLARITY',
+                      icon: Icons.auto_awesome_outlined,
                     ),
                   ),
 
@@ -167,11 +167,11 @@ class HowItWorksSection extends StatelessWidget {
                     child: _buildEditorialStep(
                       isMobile: isMobile,
                       stepNumber: '04',
-                      stepTag: 'STEP 04 — AUDIT',
-                      title: 'Review Classification & Certainty',
+                      stepTag: 'STEP 04 — RESULTS',
+                      title: 'See Results & Helpful Tips',
                       description:
-                          'Inspect clear Fresh, Moderate, or Spoiled classifications accompanied by calibrated probabilistic scores and actionable recommendations.',
-                      metaRecord: 'QUALITY_ASSURANCE • AUDIT_CHAIN',
+                          'Get a clear Fresh or Not Fresh verdict along with a confidence rating and practical advice on what to look for when buying.',
+                      metaRecord: 'CONFIDENCE SCORE • BUYER TIPS',
                       icon: Icons.task_alt_outlined,
                     ),
                   ),
@@ -456,7 +456,7 @@ class HowItWorksSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Understanding Classification Outputs',
+                        'How to Read the Results',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 20,
@@ -467,7 +467,7 @@ class HowItWorksSection extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'How SariwaBa? interprets ocular clarity and gill coloration',
+                        'What fresh eyes and gills look like in Tilapia',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 13,
@@ -509,7 +509,7 @@ class HowItWorksSection extends StatelessWidget {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              'Fresh Assessment',
+                              'Fresh Signs (Sariwa)',
                               style: TextStyle(
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 15,
@@ -522,7 +522,7 @@ class HowItWorksSection extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Indicates clear, transparent cornea, intact circular pupil lens, and bright, uniform reddish pigmentation on exposed gill arches.',
+                          'Clear, rounded eyes with dark pupils, and bright red or pink gills with no dull slime or bad odor.',
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
                             fontSize: 13,
@@ -557,7 +557,7 @@ class HowItWorksSection extends StatelessWidget {
                             ),
                             SizedBox(width: 8),
                             Text(
-                              'Not Fresh Assessment',
+                              'Not Fresh Signs (Hindi Sariwa)',
                               style: TextStyle(
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 15,
@@ -570,7 +570,7 @@ class HowItWorksSection extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Indicates corneal opacity, cloudy milky discoloration, sunken orbital tissue, or faded brownish coloration across gill filaments.',
+                          'Cloudy, milky, or sunken eyes, along with pale, gray, or brownish gills that may have a sour smell.',
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
                             fontSize: 13,
@@ -628,7 +628,7 @@ class HowItWorksSection extends StatelessWidget {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Model Confidence represents the algorithmic certainty of the neural network based on image features. It is not a food safety guarantee or risk index. External inspection does not detect internal chemical contaminants, biological toxins, or improper thermal handling.',
+                        'A Note on Confidence Scores: The confidence score shows how clearly the AI recognizes visual freshness signs from your photo. It serves as a helpful visual guide for buyers and sellers, not a laboratory test. It cannot detect invisible bacteria, chemical residues, or past improper storage temperatures.',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 12.5,

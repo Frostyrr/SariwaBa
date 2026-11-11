@@ -249,7 +249,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final history = classState.history;
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
-    final cautionCount = history.where((s) => s.isNotFresh).length;
+    final notFreshCount = history.where((s) => s.isNotFresh).length;
     final avgConfidence = total > 0
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
         : 0.0;
@@ -530,13 +530,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ),
                   NotchedKpiCard(
                     title: 'Not Fresh',
-                    value: cautionCount.toString(),
+                    value: notFreshCount.toString(),
                     trendText: total > 0
-                        ? '${((cautionCount / total) * 100).toStringAsFixed(0)}%'
+                        ? '${((notFreshCount / total) * 100).toStringAsFixed(0)}%'
                         : '0%',
                     comparisonText: 'of scans',
-                    waveColor: SariwaColors.statusModerate,
-                    trendColor: SariwaColors.statusModerate,
+                    waveColor: SariwaColors.notFreshPrimary,
+                    trendColor: SariwaColors.notFreshPrimary,
                     points: const [0.18, 0.48, 0.28, 0.32, 0.62, 0.44, 0.78],
                     showSparkline: false,
                     isCompact: true,

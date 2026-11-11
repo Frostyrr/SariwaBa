@@ -88,7 +88,7 @@ class WebFooter extends StatelessWidget {
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1120.0),
+                  constraints: const BoxConstraints(maxWidth: 1140.0),
                   child: Column(
                     children: [
                       if (isDesktop)

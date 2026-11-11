@@ -39,34 +39,34 @@ class _FaqSectionState extends State<FaqSection> {
 
   static const List<FaqItem> _faqList = [
     FaqItem(
-      question: 'Which fish species does SariwaBa? currently support?',
+      question: 'Which fish species does SariwaBa? support?',
       answer:
-          'SariwaBa? is currently trained and calibrated exclusively for Nile Tilapia (Oreochromis niloticus). By focusing strictly on this commercial species, our neural network models detect subtle physiological indicators in ocular corneal clarity and branchial arch coloration without cross-species morphological variance.',
+          'SariwaBa? is specifically trained for Nile Tilapia. By focusing on Tilapia, our system can accurately read the natural signs of freshness in its eyes and gills without getting confused by differences in other fish species.',
     ),
     FaqItem(
-      question: 'What image quality is required for accurate classification?',
+      question: 'What kind of photo gives the best results?',
       answer:
-          'For optimal assessment accuracy, capture a sharp, well-focused photograph under natural or balanced white lighting. Avoid heavy shadows, direct flash reflections, or optical blur. The fish eye or exposed gill arch should fill a substantial portion of the reticle frame with clean edge definition.',
+          'Take a clear, steady photo in bright, even lighting (like daylight or a well-lit stall). Avoid strong flash glare, heavy shadows, or blurry shots. Make sure the eye or open gills fill most of the frame for the most accurate check.',
     ),
     FaqItem(
-      question: 'What does the "Model Confidence" score represent?',
+      question: 'What does the Confidence score mean?',
       answer:
-          'Model Confidence reflects the algorithmic certainty of the convolutional network based on learned visual features—such as pupil transparency, corneal cloudiness, or gill pigment degradation. It is an objective visual assessment tool designed to assist inspectors, not an absolute biochemical safety guarantee or toxicity test.',
+          'The confidence score shows how certain the AI is based on what it sees in the photo—such as eye clarity and gill color. It is a quick visual guide to help you choose fresh fish, but it is not a laboratory test or health guarantee.',
     ),
     FaqItem(
-      question: 'Can I test fish specimens without creating an account?',
+      question: 'Can I check fish without creating an account?',
       answer:
-          'Yes. Anyone can access our interactive inspection tool immediately in Guest mode without creating an account. Registering a free authenticated account unlocks persistent cloud audit logging, multi-scan export, and history synchronization across all your devices.',
+          'Yes! You can try the freshness checker right away in Guest mode without signing up. If you create a free account, you can also save your scan history, view past checks anytime, and access them across all your devices.',
     ),
     FaqItem(
-      question: 'How does SariwaBa? protect uploaded specimen images?',
+      question: 'How does SariwaBa? protect my photos and privacy?',
       answer:
-          'Specimen images uploaded for classification are transmitted over encrypted TLS connections and evaluated strictly for feature inference and audit logging. We do not sell or distribute your imagery to third parties, and guest scans are never persisted on our server infrastructure.',
+          'Your photos are uploaded securely through encrypted connections and are only used to check freshness and maintain your scan history. We never sell or share your photos, and photos uploaded in Guest mode are not saved on our servers.',
     ),
     FaqItem(
-      question: 'Is an active internet connection required for the mobile app?',
+      question: 'Do I need an internet connection to use the app?',
       answer:
-          'The mobile application allows you to capture images, align the camera reticle, and review cached history offline. However, running active deep learning inference requires an internet or cellular connection to communicate with our verification service.',
+          'You can take photos and browse your saved history offline. However, you need an active internet connection (Wi-Fi or mobile data) to run a new freshness check with our AI.',
     ),
   ];
 
@@ -91,11 +91,11 @@ class _FaqSectionState extends State<FaqSection> {
           color: const Color(0xFFF0F7F6), // Consistent off-white leaning primary teal
           padding: EdgeInsets.symmetric(
             vertical: isMobile ? 64.0 : 88.0,
-            horizontal: isMobile ? 20.0 : 36.0,
+            horizontal: isMobile ? 20.0 : 24.0,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 960.0),
+              constraints: const BoxConstraints(maxWidth: 1140.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -157,7 +157,7 @@ class _FaqSectionState extends State<FaqSection> {
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 620),
                       child: const Text(
-                        'Clear answers regarding our machine learning pipeline, supported anatomy, confidence scoring, and data security.',
+                        'Clear answers about how SariwaBa? works, how to take good photos, what your scores mean, and how your privacy is protected.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           letterSpacing: -0.25,
@@ -456,7 +456,7 @@ class _FaqSectionState extends State<FaqSection> {
                       ),
                     ),
                     child: const Text(
-                      'START AUDITING TODAY',
+                      'START CHECKING TODAY',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11.5,
@@ -470,7 +470,7 @@ class _FaqSectionState extends State<FaqSection> {
                   const SizedBox(height: 18),
 
                   const Text(
-                    'Ready to experience intelligent fish inspection?',
+                    'Ready to check fish freshness with confidence?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -487,7 +487,7 @@ class _FaqSectionState extends State<FaqSection> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 580),
                     child: const Text(
-                      'Inspect Tilapia freshness in your browser right now or download the mobile application for field audits.',
+                      'Check Tilapia freshness in your browser right now or download the mobile app to scan on the go at the market.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,

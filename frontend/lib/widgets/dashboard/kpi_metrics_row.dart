@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import '../../models/classification_result.dart';
-import '../../theme/app_colors.dart';
-import '../../theme/app_typography.dart';
+import '../../models/classification/classification_result.dart';
+import '../../constants/theme/app_colors.dart';
+import '../../constants/theme/app_typography.dart';
 import '../common/staggered_reveal.dart';
 import 'frosted_glass_card.dart';
 
@@ -19,7 +18,7 @@ class KpiMetricsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
-    final cautionCount = total - freshCount;
+    final notFreshCount = total - freshCount;
     final avgConfidence = total > 0
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
         : 0.0;
@@ -49,7 +48,7 @@ class KpiMetricsRow extends StatelessWidget {
           ),
           _buildMetricBox(
             title: 'Not Fresh Alerts',
-            value: cautionCount.toString(),
+            value: notFreshCount.toString(),
             subtitle: 'Needs attention',
             icon: CupertinoIcons.exclamationmark_triangle,
             iconColor: SariwaColors.notFreshPrimary,

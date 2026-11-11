@@ -81,7 +81,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'ORGANOLEPTIC INSPECTION PROTOCOL',
+                                'QUALITY INSPECTION GUIDE',
                                 style: TextStyle(
                                   fontFamily: AppTypography.fontFamily,
                                   fontSize: 10.5,
@@ -92,11 +92,11 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               const Text(
-                                'PNS/BAFPS 67:2008 & BFAR Standards',
+                                'PNS/BAFPS 67:2008 Freshness Standards',
                                 style: TextStyle(
                                   letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
-                                  fontSize: 18,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -134,7 +134,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Organoleptic sensory validation serves as the ground-truth benchmark for SariwaBa AI MobileNetV3 model evaluations. Inspect each anatomical biomarker using the criteria below:',
+                            'Use these visual and sensory guidelines based on Philippine National Standards (PNS/BAFPS 67:2008) to evaluate Tilapia freshness alongside your AI scans. Compare your catch against the indicators below:',
                             style: TextStyle(
                               letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
@@ -147,52 +147,44 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
 
                           _buildGuidelineCard(
                             badge: 'CRITERION 1',
-                            title: 'Cornea & Ocular Structure (Mata)',
+                            title: 'Eyes & Cornea (Mata)',
                             freshDesc:
-                                'Clear, convex and transparent cornea. Pupils are shiny black with metallic reflections.',
-                            cautionDesc:
-                                'Slightly sunken cornea with cloudy or milky lens. Pupil loses brightness.',
+                                'Clear, transparent, and bulging outward (convex). Shiny black pupils with bright reflections.',
                             spoiledDesc:
-                                'Sunken, opaque, grey cornea. Pupil is washed out, collapsed or bloodshot.',
+                                'Cloudy, sunken, or milky cornea. Dull, discolored grey, or bloodshot pupils.',
                             icon: Icons.remove_red_eye_outlined,
                           ),
                           const SizedBox(height: 12),
 
                           _buildGuidelineCard(
                             badge: 'CRITERION 2',
-                            title: 'Branchial Gills (Hasang)',
+                            title: 'Gills & Mucus (Hasang)',
                             freshDesc:
-                                'Bright crimson to blood red color. Mucus is clear and transparent with sea-fresh aroma.',
-                            cautionDesc:
-                                'Pale pink or brownish red. Mucus is slightly viscous or opaque.',
+                                'Bright crimson to deep red color with clear mucus and a clean, sea-fresh scent.',
                             spoiledDesc:
-                                'Brown, yellowish, or bleach-gray discoloration. Sticky, sour or ammoniacal stench.',
+                                'Dull brown, faded grey, or yellowish with sticky slime and a sour, foul odor.',
                             icon: Icons.water_drop_outlined,
                           ),
                           const SizedBox(height: 12),
 
                           _buildGuidelineCard(
                             badge: 'CRITERION 3',
-                            title: 'Dermal Scales & Sheen (Kaliskis)',
+                            title: 'Scales & Skin (Kaliskis)',
                             freshDesc:
-                                'Firmly attached scales with iridescent pearlescent sheen. Skin is taut and elastic.',
-                            cautionDesc:
-                                'Scales loosen slightly with light mechanical friction. Slight dulling of natural pigment.',
+                                'Firmly attached scales with a bright, iridescent sheen. Skin is moist, intact, and smooth.',
                             spoiledDesc:
-                                'Scales easily peel off in patches. Skin covered in cloudy, sticky bacterial slime.',
+                                'Loose scales that easily rub or peel off. Dull skin covered in cloudy, sticky slime.',
                             icon: Icons.blur_linear_outlined,
                           ),
                           const SizedBox(height: 12),
 
                           _buildGuidelineCard(
                             badge: 'CRITERION 4',
-                            title: 'Muscular Elasticity & Odor (Laman at Amoy)',
+                            title: 'Flesh Firmness & Smell (Laman at Amoy)',
                             freshDesc:
-                                'Firm muscle tissue; finger impression recovers instantly. Mild clean ocean scent.',
-                            cautionDesc:
-                                'Softened resilience; impression lingers momentarily. Slight fishy/stale smell.',
+                                'Firm, elastic flesh that springs back instantly when pressed. Mild, clean fresh scent.',
                             spoiledDesc:
-                                'Soft, flabby, disintegrating tissue. Distinct putrid, ammonia, or rotten odor.',
+                                'Soft, flabby, or dented flesh where impressions linger. Strong sour, ammonia, or rotten odor.',
                             icon: Icons.touch_app_outlined,
                           ),
                         ],
@@ -260,7 +252,6 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
     required String badge,
     required String title,
     required String freshDesc,
-    required String cautionDesc,
     required String spoiledDesc,
     required IconData icon,
   }) {
@@ -318,55 +309,122 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          _buildTierRow('Grade A (Sariwa):', freshDesc, SariwaColors.statusFresh),
-          const SizedBox(height: 4),
-          _buildTierRow('Grade B (Caution):', cautionDesc, SariwaColors.statusModerate),
-          const SizedBox(height: 4),
-          _buildTierRow('Grade C (Spoiled):', spoiledDesc, SariwaColors.statusSpoiled),
+          _buildTierRow(
+            label: 'Fresh (Sariwa):',
+            description: freshDesc,
+            color: SariwaColors.statusFresh,
+            bgColor: SariwaColors.freshIconBg,
+          ),
+          const SizedBox(height: 6),
+          _buildTierRow(
+            label: 'Not Fresh (Hindi Sariwa):',
+            description: spoiledDesc,
+            color: SariwaColors.notFreshPrimary,
+            bgColor: SariwaColors.notFreshIconBg,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTierRow(String grade, String description, Color color) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          margin: const EdgeInsets.only(top: 5, right: 8),
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        SizedBox(
-          width: 110,
-          child: Text(
-            grade,
-            style: TextStyle(
-              letterSpacing: -0.25,
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            description,
-            style: const TextStyle(
-              letterSpacing: -0.25,
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 11.5,
-              height: 1.35,
-              color: SariwaColors.colorInk,
-            ),
-          ),
-        ),
-      ],
+  Widget _buildTierRow({
+    required String label,
+    required String description,
+    required Color color,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isNarrow = constraints.maxWidth < 360;
+          if (isNarrow) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(right: 6),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        letterSpacing: -0.25,
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    letterSpacing: -0.25,
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: SariwaColors.colorInk,
+                  ),
+                ),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(top: 4, right: 8),
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(
+                width: 145,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    letterSpacing: -0.25,
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  description,
+                  style: const TextStyle(
+                    letterSpacing: -0.25,
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 11.5,
+                    height: 1.35,
+                    color: SariwaColors.colorInk,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

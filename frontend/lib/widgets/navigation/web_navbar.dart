@@ -59,7 +59,7 @@ class WebNavbar extends StatelessWidget {
               ),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1040.0),
+                  constraints: const BoxConstraints(maxWidth: 1140.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(36),
                     child: BackdropFilter(
@@ -69,7 +69,7 @@ class WebNavbar extends StatelessWidget {
                         curve: Curves.easeOutCubic,
                         height: 58,
                         padding: EdgeInsets.symmetric(
-                          horizontal: isDesktop ? 20.0 : 8.0,
+                          horizontal: isDesktop ? 22.0 : 10.0,
                         ),
                         decoration: BoxDecoration(
                           color: isLight
@@ -116,14 +116,14 @@ class WebNavbar extends StatelessWidget {
                                   children: [
                                     Image.asset(
                                       'assets/images/SariwaBa logo.png',
-                                      height: isDesktop ? 34 : 24,
+                                      height: isDesktop ? 34 : 26,
                                       fit: BoxFit.contain,
                                     ),
-                                    SizedBox(width: isDesktop ? 10 : 6),
+                                    SizedBox(width: isDesktop ? 10 : 8),
                                     Image.asset(
                                       'assets/images/SariwaBa Text Only - Original Black.png',
                                       color: isLight ? null : Colors.white,
-                                      height: isDesktop ? 22 : 15,
+                                      height: isDesktop ? 22 : 17,
                                       fit: BoxFit.contain,
                                       errorBuilder: (context, error, stackTrace) {
                                         return Text(
@@ -132,7 +132,7 @@ class WebNavbar extends StatelessWidget {
                                             color: isLight
                                                 ? const Color(0xFF0A2229)
                                                 : Colors.white,
-                                            fontSize: 16,
+                                            fontSize: isDesktop ? 20 : 16,
                                             letterSpacing: -0.25,
                                           ),
                                         );
