@@ -1,0 +1,263 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import '../../../constants/theme/app_colors.dart';
+import '../../../constants/theme/app_typography.dart';
+import '../../../widgets/common/staggered_reveal.dart';
+
+/// Features Section Widget
+/// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
+/// high-contrast slate typography, and elevated frosted glassmorphism cards.
+class FeaturesSection extends StatelessWidget {
+  const FeaturesSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF0F7F6), // Off-white leaning primary teal
+      padding: const EdgeInsets.symmetric(vertical: 84.0, horizontal: 24.0),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1140.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Eyebrow Badge (Frosted Pill)
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2F3F0).withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.90),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Text(
+                        'PRECISION GRADING',
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.25,
+                          color: SariwaColors.brandPrimaryDark,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // Section Heading (Deep Ocean Slate #0A2229)
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 1,
+                child: Text(
+                  'Engineered for Precision Grading',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 38,
+                    fontWeight: FontWeight.w500, // Medium
+                    letterSpacing: -0.25,
+                    color: const Color(0xFF0A2229),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Subtitle
+              StaggeredReveal(
+                revealOnScroll: true,
+                staggerIndex: 2,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: Text(
+                    'Use image classification to record fish freshness predictions and review previous scans.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      letterSpacing: -0.25,
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w300,
+                      height: 1.5,
+                      color: const Color(0xFF475569),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 48),
+
+              // 4 Feature Cards Grid
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDesktop = constraints.maxWidth >= 768;
+
+                  return Wrap(
+                    spacing: 24,
+                    runSpacing: 24,
+                    children: [
+                      SizedBox(
+                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 1,
+                          child: _buildFeatureCard(
+                            icon: Icons.remove_red_eye_outlined,
+                            title: 'Image Classification',
+                            desc: 'Upload a JPEG or PNG image up to 5 MB to receive a Fresh or Not Fresh prediction.',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 2,
+                          child: _buildFeatureCard(
+                            icon: Icons.bloodtype_outlined,
+                            title: 'Model Confidence',
+                            desc: 'See the model score for each prediction. Low-confidence images are rejected so you can try another photo.',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 3,
+                          child: _buildFeatureCard(
+                            icon: Icons.offline_bolt_outlined,
+                            title: 'Connected Scanning',
+                            desc: 'Capture or select an image on your device. A connection to the backend is required to run the model.',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
+                        child: StaggeredReveal(
+                          revealOnScroll: true,
+                          staggerIndex: 4,
+                          child: _buildFeatureCard(
+                            icon: Icons.history_edu_outlined,
+                            title: 'Saved Inspection History',
+                            desc: 'Automatically backs up your fish freshness scan results when you sign in with your Google account.',
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String title,
+    required String desc,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A0F172A),
+            blurRadius: 18,
+            offset: Offset(0, 4),
+            spreadRadius: -2,
+          ),
+          BoxShadow(
+            color: Color(0x060F172A),
+            blurRadius: 32,
+            offset: Offset(0, 10),
+            spreadRadius: -4,
+          ),
+          BoxShadow(
+            color: Color(0x0814B8A6),
+            blurRadius: 24,
+            offset: Offset(0, 6),
+            spreadRadius: -4,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.76),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.88),
+                width: 1.2,
+              ),
+            ),
+            child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F6F4).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFFCCEAE6).withValues(alpha: 0.8),
+                    width: 1.0,
+                  ),
+                ),
+                child: Icon(
+                  icon,
+                  color: SariwaColors.brandPrimary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 18.5,
+                  fontWeight: FontWeight.w500, // Medium
+                  letterSpacing: -0.25,
+                  color: Color(0xFF0A2229),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                desc,
+                style: const TextStyle(
+                  letterSpacing: -0.25,
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  height: 1.55,
+                  color: Color(0xFF475569),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+    );
+  }
+}

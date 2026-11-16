@@ -4,4 +4,9 @@
 *.sqlite3
 backend/media/
 .venv/
-__pycache__/
+__pycache__/
+.agent/
+.codex/
+.codex-*/
+AGENTS.override.md
+AGENTS.md

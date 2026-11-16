@@ -27,19 +27,21 @@ class AuthState {
   bool get isAuthenticated =>
       viewStatus == AuthViewStatus.authenticated && user != null;
 
-  bool get isGuest =>
-      viewStatus == AuthViewStatus.guestMode || (user?.isGuest ?? false);
+  bool get isGuest => viewStatus == AuthViewStatus.guestMode;
+
+  bool get isAdmin => isAuthenticated && (user?.isAdmin ?? false);
 
   AuthState copyWith({
     AuthViewStatus? viewStatus,
     UserModel? user,
+    bool clearUser = false,
     bool? isLoading,
     String? errorMessage,
     bool clearError = false,
   }) {
     return AuthState(
       viewStatus: viewStatus ?? this.viewStatus,
-      user: user ?? this.user,
+      user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
