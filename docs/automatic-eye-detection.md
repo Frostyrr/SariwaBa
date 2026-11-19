@@ -1,0 +1,48 @@
+# Whole-fish eye detection
+
+Model A's localization candidate uses boxes for fish and visible eyes. Each
+annotation nests the eyes under the fish they belong to. The model learns the
+two box classes. Matching predicted eyes to the right fish in a crowded image
+will need its own evaluation when we connect the detector to the scanner.
+
+Create a JSON array with one entry per photo. Coordinates are pixel corners
+`[left, top, right, bottom]` on the photo after EXIF orientation is applied.
+Photo paths are relative to the manifest directory.
+
+```json
+[
+  {
+    "image": "photos/market-01.jpg",
+    "session_id": "market-visit-01",
+    "split": "train",
+    "fish": [
+      {
+        "specimen_id": "fish-001",
+        "box": [180, 120, 920, 1600],
+        "eyes": [[470, 250, 568, 355]]
+      }
+    ]
+  }
+]
+```
+
+Use an empty `eyes` array for a fish with no visible eye and an empty `fish`
+array for a photo without fish. Label all visible targets. Use the same specimen
+ID across all photos of a fish. Keep all photos from a session in one split.
+Reserve market sessions for validation and the final test, with annotated eyes in
+each split. The tray photo discussed in this chat is reserved for evaluation.
+
+From the backend directory:
+
+```powershell
+.venv/Scripts/python.exe -m ml.train_eye_detector path/to/photos.json --audit-only
+.venv/Scripts/python.exe -m ml.train_eye_detector path/to/photos.json --output ml/candidates/eye-detector-v1.pth
+```
+
+Training uses pretrained MobileNetV3 backbone weights and may download them on
+the first run. The trainer selects an epoch on validation eye F1 and reports
+held-out fish and eye localization counts at IoU 0.5. The configured score
+threshold is a starting point. Review missed eyes and detections on unrelated
+objects before integrating a candidate. This detector does not predict species
+or freshness. Species verification requires confirmed species labels and its own
+evaluation. The existing scanner continues to use its eye or gill crop flow.
