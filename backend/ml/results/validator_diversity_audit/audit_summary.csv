@@ -1,0 +1,7 @@
+class,split,available_images,available_groups,sampled_images,sampled_groups
+eye,train,2530,26,20,20
+eye,val,545,3,20,3
+eye,test,531,5,20,5
+gill,train,1436,21,20,20
+gill,val,305,4,20,4
+gill,test,317,5,20,5

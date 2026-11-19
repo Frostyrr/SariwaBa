@@ -1,14 +1,19 @@
 
 """
-SariwaBa shared dataset loader.
+SariwaBa shared PyTorch dataset loader.
 
-Reads CSV metadata without copying, moving, or modifying images.
+Model A:
+    eye / gill / unsupported
 
-Model A: eye / gill / unsupported
-Model B: Fresh / NonFresh
+Model B:
+    Fresh / NonFresh
 
-Split filtering is strict. Unassigned records cannot be used
-as a named training, validation, or test partition.
+Features:
+- Reads original images through CSV references
+- Does not copy or modify images
+- Applies validator exclusions only to Model A
+- Requires assigned splits before partitioned training
+- Preserves existing Model B behavior
 """
 
 import csv
@@ -57,7 +62,41 @@ def read_csv(path):
         newline="",
         encoding="utf-8-sig",
     ) as file:
-        return list(csv.DictReader(file))
+        reader = csv.DictReader(file)
+
+        if not reader.fieldnames:
+            raise ValueError(
+                f"CSV file has no header: {path}"
+            )
+
+        return list(reader)
+
+
+def load_validator_exclusions(metadata_dir):
+    path = metadata_dir / "validator_exclusions.csv"
+
+    if not path.exists():
+        return set()
+
+    records = read_csv(path)
+    excluded = set()
+
+    for row in records:
+        image_path = row.get("image_path", "").strip()
+
+        if not image_path:
+            raise ValueError(
+                "Empty path in validator exclusion manifest."
+            )
+
+        if image_path in excluded:
+            raise ValueError(
+                f"Duplicate exclusion entry: {image_path}"
+            )
+
+        excluded.add(image_path)
+
+    return excluded
 
 
 class SariwaBaSharedDataset(Dataset):
@@ -99,10 +138,51 @@ class SariwaBaSharedDataset(Dataset):
 
         records = read_csv(manifest_path)
 
-        if split is not None:
-            split_path = self.metadata_dir / "splits.csv"
-            split_records = read_csv(split_path)
+        # --------------------------------------------------
+        # Model A: exclude exact duplicates
+        # Model B: preserve existing records
+        # --------------------------------------------------
 
+        if model_type == "validator":
+            exclusions = load_validator_exclusions(
+                self.metadata_dir
+            )
+
+            manifest_paths = {
+                row["image_path"]
+                for row in records
+            }
+
+            unknown_exclusions = (
+                exclusions - manifest_paths
+            )
+
+            if unknown_exclusions:
+                raise ValueError(
+                    "Exclusion entries missing from validator "
+                    f"manifest: {sorted(unknown_exclusions)}"
+                )
+
+            records = [
+                row for row in records
+                if row["image_path"] not in exclusions
+            ]
+
+            self.excluded_count = len(exclusions)
+
+        else:
+            self.excluded_count = 0
+
+        # --------------------------------------------------
+        # Filter by explicit split, if requested
+        # --------------------------------------------------
+
+        if split is not None:
+            split_path = (
+                self.metadata_dir / "splits.csv"
+            )
+
+            split_records = read_csv(split_path)
             split_lookup = {}
 
             for row in split_records:
@@ -124,8 +204,6 @@ class SariwaBaSharedDataset(Dataset):
 
                 split_lookup[image_path] = assignment
 
-            # Fail rather than silently train on incomplete
-            # or unassigned split metadata.
             for row in records:
                 image_path = row["image_path"]
 
@@ -137,8 +215,8 @@ class SariwaBaSharedDataset(Dataset):
                 if not split_lookup[image_path]:
                     raise ValueError(
                         "Unassigned splits detected. "
-                        "Verify specimen/capture groups "
-                        "and assign partitions before training."
+                        "Verify specimen/source groups before "
+                        "training or evaluation."
                     )
 
             records = [
@@ -146,9 +224,15 @@ class SariwaBaSharedDataset(Dataset):
                 if split_lookup[row["image_path"]] == split
             ]
 
+        # --------------------------------------------------
+        # Validate and load image references
+        # --------------------------------------------------
+
         self.samples = []
         seen_paths = set()
+
         label_field = LABEL_FIELDS[model_type]
+        project_root = BASE_DIR.resolve()
 
         for row in records:
             image_path = row["image_path"]
@@ -166,20 +250,23 @@ class SariwaBaSharedDataset(Dataset):
                     f"Unknown {model_type} label: {label}"
                 )
 
-            relative = Path(image_path)
+            relative_path = Path(image_path)
 
-            if relative.is_absolute() or ".." in relative.parts:
+            if (
+                relative_path.is_absolute()
+                or ".." in relative_path.parts
+            ):
                 raise ValueError(
                     f"Unsafe image path: {image_path}"
                 )
 
             full_path = (
-                BASE_DIR / relative
+                BASE_DIR / relative_path
             ).resolve()
 
-            if not full_path.is_relative_to(BASE_DIR.resolve()):
+            if not full_path.is_relative_to(project_root):
                 raise ValueError(
-                    f"Image outside project directory: {image_path}"
+                    f"Image outside project: {image_path}"
                 )
 
             if not full_path.is_file():
