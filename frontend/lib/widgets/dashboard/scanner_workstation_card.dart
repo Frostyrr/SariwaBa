@@ -448,9 +448,9 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       runSpacing: 4,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Text(
-                          'Image Not Supported',
-                          style: TextStyle(
+                        Text(
+                          ClassificationApiException.rejectionTitleForCode(code),
+                          style: const TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 15.5,
                             fontWeight: FontWeight.w400,
@@ -487,21 +487,9 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
-                      child: const LinearProgressIndicator(
-                        value: 0.72,
-                        minHeight: 6,
-                        backgroundColor: Color(0xFFF1F5F9),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          SariwaColors.statusSpoiled,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'The uploaded image could not be verified as a supported fish eye or exposed-gill photograph.',
-                      style: TextStyle(
+                    Text(
+                      guidance,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,

@@ -66,6 +66,7 @@ def admin_stats(request):
         "corrupted": all_telemetry.filter(status="REJECTED_CORRUPTED").count(),
         "empty": all_telemetry.filter(status="REJECTED_EMPTY").count(),
         "invalid_region": all_telemetry.filter(status="REJECTED_INVALID_REGION").count(),
+        "assessment": all_telemetry.filter(status="REJECTED_ASSESSMENT").count(),
     }
 
     errors = all_telemetry.filter(status__startswith="ERROR_")

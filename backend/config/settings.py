@@ -30,6 +30,11 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.0.2.2').split(',')
 ALLOWED_HOSTS = [h.strip() for h in ALLOWED_HOSTS if h.strip()]
 
+# Provisional abstention policy, not a calibrated probability of correctness.
+FRESHNESS_MIN_CONFIDENCE = float(os.getenv('FRESHNESS_MIN_CONFIDENCE', '0.80'))
+if not 0.5 <= FRESHNESS_MIN_CONFIDENCE <= 1:
+    raise ValueError('FRESHNESS_MIN_CONFIDENCE must be between 0.5 and 1.')
+
 
 # Application definition
 

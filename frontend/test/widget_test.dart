@@ -649,6 +649,10 @@ void main() {
         'code': 'POOR_IMAGE_QUALITY',
         'message': 'Mock future Model A: Cropped region is too blurry or underexposed.',
       },
+      {
+        'code': 'FRESHNESS_UNCERTAIN',
+        'message': 'Input validation passed, but freshness could not be determined.',
+      },
     ];
 
     for (final mock in futureRejectionMocks) {
@@ -675,12 +679,12 @@ void main() {
 
       // Dedicated Image Rejection State Card is displayed
       expect(find.byKey(const Key('image_rejection_card')), findsOneWidget);
-      expect(find.text('Image Not Supported'), findsOneWidget);
+      expect(find.text(ClassificationApiException.rejectionTitleForCode(mock['code'])), findsOneWidget);
       expect(
         find.text(
-          'The uploaded image could not be verified as a supported fish eye or exposed-gill photograph.',
+          ClassificationApiException.contextualGuidanceForCode(mock['code']),
         ),
-        findsOneWidget,
+        findsWidgets,
       );
       expect(find.textContaining('Input Rejected (${mock['code']})'), findsOneWidget);
       expect(find.text(mock['message']!), findsWidgets);

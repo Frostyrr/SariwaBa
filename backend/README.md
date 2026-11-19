@@ -19,3 +19,9 @@ Mao ni ang atong working environment para sa backend.
 6. Pag-run sa local development server:
    python manage.py runserver
 
+# Supported-input validation
+
+See [the Tilapia validation pipeline guide](../docs/tilapia-validation-pipeline.md)
+for the mandatory validator, migration, dataset review, training, and activation.
+Until a trained validator checkpoint is installed, classification returns 503.
+

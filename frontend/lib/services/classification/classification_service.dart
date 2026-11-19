@@ -14,12 +14,13 @@ class ClassificationApiException implements Exception {
   final String message;
   final int? statusCode;
 
-  /// Future backend Model A / content-validation rejection codes.
-  static const Set<String> futureModelARejectionCodes = {
+  /// Supported-input and freshness abstention responses from the backend.
+  static const Set<String> contentRejectionCodes = {
     'UNSUPPORTED_IMAGE',
     'REGION_MISMATCH',
     'CONTENT_UNCERTAIN',
     'POOR_IMAGE_QUALITY',
+    'FRESHNESS_UNCERTAIN',
   };
 
   /// Current backend file/input validation rejection codes.
@@ -51,7 +52,7 @@ class ClassificationApiException implements Exception {
 
   /// True when the error represents rejected user input (file validation or future Model A content/quality rejection).
   bool get isInputRejection =>
-      futureModelARejectionCodes.contains(code) ||
+      contentRejectionCodes.contains(code) ||
       fileValidationCodes.contains(code);
 
   /// True when the error represents a technical, model, auth, or network failure.
@@ -60,6 +61,8 @@ class ClassificationApiException implements Exception {
   /// Standard rejection heading for unsupported or invalid image submissions.
   static String rejectionTitleForCode(String? code) {
     switch (code) {
+      case 'FRESHNESS_UNCERTAIN':
+        return 'Freshness Could Not Be Determined';
       case 'REGION_MISMATCH':
         return 'Image Not Supported — Region Mismatch';
       case 'POOR_IMAGE_QUALITY':
@@ -78,6 +81,8 @@ class ClassificationApiException implements Exception {
   /// Contextual recovery guidance based on the actual backend rejection code.
   static String contextualGuidanceForCode(String? code) {
     switch (code) {
+      case 'FRESHNESS_UNCERTAIN':
+        return 'Try another clear close-up. This result does not mean the fish is Not Fresh.';
       case 'UNSUPPORTED_IMAGE':
       case 'CONTENT_UNCERTAIN':
         return 'Please upload a clear photograph of a fish eye or exposed gills.';

@@ -1,4 +1,6 @@
 import time
+import math
+from django.conf import settings
 from PIL import Image, UnidentifiedImageError
 try:
     from pillow_heif import register_heif_opener
@@ -20,6 +22,7 @@ from ml.predict import (
     ModelUnavailableError,
     predict_image,
 )
+from ml.validator import InputRejectedError, validate_image
 
 from .models import ClassificationHistory, ClassificationTelemetryLog
 from .serializers import ClassificationHistorySerializer
@@ -237,8 +240,28 @@ def classify_fish(request):
     start_time = time.perf_counter()
     try:
         image_file.seek(0)
+        validation = validate_image(image_file, region_type)
+        image_file.seek(0)
         prediction = predict_image(image_file, region_type=region_type)
+        minimum_confidence = settings.FRESHNESS_MIN_CONFIDENCE
+        confidence = float(prediction["confidence"])
+        if not math.isfinite(confidence) or not 0 <= confidence <= 1:
+            raise ModelInferenceError("Invalid freshness confidence.")
+        if prediction["label"] not in {"Fresh", "Not Fresh"}:
+            raise ModelInferenceError("Invalid freshness label.")
+        if confidence < minimum_confidence:
+            raise InputRejectedError("FRESHNESS_UNCERTAIN",
+                "The image passed input validation, but its freshness result is uncertain. Try another clear close-up.",
+                confidence)
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    except InputRejectedError as exc:
+        latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        ClassificationTelemetryLog.objects.create(
+            user=user, region_type=region_type, status="REJECTED_ASSESSMENT",
+            latency_ms=latency_ms, error_code=exc.code, confidence=exc.confidence,
+        )
+        return Response({"error": {"code": exc.code, "message": str(exc)}},
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY)
     except ModelUnavailableError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
         ClassificationTelemetryLog.objects.create(
@@ -299,6 +322,7 @@ def classify_fish(request):
             region_type=region_type,
             label=label,
             confidence=confidence,
+            validation=validation,
         )
         scan_id = classification.scan_id
 
@@ -308,7 +332,8 @@ def classify_fish(request):
             "label": label,
             "confidence": confidence,
             "region_type": region_type,
-            "species": "Tilapia",
+            "assessment_species": "Tilapia",
+            **validation,
             "disclaimer": PRELIMINARY_DISCLAIMER,
             "scan_id": scan_id,
             "saved": request.user.is_authenticated,

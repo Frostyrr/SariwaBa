@@ -28,6 +28,7 @@ class ClassificationHistory(models.Model):
     )
     label = models.CharField(max_length=20, choices=LABEL_CHOICES)
     confidence = models.FloatField()
+    validation = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -47,6 +48,7 @@ class ClassificationTelemetryLog(models.Model):
         ("REJECTED_CORRUPTED", "Rejected - Corrupted Image"),
         ("REJECTED_EMPTY", "Rejected - Empty Image"),
         ("REJECTED_INVALID_REGION", "Rejected - Invalid Region"),
+        ("REJECTED_ASSESSMENT", "Rejected - Content or Freshness Uncertain"),
         ("ERROR_INFERENCE", "Error - Inference Failed"),
         ("ERROR_MODEL_UNAVAILABLE", "Error - Model Unavailable"),
     ]

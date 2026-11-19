@@ -181,7 +181,7 @@ class FaqData {
       category: 'Troubleshooting',
       question: 'Why did my image upload get rejected?',
       answer:
-          'Try a JPG, PNG, or HEIC photo up to 5 MB. If it still fails, take a new photo or save another copy and try again.',
+          'Use a JPG, PNG, or HEIC photo up to 5 MB showing a clear Tilapia eye or exposed gill. Match the Eye/Gill selection to the photo. Unsupported or uncertain images are rejected before a freshness result is shown. An uncertain freshness result does not mean Not Fresh.',
       isHomepageFeatured: false,
     ),
     FaqItemModel(

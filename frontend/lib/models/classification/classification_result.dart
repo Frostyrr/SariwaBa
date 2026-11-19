@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../constants/theme/app_colors.dart';
 
 /// Supported Tilapia anatomical regions for ROI selection and MobileNetV3 inference.
 enum AnatomicalRegion {
-    eye,
-    gill;
+  eye,
+  gill;
 
   String get apiValue => name;
 
@@ -62,6 +63,7 @@ class ClassificationResult {
   final DateTime? createdAt;
   final String? modelVersion;
   final bool? regionVerified;
+  final String? validatorVersion;
 
   static const String defaultDisclaimer =
       'This is a preliminary visual freshness assessment and does not guarantee food safety.';
@@ -81,24 +83,27 @@ class ClassificationResult {
     this.createdAt,
     this.modelVersion,
     this.regionVerified,
+    this.validatorVersion,
   });
 
   factory ClassificationResult.fromJson(Map<String, dynamic> json) {
     final rawLabel =
         (json['classification'] ?? json['label']) as String? ?? 'Unknown';
     final rawRegion = json['region_type'] as String?;
-    final normalizedRegion =
-        (rawRegion != null && rawRegion.trim().isNotEmpty)
-            ? (AnatomicalRegion.fromString(rawRegion)?.apiValue ??
-                rawRegion.trim().toLowerCase())
-            : null;
+    final normalizedRegion = (rawRegion != null && rawRegion.trim().isNotEmpty)
+        ? (AnatomicalRegion.fromString(rawRegion)?.apiValue ??
+              rawRegion.trim().toLowerCase())
+        : null;
 
     return ClassificationResult(
       scanId: json['scan_id'] as int?,
       label: rawLabel,
       confidence: (json['confidence'] as num?)?.toDouble() ?? 0.0,
       regionType: normalizedRegion,
-      species: (json['species'] as String?) ?? 'Tilapia',
+      species:
+          (json['assessment_species'] as String?) ??
+          (json['species'] as String?) ??
+          'Tilapia',
       disclaimer: (json['disclaimer'] as String?) ?? defaultDisclaimer,
       saved: json['saved'] as bool? ?? false,
       imageUrl: (json['image_url'] ?? json['image']) as String?,
@@ -107,6 +112,7 @@ class ClassificationResult {
           : null,
       modelVersion: json['model_version'] as String?,
       regionVerified: json['region_verified'] as bool?,
+      validatorVersion: json['validator_version'] as String?,
     );
   }
 
@@ -118,12 +124,15 @@ class ClassificationResult {
       'confidence': confidence,
       'region_type': regionType,
       'species': species,
+      'assessment_species': species,
+      'species_verified': false,
       'disclaimer': disclaimer,
       'saved': saved,
       'image_url': imageUrl,
       'created_at': createdAt?.toIso8601String(),
       if (modelVersion != null) 'model_version': modelVersion,
       if (regionVerified != null) 'region_verified': regionVerified,
+      if (validatorVersion != null) 'validator_version': validatorVersion,
     };
   }
 
@@ -140,7 +149,9 @@ class ClassificationResult {
   String? get selectedRegionLabel {
     final name = regionDisplayName;
     if (name == null) return null;
-    return 'Selected region: $name';
+    return regionVerified == true
+        ? 'Verified region: $name'
+        : 'Selected region: $name';
   }
 
   /// Describes Tilapia as the intended assessment scope without claiming automatic species detection.

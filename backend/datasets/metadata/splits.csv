@@ -5663,3 +5663,34 @@ datasets/tilapia/NonFresh/Day 4/Gills/0497.jpg,NonFresh::NonFresh/Day 4/Gills::b
 datasets/tilapia/NonFresh/Day 4/Gills/0498.jpg,NonFresh::NonFresh/Day 4/Gills::block_9,nonfresh_50_frame_block,,,unassigned
 datasets/tilapia/NonFresh/Day 4/Gills/0499.jpg,NonFresh::NonFresh/Day 4/Gills::block_9,nonfresh_50_frame_block,,,unassigned
 datasets/tilapia/NonFresh/Day 4/Gills/0500.jpg,NonFresh::NonFresh/Day 4/Gills::block_10,nonfresh_50_frame_block,,,unassigned
+datasets/unsupported/other_fish_species/0001.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0002.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0003.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0004.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0005.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0006.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0007.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0008.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0009.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0010.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0011.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/other_fish_species/0012.jpg,Unsupported::other_fish_species,unsupported_source_folder,,,unassigned
+datasets/unsupported/whole_fish/0001.jpg,Unsupported::whole_fish,unsupported_source_folder,,,unassigned
+datasets/unsupported/whole_fish/0002.jpg,Unsupported::whole_fish,unsupported_source_folder,,,unassigned
+datasets/unsupported/whole_fish/0003.jpg,Unsupported::whole_fish,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0001.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0002.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0003.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0004.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0005.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0006.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0007.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0008.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0009.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0010.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0011.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0012.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0013.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0014.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0015.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned
+datasets/unsupported/wrong_fish_regions/0016.jpg,Unsupported::wrong_fish_regions,unsupported_source_folder,,,unassigned

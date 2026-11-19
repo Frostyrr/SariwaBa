@@ -50,6 +50,7 @@ class GuestHistoryCache {
       disclaimer: result.disclaimer,
       modelVersion: result.modelVersion,
       regionVerified: result.regionVerified,
+      validatorVersion: result.validatorVersion,
       imageUrl: result.imageUrl,
       createdAt: result.createdAt ?? DateTime.now(),
     );

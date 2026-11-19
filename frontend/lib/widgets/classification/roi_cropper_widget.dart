@@ -1105,7 +1105,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                                       ),
                                       const SizedBox(height: 2),
                                       const Text(
-                                        'Note: Selecting Eye or Gill specifies which region you are submitting; it does not automatically verify that the image contains Tilapia or that anatomical part.',
+                                        'Select the region shown in your photo. The image must pass supported-input validation before freshness is assessed. Tilapia is the supported assessment scope; species identification is not a separate verified result.',
                                         style: TextStyle(
                                           letterSpacing: -0.25,
                                           fontSize: 10,

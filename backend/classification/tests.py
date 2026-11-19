@@ -5,12 +5,14 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.test import override_settings
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from ml.predict import ModelInferenceError, ModelUnavailableError
+from ml.validator import InputRejectedError
 from .models import ClassificationHistory
 
 
@@ -43,6 +45,17 @@ class ClassificationAPITests(TestCase):
 
     def setUp(self):
         self.client = APIClient()
+        # API contract tests isolate ML behavior; validator decisions are tested separately.
+        validator_patch = patch("classification.views.validate_image", side_effect=lambda image, region: {
+            "region_verified": True, "species_verified": False,
+            "validation_confidence": 0.96, "validator_version": "test-validator",
+            "validation_scope": "tilapia_eye_gill",
+        })
+        self.validator_mock = validator_patch.start()
+        self.addCleanup(validator_patch.stop)
+        settings_patch = override_settings(FRESHNESS_MIN_CONFIDENCE=0.5)
+        settings_patch.enable()
+        self.addCleanup(settings_patch.disable)
 
         # User 1
         self.user = User.objects.create_user(
@@ -407,8 +420,7 @@ class ClassificationAPITests(TestCase):
 
     def test_real_tilapia_dataset_eye_and_gill_inference(self):
         """
-        End-to-end verification using real Tilapia eye and gill photographs
-        against the actual trained MobileNetV3 checkpoint when dataset files are present.
+        Freshness checkpoint smoke test with mocked gate; not a validator accuracy test.
         """
         base_dir = Path(__file__).resolve().parent.parent
         dataset_dir = base_dir / "datasets" / "tilapia"
