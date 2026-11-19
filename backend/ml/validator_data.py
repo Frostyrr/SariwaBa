@@ -8,8 +8,8 @@ import hashlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from .prepare_shared_dataset import prepare_records
-from .shared_dataset import BASE_DIR, METADATA_DIR, read_csv
+from .dataset_inventory import prepare_records
+from .shared_dataset import BASE_DIR, METADATA_DIR, load_validator_exclusions, read_csv
 
 
 def write_rows(path, rows, columns):
@@ -42,6 +42,10 @@ def audit_partitions(metadata_dir=METADATA_DIR):
     """Require explicit reviewed grouping; check specimens and exact duplicates."""
     metadata_dir = Path(metadata_dir)
     records = read_csv(metadata_dir / "validator_labels.csv")
+    exclusions = load_validator_exclusions(metadata_dir)
+    if exclusions - {row["image_path"] for row in records}:
+        raise ValueError("Validator exclusions reference images outside the manifest.")
+    records = [row for row in records if row["image_path"] not in exclusions]
     assignments = read_csv(metadata_dir / "splits.csv")
     lookup = {row["image_path"]: row for row in assignments}
     if len(lookup) != len(assignments):

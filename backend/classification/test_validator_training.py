@@ -1,12 +1,15 @@
 import csv
 import tempfile
+import contextlib
+import io
 from pathlib import Path
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
 
 from ml.train_validator import gate_metrics, select_threshold
-from ml.validator_data import audit_partitions
+from ml.validator_data import audit_partitions, refresh_inventory
+from ml import dataset_inventory
 
 
 class CalibrationTests(SimpleTestCase):
@@ -26,7 +29,7 @@ class CalibrationTests(SimpleTestCase):
 
 
 class PartitionAuditTests(SimpleTestCase):
-    def audit(self, specimens, contents, statuses=None, groups=None):
+    def audit(self, specimens, contents, statuses=None, groups=None, excluded=None):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
             records, splits = [], []
@@ -43,6 +46,11 @@ class PartitionAuditTests(SimpleTestCase):
                     writer = csv.DictWriter(file, fieldnames=rows[0].keys())
                     writer.writeheader()
                     writer.writerows(rows)
+            if excluded is not None:
+                with (base / 'validator_exclusions.csv').open('w', newline='') as file:
+                    writer = csv.DictWriter(file, fieldnames=['image_path'])
+                    writer.writeheader()
+                    writer.writerow({'image_path': excluded})
             with patch('ml.validator_data.BASE_DIR', base):
                 return audit_partitions(base)
 
@@ -66,3 +74,52 @@ class PartitionAuditTests(SimpleTestCase):
             self.audit(['a', 'b', 'c'], [b'a', b'b', b'c'], statuses=['unassigned'] * 3)
         with self.assertRaisesRegex(ValueError, 'specimen ID'):
             self.audit(['', 'b', 'c'], [b'a', b'b', b'c'])
+
+    def test_excluded_duplicates_are_not_counted_or_required_to_have_reviewed_splits(self):
+        counts = self.audit(['a', 'b', 'c'], [b'a', b'a', b'c'],
+            statuses=['verified', 'unassigned', 'verified'], excluded='image1.jpg')
+        self.assertEqual(counts['train']['eye'], 1)
+        self.assertEqual(sum(counts['val'].values()), 0)
+
+    def test_unknown_exclusion_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'outside the manifest'):
+            self.audit(['a', 'b', 'c'], [b'a', b'b', b'c'], excluded='unknown.jpg')
+
+
+class MergedInventoryTests(SimpleTestCase):
+    def test_real_inventory_refresh_preserves_reviewed_rows_and_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            tilapia = base / 'datasets' / 'tilapia'
+            unsupported = base / 'datasets' / 'unsupported'
+            metadata = base / 'metadata'
+            metadata.mkdir()
+            positive = tilapia / 'Fresh' / 'Day 1' / 'Eyes' / '1_Eyes' / '0001.jpg'
+            positive.parent.mkdir(parents=True)
+            positive.write_bytes(b'inventory-only-positive')
+            with patch.multiple(dataset_inventory, BASE_DIR=base,
+                    TILAPIA_DIR=tilapia, UNSUPPORTED_DIR=unsupported):
+                freshness, validator, splits, _ = dataset_inventory.prepare_records()
+                splits[0].update(specimen_id='reviewed-fish', group_key='reviewed-capture',
+                    split='train', split_status='verified')
+                original = dict(splits[0])
+                for name, rows in [('freshness_labels.csv', freshness),
+                        ('validator_labels.csv', validator), ('splits.csv', splits)]:
+                    with (metadata / name).open('w', newline='') as file:
+                        writer = csv.DictWriter(file, fieldnames=rows[0].keys())
+                        writer.writeheader()
+                        writer.writerows(rows)
+                negative = unsupported / 'unrelated_objects' / 'object.jpg'
+                negative.parent.mkdir(parents=True)
+                negative.write_bytes(b'inventory-only-negative')
+                with contextlib.redirect_stdout(io.StringIO()):
+                    refresh_inventory(metadata)
+                    refresh_inventory(metadata)
+                with (metadata / 'splits.csv').open(newline='') as file:
+                    updated = list(csv.DictReader(file))
+                self.assertEqual(len(updated), 2)
+                self.assertEqual(updated[0], original)
+                self.assertEqual(updated[1]['split_status'], 'unassigned')
+                with (metadata / 'validator_labels.csv').open(newline='') as file:
+                    labels = list(csv.DictReader(file))
+                self.assertEqual(labels[1]['anatomical_label'], 'unsupported')

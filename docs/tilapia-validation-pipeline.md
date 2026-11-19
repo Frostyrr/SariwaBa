@@ -63,13 +63,15 @@ Current local manifest inventory:
 |---|---:|
 | Eye | 3,606 |
 | Gill | 2,058 |
-| Unsupported | 31 |
+| Unsupported | 250 |
 
-The 31 unsupported images comprise 12 other-fish-species images, 3 whole-fish
-images, and 16 wrong-region images. Folder categories are provisional labels,
-not verified annotations. They were added to the validator/split manifests without
-changing existing images, positive labels, or assignments. All 5,695 split rows
-remain unassigned. The freshness manifest contains 5,664 positive examples.
+The merged unsupported collection comprises 100 other-fish-species images, 100
+whole-fish images and 50 wrong-region images. Folder categories are provisional
+labels, not verified annotations. All 5,914 split rows remain unassigned. Three
+byte-identical unsupported duplicates are listed in `validator_exclusions.csv`,
+leaving 5,911 usable validator records (247 unique unsupported images). Both the
+shared loader and the reviewed partition audit apply those exclusions. The
+freshness manifest contains 5,664 positive examples.
 
 Missing negatives include unrelated objects and representative poor captures.
 Review whether the other-species examples actually contain close-ups of eyes and
@@ -127,9 +129,10 @@ regions subject to the configured unsupported false-accept target (default 5%).
 The test set does not select the epoch or threshold.
 
 By default each evaluation partition requires at least 20 images of **each** class,
-plus training examples. The current 31 unsupported photos cannot satisfy that
-minimum for both validation and test; more negatives are necessary. Twenty images
-is an engineering floor, not a statistically sufficient sample-size claim.
+plus training examples. The expanded collection can meet that numerical floor,
+but specimen/source independence and negative diversity still require review.
+Twenty images is an engineering floor, not a statistically sufficient sample-size
+claim.
 
 The candidate directory contains `sariwaba_validator.pth` and `evaluation.json`,
 including confusion matrices, false acceptance, per-region correct acceptance,
@@ -151,6 +154,46 @@ threshold provenance and the checkpoint's held-out acceptance policy. It refuses
 candidates whose reported test false-accept rate exceeds their configured target,
 or that accept no correct examples of either supported region. These checks do
 not replace manual review of dataset provenance, coverage and report quality.
+
+## Benedict integration, 2026-11-19
+
+Both training workflows are preserved:
+
+- `python -m ml.train_validator --help` is the reviewed, calibrated candidate
+  workflow used by the API checkpoint contract.
+- `python -m ml.train_validator_experimental` is Benedict's original experimental
+  trainer, renamed to avoid overwriting either implementation. It consumes
+  `validator_experimental_splits.csv`, uses unverified grouping and writes the
+  experimental checkpoint. It refuses to overwrite the existing candidate.
+
+The existing experimental weights remain unchanged and inactive. They use a
+different checkpoint schema (`state_dict` rather than `model_state_dict`) and
+do not supply the reviewed runtime acceptance metadata. Do not activate them by
+renaming the checkpoint or fabricating calibration/provenance fields.
+
+`dataset_inventory.py` now owns the read-only `prepare_records()` helper. This
+keeps `validator_data.py` independent of Benedict's updated
+`prepare_shared_dataset.py`, whose append-only unsupported updater is retained.
+
+During the merge, 25 unsupported image references were updated to Git's exact
+rename destinations. Two moved images' provisional categories were aligned with
+their destination folder. References to six images deleted by Benedict's branch
+were removed from the manifests, after checking they had no reviewed split or
+specimen assignment: `other_fish_species/0002.jpg`, `0003.jpg`, `0004.jpg`,
+`0005.jpg`, `0011.jpg`, and `0012.jpg`. No additional images were deleted by this
+reconciliation. The remaining 225 new unsupported images were registered without
+assigning specimen IDs or verified partitions.
+
+The previously missing exclusion, source-group review, provisional split plan,
+and experimental split CSVs were regenerated using the merged scripts. The
+experimental partitions contain 4,153 train, 880 validation, and 878 test images,
+all marked `experimental_unverified`. These are regenerated artifacts, not proof
+of the historical checkpoint's exact original training membership. They do not
+replace `splits.csv`. Wrong-region negatives remain absent from experimental
+validation/test, and unrelated-object negatives are absent from its training.
+
+The additional extracted dataset folders are retained as supplied by Benedict;
+they are not automatically labeled or admitted to either training manifest.
 
 ## Verification commands
 
