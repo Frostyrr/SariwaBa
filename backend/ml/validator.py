@@ -1,8 +1,10 @@
 """Mandatory supported-input gate. A freshness score cannot verify species."""
 import math
+from functools import lru_cache
 from pathlib import Path
 
 import torch
+from django.conf import settings
 from PIL import Image, ImageOps
 from torch import nn
 from torchvision import models
@@ -10,6 +12,8 @@ from torchvision import models
 from .predict import DEVICE, ModelInferenceError, ModelUnavailableError, _build_eval_transform
 
 VALIDATOR_PATH = Path(__file__).resolve().parent / "models" / "sariwaba_validator.pth"
+EXPERIMENTAL_PATH = VALIDATOR_PATH.with_name("sariwaba_validator_experimental_best.pth")
+EXPERIMENTAL_NOTICE = "Experimental validator demo. Region and freshness predictions are preliminary."
 VALIDATOR_CLASSES = ["eye", "gill", "unsupported"]
 _BUNDLE = None
 
@@ -86,8 +90,31 @@ def decide_input(probabilities, region_type, threshold):
             "validation_scope": "tilapia_eye_gill", "validation_confidence": confidence}
 
 
+@lru_cache(maxsize=1)
+def get_experimental_bundle():
+    try:
+        checkpoint = torch.load(EXPERIMENTAL_PATH, map_location=DEVICE, weights_only=True)
+        if (checkpoint["experimental"] is not True
+                or checkpoint["classes"] != VALIDATOR_CLASSES
+                or checkpoint["model_name"] != "mobilenet_v3_small"
+                or checkpoint["image_size"] != 224):
+            raise ValueError("Unexpected experimental validator metadata.")
+        net = models.mobilenet_v3_small(weights=None)
+        net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(VALIDATOR_CLASSES))
+        net.load_state_dict(checkpoint["state_dict"])
+        return {
+            "model": net.to(DEVICE).eval(),
+            "transform": _build_eval_transform(224),
+            "threshold": 0.0,  # Match the standalone experimental evaluator's argmax policy.
+            "model_version": f"experimental-epoch-{checkpoint['best_epoch']}",
+        }
+    except Exception as exc:
+        raise ModelUnavailableError("The experimental demo validator could not be loaded.") from exc
+
+
 def validate_image(image_source, region_type):
-    bundle = get_validator_bundle()
+    experimental = settings.DEBUG and settings.EXPERIMENTAL_VALIDATOR_DEMO
+    bundle = get_experimental_bundle() if experimental else get_validator_bundle()
     try:
         if hasattr(image_source, "seek"):
             image_source.seek(0)
@@ -97,6 +124,13 @@ def validate_image(image_source, region_type):
             probabilities = bundle["model"](tensor.unsqueeze(0).to(DEVICE)).softmax(1)[0].tolist()
     except Exception as exc:
         raise ModelInferenceError("Supported-input validation failed.") from exc
-    result = decide_input(probabilities, region_type, bundle["threshold"])
+    try:
+        result = decide_input(probabilities, region_type, bundle["threshold"])
+    except InputRejectedError as exc:
+        if experimental:
+            raise InputRejectedError(exc.code, f"Experimental demo: {exc}", exc.confidence) from exc
+        raise
+    if experimental:
+        result.update(region_verified=False, experimental_demo=True)
     result["validator_version"] = bundle["model_version"]
     return result

@@ -22,7 +22,7 @@ from ml.predict import (
     ModelUnavailableError,
     predict_image,
 )
-from ml.validator import InputRejectedError, validate_image
+from ml.validator import EXPERIMENTAL_NOTICE, InputRejectedError, validate_image
 
 from .models import ClassificationHistory, ClassificationTelemetryLog
 from .serializers import ClassificationHistorySerializer
@@ -334,7 +334,10 @@ def classify_fish(request):
             "region_type": region_type,
             "assessment_species": "Tilapia",
             **validation,
-            "disclaimer": PRELIMINARY_DISCLAIMER,
+            "disclaimer": (
+                f"{EXPERIMENTAL_NOTICE} {PRELIMINARY_DISCLAIMER}"
+                if validation.get("experimental_demo") else PRELIMINARY_DISCLAIMER
+            ),
             "scan_id": scan_id,
             "saved": request.user.is_authenticated,
         },
