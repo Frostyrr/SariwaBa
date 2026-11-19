@@ -417,6 +417,11 @@ void main() {
 
     expect(find.text('Confirmed Eye Region Ready'), findsOneWidget);
     expect(find.text('Cropped Photo'), findsOneWidget);
+    final preview = tester.widget<Image>(find.descendant(
+      of: find.byKey(const Key('confirmed_region_preview')),
+      matching: find.byType(Image),
+    ));
+    expect((preview.image as MemoryImage).bytes, same(kDistinctCroppedPngBytes));
 
     // 7. Submit classification and verify truthful "Analyzing image..." state + duplicate submit prevention
     final completer = Completer<ClassificationResult>();
@@ -1062,7 +1067,7 @@ void main() {
   });
 
   testWidgets(
-      'iOS ROI Modal opens on image selection (including HEIC), auto-accepts crop position when pressing Validate & Classify Freshness, and re-opens on Edit Crop',
+      'HEIC crop failure blocks submission until Full Close-Up is explicitly selected',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1280, 1000);
     tester.view.devicePixelRatio = 1.0;
@@ -1163,11 +1168,23 @@ void main() {
     await tester.tap(find.byKey(const Key('validate_and_classify_button')));
     await tester.pumpAndSettle();
 
-    // Pressing 'Validate & Classify Freshness' automatically accepts crop position and displays freshness results in the modal
-    expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
-    expect(find.byKey(const Key('modal_classification_result_view')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('modal_result_done_button')));
+    final failedCrop = container.read(classificationControllerProvider);
+    expect(failedCrop.errorCode, 'CROP_FAILED');
+    expect(failedCrop.confirmedImageBytes, isNull);
+    expect(fakeClassRepo.classifyCallCount, 0);
+    expect(find.byKey(const Key('modal_classification_result_view')), findsNothing);
+
+    final fullCloseUp = find.byKey(const Key('confirm_full_image_button'));
+    await tester.ensureVisible(fullCloseUp);
+    await tester.tap(fullCloseUp);
     await tester.pumpAndSettle();
+    expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
+    expect(container.read(classificationControllerProvider).isFullImageConfirmed, isTrue);
+    final submit = find.text('Validate & Classify Freshness');
+    await tester.ensureVisible(submit);
+    await tester.tap(submit);
+    await tester.pumpAndSettle();
+
     expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
     expect(find.byKey(const Key('confirmed_region_preview')), findsOneWidget);
     expect(find.byKey(const Key('classification_result_view')), findsOneWidget);
@@ -1248,10 +1265,15 @@ void main() {
       expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
 
       // 3. Trigger classification with pending completer to inspect in-modal classifying state
+      controller.confirmCroppedRegion(kDistinctCroppedPngBytes);
+      await tester.pump();
       final completer = Completer<ClassificationResult>();
       fakeClassRepo.pendingCompleter = completer;
 
-      await tester.tap(find.byKey(const Key('validate_and_classify_button')));
+      await tester.tap(find.descendant(
+        of: find.byKey(const Key('roi_cropper_modal')),
+        matching: find.byKey(const Key('validate_and_classify_button')),
+      ));
       await tester.pump();
 
       expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);

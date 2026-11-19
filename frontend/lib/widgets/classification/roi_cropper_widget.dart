@@ -278,19 +278,12 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     if (rawBytes == null) return;
 
     final uiImg = _decodedImage;
-    if (uiImg == null) {
-      final normalizedRect = _computeNormalizedCropRect(
-        viewportSize,
-        viewportSize,
-      );
-      widget.controller.confirmCroppedRegion(
-        rawBytes,
-        normalizedCropRect: normalizedRect,
-      );
-      await _completeConfirmation(classifyImmediately: classifyImmediately);
+    if (uiImg == null || !identical(rawBytes, _decodedForBytes)) {
+      widget.controller.confirmCroppedRegion(Uint8List(0));
       return;
     }
 
+    final region = widget.state.selectedRegion;
     setState(() => _isCropping = true);
     try {
       final imageSize = Size(
@@ -339,28 +332,27 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
       if (!mounted) return;
       setState(() => _isCropping = false);
+      if (!identical(rawBytes, widget.state.selectedImageBytes) ||
+          region != widget.state.selectedRegion) return;
 
-      if (byteData != null && byteData.lengthInBytes > 0) {
-        widget.controller.confirmCroppedRegion(
-          byteData.buffer.asUint8List(),
-          normalizedCropRect: normalizedRect,
-        );
-      } else {
-        widget.controller.confirmCroppedRegion(
-          rawBytes,
-          normalizedCropRect: normalizedRect,
-        );
+      if (byteData == null || byteData.lengthInBytes == 0) {
+        widget.controller.confirmCroppedRegion(Uint8List(0));
+        return;
       }
-      await _completeConfirmation(classifyImmediately: classifyImmediately);
+      widget.controller.confirmCroppedRegion(
+        byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+        normalizedCropRect: normalizedRect,
+      );
     } catch (_) {
       if (!mounted) return;
       setState(() => _isCropping = false);
-      widget.controller.confirmCroppedRegion(
-        rawBytes,
-        normalizedCropRect: const Rect.fromLTWH(0.12, 0.12, 0.76, 0.76),
-      );
-      await _completeConfirmation(classifyImmediately: classifyImmediately);
+      if (identical(rawBytes, widget.state.selectedImageBytes) &&
+          region == widget.state.selectedRegion) {
+        widget.controller.confirmCroppedRegion(Uint8List(0));
+      }
+      return;
     }
+    await _completeConfirmation(classifyImmediately: classifyImmediately);
   }
 
   /// Automatically accepts the current crop position (or full close-up mode)
@@ -2220,7 +2212,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Ready to frame and classify',
+              'Use a JPG or PNG to crop this photo',
               style: TextStyle(
                 letterSpacing: -0.25,
                 color: Colors.white70,

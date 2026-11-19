@@ -397,11 +397,23 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     }
 
     if (croppedBytes.isEmpty) {
+      final isHeic = isHeicHeader(state.selectedImageBytes!);
+      _activeRequestId++;
       state = state.copyWith(
-        errorMessage: 'Unable to generate cropped image region.',
-        errorCode: 'EMPTY_IMAGE',
+        errorMessage: isHeic
+            ? 'This HEIC photo could not be cropped. Use a JPG or PNG, or choose Full Close-Up if the original already frames the eye or gill.'
+            : 'Unable to create the crop. Try again or choose another photo.',
+        errorCode: 'CROP_FAILED',
         isInputRejection: true,
+        clearConfirmedImage: true,
+        clearCropRect: true,
+        isCropConfirmed: false,
+        isFullImageConfirmed: false,
+        isEditingCrop: true,
+        isClassifying: false,
+        clearProcessingStage: true,
         clearSuccess: true,
+        clearResult: true,
       );
       return;
     }
