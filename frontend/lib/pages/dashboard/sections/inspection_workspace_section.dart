@@ -62,15 +62,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
               const SizedBox(height: 20),
               KpiMetricsRow(history: classState.history),
               const SizedBox(height: 22),
-              if (classState.errorMessage != null && !isModalEffectivelyOpen)
-                DashboardNotificationBanner(
-                  message: classState.errorMessage!,
-                  isError: true,
-                  state: classState,
-                  controller: classController,
-                  onOpenCropModal: onOpenCropModal,
-                ),
-              if (classState.successMessage != null)
+              if (classState.successMessage != null) ...[
                 DashboardNotificationBanner(
                   message: classState.successMessage!,
                   isError: false,
@@ -78,9 +70,8 @@ class InspectionWorkspaceSection extends StatelessWidget {
                   controller: classController,
                   onOpenCropModal: onOpenCropModal,
                 ),
-              if ((classState.errorMessage != null && !isModalEffectivelyOpen) ||
-                  classState.successMessage != null)
                 const SizedBox(height: 18),
+              ],
               LayoutBuilder(
                 builder: (context, constraints) {
                   final isTwoCol = constraints.maxWidth >= 820;

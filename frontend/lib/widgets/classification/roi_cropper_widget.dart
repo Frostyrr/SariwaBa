@@ -430,7 +430,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (state.errorMessage != null) ...[
-                              _buildModalErrorBanner(state.errorMessage!),
+                              _buildModalErrorBanner(state, controller),
                               const SizedBox(height: 14),
                             ],
                             if (state.latestResult != null) ...[
@@ -605,37 +605,151 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     );
   }
 
-  Widget _buildModalErrorBanner(String message) {
+  Widget _buildModalErrorBanner(
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    final message = state.errorMessage ?? '';
+    final isRejected =
+        state.workflowStage == ClassificationWorkflowStage.validationRejected;
+    final region = state.selectedRegion;
+    final alternateRegion = region == AnatomicalRegion.eye
+        ? AnatomicalRegion.gill
+        : AnatomicalRegion.eye;
+
+    if (!isRejected) {
+      return Container(
+        key: const Key('modal_error_banner'),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFBEB),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: SariwaColors.statusModerate.withValues(alpha: 0.35),
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              CupertinoIcons.exclamationmark_circle_fill,
+              size: 18,
+              color: SariwaColors.statusModerate,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  letterSpacing: -0.25,
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       key: const Key('modal_error_banner'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: SariwaColors.statusModerate.withValues(alpha: 0.35),
-          width: 0.8,
+          color: const Color(0xFFFCA5A5),
+          width: 1.0,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            CupertinoIcons.exclamationmark_circle_fill,
-            size: 18,
-            color: SariwaColors.statusModerate,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                letterSpacing: -0.25,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: SariwaColors.textPrimaryDark,
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.shield_slash_fill,
+                size: 18,
+                color: Color(0xFFDC2626),
               ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Stopped before freshness check',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.25,
+                    color: Color(0xFF991B1B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            style: const TextStyle(
+              letterSpacing: -0.2,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: SariwaColors.textPrimaryDark,
             ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Make sure your crop is a tight, real close-up of a single Tilapia eye or exposed gill—not a full tray, drawing, or non-fish object.',
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: SariwaColors.textSecondaryDark,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (region != null)
+                OutlinedButton.icon(
+                  onPressed: () => controller.selectRegion(alternateRegion),
+                  icon: const Icon(CupertinoIcons.arrow_2_circlepath, size: 14),
+                  label: Text('Switch to ${alternateRegion.displayName}'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: SariwaColors.textPrimaryDark,
+                    side: const BorderSide(color: Color(0xFFD1D5DB)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              OutlinedButton.icon(
+                onPressed: controller.clearImage,
+                icon: const Icon(CupertinoIcons.photo, size: 14),
+                label: const Text('Upload New Photo'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF991B1B),
+                  side: const BorderSide(color: Color(0xFFFCA5A5)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1413,7 +1527,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Evaluating Tilapia Freshness...',
+                      'Checking image & freshness...',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -1423,7 +1537,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      stageText,
+                      'Step 1: Verifying eye/gill close-up  •  Step 2: $stageText',
                       style: const TextStyle(
                         fontSize: 11.5,
                         letterSpacing: AppTypography.defaultLetterSpacing,

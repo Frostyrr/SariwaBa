@@ -46,3 +46,20 @@ threshold is a starting point. Review missed eyes and detections on unrelated
 objects before integrating a candidate. This detector does not predict species
 or freshness. Species verification requires confirmed species labels and its own
 evaluation. The existing scanner continues to use its eye or gill crop flow.
+
+## YOLO pilot
+
+The first market visit export contains clean JPEGs under `images` and matching
+YOLO files under `labels`. From the backend directory, audit the export with:
+
+```powershell
+.venv/Scripts/python.exe -m ml.yolo_eye_pilot datasets/SariwaBa-eye-dataset/yolo_pilot/market-visit-01
+```
+
+Run training in a Python environment with Ultralytics installed. Pass a
+pretrained detection checkpoint with `--weights` and a new directory with
+`--output`. For a one-epoch pipeline check on the existing batch, add
+`--smoke --epochs 1`. This reuses the training images for the tool's validation
+step and marks the run as smoke-only. For model selection, pass
+`--val-session <separate-session-directory>` instead of `--smoke` and reserve
+another session for final evaluation.

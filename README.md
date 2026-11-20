@@ -1,6 +1,5 @@
 <img width="1376" height="340" alt="Sariwaba with bg - Copy" src="https://github.com/user-attachments/assets/ca9fc460-8111-4b55-a4e2-b7214ce663c2" />
 
-
 ## SariwaBa? — Fish Freshness Classification System
 
 > **SariwaBa?** (_"Is it fresh?"_) is an intelligent seafood quality assessment platform powered by deep learning and computer vision. The system provides instantaneous, standardized freshness ratings by analyzing visual cues such as eye cornea clarity, branchial gill pigmentation, and body surface texture.
@@ -73,6 +72,10 @@ flutter pub get
 
 # Run on Chrome with standard port
 flutter run -d chrome --web-port 7357
+
+# For demonstration
+flutter build web
+py -m http.server 7357 --bind localhost --directory build/web
 ```
 
 ## Technology Stack
