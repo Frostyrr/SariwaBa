@@ -389,7 +389,20 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     selectRegion(nextRegion);
   }
 
-  /// Confirm a manually cropped anatomical region
+  bool get canFindEyes =>
+      const bool.fromEnvironment('ENABLE_EYE_PROPOSALS') &&
+      _service is EyeProposalService;
+
+  Future<List<EyeCropProposal>> findEyes() {
+    final bytes = state.selectedImageBytes;
+    if (!canFindEyes || bytes == null) return Future.value([]);
+    return (_service as EyeProposalService).findEyes(
+      bytes,
+      state.selectedImageName ?? 'tilapia.jpg',
+    );
+  }
+
+  /// Confirm a cropped anatomical region
   void confirmCroppedRegion(
     Uint8List croppedBytes, {
     Rect? normalizedCropRect,

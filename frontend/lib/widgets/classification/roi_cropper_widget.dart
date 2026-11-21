@@ -127,6 +127,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   ui.Image? _decodedImage;
   Uint8List? _decodedForBytes;
   bool _isCropping = false;
+  bool _findingEyes = false;
   double _currentScale = 1.0;
   bool _isHoveringViewport = false;
   bool _pinGuidanceOverlay = false;
@@ -164,6 +165,85 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     _transformController.dispose();
     _decodedImage?.dispose();
     super.dispose();
+  }
+
+  Widget _findEyeButton() => OutlinedButton.icon(
+    onPressed: _findingEyes || widget.state.isClassifying ? null : _findEyes,
+    icon: const Icon(CupertinoIcons.eye, size: 16),
+    label: Text(_findingEyes ? 'Finding eyes…' : 'Find Eye'),
+  );
+
+  bool get _showFindEye =>
+      widget.controller.canFindEyes &&
+      widget.state.selectedRegion?.apiValue == 'eye';
+
+  Future<void> _findEyes() async {
+    final source = widget.state.selectedImageBytes;
+    final region = widget.state.selectedRegion;
+    bool isCurrent() =>
+        mounted &&
+        identical(source, widget.state.selectedImageBytes) &&
+        region == widget.state.selectedRegion &&
+        !widget.state.isClassifying;
+
+    setState(() => _findingEyes = true);
+    try {
+      final proposals = await widget.controller.findEyes();
+      if (!isCurrent()) return;
+      if (proposals.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No eye crop found. Adjust the crop or take a close-up.')),
+        );
+        return;
+      }
+      final selected = await showDialog<EyeCropProposal>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Choose an eye crop'),
+          content: SizedBox(
+            width: 440,
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final (index, proposal) in proposals.indexed)
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.memory(proposal.bytes, width: 128, height: 128),
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(proposal),
+                          child: Text('Use eye ${index + 1}'),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+      if (selected == null || !isCurrent()) return;
+      widget.controller.confirmCroppedRegion(
+        selected.bytes,
+        normalizedCropRect: selected.rect,
+      );
+    } catch (_) {
+      if (isCurrent()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Eye detection is unavailable. You can still crop manually.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _findingEyes = false);
+    }
   }
 
   void _onTransformChanged() {
@@ -2041,6 +2121,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             spacing: 8,
             runSpacing: 8,
             children: [
+              if (_showFindEye) _findEyeButton(),
               ElevatedButton.icon(
                 key: const Key('open_crop_modal_button'),
                 onPressed: widget.onOpenModal,
@@ -2296,6 +2377,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                 ),
               ),
               const SizedBox(width: 8),
+              if (_showFindEye) _findEyeButton(),
               OutlinedButton.icon(
                 key: const Key('edit_crop_button'),
                 onPressed: state.isClassifying

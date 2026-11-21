@@ -1,6 +1,8 @@
 import '../../controllers/auth/auth_controller.dart';
 
+import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui' show Rect;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -141,12 +143,50 @@ abstract class ClassificationService {
 typedef ClassificationRepository = ClassificationService;
 typedef ClassificationException = ClassificationApiException;
 
-class ClassificationServiceImpl implements ClassificationService {
+typedef EyeCropProposal = ({Uint8List bytes, Rect rect});
+
+abstract interface class EyeProposalService {
+  Future<List<EyeCropProposal>> findEyes(Uint8List bytes, String filename);
+}
+
+class ClassificationServiceImpl
+    implements ClassificationService, EyeProposalService {
   final Dio _dio;
 
   final bool guestRequest;
 
   ClassificationServiceImpl(this._dio, {this.guestRequest = false});
+
+  @override
+  Future<List<EyeCropProposal>> findEyes(
+    Uint8List bytes,
+    String filename,
+  ) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '${ApiEndpoints.classify}eye-proposals/',
+      data: FormData.fromMap({
+        'image': MultipartFile.fromBytes(
+          bytes,
+          filename: filename,
+          contentType: _detectMediaType(bytes, filename),
+        ),
+      }),
+      options: Options(extra: {'guestRequest': guestRequest}),
+    );
+    final proposals = response.data!['proposals'] as List<dynamic>;
+    return proposals.map<EyeCropProposal>((proposal) {
+      final rect = (proposal['rect'] as List<dynamic>).cast<num>();
+      return (
+        bytes: base64Decode(proposal['crop_base64'] as String),
+        rect: Rect.fromLTRB(
+          rect[0].toDouble(),
+          rect[1].toDouble(),
+          rect[2].toDouble(),
+          rect[3].toDouble(),
+        ),
+      );
+    }).toList();
+  }
 
   static DioMediaType _detectMediaType(Uint8List bytes, String filename) {
     if (bytes.length >= 8 &&

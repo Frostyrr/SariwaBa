@@ -63,3 +63,17 @@ pretrained detection checkpoint with `--weights` and a new directory with
 step and marks the run as smoke-only. For model selection, pass
 `--val-session <separate-session-directory>` instead of `--smoke` and reserve
 another session for final evaluation.
+
+### Scanner integration
+
+Install Ultralytics in the Django runtime and set `EYE_DETECTOR_CHECKPOINT`
+to the absolute path to a trusted, evaluated fish/eye checkpoint
+(`0 = fish`, `1 = eye`). Restart Django after changing the checkpoint.
+Build or run Flutter with `--dart-define=ENABLE_EYE_PROPOSALS=true` to
+expose **Find Eye** when the Eye region is selected. The Django detector
+runs on CPU and the existing manual crop flow is available in both builds.
+
+Find Eye submits the original photo to `POST /api/v1/classify/eye-proposals/`.
+Users can select a suggested crop or return to manual cropping. Classification
+starts only when they press **Validate & Classify Freshness** and uses the
+same validation and freshness pipeline as a manual crop.

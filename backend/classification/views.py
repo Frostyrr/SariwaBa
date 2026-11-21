@@ -1,6 +1,9 @@
+import base64
+import io
+import logging
 import time
 import math
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 try:
     from pillow_heif import register_heif_opener
     register_heif_opener()
@@ -21,6 +24,7 @@ from ml.predict import (
     ModelUnavailableError,
     predict_image,
 )
+from ml.eye_proposals import DetectorUnavailable, propose_eye_crops
 from ml.validator import EXPERIMENTAL_NOTICE, InputRejectedError, validate_image
 
 from .models import ClassificationHistory, ClassificationTelemetryLog
@@ -50,6 +54,45 @@ ALLOWED_REGION_TYPES = {"eye", "gill"}
 PRELIMINARY_DISCLAIMER = (
     "This is a preliminary visual freshness assessment and does not guarantee food safety."
 )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@parser_classes([MultiPartParser, FormParser])
+def eye_proposals(request):
+    upload = request.FILES.get("image")
+    if upload is None or not 0 < upload.size <= MAX_FILE_SIZE_BYTES:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        with Image.open(upload) as source:
+            width, height = source.size
+            if (source.format not in ALLOWED_DECODED_FORMATS
+                    or not all(MIN_IMAGE_DIMENSION <= size <= MAX_IMAGE_DIMENSION
+                               for size in source.size)
+                    or width * height > MAX_IMAGE_PIXELS):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            image = ImageOps.exif_transpose(source).convert("RGB")
+    except (ValueError, OSError, Image.DecompressionBombError):
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    proposals = []
+    try:
+        for left, top, right, bottom in propose_eye_crops(image):
+            crop = image.crop((left, top, right, bottom))
+            crop.thumbnail((1024, 1024))
+            with io.BytesIO() as output:
+                crop.save(output, format="JPEG", quality=95)
+                proposals.append({
+                    "crop_base64": base64.b64encode(output.getvalue()).decode("ascii"),
+                    "rect": [left / image.width, top / image.height,
+                             right / image.width, bottom / image.height],
+                })
+    except DetectorUnavailable as exc:
+        if exc.__cause__ is not None:
+            logging.getLogger(__name__).exception("Eye detector failed.")
+        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    return Response({"proposals": proposals})
 
 
 @api_view(["POST"])
