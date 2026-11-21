@@ -125,9 +125,79 @@ def get_experimental_bundle():
         raise ModelUnavailableError("The experimental demo validator could not be loaded.") from exc
 
 
+@lru_cache(maxsize=4)
+def load_validator_bundle(path_str):
+    path = Path(path_str)
+    try:
+        checkpoint = torch.load(path, map_location=DEVICE, weights_only=True)
+        if checkpoint.get("experimental") is True:
+            if (checkpoint["classes"] != VALIDATOR_CLASSES
+                    or checkpoint["model_name"] != "mobilenet_v3_small"
+                    or checkpoint["image_size"] != 224):
+                raise ValueError("Unexpected experimental validator metadata.")
+            net = models.mobilenet_v3_small(weights=None)
+            net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(VALIDATOR_CLASSES))
+            net.load_state_dict(checkpoint["state_dict"])
+            return {
+                "model": net.to(DEVICE).eval(),
+                "transform": _build_eval_transform(224),
+                "threshold": 0.0,
+                "model_version": f"experimental-epoch-{checkpoint['best_epoch']}",
+                "classes": VALIDATOR_CLASSES,
+                "experimental": True,
+            }
+        classes = checkpoint["classes"]
+        if (classes not in (VALIDATOR_CLASSES, VALIDATOR_V2_CLASSES)
+                or checkpoint["validation_scope"] != VALIDATOR_SCOPES[len(classes)]
+                or checkpoint["threshold_source"] != "validation_split"):
+            raise ValueError("Validator metadata does not match the supported-input contract.")
+        threshold = float(checkpoint["acceptance_threshold"])
+        if not math.isfinite(threshold) or not 0.5 <= threshold <= 1:
+            raise ValueError("Invalid validator acceptance threshold.")
+        evaluation = checkpoint["evaluation"]
+        test = evaluation["test"]
+        if (evaluation["acceptance_threshold"] != threshold
+                or test["unsupported_false_accept_rate"] is None
+                or not 0 <= test["unsupported_false_accept_rate"] <= evaluation["target_false_accept_rate"] < 1
+                or any(test["class_counts"].get(label, 0) < evaluation["min_eval_per_class"]
+                       for label in classes)
+                or evaluation["min_eval_per_class"] < 1
+                or any(not 0 < rate <= 1 for rate in test["supported_correct_accept_rate"].values())
+                or set(test["supported_correct_accept_rate"]) != {"eye", "gill"}):
+            raise ValueError("Validator failed its held-out acceptance policy.")
+        if classes == VALIDATOR_V2_CLASSES and (
+            not 0 < test["whole_tilapia_prompt_rate"] <= 1
+            or not 0 <= test["whole_tilapia_false_route_rate"] <= evaluation["target_false_accept_rate"]
+            or not 0 <= test["unsupported_whole_prompt_rate"] <= evaluation["target_false_accept_rate"]
+        ):
+            raise ValueError("Validator failed its whole-fish routing policy.")
+        image_size = int(checkpoint["image_size"])
+        if image_size != 224:
+            raise ValueError("Unsupported validator preprocessing size.")
+        net = models.mobilenet_v3_small(weights=None)
+        net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(classes))
+        net.load_state_dict(checkpoint["model_state_dict"])
+        net.to(DEVICE).eval()
+        return {
+            "model": net, "transform": _build_eval_transform(image_size),
+            "threshold": threshold, "model_version": checkpoint["model_version"],
+            "classes": classes,
+            "experimental": False,
+        }
+    except Exception as exc:
+        raise ModelUnavailableError(
+            f"Validator candidate at {path} could not be loaded."
+        ) from exc
+
+
 def validate_image(image_source, region_type):
-    experimental = settings.DEBUG and settings.EXPERIMENTAL_VALIDATOR_DEMO
-    bundle = get_experimental_bundle() if experimental else get_validator_bundle()
+    candidate_path = getattr(settings, "VALIDATOR_CANDIDATE_PATH", None)
+    if candidate_path:
+        bundle = load_validator_bundle(str(candidate_path))
+        experimental = bundle.get("experimental", False)
+    else:
+        experimental = settings.DEBUG and settings.EXPERIMENTAL_VALIDATOR_DEMO
+        bundle = get_experimental_bundle() if experimental else get_validator_bundle()
     try:
         if hasattr(image_source, "seek"):
             image_source.seek(0)

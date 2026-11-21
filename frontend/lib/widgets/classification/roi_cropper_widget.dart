@@ -9,6 +9,7 @@ import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
+import '../../services/classification/classification_service.dart';
 
 /// iOS Cupertino-inspired Interactive Region-of-Interest (ROI) Selection & Cropping Widget.
 /// Uses progressive disclosure (hover/tap frosted-glass HUD over the image) to eliminate
@@ -679,7 +680,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Stopped before freshness check',
+                  state.errorCode == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED'
+                      ? ClassificationApiException.rejectionTitleForCode(
+                          state.errorCode,
+                        )
+                      : 'Stopped before freshness check',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -701,9 +706,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Make sure your crop is a tight, real close-up of a single Tilapia eye or exposed gill—not a full tray, drawing, or non-fish object.',
-            style: TextStyle(
+          Text(
+            state.errorCode == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED'
+                ? 'Retake a close-up of the eye or exposed gill, or use Edit Crop if the original photo has enough eye detail.'
+                : 'Make sure your crop is a tight, real close-up of a single Tilapia eye or exposed gill—not a full tray, drawing, or non-fish object.',
+            style: const TextStyle(
               fontSize: 11.5,
               height: 1.35,
               color: SariwaColors.textSecondaryDark,
@@ -732,8 +739,27 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                     ),
                   ),
                 ),
+              if (state.errorCode == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED' &&
+                  state.selectedImageBytes != null)
+                OutlinedButton.icon(
+                  onPressed: controller.editCrop,
+                  icon: const Icon(CupertinoIcons.crop, size: 14),
+                  label: const Text('Edit Crop'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: SariwaColors.textPrimaryDark,
+                    side: const BorderSide(color: Color(0xFFD1D5DB)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               OutlinedButton.icon(
-                onPressed: controller.clearImage,
+                onPressed: controller.clearSelection,
                 icon: const Icon(CupertinoIcons.photo, size: 14),
                 label: const Text('Upload New Photo'),
                 style: OutlinedButton.styleFrom(
