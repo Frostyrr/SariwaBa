@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../constants/config/platform_env.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
@@ -30,10 +31,11 @@ class AuthPage extends ConsumerWidget {
             true, // Soft cinematic depth over underwater background
         child: Stack(
           children: [
-            // Top Left: "< Home" Navigation Link
-            Positioned(
-              top: 16,
-              left: 20,
+            // Top Left: "< Home" Navigation Link (web only; native mobile boots directly to Auth)
+            if (!isNativeMobileDevice)
+              Positioned(
+                top: 16,
+                left: 20,
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(

@@ -379,7 +379,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
       icon: CupertinoIcons.eye_fill,
       isSelected: eyeSelected,
       animDuration: animDuration,
-      onTap: () => widget.controller.selectRegion(AnatomicalRegion.eye),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.controller.selectRegion(AnatomicalRegion.eye);
+      },
     );
 
     Widget gillSegment = _buildSegmentOption(
@@ -389,7 +392,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
       icon: CupertinoIcons.waveform_path,
       isSelected: gillSelected,
       animDuration: animDuration,
-      onTap: () => widget.controller.selectRegion(AnatomicalRegion.gill),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        widget.controller.selectRegion(AnatomicalRegion.gill);
+      },
     );
 
     return Container(

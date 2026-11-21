@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../constants/config/app_breakpoints.dart';
 import '../../models/classification/classification_result.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
@@ -33,56 +34,10 @@ class InspectionDetailsModal {
   }
 
   static void show(BuildContext context, ClassificationResult scan) {
-    showDialog<void>(
-      context: context,
-      barrierColor: const Color(0x330A1926),
-      builder: (ctx) {
-        return BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.all(20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0E0F172A),
-                      blurRadius: 28,
-                      offset: Offset(0, 8),
-                      spreadRadius: -2,
-                    ),
-                    BoxShadow(
-                      color: Color(0x0A0F172A),
-                      blurRadius: 44,
-                      offset: Offset(0, 16),
-                      spreadRadius: -4,
-                    ),
-                    BoxShadow(
-                      color: Color(0x0814B8A6),
-                      blurRadius: 32,
-                      offset: Offset(0, 10),
-                      spreadRadius: -4,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BackdropFilter(
-                    filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.88),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.95),
-                          width: 1.2,
-                        ),
-                      ),
-                      child: Column(
+    final isMobile = AppBreakpoints.isMobile(MediaQuery.of(context).size.width);
+
+    Widget buildBody(BuildContext ctx) {
+      return Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -199,10 +154,80 @@ class InspectionDetailsModal {
                           ),
                         ),
                       ],
+                    );
+    }
+
+    if (isMobile) {
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (ctx) => Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          child: SingleChildScrollView(child: buildBody(ctx)),
+        ),
+      );
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      barrierColor: const Color(0x330A1926),
+      builder: (ctx) {
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.all(20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0E0F172A),
+                      blurRadius: 28,
+                      offset: Offset(0, 8),
+                      spreadRadius: -2,
+                    ),
+                    BoxShadow(
+                      color: Color(0x0A0F172A),
+                      blurRadius: 44,
+                      offset: Offset(0, 16),
+                      spreadRadius: -4,
+                    ),
+                    BoxShadow(
+                      color: Color(0x0814B8A6),
+                      blurRadius: 32,
+                      offset: Offset(0, 10),
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.95),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: buildBody(ctx),
                     ),
                   ),
                 ),
-              ),
               ),
             ),
           ),

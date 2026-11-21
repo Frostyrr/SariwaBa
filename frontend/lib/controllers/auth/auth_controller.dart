@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../constants/config/platform_env.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/auth/google_sign_in_service.dart';
 import 'auth_state.dart';
@@ -92,7 +93,9 @@ class AuthController extends StateNotifier<AuthState> {
     }
 
     state = state.copyWith(
-      viewStatus: AuthViewStatus.landing,
+      viewStatus: isNativeMobileDevice
+          ? AuthViewStatus.login
+          : AuthViewStatus.landing,
       clearUser: true,
       isLoading: false,
     );
@@ -103,10 +106,12 @@ class AuthController extends StateNotifier<AuthState> {
     state = state.copyWith(viewStatus: AuthViewStatus.login, clearError: true);
   }
 
-  /// Return to Landing (Home)
+  /// Return to Landing (Home) on web, or Auth screen on native mobile
   void goToLanding() {
     state = state.copyWith(
-      viewStatus: AuthViewStatus.landing,
+      viewStatus: isNativeMobileDevice
+          ? AuthViewStatus.login
+          : AuthViewStatus.landing,
       clearError: true,
     );
   }

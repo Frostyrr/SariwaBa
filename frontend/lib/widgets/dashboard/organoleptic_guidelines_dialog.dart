@@ -1,15 +1,37 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../common/sariwa_scrollbar.dart';
 
-/// Modal dialog providing the official Philippine National Standard
-/// (PNS/BAFPS 67:2008) Organoleptic Sensory Inspection Protocol.
+/// Modal dialog (desktop) / draggable bottom sheet (mobile) providing the official
+/// Philippine National Standard (PNS/BAFPS 67:2008) Organoleptic Sensory Inspection Protocol.
 class OrganolepticGuidelinesDialog extends StatelessWidget {
-  const OrganolepticGuidelinesDialog({super.key});
+  final bool asBottomSheet;
+
+  const OrganolepticGuidelinesDialog({
+    super.key,
+    this.asBottomSheet = false,
+  });
 
   static Future<void> show(BuildContext context) {
+    final isMobile = AppBreakpoints.isMobile(MediaQuery.of(context).size.width);
+    if (isMobile) {
+      return showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) => const OrganolepticGuidelinesDialog(
+          asBottomSheet: true,
+        ),
+      );
+    }
     return showDialog<void>(
       context: context,
       barrierColor: const Color(0x660A2229),
@@ -19,32 +41,11 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.9),
-                width: 1.5,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x180A2229),
-                  blurRadius: 36,
-                  offset: Offset(0, 16),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Column(
+    final content = ClipRRect(
+      borderRadius: asBottomSheet
+          ? const BorderRadius.vertical(top: Radius.circular(24))
+          : BorderRadius.circular(24),
+      child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -245,7 +246,41 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                   ),
                 ],
               ),
+            );
+
+    if (asBottomSheet) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.86,
+        ),
+        child: content,
+      );
+    }
+
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.9),
+                width: 1.5,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x180A2229),
+                  blurRadius: 36,
+                  offset: Offset(0, 16),
+                ),
+              ],
             ),
+            child: content,
           ),
         ),
       ),

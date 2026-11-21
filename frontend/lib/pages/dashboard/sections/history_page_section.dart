@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
 import '../../../constants/theme/app_colors.dart';
@@ -117,13 +118,21 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
     final allOnPageSelected = pageIds.isNotEmpty && selectedOnPage == pageIds.length;
     final someOnPageSelected = selectedOnPage > 0 && !allOnPageSelected;
 
-    return SingleChildScrollView(
-      controller: widget.scrollController,
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: widget.isDesktop ? 36 : 18,
-        vertical: widget.isDesktop ? 28 : 20,
-      ),
+    return RefreshIndicator.adaptive(
+      color: SariwaColors.brandPrimary,
+      onRefresh: () async {
+        HapticFeedback.lightImpact();
+        await widget.controller.loadHistory();
+      },
+      child: SingleChildScrollView(
+        controller: widget.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: widget.isDesktop ? 36 : 16,
+          vertical: widget.isDesktop ? 28 : 16,
+        ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1320),
@@ -258,6 +267,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -1197,7 +1207,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         final isSelected =
             scanId != null && _selectedHistoryScanIds.contains(scanId);
 
-        return Container(
+        final card = Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: isSelected
@@ -1331,6 +1341,43 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
               ),
             ],
           ),
+        );
+
+        if (scanId == null) return card;
+
+        return Dismissible(
+          key: ValueKey('mobile_history_dismiss_$scanId'),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFDC2626),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(CupertinoIcons.trash, color: Colors.white, size: 18),
+                SizedBox(width: 6),
+                Text(
+                  'Delete',
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          confirmDismiss: (_) async {
+            HapticFeedback.mediumImpact();
+            _confirmDelete(scanId);
+            return false;
+          },
+          child: card,
         );
       },
     );

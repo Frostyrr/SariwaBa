@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
@@ -42,100 +43,117 @@ class InspectionWorkspaceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 36 : 18,
-        vertical: isDesktop ? 28 : 20,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1320),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              StaggeredReveal(
-                staggerIndex: 0,
-                child: _buildDashboardHeader(context),
-              ),
-              const SizedBox(height: 20),
-              KpiMetricsRow(history: classState.history),
-              const SizedBox(height: 22),
-              if (classState.successMessage != null) ...[
-                DashboardNotificationBanner(
-                  message: classState.successMessage!,
-                  isError: false,
-                  state: classState,
-                  controller: classController,
-                  onOpenCropModal: onOpenCropModal,
-                ),
-                const SizedBox(height: 18),
-              ],
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isTwoCol = constraints.maxWidth >= 820;
+    return RefreshIndicator.adaptive(
+      color: SariwaColors.brandPrimary,
+      onRefresh: () async {
+        HapticFeedback.lightImpact();
+        await classController.loadHistory();
+      },
+      child: SingleChildScrollView(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: isDesktop ? 36 : 16,
+          vertical: isDesktop ? 28 : 16,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1320),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isDesktop) ...[
+                  StaggeredReveal(
+                    staggerIndex: 0,
+                    child: _buildDashboardHeader(context),
+                  ),
+                  const SizedBox(height: 20),
+                  KpiMetricsRow(history: classState.history),
+                  const SizedBox(height: 22),
+                ],
+                if (classState.successMessage != null) ...[
+                  DashboardNotificationBanner(
+                    message: classState.successMessage!,
+                    isError: false,
+                    state: classState,
+                    controller: classController,
+                    onOpenCropModal: onOpenCropModal,
+                  ),
+                  const SizedBox(height: 18),
+                ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isTwoCol = constraints.maxWidth >= 820;
 
-                  if (isTwoCol) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: StaggeredReveal(
-                            staggerIndex: 5,
-                            child: ScannerWorkstationCard(
-                              state: classState,
-                              controller: classController,
-                              isCropModalOpen: isModalEffectivelyOpen,
-                              onOpenCropModal: onOpenCropModal,
+                    if (isTwoCol) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: StaggeredReveal(
+                              staggerIndex: 5,
+                              child: ScannerWorkstationCard(
+                                state: classState,
+                                controller: classController,
+                                isCropModalOpen: isModalEffectivelyOpen,
+                                onOpenCropModal: onOpenCropModal,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          flex: 5,
-                          child: StaggeredReveal(
-                            staggerIndex: 6,
-                            child: AuditHistoryCard(
-                              state: classState,
-                              controller: classController,
-                              onViewMore: onViewMore,
+                          const SizedBox(width: 24),
+                          Expanded(
+                            flex: 5,
+                            child: StaggeredReveal(
+                              staggerIndex: 6,
+                              child: AuditHistoryCard(
+                                state: classState,
+                                controller: classController,
+                                onViewMore: onViewMore,
+                              ),
                             ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    // Mobile / compact: Action-first — scanner card on top,
+                    // followed by summary metrics and recent scans.
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        StaggeredReveal(
+                          staggerIndex: 0,
+                          child: ScannerWorkstationCard(
+                            state: classState,
+                            controller: classController,
+                            isCropModalOpen: isModalEffectivelyOpen,
+                            onOpenCropModal: onOpenCropModal,
+                          ),
+                        ),
+                        if (!isDesktop) ...[
+                          const SizedBox(height: 20),
+                          KpiMetricsRow(history: classState.history),
+                        ],
+                        const SizedBox(height: 20),
+                        StaggeredReveal(
+                          staggerIndex: 2,
+                          child: AuditHistoryCard(
+                            state: classState,
+                            controller: classController,
+                            onViewMore: onViewMore,
                           ),
                         ),
                       ],
                     );
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      StaggeredReveal(
-                        staggerIndex: 5,
-                        child: ScannerWorkstationCard(
-                          state: classState,
-                          controller: classController,
-                          isCropModalOpen: isModalEffectivelyOpen,
-                          onOpenCropModal: onOpenCropModal,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      StaggeredReveal(
-                        staggerIndex: 6,
-                        child: AuditHistoryCard(
-                          state: classState,
-                          controller: classController,
-                          onViewMore: onViewMore,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 36),
-              _buildSimpleFooter(),
-            ],
+                  },
+                ),
+                const SizedBox(height: 36),
+                _buildSimpleFooter(),
+              ],
+            ),
           ),
         ),
       ),

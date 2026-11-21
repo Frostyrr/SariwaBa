@@ -3,6 +3,7 @@ import '../../widgets/dashboard/dashboard_light_theme.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../controllers/auth/auth_controller.dart';
@@ -32,7 +33,11 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _inspectionScrollController = ScrollController();
+  final ScrollController _historyScrollController = ScrollController();
+  final ScrollController _analyticsScrollController = ScrollController();
+  final ScrollController _settingsScrollController = ScrollController();
+  final ScrollController _secondaryScrollController = ScrollController();
   String _activeNav = 'Inspection'; // 'Inspection', 'History', 'Analytics'
   bool _isSidebarCollapsed = false;
   bool _isCropModalOpen = false;
@@ -54,49 +59,97 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     if (!current.hasSelectedImage) return;
 
     setState(() => _isCropModalOpen = true);
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: const Color(0x330A1926),
-      builder: (dialogContext) {
-        _cropModalContext = dialogContext;
-        return BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-          child: Consumer(
-            builder: (context, ref, _) {
-              final modalState = ref.watch(classificationControllerProvider);
-              final modalController = ref.read(
-                classificationControllerProvider.notifier,
-              );
+    final isMobile = AppBreakpoints.isMobile(MediaQuery.of(context).size.width);
 
-              if (!_isCropModalOpen || !modalState.hasSelectedImage) {
-                return const SizedBox.shrink();
-              }
+    final Future<void> modalFuture;
+    if (isMobile) {
+      modalFuture = Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (modalContext) {
+            _cropModalContext = modalContext;
+            return DashboardLightTheme(
+              child: AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle.dark,
+                child: Scaffold(
+                  key: const Key('roi_cropper_modal'),
+                  backgroundColor: const Color(0xFFF8FAFC),
+                  body: SafeArea(
+                    child: Consumer(
+                      builder: (context, ref, _) {
+                        final modalState =
+                            ref.watch(classificationControllerProvider);
+                        final modalController = ref.read(
+                          classificationControllerProvider.notifier,
+                        );
 
-              return Dialog(
-                key: const Key('roi_cropper_modal'),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
-                  child: RoiCropperWidget(
-                    state: modalState,
-                    controller: modalController,
-                    isModal: true,
-                    onCloseModal: _closeRoiCropperModal,
-                    onOpenModal: _showRoiCropperModal,
+                        if (!_isCropModalOpen || !modalState.hasSelectedImage) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return RoiCropperWidget(
+                          state: modalState,
+                          controller: modalController,
+                          isModal: true,
+                          onCloseModal: _closeRoiCropperModal,
+                          onOpenModal: _showRoiCropperModal,
+                        );
+                      },
+                    ),
                   ),
                 ),
-              );
-            },
-          ),
-        );
-      },
-    ).whenComplete(() {
+              ),
+            );
+          },
+        ),
+      );
+    } else {
+      modalFuture = showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        barrierColor: const Color(0x330A1926),
+        builder: (dialogContext) {
+          _cropModalContext = dialogContext;
+          return BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+            child: Consumer(
+              builder: (context, ref, _) {
+                final modalState = ref.watch(classificationControllerProvider);
+                final modalController = ref.read(
+                  classificationControllerProvider.notifier,
+                );
+
+                if (!_isCropModalOpen || !modalState.hasSelectedImage) {
+                  return const SizedBox.shrink();
+                }
+
+                return Dialog(
+                  key: const Key('roi_cropper_modal'),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  insetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: RoiCropperWidget(
+                      state: modalState,
+                      controller: modalController,
+                      isModal: true,
+                      onCloseModal: _closeRoiCropperModal,
+                      onOpenModal: _showRoiCropperModal,
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      );
+    }
+
+    modalFuture.whenComplete(() {
       _cropModalContext = null;
       if (mounted && _isCropModalOpen) {
         setState(() => _isCropModalOpen = false);
@@ -117,7 +170,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _inspectionScrollController.dispose();
+    _historyScrollController.dispose();
+    _analyticsScrollController.dispose();
+    _settingsScrollController.dispose();
+    _secondaryScrollController.dispose();
     super.dispose();
   }
 
@@ -194,158 +251,190 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       onOpenGuidelines: () => OrganolepticGuidelinesDialog.show(context),
     );
 
-    return DashboardLightTheme(
-      child: DefaultTextStyle.merge(
-        style: const TextStyle(
-          fontFamily: 'Geist',
-          letterSpacing: AppTypography.defaultLetterSpacing,
-        ),
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          drawer: AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
-              ? null
-              : Drawer(child: sidebar),
-          bottomNavigationBar:
-              AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
-                  ? null
-                  : _buildMobileBottomNav(),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
+    final isAdmin = user?.isAdmin == true;
 
-              Widget activeView;
-              if (_activeNav == 'Admin') {
-                if (user?.isAdmin != true) {
-                  activeView = InspectionWorkspaceSection(
-                    user: user,
-                    isGuestUser: isGuestUser,
-                    isDesktop: isDesktop,
-                    isModalEffectivelyOpen: isModalEffectivelyOpen,
-                    classState: classState,
-                    classController: classController,
-                    onConnectGoogle: () => authController.continueWithGoogle(),
-                    onBackHome: () => authController.goToLanding(),
-                    onOpenCropModal: _showRoiCropperModal,
-                    onViewMore: () => setState(() => _activeNav = 'History'),
-                    scrollController: _scrollController,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: DashboardLightTheme(
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(
+            fontFamily: 'Geist',
+            letterSpacing: AppTypography.defaultLetterSpacing,
+          ),
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF8FAFC),
+            drawer: AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
+                ? null
+                : Drawer(child: sidebar),
+            bottomNavigationBar:
+                AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
+                    ? null
+                    : _buildMobileBottomNav(isAdmin: isAdmin),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
+
+                int? coreTabIndex;
+                if (_activeNav == 'Inspection' || _activeNav == 'Scanner') {
+                  coreTabIndex = 0;
+                } else if (_activeNav == 'History') {
+                  coreTabIndex = 1;
+                } else if (_activeNav == 'Analytics' ||
+                    _activeNav == 'Summary') {
+                  coreTabIndex = 2;
+                } else if (_activeNav == 'Settings' ||
+                    _activeNav == 'Account') {
+                  coreTabIndex = 3;
+                } else if (_activeNav == 'Admin' && !isAdmin) {
+                  coreTabIndex = 0;
+                }
+
+                Widget contentView;
+                if (coreTabIndex != null) {
+                  contentView = IndexedStack(
+                    index: coreTabIndex,
+                    children: [
+                      SariwaScrollbar(
+                        controller: _inspectionScrollController,
+                        builder: (context, controller) =>
+                            InspectionWorkspaceSection(
+                          user: user,
+                          isGuestUser: isGuestUser,
+                          isDesktop: isDesktop,
+                          isModalEffectivelyOpen: isModalEffectivelyOpen,
+                          classState: classState,
+                          classController: classController,
+                          onConnectGoogle: () =>
+                              authController.continueWithGoogle(),
+                          onBackHome: () => authController.goToLanding(),
+                          onOpenCropModal: _showRoiCropperModal,
+                          onViewMore: () =>
+                              setState(() => _activeNav = 'History'),
+                          scrollController: controller,
+                        ),
+                      ),
+                      SariwaScrollbar(
+                        controller: _historyScrollController,
+                        builder: (context, controller) => HistoryPageSection(
+                          history: classState.history,
+                          controller: classController,
+                          isDesktop: isDesktop,
+                          scrollController: controller,
+                        ),
+                      ),
+                      SariwaScrollbar(
+                        controller: _analyticsScrollController,
+                        builder: (context, controller) => AnalyticsPageSection(
+                          history: classState.history,
+                          isDesktop: isDesktop,
+                          scrollController: controller,
+                        ),
+                      ),
+                      SariwaScrollbar(
+                        controller: _settingsScrollController,
+                        builder: (context, controller) =>
+                            AccountSettingsPageSection(
+                          user: user,
+                          isGuestUser: isGuestUser,
+                          isDesktop: isDesktop,
+                          scrollController: controller,
+                          authController: authController,
+                          classificationController: classController,
+                          onSignIn: () => authController.goToLogin(),
+                        ),
+                      ),
+                    ],
                   );
                 } else {
-                  activeView = AdminPageSection(
-                    isDesktop: isDesktop,
-                    scrollController: _scrollController,
+                  Widget secondaryView;
+                  if (_activeNav == 'Admin' && isAdmin) {
+                    secondaryView = AdminPageSection(
+                      isDesktop: isDesktop,
+                      scrollController: _secondaryScrollController,
+                    );
+                  } else if (_activeNav == 'HowItWorks' ||
+                      _activeNav == 'How It Works') {
+                    secondaryView = HowItWorksDashboardSection(
+                      isDesktop: isDesktop,
+                      scrollController: _secondaryScrollController,
+                      onStartInspection: () =>
+                          setState(() => _activeNav = 'Inspection'),
+                    );
+                  } else {
+                    secondaryView = HelpFaqDashboardSection(
+                      isDesktop: isDesktop,
+                      scrollController: _secondaryScrollController,
+                    );
+                  }
+
+                  contentView = SariwaScrollbar(
+                    controller: _secondaryScrollController,
+                    builder: (context, _) => secondaryView,
                   );
                 }
-              } else if (_activeNav == 'History') {
-                activeView = HistoryPageSection(
-                  history: classState.history,
-                  controller: classController,
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
-                );
-              } else if (_activeNav == 'Analytics' || _activeNav == 'Summary') {
-                activeView = AnalyticsPageSection(
-                  history: classState.history,
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
-                );
-              } else if (_activeNav == 'Settings' || _activeNav == 'Account') {
-                activeView = AccountSettingsPageSection(
-                  user: user,
-                  isGuestUser: isGuestUser,
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
-                  authController: authController,
-                  classificationController: classController,
-                  onSignIn: () => authController.goToLogin(),
-                );
-              } else if (_activeNav == 'HowItWorks' ||
-                  _activeNav == 'How It Works') {
-                activeView = HowItWorksDashboardSection(
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
-                  onStartInspection: () =>
-                      setState(() => _activeNav = 'Inspection'),
-                );
-              } else if (_activeNav == 'Help' ||
-                  _activeNav == 'FAQs' ||
-                  _activeNav == 'Help & FAQs') {
-                activeView = HelpFaqDashboardSection(
-                  isDesktop: isDesktop,
-                  scrollController: _scrollController,
-                );
-              } else {
-                activeView = InspectionWorkspaceSection(
-                  user: user,
-                  isGuestUser: isGuestUser,
-                  isDesktop: isDesktop,
-                  isModalEffectivelyOpen: isModalEffectivelyOpen,
-                  classState: classState,
-                  classController: classController,
-                  onConnectGoogle: () => authController.continueWithGoogle(),
-                  onBackHome: () => authController.goToLanding(),
-                  onOpenCropModal: _showRoiCropperModal,
-                  onViewMore: () => setState(() => _activeNav = 'History'),
-                  scrollController: _scrollController,
-                );
-              }
 
-              final scrollableActiveView = SariwaScrollbar(
-                controller: _scrollController,
-                builder: (context, _) => activeView,
-              );
+                if (isDesktop) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 240),
+                        curve: Curves.easeInOutCubic,
+                        width: _isSidebarCollapsed ? 76 : 264,
+                        child: sidebar,
+                      ),
+                      Expanded(child: contentView),
+                    ],
+                  );
+                }
 
-              if (isDesktop) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                return Column(
                   children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 240),
-                      curve: Curves.easeInOutCubic,
-                      width: _isSidebarCollapsed ? 76 : 264,
-                      child: sidebar,
+                    DashboardMobileTopBar(
+                      user: user,
+                      isGuestUser: isGuestUser,
+                      activeNav: _activeNav,
+                      showTopTabs: false,
+                      onNavSelected: (nav) => setState(() => _activeNav = nav),
+                      onGoHome: () => authController.goToLanding(),
+                      onSignOut: () => authController.signOut(),
+                      onSignIn: () => authController.goToLogin(),
+                      onSyncHistory: () => classController.loadHistory(),
+                      onOpenDrawer: () => Scaffold.of(context).openDrawer(),
                     ),
-                    Expanded(child: scrollableActiveView),
+                    Expanded(child: contentView),
                   ],
                 );
-              }
-
-              return Column(
-                children: [
-                  DashboardMobileTopBar(
-                    user: user,
-                    isGuestUser: isGuestUser,
-                    activeNav: _activeNav,
-                    onNavSelected: (nav) => setState(() => _activeNav = nav),
-                    onGoHome: () => authController.goToLanding(),
-                    onSignOut: () => authController.signOut(),
-                    onSignIn: () => authController.goToLogin(),
-                    onSyncHistory: () => classController.loadHistory(),
-                    onOpenDrawer: () => Scaffold.of(context).openDrawer(),
-                  ),
-                  Expanded(child: scrollableActiveView),
-                ],
-              );
-            },
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMobileBottomNav() {
-    const coreTabs = ['Inspection', 'History', 'Analytics', 'Settings'];
-    final currentIndex = coreTabs.indexOf(_activeNav);
+  Widget _buildMobileBottomNav({required bool isAdmin}) {
+    final tabs = <String>[
+      'Inspection',
+      'History',
+      'Analytics',
+      'Settings',
+      if (isAdmin) 'Admin',
+    ];
+    final currentIndex = tabs.indexOf(_activeNav);
 
     return NavigationBar(
       selectedIndex: currentIndex >= 0 ? currentIndex : 0,
       backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       indicatorColor: SariwaColors.brandPrimary.withValues(alpha: 0.12),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       onDestinationSelected: (index) {
-        setState(() => _activeNav = coreTabs[index]);
+        HapticFeedback.selectionClick();
+        setState(() => _activeNav = tabs[index]);
       },
-      destinations: const [
-        NavigationDestination(
+      destinations: [
+        const NavigationDestination(
           icon: Icon(Icons.document_scanner_outlined),
           selectedIcon: Icon(
             Icons.document_scanner_rounded,
@@ -353,7 +442,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           label: 'Inspect',
         ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.history_outlined),
           selectedIcon: Icon(
             Icons.history_rounded,
@@ -361,7 +450,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           label: 'History',
         ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.analytics_outlined),
           selectedIcon: Icon(
             Icons.analytics_rounded,
@@ -369,7 +458,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           label: 'Analytics',
         ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.settings_outlined),
           selectedIcon: Icon(
             Icons.settings_rounded,
@@ -377,6 +466,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           label: 'Settings',
         ),
+        if (isAdmin)
+          const NavigationDestination(
+            icon: Icon(Icons.admin_panel_settings_outlined),
+            selectedIcon: Icon(
+              Icons.admin_panel_settings_rounded,
+              color: SariwaColors.brandPrimary,
+            ),
+            label: 'Admin',
+          ),
       ],
     );
   }
