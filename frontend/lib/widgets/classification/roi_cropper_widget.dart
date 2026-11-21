@@ -338,7 +338,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   }
 
   Future<void> _handleConfirmFullCloseUp({
-    bool classifyImmediately = false,
+    bool classifyImmediately = true,
   }) async {
     setState(() => _useFullCloseUpMode = true);
     widget.controller.confirmFullImageAsCloseUp();
@@ -347,7 +347,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
   Future<void> _handleConfirmCrop(
     Size viewportSize, {
-    bool classifyImmediately = false,
+    bool classifyImmediately = true,
   }) async {
     setState(() => _useFullCloseUpMode = false);
     if (widget.state.selectedRegion == null) {
