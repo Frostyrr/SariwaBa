@@ -3,6 +3,7 @@ import '../../widgets/dashboard/dashboard_light_theme.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -575,20 +576,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       );
     }
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.86),
-            border: Border(
-              top: BorderSide(
-                color: SariwaColors.borderLightTeal.withValues(alpha: 0.85),
-                width: 0.8,
-              ),
-            ),
+    final navBar = Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: kIsWeb ? 0.96 : 0.86),
+        border: Border(
+          top: BorderSide(
+            color: SariwaColors.borderLightTeal.withValues(alpha: 0.85),
+            width: 0.8,
           ),
-          child: SafeArea(
+        ),
+      ),
+      child: SafeArea(
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
@@ -668,7 +666,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               ),
             ),
           ),
-        ),
+        );
+
+    if (kIsWeb) return navBar;
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: navBar,
       ),
     );
   }
