@@ -70,10 +70,40 @@ Install Ultralytics in the Django runtime and set `EYE_DETECTOR_CHECKPOINT`
 to the absolute path to a trusted, evaluated fish/eye checkpoint
 (`0 = fish`, `1 = eye`). Restart Django after changing the checkpoint.
 Build or run Flutter with `--dart-define=ENABLE_EYE_PROPOSALS=true` to
-expose **Find Eye** when the Eye region is selected. The Django detector
-runs on CPU and the existing manual crop flow is available in both builds.
+request eye proposals automatically on new uploads in Eye mode. The Django
+detector runs on CPU. Gill mode uses the manual crop editor.
 
-Find Eye submits the original photo to `POST /api/v1/classify/eye-proposals/`.
-Users can select a suggested crop or return to manual cropping. Classification
-starts only when they press **Validate & Classify Freshness** and uses the
-same validation and freshness pipeline as a manual crop.
+The scanner sends the original photo to `POST /api/v1/classify/eye-proposals/`.
+One proposal appears directly in the scanner preview. With multiple proposals,
+the user selects an eye on the original photo. If the request fails or returns
+no eye, the manual editor opens. Classification starts when the user presses
+**Validate & Classify Freshness** and runs the existing validation and
+freshness pipeline on the selected crop.
+
+### Accuracy plan
+
+1. **YOLO eye localization.** Review the current training boxes and add
+   training photos from additional fish and sessions, including small eyes,
+   glare, and crowded trays. Include fish-free photos and fish with obscured
+   eyes. Use a different capture group for validation and reserve another
+   group for final testing. Report eye-box matches at 0.5 intersection over
+   union, usable top crops on single fish, incorrect crops in crowded trays,
+   and eye proposals on fish-free photos. Tune the score and crop padding on
+   validation. Measure upload failures separately, including the 5 MB limit.
+2. **Model A input validation.** Test manual and YOLO crops separately, using
+   real Tilapia eye and exposed-gill photos plus other species, hidden gills,
+   unsupported framing, and non-fish lookalikes. Report false accepts by
+   unsupported input type and false rejects by supported region. Select
+   thresholds using validation data and verify them on a held-out batch.
+3. **Model B freshness.** Use independently assessed freshness labels and
+   record the assessment protocol and storage conditions. Keep the November 21
+   two-fish group and its later photos in a single split. Leave unverified
+   photos unlabeled for freshness. Evaluate eyes and gills separately and
+   report the confusion matrix, per-class recall, and how often the label
+   changes across slightly different crops of the same eye or gill. Compare
+   consistent manual crops against YOLO crops on the same held-out fish to
+   measure how much automatic cropping changes the final result.
+
+Keep the feature opt-in while gathering these results. The one-epoch
+checkpoint verifies that training and inference run, with the same photos
+used for both. Use a separately evaluated checkpoint for the scanner release.

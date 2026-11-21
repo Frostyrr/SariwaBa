@@ -78,7 +78,7 @@ def eye_proposals(request):
 
     proposals = []
     try:
-        for left, top, right, bottom in propose_eye_crops(image):
+        for (left, top, right, bottom), eye_center in propose_eye_crops(image):
             crop = image.crop((left, top, right, bottom))
             crop.thumbnail((1024, 1024))
             with io.BytesIO() as output:
@@ -87,6 +87,7 @@ def eye_proposals(request):
                     "crop_base64": base64.b64encode(output.getvalue()).decode("ascii"),
                     "rect": [left / image.width, top / image.height,
                              right / image.width, bottom / image.height],
+                    "eye_center": eye_center,
                 })
     except DetectorUnavailable as exc:
         if exc.__cause__ is not None:

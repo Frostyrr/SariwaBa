@@ -234,6 +234,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
         selected.bytes,
         normalizedCropRect: selected.rect,
       );
+      await _completeConfirmation(classifyImmediately: false);
     } catch (_) {
       if (mounted && isCurrent()) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1367,6 +1368,14 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               ),
               child: Column(
                 children: [
+                  if (widget.isModal && _showFindEye)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _findEyeButton(),
+                      ),
+                    ),
                   // Framing Mode Pill Switch: Frame Region vs Full Close-Up
                   Container(
                     padding: const EdgeInsets.all(3),

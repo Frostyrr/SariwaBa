@@ -25,12 +25,16 @@ class EyeProposalTests(SimpleTestCase):
 
     @patch("classification.views.propose_eye_crops")
     def test_returns_exact_crop_for_each_proposal(self, propose):
-        propose.return_value = [(20, 16, 60, 56), (60, 0, 90, 30)]
+        propose.return_value = [
+            ((20, 16, 60, 56), (0.35, 0.4)),
+            ((60, 0, 90, 30), (0.75, 0.1)),
+        ]
         response = self.upload()
         self.assertEqual(response.status_code, 200)
         proposals = response.json()["proposals"]
         self.assertEqual(len(proposals), 2)
         self.assertEqual(proposals[0]["rect"], [0.2, 0.2, 0.6, 0.7])
+        self.assertEqual(proposals[0]["eye_center"], [0.35, 0.4])
         with Image.open(io.BytesIO(base64.b64decode(proposals[0]["crop_base64"]))) as crop:
             self.assertEqual(crop.size, (40, 40))
 

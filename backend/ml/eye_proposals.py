@@ -48,4 +48,7 @@ def propose_eye_crops(image):
             continue
         if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
             continue
-        yield padded_crop(coordinates, *image.size)
+        yield padded_crop(coordinates, *image.size), (
+            (left + right) / (2 * image.width),
+            (top + bottom) / (2 * image.height),
+        )

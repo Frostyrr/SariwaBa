@@ -18,6 +18,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
   final bool isGuestUser;
   final bool isDesktop;
   final bool isModalEffectivelyOpen;
+  final bool isFindingEyes;
   final ClassificationState classState;
   final ClassificationController classController;
   final VoidCallback onConnectGoogle;
@@ -32,6 +33,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
     required this.isGuestUser,
     required this.isDesktop,
     required this.isModalEffectivelyOpen,
+    this.isFindingEyes = false,
     required this.classState,
     required this.classController,
     required this.onConnectGoogle,
@@ -99,6 +101,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                                 state: classState,
                                 controller: classController,
                                 isCropModalOpen: isModalEffectivelyOpen,
+                                isFindingEyes: isFindingEyes,
                                 onOpenCropModal: onOpenCropModal,
                               ),
                             ),
@@ -130,6 +133,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                             state: classState,
                             controller: classController,
                             isCropModalOpen: isModalEffectivelyOpen,
+                            isFindingEyes: isFindingEyes,
                             onOpenCropModal: onOpenCropModal,
                           ),
                         ),

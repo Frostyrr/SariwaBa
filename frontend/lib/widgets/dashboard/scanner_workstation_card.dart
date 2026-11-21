@@ -16,6 +16,7 @@ class ScannerWorkstationCard extends StatefulWidget {
   final ClassificationState state;
   final ClassificationController controller;
   final bool isCropModalOpen;
+  final bool isFindingEyes;
   final VoidCallback onOpenCropModal;
 
   const ScannerWorkstationCard({
@@ -23,6 +24,7 @@ class ScannerWorkstationCard extends StatefulWidget {
     required this.state,
     required this.controller,
     required this.isCropModalOpen,
+    this.isFindingEyes = false,
     required this.onOpenCropModal,
   });
 
@@ -138,6 +140,15 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               state: state,
               controller: controller,
             )
+          else if (widget.isFindingEyes && !state.isCropConfirmed && !widget.isCropModalOpen)
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Finding an eye crop…'),
+                SizedBox(height: 8),
+                LinearProgressIndicator(),
+              ],
+            )
           else if (widget.isCropModalOpen && !state.isCropConfirmed)
             _buildActiveModalPlaceholderCard(state)
           else
@@ -148,6 +159,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               onOpenModal: widget.onOpenCropModal,
             ),
           if (state.selectedImageBytes != null &&
+              !widget.isFindingEyes &&
               !(widget.isCropModalOpen && !state.isCropConfirmed)) ...[
             const SizedBox(height: 16),
             _buildStep4ClassifySection(state, controller),
@@ -314,6 +326,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         return;
       }
       if (!state.isCropConfirmed) {
+        if (controller.canFindEyes && state.selectedRegion?.apiValue == 'eye') {
+          widget.onOpenCropModal();
+          return;
+        }
         controller.confirmFullImageAsCloseUp();
       }
       await controller.classify();

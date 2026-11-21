@@ -2,7 +2,7 @@ import '../../controllers/auth/auth_controller.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -143,7 +143,7 @@ abstract class ClassificationService {
 typedef ClassificationRepository = ClassificationService;
 typedef ClassificationException = ClassificationApiException;
 
-typedef EyeCropProposal = ({Uint8List bytes, Rect rect});
+typedef EyeCropProposal = ({Uint8List bytes, Rect rect, Offset eyeCenter});
 
 abstract interface class EyeProposalService {
   Future<List<EyeCropProposal>> findEyes(Uint8List bytes, String filename);
@@ -176,14 +176,19 @@ class ClassificationServiceImpl
     final proposals = response.data!['proposals'] as List<dynamic>;
     return proposals.map<EyeCropProposal>((proposal) {
       final rect = (proposal['rect'] as List<dynamic>).cast<num>();
+      final crop = Rect.fromLTRB(
+        rect[0].toDouble(),
+        rect[1].toDouble(),
+        rect[2].toDouble(),
+        rect[3].toDouble(),
+      );
+      final center = (proposal['eye_center'] as List<dynamic>?)?.cast<num>();
       return (
         bytes: base64Decode(proposal['crop_base64'] as String),
-        rect: Rect.fromLTRB(
-          rect[0].toDouble(),
-          rect[1].toDouble(),
-          rect[2].toDouble(),
-          rect[3].toDouble(),
-        ),
+        rect: crop,
+        eyeCenter: center == null
+            ? crop.center
+            : Offset(center[0].toDouble(), center[1].toDouble()),
       );
     }).toList();
   }
