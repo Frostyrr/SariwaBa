@@ -144,9 +144,13 @@ typedef ClassificationRepository = ClassificationService;
 typedef ClassificationException = ClassificationApiException;
 
 typedef EyeCropProposal = ({Uint8List bytes, Rect rect, Offset eyeCenter});
+typedef EyeProposalResult = ({
+  bool alreadyEye,
+  List<EyeCropProposal> proposals,
+});
 
 abstract interface class EyeProposalService {
-  Future<List<EyeCropProposal>> findEyes(Uint8List bytes, String filename);
+  Future<EyeProposalResult> findEyes(Uint8List bytes, String filename);
 }
 
 class ClassificationServiceImpl
@@ -158,7 +162,7 @@ class ClassificationServiceImpl
   ClassificationServiceImpl(this._dio, {this.guestRequest = false});
 
   @override
-  Future<List<EyeCropProposal>> findEyes(
+  Future<EyeProposalResult> findEyes(
     Uint8List bytes,
     String filename,
   ) async {
@@ -171,10 +175,21 @@ class ClassificationServiceImpl
           contentType: _detectMediaType(bytes, filename),
         ),
       }),
-      options: Options(extra: {'guestRequest': guestRequest}),
+      options: Options(
+        extra: {'guestRequest': guestRequest},
+        validateStatus: (status) => status == 200 || status == 422,
+      ),
     );
-    final proposals = response.data!['proposals'] as List<dynamic>;
-    return proposals.map<EyeCropProposal>((proposal) {
+    final data = response.data!;
+    if (response.statusCode == 422) {
+      final error = data['error'] as Map<String, dynamic>;
+      throw ClassificationApiException(
+        code: error['code'] as String,
+        message: error['message'] as String,
+        statusCode: 422,
+      );
+    }
+    final proposals = (data['proposals'] as List<dynamic>).map<EyeCropProposal>((proposal) {
       final rect = (proposal['rect'] as List<dynamic>).cast<num>();
       final crop = Rect.fromLTRB(
         rect[0].toDouble(),
@@ -191,6 +206,7 @@ class ClassificationServiceImpl
             : Offset(center[0].toDouble(), center[1].toDouble()),
       );
     }).toList();
+    return (alreadyEye: data['already_eye'] == true, proposals: proposals);
   }
 
   static DioMediaType _detectMediaType(Uint8List bytes, String filename) {

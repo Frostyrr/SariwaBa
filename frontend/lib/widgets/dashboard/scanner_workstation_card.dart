@@ -144,7 +144,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Finding an eye crop…'),
+                Text('Checking the photo…'),
                 SizedBox(height: 8),
                 LinearProgressIndicator(),
               ],

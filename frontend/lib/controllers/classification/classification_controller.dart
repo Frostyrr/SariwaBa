@@ -393,12 +393,24 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       const bool.fromEnvironment('ENABLE_EYE_PROPOSALS') &&
       _service is EyeProposalService;
 
-  Future<List<EyeCropProposal>> findEyes() {
+  Future<EyeProposalResult> findEyes() {
     final bytes = state.selectedImageBytes;
-    if (!canFindEyes || bytes == null) return Future.value([]);
+    if (!canFindEyes || bytes == null) {
+      return Future.value((alreadyEye: false, proposals: <EyeCropProposal>[]));
+    }
     return (_service as EyeProposalService).findEyes(
       bytes,
       state.selectedImageName ?? 'tilapia.jpg',
+    );
+  }
+
+  void showEyeProposalRejection(ClassificationApiException error) {
+    state = state.copyWith(
+      errorCode: error.code,
+      errorMessage: error.actionableMessage,
+      isInputRejection: error.isInputRejection,
+      clearResult: true,
+      clearSuccess: true,
     );
   }
 

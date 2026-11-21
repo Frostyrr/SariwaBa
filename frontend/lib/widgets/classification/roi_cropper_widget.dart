@@ -187,8 +187,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
     setState(() => _findingEyes = true);
     try {
-      final proposals = await widget.controller.findEyes();
+      final result = await widget.controller.findEyes();
       if (!mounted || !isCurrent()) return;
+      if (result.alreadyEye) {
+        await _handleConfirmFullCloseUp(classifyImmediately: false);
+        return;
+      }
+      final proposals = result.proposals;
       if (proposals.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No eye crop found. Adjust the crop or take a close-up.')),
@@ -235,6 +240,10 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
         normalizedCropRect: selected.rect,
       );
       await _completeConfirmation(classifyImmediately: false);
+    } on ClassificationApiException catch (error) {
+      if (mounted && isCurrent()) {
+        widget.controller.showEyeProposalRejection(error);
+      }
     } catch (_) {
       if (mounted && isCurrent()) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -339,7 +348,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
   }
 
   Future<void> _handleConfirmFullCloseUp({
-    bool classifyImmediately = true,
+    bool classifyImmediately = false,
   }) async {
     setState(() => _useFullCloseUpMode = true);
     widget.controller.confirmFullImageAsCloseUp();
@@ -348,7 +357,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
   Future<void> _handleConfirmCrop(
     Size viewportSize, {
-    bool classifyImmediately = true,
+    bool classifyImmediately = false,
   }) async {
     setState(() => _useFullCloseUpMode = false);
     if (widget.state.selectedRegion == null) {

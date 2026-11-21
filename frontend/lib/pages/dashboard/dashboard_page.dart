@@ -66,15 +66,25 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     if (!canUseResult()) return;
     setState(() => _findingEyesFor = photo);
     try {
-      List<EyeCropProposal> proposals;
+      EyeProposalResult result;
       try {
-        proposals = await controller.findEyes();
+        result = await controller.findEyes();
+      } on ClassificationApiException catch (error) {
+        if (identical(_findingEyesFor, photo) && canUseResult()) {
+          controller.showEyeProposalRejection(error);
+        }
+        return;
       } catch (_) {
-        proposals = const [];
+        result = (alreadyEye: false, proposals: const []);
       }
       if (!mounted || !identical(_findingEyesFor, photo) || !canUseResult()) {
         return;
       }
+      if (result.alreadyEye) {
+        controller.confirmFullImageAsCloseUp();
+        return;
+      }
+      final proposals = result.proposals;
       final proposal = switch (proposals.length) {
         0 => null,
         1 => proposals.single,

@@ -9,9 +9,18 @@ from PIL import Image
 from rest_framework.test import APIClient
 
 from ml.eye_proposals import DetectorUnavailable
+from ml.validator import InputRejectedError
 
 
 class EyeProposalTests(SimpleTestCase):
+    def setUp(self):
+        validator = patch("classification.views.validate_image")
+        self.validator = validator.start()
+        self.addCleanup(validator.stop)
+        self.validator.side_effect = InputRejectedError(
+            "WHOLE_TILAPIA_CLOSE_UP_REQUIRED", "Whole tilapia"
+        )
+
     def upload(self, content=None):
         if content is None:
             image = io.BytesIO()
@@ -49,4 +58,21 @@ class EyeProposalTests(SimpleTestCase):
     @patch("classification.views.propose_eye_crops")
     def test_invalid_image_never_reaches_detector(self, propose):
         self.assertEqual(self.upload(b"invalid").status_code, 400)
+        propose.assert_not_called()
+        self.validator.assert_not_called()
+
+    @patch("classification.views.propose_eye_crops")
+    def test_rejected_original_never_reaches_detector(self, propose):
+        for code in ("UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN", "REGION_MISMATCH"):
+            with self.subTest(code=code):
+                self.validator.side_effect = InputRejectedError(code, "Rejected")
+                response = self.upload()
+                self.assertEqual(response.status_code, 422)
+                self.assertEqual(response.json()["error"]["code"], code)
+                propose.assert_not_called()
+
+    @patch("classification.views.propose_eye_crops")
+    def test_existing_eye_close_up_skips_detector(self, propose):
+        self.validator.side_effect = None
+        self.assertEqual(self.upload().json(), {"already_eye": True, "proposals": []})
         propose.assert_not_called()

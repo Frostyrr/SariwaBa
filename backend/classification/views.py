@@ -76,6 +76,19 @@ def eye_proposals(request):
     except (ValueError, OSError, Image.DecompressionBombError):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    try:
+        validate_image(upload, "eye")
+    except InputRejectedError as exc:
+        if exc.code != "WHOLE_TILAPIA_CLOSE_UP_REQUIRED":
+            return Response(
+                {"error": {"code": exc.code, "message": str(exc)}},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+    except (ModelUnavailableError, ModelInferenceError):
+        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    else:
+        return Response({"already_eye": True, "proposals": []})
+
     proposals = []
     try:
         for (left, top, right, bottom), eye_center in propose_eye_crops(image):

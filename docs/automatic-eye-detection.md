@@ -74,6 +74,9 @@ request eye proposals automatically on new uploads in Eye mode. The Django
 detector runs on CPU. Gill mode uses the manual crop editor.
 
 The scanner sends the original photo to `POST /api/v1/classify/eye-proposals/`.
+Model A checks it first. An Eye close-up goes straight to the scanner preview,
+and rejected images show the validator's rejection. The whole-tilapia class
+routes to YOLO and requires a validator checkpoint that supports that class.
 One proposal appears directly in the scanner preview. With multiple proposals,
 the user selects an eye on the original photo. If the request fails or returns
 no eye, the manual editor opens. Classification starts when the user presses
