@@ -65,7 +65,7 @@ class ClassificationApiException implements Exception {
       case 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED':
         return 'Close-Up Required';
       case 'FRESHNESS_UNCERTAIN':
-        return 'Freshness Could Not Be Determined';
+        return 'Unclear Freshness — Try Another Photo';
       case 'REGION_MISMATCH':
         return 'Image Not Supported — Region Mismatch';
       case 'POOR_IMAGE_QUALITY':
@@ -87,7 +87,7 @@ class ClassificationApiException implements Exception {
       case 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED':
         return 'Take a close-up of one eye or the exposed gill, then select its matching region.';
       case 'FRESHNESS_UNCERTAIN':
-        return 'Try another clear close-up. This result does not mean the fish is Not Fresh.';
+        return 'We couldn\'t get a clear reading from this angle. Try a brighter, closer photo.';
       case 'UNSUPPORTED_IMAGE':
       case 'CONTENT_UNCERTAIN':
         return 'Please upload a clear photograph of a fish eye or exposed gills.';

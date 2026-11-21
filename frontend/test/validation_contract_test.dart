@@ -63,7 +63,7 @@ void main() {
   test('freshness uncertainty has a distinct heading', () {
     expect(
       ClassificationApiException.rejectionTitleForCode('FRESHNESS_UNCERTAIN'),
-      'Freshness Could Not Be Determined',
+      'Unclear Freshness — Try Another Photo',
     );
   });
 
