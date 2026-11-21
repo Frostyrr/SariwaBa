@@ -7,6 +7,7 @@ import '../../../constants/theme/app_colors.dart';
 import '../../../controllers/admin/admin_controller.dart';
 import '../../../controllers/auth/auth_controller.dart';
 import '../../../models/admin/admin_user_model.dart';
+import '../../../widgets/common/sariwa_scrollbar.dart';
 import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
 
@@ -420,8 +421,11 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         ),
       ),
       padding: const EdgeInsets.all(4),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      child: SariwaScrollbar(
+        alwaysVisible: false,
+        builder: (context, controller) => SingleChildScrollView(
+          controller: controller,
+          scrollDirection: Axis.horizontal,
         child: Row(
           children: [
             _buildTabPill(
@@ -457,6 +461,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

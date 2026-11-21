@@ -171,9 +171,11 @@ class AmbientGlowBackground extends StatelessWidget {
         ),
         if (blurSigma > 0.0 && !useBlurredAsset)
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-              child: const SizedBox.expand(),
+            child: RepaintBoundary(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+                child: const SizedBox.expand(),
+              ),
             ),
           ),
         Positioned.fill(

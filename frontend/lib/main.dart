@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'constants/theme/app_scroll_behavior.dart';
 import 'constants/theme/app_theme.dart';
 import 'routes/app_routes.dart';
 
@@ -34,6 +35,7 @@ class SariwaBaApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'SariwaBa? — Fish Freshness Classification',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const AppScrollBehavior(),
       theme: AppTheme.darkTheme,
       routerConfig: router,
     );

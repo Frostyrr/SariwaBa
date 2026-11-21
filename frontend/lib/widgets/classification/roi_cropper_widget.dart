@@ -10,6 +10,7 @@ import '../../constants/theme/app_typography.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
+import '../common/sariwa_scrollbar.dart';
 
 /// iOS Cupertino-inspired Interactive Region-of-Interest (ROI) Selection & Cropping Widget.
 /// Uses progressive disclosure (hover/tap frosted-glass HUD over the image) to eliminate
@@ -425,8 +426,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                     _buildIosModalHeader(state),
                     const Divider(height: 1, color: Color(0xFFE5E7EB)),
                     Flexible(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                      child: SariwaScrollbar(
+                        builder: (context, scrollController) =>
+                            SingleChildScrollView(
+                          controller: scrollController,
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -449,6 +453,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                             ],
                           ],
                         ),
+                      ),
                       ),
                     ),
                   ],

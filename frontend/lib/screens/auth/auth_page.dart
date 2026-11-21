@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +8,7 @@ import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/auth/google_auth_button.dart';
 import '../../widgets/common/ambient_glow_background.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/common/sariwa_scrollbar.dart';
 
 /// SariwaBa Auth Screen
 /// Implements wireframe layout with underwater illustration background,
@@ -75,8 +77,11 @@ class AuthPage extends ConsumerWidget {
 
             // Main Content: Aligned with the wireframe layout
             Center(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+              child: SariwaScrollbar(
+                alwaysVisible: false,
+                builder: (context, controller) => SingleChildScrollView(
+                  controller: controller,
+                  physics: const BouncingScrollPhysics(),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 28.0,
@@ -177,7 +182,7 @@ class AuthPage extends ConsumerWidget {
                             color: SariwaColors.bgAbyssDark,
                           ),
                           width: double.infinity,
-                          height: 52,
+                          height: kIsWeb ? 44 : 52,
                           onPressed: () => authController.continueAsGuest(),
                         ),
 
@@ -193,6 +198,7 @@ class AuthPage extends ConsumerWidget {
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           ],

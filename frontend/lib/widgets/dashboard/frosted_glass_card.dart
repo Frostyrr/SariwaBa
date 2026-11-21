@@ -67,14 +67,16 @@ class FrostedGlassCard extends StatelessWidget {
           ],
         ),
         child: enableBlur
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: blurSigma,
-                    sigmaY: blurSigma,
+            ? RepaintBoundary(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(
+                      sigmaX: blurSigma,
+                      sigmaY: blurSigma,
+                    ),
+                    child: content,
                   ),
-                  child: content,
                 ),
               )
             : content,

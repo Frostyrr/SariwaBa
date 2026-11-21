@@ -12,6 +12,7 @@ import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../widgets/classification/roi_cropper_widget.dart';
+import '../../widgets/common/sariwa_scrollbar.dart';
 import '../../widgets/dashboard/dashboard_mobile_top_bar.dart';
 import '../../widgets/dashboard/dashboard_sidebar.dart';
 import '../../widgets/dashboard/organoleptic_guidelines_dialog.dart';
@@ -288,6 +289,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 );
               }
 
+              final scrollableActiveView = SariwaScrollbar(
+                controller: _scrollController,
+                builder: (context, _) => activeView,
+              );
+
               if (isDesktop) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -298,7 +304,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       width: _isSidebarCollapsed ? 76 : 264,
                       child: sidebar,
                     ),
-                    Expanded(child: activeView),
+                    Expanded(child: scrollableActiveView),
                   ],
                 );
               }
@@ -316,7 +322,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     onSyncHistory: () => classController.loadHistory(),
                     onOpenDrawer: () => Scaffold.of(context).openDrawer(),
                   ),
-                  Expanded(child: activeView),
+                  Expanded(child: scrollableActiveView),
                 ],
               );
             },

@@ -83,6 +83,34 @@ class DashboardLightTheme extends StatelessWidget {
             color: ink,
           ),
         ),
+        scrollbarTheme: ScrollbarThemeData(
+          radius: const Radius.circular(999),
+          interactive: true,
+          thickness: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.hovered) ||
+                states.contains(WidgetState.dragged)) {
+              return 8.0;
+            }
+            return 6.0;
+          }),
+          thumbColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.dragged)) {
+              return teal.withValues(alpha: 0.68);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return teal.withValues(alpha: 0.50);
+            }
+            return teal.withValues(alpha: 0.28);
+          }),
+          trackColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.hovered) ||
+                states.contains(WidgetState.dragged)) {
+              return const Color(0xFFD8E7E7).withValues(alpha: 0.45);
+            }
+            return Colors.transparent;
+          }),
+          trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
+        ),
       ),
       child: child,
     );

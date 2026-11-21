@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import '../common/sariwa_scrollbar.dart';
 
 /// Modal dialog providing the official Philippine National Standard
 /// (PNS/BAFPS 67:2008) Organoleptic Sensory Inspection Protocol.
@@ -128,8 +129,10 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
 
                   // Content Body
                   Flexible(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(22),
+                    child: SariwaScrollbar(
+                      builder: (context, controller) => SingleChildScrollView(
+                        controller: controller,
+                        padding: const EdgeInsets.all(22),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -189,6 +192,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
                     ),
                   ),
 

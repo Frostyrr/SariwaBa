@@ -8,6 +8,7 @@ import '../../constants/theme/timber_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/common/ambient_glow_background.dart';
 import '../../widgets/common/app_button.dart';
+import '../../widgets/common/sariwa_scrollbar.dart';
 import '../../widgets/common/staggered_reveal.dart';
 import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
@@ -37,8 +38,10 @@ class DownloadsPage extends ConsumerWidget {
               showBottomGlow: false,
               useLightAtmospheric: true,
               nextSectionColor: const Color(0xFFF0F7F6),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
+              child: SariwaScrollbar(
+                builder: (context, controller) => SingleChildScrollView(
+                  controller: controller,
+                  physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
                     // Top spacer compensating for sticky floating glass pill WebNavbar
@@ -291,6 +294,7 @@ class DownloadsPage extends ConsumerWidget {
                     ),
                   ],
                 ),
+              ),
               ),
             ),
           ),

@@ -41,7 +41,8 @@ class WebNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
+    return RepaintBoundary(
+      child: LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
 
@@ -266,6 +267,7 @@ class WebNavbar extends StatelessWidget {
           ),
         );
       },
+    ),
     );
   }
 

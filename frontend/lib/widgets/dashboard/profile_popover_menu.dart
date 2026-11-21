@@ -1,3 +1,4 @@
+import '../common/sariwa_scrollbar.dart';
 import '../common/user_avatar.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -297,8 +298,10 @@ class _ProfilePopoverCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+            child: SariwaScrollbar(
+              builder: (context, controller) => SingleChildScrollView(
+                controller: controller,
+                padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -424,6 +427,7 @@ class _ProfilePopoverCard extends StatelessWidget {
                     ),
                 ],
               ),
+            ),
             ),
           ),
         ),

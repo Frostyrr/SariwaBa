@@ -92,6 +92,34 @@ class AppTheme {
           height: 1.45,
         ),
       ),
+      scrollbarTheme: ScrollbarThemeData(
+        radius: const Radius.circular(999),
+        interactive: true,
+        thickness: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.dragged)) {
+            return 8.0;
+          }
+          return 6.0;
+        }),
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.dragged)) {
+            return SariwaColors.brandLight.withValues(alpha: 0.78);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return SariwaColors.brandLight.withValues(alpha: 0.62);
+          }
+          return SariwaColors.brandLight.withValues(alpha: 0.38);
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.dragged)) {
+            return Colors.white.withValues(alpha: 0.08);
+          }
+          return Colors.transparent;
+        }),
+        trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth/auth_controller.dart';
+import '../../widgets/common/sariwa_scrollbar.dart';
 import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
 import 'sections/faq_section.dart';
@@ -115,9 +116,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       body: Stack(
         children: [
           // Scrollable Page Sections
-          SingleChildScrollView(
+          SariwaScrollbar(
             controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
+            builder: (context, controller) => SingleChildScrollView(
+              controller: controller,
+              physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 // Section 1: 100vh Landing Hero (Underwater illustration background)
@@ -162,6 +165,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ],
             ),
+          ),
           ),
 
           // Sticky Top Web Navbar

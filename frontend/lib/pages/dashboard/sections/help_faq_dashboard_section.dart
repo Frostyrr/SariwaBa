@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../constants/content/faq_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
+import '../../../widgets/common/sariwa_scrollbar.dart';
 
 /// Dedicated Help & FAQs dashboard section with live search query filtering,
 /// category chips, and accessible accordions, derived from shared FaqData.
@@ -224,8 +225,11 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
   }
 
   Widget _buildCategoryChips() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return SariwaScrollbar(
+      alwaysVisible: false,
+      builder: (context, controller) => SingleChildScrollView(
+        controller: controller,
+        scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           for (final cat in FaqData.categories) ...[
@@ -268,6 +272,7 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
             ),
           ],
         ],
+      ),
       ),
     );
   }
