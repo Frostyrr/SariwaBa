@@ -211,8 +211,6 @@ def validate_image(image_source, region_type):
         result = decide_input(probabilities, region_type, bundle["threshold"],
                               bundle.get("classes", VALIDATOR_CLASSES))
     except InputRejectedError as exc:
-        if experimental:
-            raise InputRejectedError(exc.code, f"Experimental demo: {exc}", exc.confidence) from exc
         raise
     if experimental:
         result.update(region_verified=False, experimental_demo=True)

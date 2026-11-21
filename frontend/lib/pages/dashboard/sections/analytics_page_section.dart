@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../models/classification/classification_result.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
+import '../../../utils/csv_export.dart';
 import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
 import '../../../widgets/dashboard/kpi_metrics_row.dart';
 
 /// Dedicated Freshness Insights analytics page showing KPI metrics, freshness ratio bar, and anatomical breakdown.
-class AnalyticsPageSection extends StatelessWidget {
+class AnalyticsPageSection extends StatefulWidget {
   final List<ClassificationResult> history;
   final bool isDesktop;
   final ScrollController? scrollController;
@@ -21,7 +22,28 @@ class AnalyticsPageSection extends StatelessWidget {
   });
 
   @override
+  State<AnalyticsPageSection> createState() => _AnalyticsPageSectionState();
+}
+
+class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
+  String _regionFilter = 'all';
+  String _freshnessFilter = 'all';
+
+  List<ClassificationResult> get _filteredHistory {
+    return widget.history.where((s) {
+      if (_regionFilter != 'all' &&
+          (s.regionType ?? '').toLowerCase() != _regionFilter) {
+        return false;
+      }
+      if (_freshnessFilter == 'fresh' && !s.isFresh) return false;
+      if (_freshnessFilter == 'not_fresh' && !s.isNotFresh) return false;
+      return true;
+    }).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final history = _filteredHistory;
     final total = history.length;
     final freshCount = history.where((s) => s.isFresh).length;
     final notFreshCount = history.where((s) => s.isNotFresh).length;
@@ -43,11 +65,11 @@ class AnalyticsPageSection extends StatelessWidget {
         .length;
 
     return SingleChildScrollView(
-      controller: scrollController,
+      controller: widget.scrollController,
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(
-        horizontal: isDesktop ? 36 : 18,
-        vertical: isDesktop ? 28 : 20,
+        horizontal: widget.isDesktop ? 36 : 18,
+        vertical: widget.isDesktop ? 28 : 20,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -56,31 +78,95 @@ class AnalyticsPageSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DashboardAtmosphericBanner(
-                content: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      'Freshness Insights',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w500, // Medium
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: Colors.white,
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Freshness Insights',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w500, // Medium
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Explore your inspection activity and classification patterns.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Color(0xFFD1FAF4),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Explore your inspection activity and classification patterns.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: Color(0xFFD1FAF4),
+                    const SizedBox(width: 12),
+                    FilledButton.icon(
+                      key: const Key('export_analytics_csv_button'),
+                      onPressed: history.isEmpty
+                          ? null
+                          : () async {
+                              final downloaded = await exportAnalyticsCsv(history);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      downloaded
+                                          ? 'Exported ${history.length} scan records to CSV.'
+                                          : 'CSV export is available on Web.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                      icon: const Icon(CupertinoIcons.arrow_down_doc, size: 16),
+                      label: const Text('Export CSV'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.18),
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.white.withValues(alpha: 0.08),
+                        disabledForegroundColor: Colors.white54,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final entry in const [
+                    ('all', 'All Regions'),
+                    ('eye', 'Eye'),
+                    ('gill', 'Gill'),
+                  ])
+                    ChoiceChip(
+                      label: Text(entry.$2),
+                      selected: _regionFilter == entry.$1,
+                      onSelected: (_) => setState(() => _regionFilter = entry.$1),
+                    ),
+                  for (final entry in const [
+                    ('all', 'All Results'),
+                    ('fresh', 'Fresh'),
+                    ('not_fresh', 'Not Fresh'),
+                  ])
+                    ChoiceChip(
+                      label: Text(entry.$2),
+                      selected: _freshnessFilter == entry.$1,
+                      onSelected: (_) =>
+                          setState(() => _freshnessFilter = entry.$1),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
               KpiMetricsRow(history: history),
               const SizedBox(height: 24),
 

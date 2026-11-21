@@ -4,6 +4,7 @@ import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
+import '../../../utils/csv_export.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
 import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/history_delete_dialog.dart';
@@ -130,27 +131,63 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image-backed section header
-              const DashboardAtmosphericBanner(
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              DashboardAtmosphericBanner(
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(
-                      'Inspection History',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w500, // Medium for titles
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: Colors.white,
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Inspection History',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w500, // Medium for titles
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Review and manage your previous freshness assessments.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300, // Lighter for body
+                              letterSpacing: AppTypography.defaultLetterSpacing,
+                              color: Color(0xFFD1FAF4),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Review and manage your previous freshness assessments.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300, // Lighter for body
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: Color(0xFFD1FAF4),
+                    const SizedBox(width: 12),
+                    FilledButton.icon(
+                      key: const Key('export_history_csv_button'),
+                      onPressed: filtered.isEmpty
+                          ? null
+                          : () async {
+                              final downloaded = await exportAnalyticsCsv(filtered);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      downloaded
+                                          ? 'Exported ${filtered.length} history records to CSV.'
+                                          : 'Could not export CSV.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                      icon: const Icon(CupertinoIcons.arrow_down_doc, size: 16),
+                      label: const Text('Export CSV'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.18),
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.white.withValues(alpha: 0.08),
+                        disabledForegroundColor: Colors.white54,
                       ),
                     ),
                   ],

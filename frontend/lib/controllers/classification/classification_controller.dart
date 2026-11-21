@@ -284,7 +284,12 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   Future<void> pickImage(ImageSource source) async {
     state = state.copyWith(isUploadingImage: true, clearError: true);
     try {
-      final picked = await _picker.pickImage(source: source);
+      final picked = await _picker.pickImage(
+        source: source,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 90,
+      );
 
       if (picked != null) {
         final bytes = await picked.readAsBytes();

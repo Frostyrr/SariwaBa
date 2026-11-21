@@ -705,17 +705,17 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               color: SariwaColors.textPrimaryDark,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            state.errorCode == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED'
-                ? 'Retake a close-up of the eye or exposed gill, or use Edit Crop if the original photo has enough eye detail.'
-                : 'Make sure your crop is a tight, real close-up of a single Tilapia eye or exposed gill—not a full tray, drawing, or non-fish object.',
-            style: const TextStyle(
-              fontSize: 11.5,
-              height: 1.35,
-              color: SariwaColors.textSecondaryDark,
+          if (state.errorCode == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED') ...[
+            const SizedBox(height: 6),
+            const Text(
+              'Retake a close-up of the eye or exposed gill, or use Edit Crop if the original photo has enough eye detail.',
+              style: TextStyle(
+                fontSize: 11.5,
+                height: 1.35,
+                color: SariwaColors.textSecondaryDark,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
