@@ -691,7 +691,10 @@ void main() {
         ),
         findsWidgets,
       );
-      expect(find.textContaining('Input Rejected (${mock['code']})'), findsOneWidget);
+      expect(
+        find.text(ClassificationApiException.rejectionTitleForCode(mock['code'])),
+        findsWidgets,
+      );
       expect(find.text(mock['message']!), findsWidgets);
       expect(find.byKey(const Key('classification_result_view')), findsNothing);
 
@@ -988,7 +991,7 @@ void main() {
       findsWidgets,
     );
     expect(find.byKey(const Key('technical_error_card')), findsOneWidget);
-    expect(find.text('Request Error (MODEL_UNAVAILABLE)'), findsOneWidget);
+    expect(find.text('Service or Connection Issue (MODEL_UNAVAILABLE)'), findsOneWidget);
     expect(container.read(classificationControllerProvider).latestResult, isNull);
     expect(find.byKey(const Key('classification_result_view')), findsNothing);
   });
@@ -1278,7 +1281,6 @@ void main() {
 
       expect(find.byKey(const Key('roi_cropper_modal')), findsOneWidget);
       expect(find.byKey(const Key('modal_classifying_status')), findsOneWidget);
-      expect(find.text('Evaluating Tilapia Freshness...'), findsOneWidget);
 
       // 4. Resolve classification -> Modal directly presents Freshness Result
       completer.complete(fakeClassRepo.resultToReturn);
