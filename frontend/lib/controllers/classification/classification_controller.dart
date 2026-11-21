@@ -390,7 +390,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   }
 
   bool get canFindEyes =>
-      const bool.fromEnvironment('ENABLE_EYE_PROPOSALS') &&
+      const bool.fromEnvironment('ENABLE_EYE_PROPOSALS', defaultValue: true) &&
       _service is EyeProposalService;
 
   Future<EyeProposalResult> findEyes() {
