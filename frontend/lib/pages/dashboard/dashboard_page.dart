@@ -2,9 +2,11 @@ import '../../widgets/dashboard/dashboard_light_theme.dart';
 
 import 'dart:ui' as ui;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/classification/classification_controller.dart';
@@ -223,33 +225,57 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final isModalEffectivelyOpen =
         _isCropModalOpen && classState.hasSelectedImage;
 
-    final sidebar = DashboardSidebar(
-      user: user,
-      isGuestUser: isGuestUser,
-      historyCount: classState.history.length,
-      activeNav: _activeNav,
-      isCollapsed: _isSidebarCollapsed,
-      onToggleCollapse: () =>
-          setState(() => _isSidebarCollapsed = !_isSidebarCollapsed),
-      onNavSelected: (nav) {
-        if (nav == 'Admin' && user?.isAdmin != true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Administrator privileges required.'),
-              backgroundColor: Color(0xFFEF4444),
-            ),
-          );
-          return;
-        }
-        setState(() => _activeNav = nav);
-      },
-      onSignOut: () => authController.signOut(),
-      onSignIn: () => authController.goToLogin(),
-      onGoHome: () => authController.goToLanding(),
-      onGoDownloads: () => authController.goToDownloads(),
-      onConnectGoogle: () => authController.continueWithGoogle(),
-      onOpenGuidelines: () => OrganolepticGuidelinesDialog.show(context),
-    );
+    Widget buildSidebar({required bool inDrawer}) {
+      return DashboardSidebar(
+        user: user,
+        isGuestUser: isGuestUser,
+        historyCount: classState.history.length,
+        activeNav: _activeNav,
+        isCollapsed: inDrawer ? false : _isSidebarCollapsed,
+        onToggleCollapse: inDrawer
+            ? () => Navigator.of(context).pop()
+            : () => setState(() => _isSidebarCollapsed = !_isSidebarCollapsed),
+        onNavSelected: (nav) {
+          if (inDrawer) {
+            Navigator.of(context).pop();
+          }
+          if (nav == 'Admin' && user?.isAdmin != true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Administrator privileges required.'),
+                backgroundColor: Color(0xFFEF4444),
+              ),
+            );
+            return;
+          }
+          setState(() => _activeNav = nav);
+        },
+        onSignOut: () {
+          if (inDrawer) Navigator.of(context).pop();
+          authController.signOut();
+        },
+        onSignIn: () {
+          if (inDrawer) Navigator.of(context).pop();
+          authController.goToLogin();
+        },
+        onGoHome: () {
+          if (inDrawer) Navigator.of(context).pop();
+          authController.goToLanding();
+        },
+        onGoDownloads: () {
+          if (inDrawer) Navigator.of(context).pop();
+          authController.goToDownloads();
+        },
+        onConnectGoogle: () {
+          if (inDrawer) Navigator.of(context).pop();
+          authController.continueWithGoogle();
+        },
+        onOpenGuidelines: () {
+          if (inDrawer) Navigator.of(context).pop();
+          OrganolepticGuidelinesDialog.show(context);
+        },
+      );
+    }
 
     final isAdmin = user?.isAdmin == true;
 
@@ -265,11 +291,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             backgroundColor: const Color(0xFFF8FAFC),
             drawer: AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
                 ? null
-                : Drawer(child: sidebar),
+                : Drawer(child: buildSidebar(inDrawer: true)),
             bottomNavigationBar:
                 AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
                     ? null
-                    : _buildMobileBottomNav(isAdmin: isAdmin),
+                    : _buildMobileBottomNav(
+                        isAdmin: isAdmin,
+                        onQuickScan: () {
+                          HapticFeedback.mediumImpact();
+                          setState(() => _activeNav = 'Inspection');
+                          classController.pickImage(ImageSource.camera);
+                        },
+                      ),
             body: LayoutBuilder(
               builder: (context, constraints) {
                 final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
@@ -381,7 +414,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         duration: const Duration(milliseconds: 240),
                         curve: Curves.easeInOutCubic,
                         width: _isSidebarCollapsed ? 76 : 264,
-                        child: sidebar,
+                        child: buildSidebar(inDrawer: false),
                       ),
                       Expanded(child: contentView),
                     ],
@@ -413,69 +446,152 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
-  Widget _buildMobileBottomNav({required bool isAdmin}) {
-    final tabs = <String>[
-      'Inspection',
-      'History',
-      'Analytics',
-      'Settings',
-      if (isAdmin) 'Admin',
-    ];
-    final currentIndex = tabs.indexOf(_activeNav);
+  Widget _buildMobileBottomNav({
+    required bool isAdmin,
+    required VoidCallback onQuickScan,
+  }) {
+    Widget buildTabItem({
+      required String navKey,
+      required String label,
+      required IconData icon,
+      required IconData activeIcon,
+    }) {
+      final isSelected = _activeNav == navKey ||
+          (navKey == 'Inspection' && _activeNav == 'Scanner') ||
+          (navKey == 'Analytics' && _activeNav == 'Summary') ||
+          (navKey == 'Settings' && _activeNav == 'Account');
 
-    return NavigationBar(
-      selectedIndex: currentIndex >= 0 ? currentIndex : 0,
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      indicatorColor: SariwaColors.brandPrimary.withValues(alpha: 0.12),
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      onDestinationSelected: (index) {
-        HapticFeedback.selectionClick();
-        setState(() => _activeNav = tabs[index]);
-      },
-      destinations: [
-        const NavigationDestination(
-          icon: Icon(Icons.document_scanner_outlined),
-          selectedIcon: Icon(
-            Icons.document_scanner_rounded,
-            color: SariwaColors.brandPrimary,
-          ),
-          label: 'Inspect',
-        ),
-        const NavigationDestination(
-          icon: Icon(Icons.history_outlined),
-          selectedIcon: Icon(
-            Icons.history_rounded,
-            color: SariwaColors.brandPrimary,
-          ),
-          label: 'History',
-        ),
-        const NavigationDestination(
-          icon: Icon(Icons.analytics_outlined),
-          selectedIcon: Icon(
-            Icons.analytics_rounded,
-            color: SariwaColors.brandPrimary,
-          ),
-          label: 'Analytics',
-        ),
-        const NavigationDestination(
-          icon: Icon(Icons.settings_outlined),
-          selectedIcon: Icon(
-            Icons.settings_rounded,
-            color: SariwaColors.brandPrimary,
-          ),
-          label: 'Settings',
-        ),
-        if (isAdmin)
-          const NavigationDestination(
-            icon: Icon(Icons.admin_panel_settings_outlined),
-            selectedIcon: Icon(
-              Icons.admin_panel_settings_rounded,
-              color: SariwaColors.brandPrimary,
+      final color =
+          isSelected ? SariwaColors.brandPrimary : const Color(0xFF64748B);
+
+      return Expanded(
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() => _activeNav = navKey);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(isSelected ? activeIcon : icon, size: 22, color: color),
+                const SizedBox(height: 3),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 10.5,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    letterSpacing: -0.1,
+                    color: color,
+                  ),
+                ),
+              ],
             ),
-            label: 'Admin',
           ),
-      ],
+        ),
+      );
+    }
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.86),
+            border: Border(
+              top: BorderSide(
+                color: SariwaColors.borderLightTeal.withValues(alpha: 0.85),
+                width: 0.8,
+              ),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  buildTabItem(
+                    navKey: 'Inspection',
+                    label: 'Inspect',
+                    icon: CupertinoIcons.viewfinder,
+                    activeIcon: CupertinoIcons.viewfinder,
+                  ),
+                  buildTabItem(
+                    navKey: 'History',
+                    label: 'History',
+                    icon: CupertinoIcons.clock,
+                    activeIcon: CupertinoIcons.clock_fill,
+                  ),
+                  // Center Quick Classify / Camera Scan Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: GestureDetector(
+                      key: const Key('mobile_quick_scan_button'),
+                      onTap: onQuickScan,
+                      child: Container(
+                        width: 52,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              SariwaColors.brandGlow,
+                              SariwaColors.brandPrimary,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: SariwaColors.brandPrimary.withValues(
+                                alpha: 0.30,
+                              ),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.camera_fill,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                  buildTabItem(
+                    navKey: 'Analytics',
+                    label: 'Analytics',
+                    icon: CupertinoIcons.chart_bar,
+                    activeIcon: CupertinoIcons.chart_bar_fill,
+                  ),
+                  if (isAdmin)
+                    buildTabItem(
+                      navKey: 'Admin',
+                      label: 'Admin',
+                      icon: CupertinoIcons.shield,
+                      activeIcon: CupertinoIcons.shield_fill,
+                    )
+                  else
+                    buildTabItem(
+                      navKey: 'Settings',
+                      label: 'Settings',
+                      icon: CupertinoIcons.gear,
+                      activeIcon: CupertinoIcons.gear_solid,
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -24,6 +24,10 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SariwaBa needs camera access to photograph Tilapia eyes and gills for freshness classification.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SariwaBa needs photo library access so you can select Tilapia photos for freshness classification.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

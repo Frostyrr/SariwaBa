@@ -1959,10 +1959,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   height: 48,
                   child: ElevatedButton.icon(
                     key: const Key('modal_result_done_button'),
-                    onPressed: widget.onCloseModal,
-                    icon: const Icon(CupertinoIcons.checkmark_alt, size: 16),
+                    onPressed: () {
+                      controller.clearSelection();
+                      widget.onCloseModal?.call();
+                    },
+                    icon: const Icon(CupertinoIcons.camera_viewfinder, size: 16),
                     label: const Text(
-                      'Done',
+                      'Scan Another',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,
