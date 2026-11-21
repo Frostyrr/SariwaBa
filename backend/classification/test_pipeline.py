@@ -87,7 +87,6 @@ class ValidatorDecisionTests(TestCase):
                     get_validator_bundle(force_reload=True)
 
 
-@override_settings(FRESHNESS_MIN_CONFIDENCE=0.8)
 class PipelineAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -137,13 +136,14 @@ class PipelineAPITests(TestCase):
         freshness.assert_not_called()
         self.assertFalse(ClassificationHistory.objects.exists())
 
-    @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.79})
+    @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.699})
     @patch("classification.views.validate_image", return_value={"region_verified": True})
-    def test_freshness_abstention_is_not_saved(self, validator, freshness):
+    def test_accepted_input_returns_and_saves_freshness_estimate_below_old_cutoff(self, validator, freshness):
         response = self.post()
-        self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.data["error"]["code"], "FRESHNESS_UNCERTAIN")
-        self.assertFalse(ClassificationHistory.objects.exists())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["label"], "Fresh")
+        self.assertEqual(response.data["confidence"], 0.699)
+        self.assertEqual(ClassificationHistory.objects.get().confidence, 0.699)
 
     @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.94})
     @patch("classification.views.validate_image", return_value={

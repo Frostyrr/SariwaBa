@@ -128,7 +128,7 @@ class FeaturesSection extends StatelessWidget {
                           child: _buildFeatureCard(
                             icon: Icons.bloodtype_outlined,
                             title: 'Model Confidence',
-                            desc: 'See the model score for each prediction. Low-confidence images are rejected so you can try another photo.',
+                            desc: 'See the visual freshness estimate and model score for each accepted photo.',
                           ),
                         ),
                       ),

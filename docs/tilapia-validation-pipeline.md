@@ -8,13 +8,12 @@ The API now follows this sequence:
 2. Run a separate MobileNetV3-Small supported-input validator.
 3. Reject unsupported inputs, uncertain content, or a mismatch with the selected Eye/Gill region.
 4. Run the existing freshness model only after the input gate passes.
-5. Abstain if the freshness score is below `FRESHNESS_MIN_CONFIDENCE` (default 0.80).
+5. Return the visual freshness estimate and its model score for accepted input.
 6. Save successful authenticated results together with validation provenance.
 
-The 0.80 freshness threshold is a provisional abstention policy, **not a calibrated
-probability of correctness**. Choose a final threshold on validation data and report
-both coverage and errors on a separate test set. A low score is not proof that a
-photo is blurry, and an uncertain result is not a Not Fresh prediction.
+The scanner displays the predicted label and model score after the input gate
+accepts a photo. The score describes the model's prediction and is not a measure
+of freshness or a calibrated probability of correctness.
 
 There is no automatic blur detector. Input validation scores and freshness scores
 measure different decisions and must not be substituted for each other.
@@ -43,7 +42,7 @@ telemetry status. Existing records remain unverified; the migration does not
 retroactively endorse their input content.
 
 Content rejections return HTTP 422 with `UNSUPPORTED_IMAGE`, `CONTENT_UNCERTAIN`,
-or `REGION_MISMATCH`. Freshness abstention returns `FRESHNESS_UNCERTAIN`.
+or `REGION_MISMATCH`.
 Model/infrastructure failures remain technical errors rather than rejected fish.
 Rejected requests create telemetry but no classification-history row or image.
 

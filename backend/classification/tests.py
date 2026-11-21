@@ -5,7 +5,6 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from django.test import override_settings
 from PIL import Image
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -53,9 +52,6 @@ class ClassificationAPITests(TestCase):
         })
         self.validator_mock = validator_patch.start()
         self.addCleanup(validator_patch.stop)
-        settings_patch = override_settings(FRESHNESS_MIN_CONFIDENCE=0.5)
-        settings_patch.enable()
-        self.addCleanup(settings_patch.disable)
 
         # User 1
         self.user = User.objects.create_user(

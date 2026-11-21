@@ -1,6 +1,5 @@
 import time
 import math
-from django.conf import settings
 from PIL import Image, UnidentifiedImageError
 try:
     from pillow_heif import register_heif_opener
@@ -244,16 +243,11 @@ def classify_fish(request):
         validation = validate_image(image_file, region_type)
         image_file.seek(0)
         prediction = predict_image(image_file, region_type=region_type)
-        minimum_confidence = settings.FRESHNESS_MIN_CONFIDENCE
         confidence = float(prediction["confidence"])
         if not math.isfinite(confidence) or not 0 <= confidence <= 1:
             raise ModelInferenceError("Invalid freshness confidence.")
         if prediction["label"] not in {"Fresh", "Not Fresh"}:
             raise ModelInferenceError("Invalid freshness label.")
-        if confidence < minimum_confidence:
-            raise InputRejectedError("FRESHNESS_UNCERTAIN",
-                "The image passed input validation, but its freshness result is uncertain. Try another clear close-up.",
-                confidence)
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
     except InputRejectedError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
