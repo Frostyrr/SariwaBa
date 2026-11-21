@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../models/auth/user_model.dart';
@@ -42,7 +43,7 @@ class WebNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth >= 768;
+        final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
 
         final linkColor = isLight
             ? SariwaColors.textSecondaryDark

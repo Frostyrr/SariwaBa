@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/classification/classification_controller.dart';
 
+import '../../constants/config/app_breakpoints.dart';
+import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../widgets/classification/roi_cropper_widget.dart';
 import '../../widgets/dashboard/dashboard_mobile_top_bar.dart';
@@ -199,12 +201,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ),
         child: Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
-          drawer: MediaQuery.of(context).size.width >= 900
+          drawer: AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
               ? null
               : Drawer(child: sidebar),
+          bottomNavigationBar:
+              AppBreakpoints.isDesktop(MediaQuery.of(context).size.width)
+                  ? null
+                  : _buildMobileBottomNav(),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 900;
+              final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
 
               Widget activeView;
               if (_activeNav == 'Admin') {
@@ -317,6 +323,55 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMobileBottomNav() {
+    const coreTabs = ['Inspection', 'History', 'Analytics', 'Settings'];
+    final currentIndex = coreTabs.indexOf(_activeNav);
+
+    return NavigationBar(
+      selectedIndex: currentIndex >= 0 ? currentIndex : 0,
+      backgroundColor: Colors.white,
+      indicatorColor: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      onDestinationSelected: (index) {
+        setState(() => _activeNav = coreTabs[index]);
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.document_scanner_outlined),
+          selectedIcon: Icon(
+            Icons.document_scanner_rounded,
+            color: SariwaColors.brandPrimary,
+          ),
+          label: 'Inspect',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.history_outlined),
+          selectedIcon: Icon(
+            Icons.history_rounded,
+            color: SariwaColors.brandPrimary,
+          ),
+          label: 'History',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.analytics_outlined),
+          selectedIcon: Icon(
+            Icons.analytics_rounded,
+            color: SariwaColors.brandPrimary,
+          ),
+          label: 'Analytics',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.settings_outlined),
+          selectedIcon: Icon(
+            Icons.settings_rounded,
+            color: SariwaColors.brandPrimary,
+          ),
+          label: 'Settings',
+        ),
+      ],
     );
   }
 }
