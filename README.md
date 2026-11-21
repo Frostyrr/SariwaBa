@@ -78,6 +78,23 @@ flutter build web
 py -m http.server 7357 --bind localhost --directory build/web
 ```
 
+Google login on web uses Google's rendered sign-in button on the login page.
+Other "Connect Google" actions open that page. Configure the OAuth Web client
+in Google Cloud with Authorized JavaScript origins `http://localhost` and
+`http://localhost:7357`. If you use a different host or port, authorize that
+exact origin as well.
+
+The frontend `GOOGLE_WEB_CLIENT_ID` must match the backend `.env`
+`GOOGLE_CLIENT_ID`. To override the frontend default, run:
+
+```bash
+flutter run -d chrome --web-port 7357 --dart-define=GOOGLE_WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID.apps.googleusercontent.com
+```
+
+After changing frontend OAuth configuration, restart Flutter or rebuild the
+served web files and reload the page. After changing `backend/.env`, recreate
+the backend with `docker compose up -d --force-recreate backend`.
+
 ## Technology Stack
 
 | Layer              | Technologies                                                     |

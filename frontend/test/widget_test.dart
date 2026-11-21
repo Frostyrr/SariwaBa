@@ -50,7 +50,10 @@ class FakeAuthRepository implements AuthRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  Future<UserModel> authenticateWithGoogleToken(String idToken) async {
+  Future<UserModel> authenticateWithGoogleToken(
+    String idToken, {
+    String? accessToken,
+  }) async {
     return mockUser ??
         const UserModel(
           id: 'test-user-1',
