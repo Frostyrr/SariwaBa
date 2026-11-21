@@ -77,7 +77,7 @@ class ClassificationApiException implements Exception {
       case 'INVALID_IMAGE_DIMENSIONS':
         return 'Image Not Supported — Invalid Image File';
       default:
-        return 'Image Not Supported';
+        return 'Tilapia Eye or Gill Not Detected';
     }
   }
 

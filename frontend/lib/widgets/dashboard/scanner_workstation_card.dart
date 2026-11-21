@@ -458,32 +458,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
-                        if (code != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFEF2F2),
-                              borderRadius: BorderRadius.circular(99),
-                              border: Border.all(
-                                color: SariwaColors.statusSpoiled.withValues(
-                                  alpha: 0.35,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              code,
-                              style: const TextStyle(
-                                fontSize: 10.5,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing:
-                                    AppTypography.defaultLetterSpacing,
-                                color: SariwaColors.statusSpoiled,
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                     const SizedBox(height: 8),
