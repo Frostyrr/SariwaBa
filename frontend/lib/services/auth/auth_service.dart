@@ -17,10 +17,15 @@ class AuthService {
     required this.googleSignInService,
   });
 
-  Future<UserModel> authenticateWithGoogleToken(String idToken) async {
+  Future<UserModel> authenticateWithGoogleToken(
+    String idToken, {
+    String? accessToken,
+  }) async {
     final response = await dio.post(
       ApiEndpoints.googleAuth,
-      data: {'id_token': idToken},
+      data: accessToken != null && idToken.isEmpty
+          ? {'access_token': accessToken}
+          : {'id_token': idToken},
     );
 
     final data = response.data as Map<String, dynamic>;

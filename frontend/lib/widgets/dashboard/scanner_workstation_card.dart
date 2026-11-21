@@ -620,7 +620,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Service or Connection Issue (${state.errorCode ?? 'ERROR'})',
+                  'Service or Connection Issue',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,

@@ -149,6 +149,56 @@ class ClassificationResultCard extends StatelessWidget {
               color: SariwaColors.textSecondaryDark,
             ),
           ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'What This Means',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  result.confidence >= 0.90
+                      ? (result.isFresh
+                          ? 'Strong signs of freshness. Still check smell and texture before cooking.'
+                          : 'Clear signs of spoilage. It is safer not to consume this fish.')
+                      : 'Moderate certainty — consider scanning the ${(result.regionType ?? '').toLowerCase() == 'eye' ? 'gill' : 'eye'} as well to double-check.',
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  (result.regionType ?? '').toLowerCase() == 'gill'
+                      ? 'Tip: Fresh gills look bright red or pink; spoiled gills look dull brown or slimy.'
+                      : 'Tip: Fresh eyes look clear and slightly rounded; spoiled eyes look cloudy or sunken.',
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    height: 1.35,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           const Text(
             ClassificationResult.defaultDisclaimer,

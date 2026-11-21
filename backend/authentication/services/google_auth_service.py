@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+import urllib.request
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -31,4 +33,24 @@ def verify_google_token(token):
 
     except Exception as error:
         logger.warning("Google ID token verification failed: %s", error)
+        return None
+
+
+def verify_google_access_token(access_token):
+    try:
+        req = urllib.request.Request(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            user_info = json.loads(resp.read().decode("utf-8"))
+        return {
+            "google_id": user_info.get("sub"),
+            "email": user_info.get("email"),
+            "name": user_info.get("name"),
+            "picture": user_info.get("picture"),
+            "email_verified": user_info.get("email_verified"),
+        }
+    except Exception as error:
+        logger.warning("Google access token verification failed: %s", error)
         return None

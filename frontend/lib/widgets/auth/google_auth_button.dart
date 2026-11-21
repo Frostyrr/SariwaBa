@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../common/app_button.dart';
+import 'google_web_button_stub.dart'
+    if (dart.library.js_interop) 'google_web_button.dart';
 
 class GoogleAuthButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -17,6 +20,26 @@ class GoogleAuthButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          IgnorePointer(
+            ignoring: isLoading,
+            child: Opacity(
+              opacity: isLoading ? 0.4 : 1,
+              child: buildGoogleWebButton(),
+            ),
+          ),
+          if (isLoading)
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      );
+    }
     return AppButton.primary(
       label: label,
       icon: SvgPicture.asset('assets/icons/google.svg', width: 18, height: 18),

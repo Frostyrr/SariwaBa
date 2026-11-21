@@ -20,6 +20,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   cupertino_icons: ^1.0.8
   google_sign_in: ^6.2.2
+  google_sign_in_web: ^0.12.4+4
   dio: ^5.11.1
   flutter_secure_storage: ^11.2.0
   google_fonts: ^9.0.0

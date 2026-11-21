@@ -13,7 +13,7 @@ from .predict import DEVICE, ModelInferenceError, ModelUnavailableError, _build_
 
 VALIDATOR_PATH = Path(__file__).resolve().parent / "models" / "sariwaba_validator.pth"
 EXPERIMENTAL_PATH = VALIDATOR_PATH.with_name("sariwaba_validator_experimental_best.pth")
-EXPERIMENTAL_NOTICE = "Experimental validator demo. Region and freshness predictions are preliminary."
+EXPERIMENTAL_NOTICE = "Local validator testing. Region and freshness predictions are preliminary."
 VALIDATOR_CLASSES = ["eye", "gill", "unsupported"]
 VALIDATOR_V2_CLASSES = [*VALIDATOR_CLASSES, "whole_tilapia"]
 VALIDATOR_SCOPES = {3: "tilapia_eye_gill", 4: "tilapia_eye_gill_whole"}
@@ -126,10 +126,26 @@ def get_experimental_bundle():
 
 
 @lru_cache(maxsize=4)
-def load_validator_bundle(path_str):
+def load_validator_bundle(path_str, *, allow_smoke=False):
     path = Path(path_str)
     try:
         checkpoint = torch.load(path, map_location=DEVICE, weights_only=True)
+        if allow_smoke:
+            if (checkpoint.get("smoke_only") is not True
+                    or checkpoint["classes"] != VALIDATOR_V2_CLASSES
+                    or checkpoint["image_size"] != 224):
+                raise ValueError("Expected a four-class local test checkpoint.")
+            net = models.mobilenet_v3_small(weights=None)
+            net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(VALIDATOR_V2_CLASSES))
+            net.load_state_dict(checkpoint["model_state_dict"])
+            return {
+                "model": net.to(DEVICE).eval(),
+                "transform": _build_eval_transform(224),
+                "threshold": 0.90,
+                "model_version": "validator-v2-smoke",
+                "classes": VALIDATOR_V2_CLASSES,
+                "experimental": True,
+            }
         if checkpoint.get("experimental") is True:
             if (checkpoint["classes"] != VALIDATOR_CLASSES
                     or checkpoint["model_name"] != "mobilenet_v3_small"
@@ -192,9 +208,13 @@ def load_validator_bundle(path_str):
 
 def validate_image(image_source, region_type):
     candidate_path = getattr(settings, "VALIDATOR_CANDIDATE_PATH", None)
+    local_test_path = getattr(settings, "VALIDATOR_LOCAL_TEST_CHECKPOINT", "")
     if candidate_path:
         bundle = load_validator_bundle(str(candidate_path))
         experimental = bundle.get("experimental", False)
+    elif settings.DEBUG and local_test_path:
+        bundle = load_validator_bundle(str(settings.BASE_DIR / local_test_path), allow_smoke=True)
+        experimental = True
     else:
         experimental = settings.DEBUG and settings.EXPERIMENTAL_VALIDATOR_DEMO
         bundle = get_experimental_bundle() if experimental else get_validator_bundle()

@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.exceptions import AuthenticationFailed
 
 from .models import UserProfile, LoginAuditLog
-from .services.google_auth_service import verify_google_token
+from .services.google_auth_service import verify_google_access_token, verify_google_token
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +82,9 @@ def google_auth(request):
     client_ip = _get_client_ip(request)
     user_agent = _get_user_agent(request)
     token = request.data.get("id_token")
+    access_token = request.data.get("access_token")
 
-    if not token:
+    if not token and not access_token:
         LoginAuditLog.objects.create(
             email="",
             ip_address=client_ip,
@@ -101,7 +102,11 @@ def google_auth(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    google_user = verify_google_token(token)
+    google_user = (
+        verify_google_token(token)
+        if token
+        else verify_google_access_token(access_token)
+    )
 
     if google_user is None:
         LoginAuditLog.objects.create(
