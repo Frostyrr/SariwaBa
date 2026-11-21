@@ -11,13 +11,11 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/classification/classification_controller.dart';
-import '../../services/classification/classification_service.dart';
 
 import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../widgets/classification/roi_cropper_widget.dart';
-import '../../widgets/classification/eye_proposal_picker.dart';
 import '../../widgets/common/sariwa_scrollbar.dart';
 import '../../widgets/dashboard/dashboard_mobile_top_bar.dart';
 import '../../widgets/dashboard/dashboard_sidebar.dart';
@@ -47,68 +45,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   bool _isSidebarCollapsed = false;
   bool _isCropModalOpen = false;
   BuildContext? _cropModalContext;
-  Uint8List? _findingEyesFor;
-
-  Future<void> _prepareEyeCrop(
-    ClassificationController controller,
-    ClassificationState selection,
-  ) async {
-    final photo = selection.selectedImageBytes!;
-    bool canUseResult() {
-      if (!mounted || _isCropModalOpen || _activeNav != 'Inspection') return false;
-      final current = ref.read(classificationControllerProvider);
-      return identical(current.selectedImageBytes, photo) &&
-          current.selectedRegion == selection.selectedRegion &&
-          !current.isCropConfirmed &&
-          !current.isClassifying &&
-          !current.isUploadingImage;
-    }
-
-    if (!canUseResult()) return;
-    setState(() => _findingEyesFor = photo);
-    try {
-      EyeProposalResult result;
-      try {
-        result = await controller.findEyes();
-      } on ClassificationApiException catch (error) {
-        if (identical(_findingEyesFor, photo) && canUseResult()) {
-          controller.showEyeProposalRejection(error);
-        }
-        return;
-      } catch (_) {
-        result = (alreadyEye: false, proposals: const []);
-      }
-      if (!mounted || !identical(_findingEyesFor, photo) || !canUseResult()) {
-        return;
-      }
-      if (result.alreadyEye) {
-        controller.confirmFullImageAsCloseUp();
-        return;
-      }
-      final proposals = result.proposals;
-      final proposal = switch (proposals.length) {
-        0 => null,
-        1 => proposals.single,
-        _ => await showEyeProposalPicker(context, photo, proposals),
-      };
-      if (!mounted || !identical(_findingEyesFor, photo) || !canUseResult()) {
-        return;
-      }
-      if (proposal == null) {
-        _showRoiCropperModal();
-        return;
-      }
-      controller.confirmCroppedRegion(
-        proposal.bytes,
-        normalizedCropRect: proposal.rect,
-      );
-    } finally {
-      if (mounted && identical(_findingEyesFor, photo)) {
-        setState(() => _findingEyesFor = null);
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -257,10 +193,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       previous,
       next,
     ) {
-      if (previous?.selectedRegion != next.selectedRegion ||
-          !identical(previous?.selectedImageBytes, next.selectedImageBytes)) {
-        _findingEyesFor = null;
-      }
       final isNewUnconfirmedImage =
           next.hasSelectedImage &&
           !next.isCropConfirmed &&
@@ -278,12 +210,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           if (latest.hasSelectedImage &&
               !latest.isCropConfirmed &&
               identical(latest.selectedImageBytes, next.selectedImageBytes)) {
-            if (isNewUnconfirmedImage &&
-                classController.canFindEyes &&
-                latest.selectedRegion?.apiValue == 'eye') {
-              _prepareEyeCrop(classController, latest);
-              return;
-            }
+            // Let the user choose Eye or Gill before any server validation.
+            // Optional eye detection is available inside the editor.
             _showRoiCropperModal();
           }
         });
@@ -411,9 +339,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           isGuestUser: isGuestUser,
                           isDesktop: isDesktop,
                           isModalEffectivelyOpen: isModalEffectivelyOpen,
-                          isFindingEyes: _findingEyesFor != null &&
-                              identical(_findingEyesFor, classState.selectedImageBytes) &&
-                              classState.selectedRegion?.apiValue == 'eye',
                           classState: classState,
                           classController: classController,
                           onConnectGoogle: () =>
