@@ -17,6 +17,7 @@ class ClassificationApiException implements Exception {
   /// Supported-input and freshness abstention responses from the backend.
   static const Set<String> contentRejectionCodes = {
     'UNSUPPORTED_IMAGE',
+    'WHOLE_TILAPIA_CLOSE_UP_REQUIRED',
     'REGION_MISMATCH',
     'CONTENT_UNCERTAIN',
     'POOR_IMAGE_QUALITY',
@@ -61,6 +62,8 @@ class ClassificationApiException implements Exception {
   /// Standard rejection heading for unsupported or invalid image submissions.
   static String rejectionTitleForCode(String? code) {
     switch (code) {
+      case 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED':
+        return 'Close-Up Required';
       case 'FRESHNESS_UNCERTAIN':
         return 'Freshness Could Not Be Determined';
       case 'REGION_MISMATCH':
@@ -81,6 +84,8 @@ class ClassificationApiException implements Exception {
   /// Contextual recovery guidance based on the actual backend rejection code.
   static String contextualGuidanceForCode(String? code) {
     switch (code) {
+      case 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED':
+        return 'Take a close-up of one eye or the exposed gill, then select its matching region.';
       case 'FRESHNESS_UNCERTAIN':
         return 'Try another clear close-up. This result does not mean the fish is Not Fresh.';
       case 'UNSUPPORTED_IMAGE':

@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 from classification.models import ClassificationHistory, ClassificationTelemetryLog
 from classification.tests import _create_test_image
 from ml.predict import ModelInferenceError, ModelUnavailableError
-from ml.validator import InputRejectedError, decide_input, get_validator_bundle
+from ml.validator import VALIDATOR_V2_CLASSES, InputRejectedError, decide_input, get_validator_bundle
 from ml.validator import validate_image
 from PIL import Image
 import torch
@@ -105,7 +105,8 @@ class PipelineAPITests(TestCase):
     @patch("classification.views.predict_image")
     @patch("classification.views.validate_image")
     def test_content_rejection_never_runs_freshness_or_saves(self, validator, freshness):
-        for code in ("UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN", "REGION_MISMATCH"):
+        for code in ("UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN", "REGION_MISMATCH",
+                     "WHOLE_TILAPIA_CLOSE_UP_REQUIRED"):
             with self.subTest(code=code):
                 validator.side_effect = InputRejectedError(code, "Rejected", 0.7)
                 response = self.post()
@@ -114,7 +115,18 @@ class PipelineAPITests(TestCase):
                 self.assertNotIn("label", response.data)
         freshness.assert_not_called()
         self.assertFalse(ClassificationHistory.objects.exists())
-        self.assertEqual(ClassificationTelemetryLog.objects.filter(status="REJECTED_ASSESSMENT").count(), 3)
+        self.assertEqual(ClassificationTelemetryLog.objects.filter(status="REJECTED_ASSESSMENT").count(), 4)
+
+    def test_four_class_gate_routes_whole_fish_to_close_up_in_both_modes(self):
+        for region in ("eye", "gill"):
+            with self.subTest(region=region), self.assertRaises(InputRejectedError) as error:
+                decide_input([0.02, 0.03, 0.02, 0.93], region, 0.8, VALIDATOR_V2_CLASSES)
+            self.assertEqual(error.exception.code, "WHOLE_TILAPIA_CLOSE_UP_REQUIRED")
+
+    def test_four_class_gate_accepts_supported_regions(self):
+        for region, scores in (("eye", [0.91, 0.03, 0.03, 0.03]),
+                               ("gill", [0.01, 0.94, 0.03, 0.02])):
+            self.assertTrue(decide_input(scores, region, 0.8, VALIDATOR_V2_CLASSES)["region_verified"])
 
     @patch("classification.views.predict_image")
     @patch("classification.views.validate_image", side_effect=ModelUnavailableError("Validator unavailable"))

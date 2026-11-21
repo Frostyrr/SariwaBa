@@ -38,7 +38,7 @@ def refresh_inventory(metadata_dir=METADATA_DIR):
         print(f"{name}: appended {len(additions)} images; assignments preserved.")
 
 
-def audit_partitions(metadata_dir=METADATA_DIR):
+def audit_partitions(metadata_dir=METADATA_DIR, *, allow_unknown_specimen=False):
     """Require explicit reviewed grouping; check specimens and exact duplicates."""
     metadata_dir = Path(metadata_dir)
     records = read_csv(metadata_dir / "validator_labels.csv")
@@ -64,7 +64,8 @@ def audit_partitions(metadata_dir=METADATA_DIR):
             raise ValueError(f"Unreviewed/unassigned split: {path}. Review splits.csv first.")
         group = split_row.get("group_key", "").strip()
         specimen = split_row.get("specimen_id", "").strip()
-        if not group or (row["anatomical_label"] != "unsupported" and not specimen):
+        if not group or (row["anatomical_label"] != "unsupported" and not specimen
+                         and not allow_unknown_specimen):
             raise ValueError(f"Verified capture group and positive specimen ID required: {path}")
         group_splits[("capture", group)].add(split)
         if specimen:

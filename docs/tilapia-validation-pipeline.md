@@ -209,3 +209,27 @@ Tests verify gate ordering, abstention, no saved results for rejected inputs,
 missing-model behavior, history/cache provenance, legacy records, calibration,
 and partition leakage checks. Mocked tests are implementation checks, not evidence
 that a trained validator can distinguish Tilapia or assess freshness accurately.
+# Model A v2 candidate
+
+The reviewed trainer also supports a four-class candidate with `--four-class`.
+Use a separate metadata directory. The Day 1 intake draft is under
+`backend/datasets/local_collection/validator_v2_metadata`. Its 24 selected
+images are unassigned and share one capture group. Keep the full November 21
+purchase batch in one split, including later days and both phones. Unknown
+specimen identities can stay blank if the capture group is reviewed. Use
+separate reviewed groups for tuning and testing, and add unrelated-object
+negatives before training. Keep the known false accepts out of candidate training
+for regression checks.
+
+From `backend`, once the draft has complete reviewed splits:
+
+```powershell
+.venv/Scripts/python.exe -m ml.train_validator --four-class --metadata-dir datasets/local_collection/validator_v2_metadata --output-dir ml/candidates/validator-v2 --max-false-accept-rate 0
+```
+
+The four-class runtime returns `WHOLE_TILAPIA_CLOSE_UP_REQUIRED` for a confident
+whole-fish prediction. Only matching eye or gill predictions reach freshness.
+Candidate evaluation measures whole-fish prompts, whole fish that incorrectly
+reach freshness, and unsupported images that are accepted or prompted as
+whole Tilapia. This training mode does not use freshness labels or evaluate
+freshness accuracy. The existing three-class checkpoint stays compatible.

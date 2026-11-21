@@ -10,3 +10,6 @@ __pycache__/
 .codex-*/
 AGENTS.override.md
 AGENTS.md
+
+# datasets
+/backend/datasets/local_collection/

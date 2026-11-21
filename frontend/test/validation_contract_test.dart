@@ -12,6 +12,7 @@ void main() {
 
   for (final code in [
     'UNSUPPORTED_IMAGE',
+    'WHOLE_TILAPIA_CLOSE_UP_REQUIRED',
     'REGION_MISMATCH',
     'CONTENT_UNCERTAIN',
     'FRESHNESS_UNCERTAIN',

@@ -19,8 +19,9 @@ Features:
 import csv
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 from torch.utils.data import Dataset
+from .validator import VALIDATOR_V2_CLASSES
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,15 +37,18 @@ CLASS_MAPPINGS = {
         "Fresh": 0,
         "NonFresh": 1,
     },
+    "validator_v2": {label: index for index, label in enumerate(VALIDATOR_V2_CLASSES)},
 }
 
 MANIFEST_FILES = {
     "validator": "validator_labels.csv",
+    "validator_v2": "validator_labels.csv",
     "freshness": "freshness_labels.csv",
 }
 
 LABEL_FIELDS = {
     "validator": "anatomical_label",
+    "validator_v2": "anatomical_label",
     "freshness": "freshness_label",
 }
 
@@ -109,7 +113,7 @@ class SariwaBaSharedDataset(Dataset):
     ):
         if model_type not in CLASS_MAPPINGS:
             raise ValueError(
-                "model_type must be 'validator' or 'freshness'."
+                "model_type must be 'validator', 'validator_v2', or 'freshness'."
             )
 
         if split is not None and split not in VALID_SPLITS:
@@ -143,7 +147,7 @@ class SariwaBaSharedDataset(Dataset):
         # Model B: preserve existing records
         # --------------------------------------------------
 
-        if model_type == "validator":
+        if model_type in {"validator", "validator_v2"}:
             exclusions = load_validator_exclusions(
                 self.metadata_dir
             )
@@ -294,7 +298,7 @@ class SariwaBaSharedDataset(Dataset):
         image_path, label = self.samples[index]
 
         with Image.open(image_path) as source:
-            image = source.convert("RGB")
+            image = ImageOps.exif_transpose(source).convert("RGB")
 
         if self.transform is not None:
             image = self.transform(image)

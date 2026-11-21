@@ -15,6 +15,8 @@ VALIDATOR_PATH = Path(__file__).resolve().parent / "models" / "sariwaba_validato
 EXPERIMENTAL_PATH = VALIDATOR_PATH.with_name("sariwaba_validator_experimental_best.pth")
 EXPERIMENTAL_NOTICE = "Experimental validator demo. Region and freshness predictions are preliminary."
 VALIDATOR_CLASSES = ["eye", "gill", "unsupported"]
+VALIDATOR_V2_CLASSES = [*VALIDATOR_CLASSES, "whole_tilapia"]
+VALIDATOR_SCOPES = {3: "tilapia_eye_gill", 4: "tilapia_eye_gill_whole"}
 _BUNDLE = None
 
 
@@ -31,8 +33,9 @@ def get_validator_bundle(force_reload=False):
         return _BUNDLE
     try:
         checkpoint = torch.load(VALIDATOR_PATH, map_location=DEVICE, weights_only=True)
-        if (checkpoint["classes"] != VALIDATOR_CLASSES
-                or checkpoint["validation_scope"] != "tilapia_eye_gill"
+        classes = checkpoint["classes"]
+        if (classes not in (VALIDATOR_CLASSES, VALIDATOR_V2_CLASSES)
+                or checkpoint["validation_scope"] != VALIDATOR_SCOPES[len(classes)]
                 or checkpoint["threshold_source"] != "validation_split"):
             raise ValueError("Validator metadata does not match the supported-input contract.")
         threshold = float(checkpoint["acceptance_threshold"])
@@ -44,21 +47,28 @@ def get_validator_bundle(force_reload=False):
                 or test["unsupported_false_accept_rate"] is None
                 or not 0 <= test["unsupported_false_accept_rate"] <= evaluation["target_false_accept_rate"] < 1
                 or any(test["class_counts"].get(label, 0) < evaluation["min_eval_per_class"]
-                       for label in VALIDATOR_CLASSES)
+                       for label in classes)
                 or evaluation["min_eval_per_class"] < 1
                 or any(not 0 < rate <= 1 for rate in test["supported_correct_accept_rate"].values())
                 or set(test["supported_correct_accept_rate"]) != {"eye", "gill"}):
             raise ValueError("Validator failed its held-out acceptance policy.")
+        if classes == VALIDATOR_V2_CLASSES and (
+            not 0 < test["whole_tilapia_prompt_rate"] <= 1
+            or not 0 <= test["whole_tilapia_false_route_rate"] <= evaluation["target_false_accept_rate"]
+            or not 0 <= test["unsupported_whole_prompt_rate"] <= evaluation["target_false_accept_rate"]
+        ):
+            raise ValueError("Validator failed its whole-fish routing policy.")
         image_size = int(checkpoint["image_size"])
         if image_size != 224:
             raise ValueError("Unsupported validator preprocessing size.")
         net = models.mobilenet_v3_small(weights=None)
-        net.classifier[3] = nn.Linear(net.classifier[3].in_features, 3)
+        net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(classes))
         net.load_state_dict(checkpoint["model_state_dict"])
         net.to(DEVICE).eval()
         _BUNDLE = {
             "model": net, "transform": _build_eval_transform(image_size),
             "threshold": threshold, "model_version": checkpoint["model_version"],
+            "classes": classes,
         }
         return _BUNDLE
     except Exception as exc:
@@ -68,26 +78,29 @@ def get_validator_bundle(force_reload=False):
         ) from exc
 
 
-def decide_input(probabilities, region_type, threshold):
+def decide_input(probabilities, region_type, threshold, classes=VALIDATOR_CLASSES):
     """Shared by runtime, threshold selection, and held-out evaluation."""
     scores = [float(p) for p in probabilities]
-    if (len(scores) != 3 or any(not math.isfinite(p) or not 0 <= p <= 1 for p in scores)
+    if (len(scores) != len(classes) or any(not math.isfinite(p) or not 0 <= p <= 1 for p in scores)
             or abs(sum(scores) - 1) > 1e-4):
         raise ModelInferenceError("Invalid validator probabilities.")
-    index = max(range(3), key=scores.__getitem__)
+    index = max(range(len(classes)), key=scores.__getitem__)
     confidence = scores[index]
-    label = VALIDATOR_CLASSES[index]
+    label = classes[index]
     if label == "unsupported":
         raise InputRejectedError("UNSUPPORTED_IMAGE",
             "Please submit a clear close-up of a Tilapia eye or exposed gill.", confidence)
     if confidence < threshold:
         raise InputRejectedError("CONTENT_UNCERTAIN",
             "The image could not be verified as a supported Tilapia eye or gill. Try another photo.", confidence)
+    if label == "whole_tilapia":
+        raise InputRejectedError("WHOLE_TILAPIA_CLOSE_UP_REQUIRED",
+            "This appears to be a whole Tilapia. Take a close-up of its eye or exposed gill to assess freshness.", confidence)
     if label != region_type:
         raise InputRejectedError("REGION_MISMATCH",
             f"The image appears to show a {label}. Change the selected region or submit another image.", confidence)
     return {"region_verified": True, "species_verified": False,
-            "validation_scope": "tilapia_eye_gill", "validation_confidence": confidence}
+            "validation_scope": VALIDATOR_SCOPES[len(classes)], "validation_confidence": confidence}
 
 
 @lru_cache(maxsize=1)
@@ -125,7 +138,8 @@ def validate_image(image_source, region_type):
     except Exception as exc:
         raise ModelInferenceError("Supported-input validation failed.") from exc
     try:
-        result = decide_input(probabilities, region_type, bundle["threshold"])
+        result = decide_input(probabilities, region_type, bundle["threshold"],
+                              bundle.get("classes", VALIDATOR_CLASSES))
     except InputRejectedError as exc:
         if experimental:
             raise InputRejectedError(exc.code, f"Experimental demo: {exc}", exc.confidence) from exc
