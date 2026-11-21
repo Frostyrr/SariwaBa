@@ -181,7 +181,6 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     final source = widget.state.selectedImageBytes;
     final region = widget.state.selectedRegion;
     bool isCurrent() =>
-        mounted &&
         identical(source, widget.state.selectedImageBytes) &&
         region == widget.state.selectedRegion &&
         !widget.state.isClassifying;
@@ -189,7 +188,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
     setState(() => _findingEyes = true);
     try {
       final proposals = await widget.controller.findEyes();
-      if (!isCurrent()) return;
+      if (!mounted || !isCurrent()) return;
       if (proposals.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No eye crop found. Adjust the crop or take a close-up.')),
@@ -230,13 +229,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
           ],
         ),
       );
-      if (selected == null || !isCurrent()) return;
+      if (!mounted || selected == null || !isCurrent()) return;
       widget.controller.confirmCroppedRegion(
         selected.bytes,
         normalizedCropRect: selected.rect,
       );
     } catch (_) {
-      if (isCurrent()) {
+      if (mounted && isCurrent()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Eye detection is unavailable. You can still crop manually.')),
         );
