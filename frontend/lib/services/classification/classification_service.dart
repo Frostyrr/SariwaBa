@@ -179,6 +179,20 @@ class ClassificationServiceImpl implements ClassificationService {
     if (lower.endsWith('.heif')) {
       return DioMediaType('image', 'heif');
     }
+    if (bytes.length >= 12 &&
+        bytes[0] == 0x52 &&
+        bytes[1] == 0x49 &&
+        bytes[2] == 0x46 &&
+        bytes[3] == 0x46 &&
+        bytes[8] == 0x57 &&
+        bytes[9] == 0x45 &&
+        bytes[10] == 0x42 &&
+        bytes[11] == 0x50) {
+      return DioMediaType('image', 'webp');
+    }
+    if (lower.endsWith('.webp')) {
+      return DioMediaType('image', 'webp');
+    }
     if (lower.endsWith('.png')) {
       return DioMediaType('image', 'png');
     }
@@ -208,10 +222,20 @@ class ClassificationServiceImpl implements ClassificationService {
         bytes[5] == 0x74 &&
         bytes[6] == 0x79 &&
         bytes[7] == 0x70;
-    if (!isPng && !isJpeg && !isHeic) {
+    final isWebp =
+        bytes.length >= 12 &&
+        bytes[0] == 0x52 &&
+        bytes[1] == 0x49 &&
+        bytes[2] == 0x46 &&
+        bytes[3] == 0x46 &&
+        bytes[8] == 0x57 &&
+        bytes[9] == 0x45 &&
+        bytes[10] == 0x42 &&
+        bytes[11] == 0x50;
+    if (!isPng && !isJpeg && !isWebp && !isHeic) {
       throw const ClassificationApiException(
         code: 'UNSUPPORTED_IMAGE_TYPE',
-        message: 'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
+        message: 'Unsupported image format. Only JPG, JPEG, PNG, WebP, and HEIC images are allowed.',
       );
     }
     final mediaType = _detectMediaType(bytes, filename);

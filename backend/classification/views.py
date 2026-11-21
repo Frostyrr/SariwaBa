@@ -37,6 +37,7 @@ ALLOWED_CONTENT_TYPES = {
     "image/jpeg",
     "image/jpg",
     "image/png",
+    "image/webp",
     "image/heic",
     "image/heif",
     "image/heic-sequence",
@@ -44,7 +45,7 @@ ALLOWED_CONTENT_TYPES = {
     "application/octet-stream",
     "",
 }
-ALLOWED_DECODED_FORMATS = {"JPEG", "PNG", "HEIF", "HEIC"}
+ALLOWED_DECODED_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF", "HEIC"}
 ALLOWED_REGION_TYPES = {"eye", "gill"}
 
 PRELIMINARY_DISCLAIMER = (
@@ -142,7 +143,7 @@ def classify_fish(request):
             {
                 "error": {
                     "code": "UNSUPPORTED_IMAGE_TYPE",
-                    "message": "Only JPEG, PNG, and HEIC images are allowed.",
+                    "message": "Only JPEG, PNG, WebP, and HEIC images are allowed.",
                 }
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -166,7 +167,7 @@ def classify_fish(request):
                 {
                     "error": {
                         "code": "UNSUPPORTED_IMAGE_TYPE",
-                        "message": "Decoded image format is not supported. Only JPEG, PNG, and HEIC images are allowed.",
+                        "message": "Decoded image format is not supported. Only JPEG, PNG, WebP, and HEIC images are allowed.",
                     }
                 },
                 status=status.HTTP_400_BAD_REQUEST,

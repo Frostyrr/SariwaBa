@@ -231,12 +231,25 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     return heicBrands.any(headerAscii.contains);
   }
 
+  static bool isWebpHeader(Uint8List bytes) {
+    return bytes.length >= 12 &&
+        bytes[0] == 0x52 && // R
+        bytes[1] == 0x49 && // I
+        bytes[2] == 0x46 && // F
+        bytes[3] == 0x46 && // F
+        bytes[8] == 0x57 && // W
+        bytes[9] == 0x45 && // E
+        bytes[10] == 0x42 && // B
+        bytes[11] == 0x50; // P
+  }
+
   static bool isSupportedImageFormat(Uint8List bytes, String filename) {
     final lower = filename.trim().toLowerCase();
     final hasAllowedExtension =
         lower.endsWith('.jpg') ||
         lower.endsWith('.jpeg') ||
         lower.endsWith('.png') ||
+        lower.endsWith('.webp') ||
         lower.endsWith('.heic') ||
         lower.endsWith('.heif');
 
@@ -252,8 +265,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytes[1] == 0xD8 &&
         bytes[2] == 0xFF;
 
-    // Require a valid JPEG/PNG byte signature and (if an extension is present) a supported extension
-    if (!isPngHeader && !isJpegHeader && !isHeicHeader(bytes)) {
+    // Require a valid JPEG/PNG/WebP/HEIC byte signature and (if an extension is present) a supported extension
+    if (!isPngHeader && !isJpegHeader && !isWebpHeader(bytes) && !isHeicHeader(bytes)) {
       return false;
     }
     if (lower.contains('.') && !hasAllowedExtension) {
@@ -318,7 +331,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     if (!isSupportedImageFormat(bytes, filename)) {
       state = state.copyWith(
         isUploadingImage: false,
-        errorMessage: 'Unsupported image format. Only JPG, JPEG, PNG, and HEIC images are allowed.',
+        errorMessage: 'Unsupported image format. Only JPG, JPEG, PNG, WebP, and HEIC images are allowed.',
         errorCode: 'UNSUPPORTED_IMAGE_TYPE',
         isInputRejection: true,
         clearSuccess: true,
@@ -578,7 +591,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytesToSubmit[3] == 0x47;
     final submitFilename = state.isFullImageConfirmed
         ? baseName
-        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : (isHeicHeader(bytesToSubmit) ? 'heic' : 'jpg')}';
+        : 'tilapia_${region.apiValue}_crop.${isPng ? 'png' : (isWebpHeader(bytesToSubmit) ? 'webp' : (isHeicHeader(bytesToSubmit) ? 'heic' : 'jpg'))}';
 
     final requestId = ++_activeRequestId;
 
