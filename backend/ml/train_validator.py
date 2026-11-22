@@ -106,6 +106,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--metadata-dir", type=Path, default=METADATA_DIR)
     parser.add_argument("--four-class", action="store_true", help="Train using a separate whole-Tilapia manifest.")
+    parser.add_argument("--training-only", action="store_true",
+        help="Save a four-class local test checkpoint without calibration or evaluation.")
     parser.add_argument("--output-dir", type=Path, default=Path("ml/candidates/validator"))
     parser.add_argument("--epochs", type=int, default=15)
     parser.add_argument("--batch-size", type=int, default=32)
@@ -121,10 +123,15 @@ def main():
         parser.error("Output directory already exists. Use a new candidate directory.")
     if args.four_class and args.metadata_dir.resolve() == METADATA_DIR.resolve():
         parser.error("--four-class requires a separate --metadata-dir.")
+    if args.training_only and not args.four_class:
+        parser.error("--training-only requires --four-class.")
     classes = VALIDATOR_V2_CLASSES if args.four_class else VALIDATOR_CLASSES
     indices = range(len(classes))
     counts = audit_partitions(args.metadata_dir, allow_unknown_specimen=args.four_class)
-    for split in ("train", "val", "test"):
+    splits = ("train",) if args.training_only else ("train", "val", "test")
+    if args.training_only and (counts["val"] or counts["test"]):
+        parser.error("--training-only requires a training-only manifest.")
+    for split in splits:
         minimum = 1 if split == "train" else args.min_eval_per_class
         if any(counts[split][label] < minimum for label in classes):
             raise ValueError(f"{split} needs at least {minimum} reviewed images of every class; found {counts[split]}.")
@@ -140,7 +147,7 @@ def main():
         split: SariwaBaSharedDataset("validator_v2" if args.four_class else "validator", split=split,
             transform=training_transform if split == "train" else _build_eval_transform(224),
             metadata_dir=args.metadata_dir)
-        for split in ("train", "val", "test")
+        for split in splits
     }
     model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
     for parameter in model.features.parameters():
@@ -154,17 +161,39 @@ def main():
     for epoch in range(args.epochs):
         model.train()
         model.features.eval()  # Keep frozen backbone batch-normalization statistics fixed.
+        loss_total = 0.0
+        batches = 0
         for images, labels in DataLoader(datasets["train"], batch_size=args.batch_size, shuffle=True):
             optimizer.zero_grad()
             loss = criterion(model(images.to(DEVICE)), labels.to(DEVICE))
             loss.backward()
             optimizer.step()
+            if args.training_only:
+                loss_total += loss.detach().item()
+                batches += 1
+        if args.training_only:
+            print(f"Epoch {epoch+1}/{args.epochs}: training loss {loss_total / batches:.4f}", flush=True)
+            continue
         probabilities, targets = score(model, datasets["val"], args.batch_size)
         matrix = gate_metrics(probabilities, targets, 0.5, classes)["confusion_matrix"]
         macro_recall = sum(matrix[k][k] / sum(matrix[k]) for k in indices) / len(classes)
         print(f"Epoch {epoch+1}: validation macro recall {macro_recall:.4f}", flush=True)
         if macro_recall > best_score:
             best_score, best_state = macro_recall, copy.deepcopy(model.state_dict())
+    if args.training_only:
+        args.output_dir.mkdir(parents=True)
+        torch.save({
+            "model_state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
+            "classes": classes, "image_size": 224, "smoke_only": True,
+            "training": {
+                "epochs": args.epochs, "batch_size": args.batch_size,
+                "seed": args.seed, "class_counts": dict(counts["train"]),
+                "manifest_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                    for p in args.metadata_dir.glob("*.csv")},
+            },
+        }, args.output_dir / "validator-v2-training-only.pth")
+        print(f"Training-only candidate saved to {args.output_dir}. No threshold was calibrated.")
+        return
     model.load_state_dict(best_state)
     probabilities, targets = score(model, datasets["val"], args.batch_size)
     threshold, validation_metrics = select_threshold(probabilities, targets, args.max_false_accept_rate, classes)

@@ -1,10 +1,14 @@
+import argparse
+import csv
+import hashlib
 from pathlib import Path
 from collections import Counter, defaultdict
 import random
 
+from PIL import Image, ImageOps
 import torch
 from torch import nn, optim
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import ConcatDataset, DataLoader, Dataset, Subset
 from torchvision import datasets, models, transforms
 import re
 
@@ -17,11 +21,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "datasets" / "tilapia"
 
 MODEL_DIR = BASE_DIR / "ml" / "models"
-MODEL_DIR.mkdir(parents=True, exist_ok=True)
+ACTIVE_CHECKPOINT = MODEL_DIR / "sariwaba_mobilenetv3_best.pth"
+
+parser = argparse.ArgumentParser(description="Train a grouped Model B freshness classifier.")
+parser.add_argument("--local-manifest", type=Path, help="Local training supplements CSV.")
+parser.add_argument("--output", type=Path, help="Path to a new candidate checkpoint.")
+parser.add_argument("--epochs", type=int, default=15)
+args = parser.parse_args()
+if args.epochs < 1:
+    parser.error("--epochs must be positive.")
+if args.local_manifest and args.output is None:
+    parser.error("--local-manifest requires a separate --output checkpoint.")
+checkpoint_path = args.output.resolve() if args.output else ACTIVE_CHECKPOINT
+if args.output and (checkpoint_path.exists() or checkpoint_path == ACTIVE_CHECKPOINT.resolve()):
+    parser.error("--output must be a new path outside the active checkpoint.")
+checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
 IMAGE_SIZE = 224
 BATCH_SIZE = 16
-EPOCHS = 15
+EPOCHS = args.epochs
 LEARNING_RATE = 0.001
 
 RANDOM_SEED = 42
@@ -363,6 +381,60 @@ test_dataset = Subset(
 )
 
 
+class LocalFreshnessDataset(Dataset):
+    def __init__(self, samples, transform):
+        self.samples = samples
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        path, target = self.samples[index]
+        with Image.open(path) as source:
+            image = ImageOps.exif_transpose(source).convert("RGB")
+        return self.transform(image), target
+
+
+local_samples = []
+local_metadata = {}
+if args.local_manifest:
+    local_root = (BASE_DIR / "datasets" / "local_collection").resolve()
+    counts_by_region = Counter()
+    groups = set()
+    seen = set()
+    with args.local_manifest.open(newline="", encoding="utf-8-sig") as manifest:
+        for row in csv.DictReader(manifest):
+            image = (BASE_DIR / row["image_path"]).resolve()
+            region, label = row["region"], row["freshness_label"]
+            group, source = row["group_key"].strip(), row["label_source"].strip()
+            if (
+                not image.is_relative_to(local_root) or not image.is_file()
+                or image in seen or region not in {"eye", "gill"}
+                or label not in base_dataset.class_to_idx
+                or not group or not source or row["split"] != "train"
+            ):
+                parser.error(f"Invalid local training entry for {row['image_path']}.")
+            seen.add(image)
+            groups.add(group)
+            local_samples.append((image, base_dataset.class_to_idx[label]))
+            counts_by_region[(region, label, source)] += 1
+    if not local_samples:
+        parser.error("The local manifest contains no training photos.")
+    train_dataset = ConcatDataset([
+        train_dataset, LocalFreshnessDataset(local_samples, train_transform),
+    ])
+    local_metadata = {
+        "manifest_sha256": hashlib.sha256(args.local_manifest.read_bytes()).hexdigest(),
+        "groups": sorted(groups),
+        "counts": [
+            {"region": region, "label": label, "source": source, "count": count}
+            for (region, label, source), count in sorted(counts_by_region.items())
+        ],
+    }
+    print(f"Local training supplements: {local_metadata}", flush=True)
+
+
 train_loader = DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
@@ -390,6 +462,7 @@ train_targets = [
     base_dataset.samples[index][1]
     for index in train_indices
 ]
+train_targets.extend(target for _, target in local_samples)
 
 counts = Counter(train_targets)
 
@@ -636,14 +709,15 @@ for epoch in range(EPOCHS):
 
             "split_method":
                 "grouped_capture_split",
+            "local_training": local_metadata,
+            "best_epoch": epoch + 1,
         }
 
 
         torch.save(
             checkpoint,
 
-            MODEL_DIR /
-            "sariwaba_mobilenetv3_best.pth"
+            checkpoint_path,
         )
 
 
@@ -665,8 +739,7 @@ print("=" * 60)
 
 checkpoint = torch.load(
 
-    MODEL_DIR /
-    "sariwaba_mobilenetv3_best.pth",
+    checkpoint_path,
 
     map_location=DEVICE,
 
