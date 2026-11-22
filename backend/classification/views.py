@@ -32,6 +32,7 @@ from .serializers import ClassificationHistorySerializer
 
 
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+MAX_EYE_SOURCE_BYTES = 10 * 1024 * 1024
 MIN_IMAGE_DIMENSION = 32
 MAX_IMAGE_DIMENSION = 4096
 MAX_IMAGE_PIXELS = 16_777_216  # 4096 x 4096
@@ -61,8 +62,13 @@ PRELIMINARY_DISCLAIMER = (
 @parser_classes([MultiPartParser, FormParser])
 def eye_proposals(request):
     upload = request.FILES.get("image")
-    if upload is None or not 0 < upload.size <= MAX_FILE_SIZE_BYTES:
+    if upload is None or upload.size <= 0:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    if upload.size > MAX_EYE_SOURCE_BYTES:
+        return Response(
+            {"error": {"code": "IMAGE_TOO_LARGE", "message": "The original photo must be 10 MB or smaller."}},
+            status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+        )
 
     try:
         with Image.open(upload) as source:

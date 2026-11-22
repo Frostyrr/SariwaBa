@@ -275,7 +275,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
 
                       // Supporting Format and Constraint Metadata
                       Text(
-                        'JPG, JPEG, PNG, HEIC · Max 5 MB',
+                        'JPG, JPEG, PNG, HEIC · Max 10 MB',
                         style: TextStyle(
                           fontFamily: TimberTypography.primarySansFamily,
                           fontSize: 12,
