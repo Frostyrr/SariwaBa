@@ -4,7 +4,10 @@ from functools import lru_cache
 from pathlib import Path
 
 import torch
-from django.conf import settings
+try:
+    from django.conf import settings
+except ImportError:
+    settings = None
 from PIL import Image, ImageOps
 from torch import nn
 from torchvision import models

@@ -298,6 +298,7 @@ class SariwaBaSharedDataset(Dataset):
         image_path, label = self.samples[index]
 
         with Image.open(image_path) as source:
+            source.draft("RGB", (512, 512))
             image = ImageOps.exif_transpose(source).convert("RGB")
 
         if self.transform is not None:
