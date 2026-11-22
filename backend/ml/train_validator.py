@@ -73,12 +73,13 @@ def gate_metrics(probabilities, targets, threshold, classes=VALIDATOR_CLASSES):
     return metrics
 
 
-def select_threshold(probabilities, targets, max_false_accept_rate, classes=VALIDATOR_CLASSES):
+def select_threshold(probabilities, targets, max_false_accept_rate, classes=VALIDATOR_CLASSES, min_threshold=0.5):
     # Includes boundaries just above observed scores, so a false acceptance can be excluded.
-    candidates = {0.5, 1.0}
+    floor = max(0.5, float(min_threshold))
+    candidates = {floor, 1.0}
     for scores in probabilities:
         value = max(scores)
-        if value >= 0.5:
+        if value >= floor:
             candidates.update([value, min(1.0, math.nextafter(value, 1.0))])
     best = None
     for threshold in sorted(candidates):
@@ -113,17 +114,20 @@ def main():
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--min-eval-per-class", type=int, default=20)
     parser.add_argument("--max-false-accept-rate", type=float, default=0.05)
+    parser.add_argument("--min-threshold", type=float, default=0.5,
+        help="Minimum acceptance threshold floor considered during validation calibration.")
     parser.add_argument("--freshness-threshold", type=float, default=0.8)
     parser.add_argument("--unfreeze-from", type=int, default=4,
         help="First MobileNetV3 features block index to unfreeze (0=all, -1=freeze all).")
     parser.add_argument("--backbone-lr", type=float, default=2e-4)
     parser.add_argument("--head-lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--label-smoothing", type=float, default=0.05)
+    parser.add_argument("--label-smoothing", type=float, default=0.02)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     if (args.epochs < 1 or args.batch_size < 1 or args.min_eval_per_class < 1
             or not 0 <= args.max_false_accept_rate < 1 or not 0.5 <= args.freshness_threshold <= 1
+            or not 0.5 <= args.min_threshold <= 1
             or args.backbone_lr <= 0 or args.head_lr <= 0 or not 0 <= args.label_smoothing < 0.5):
         parser.error("Invalid training/evaluation options.")
     if args.output_dir.exists():
@@ -147,7 +151,7 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
     training_transform = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.75, 1.0), ratio=(0.8, 1.25)),
+        transforms.RandomResizedCrop(224, scale=(0.88, 1.0), ratio=(0.85, 1.18)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(20),
         transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25, hue=0.04),
@@ -186,7 +190,6 @@ def main():
     best_key, best_state, best_epoch = None, None, 0
     train_loader = DataLoader(
         datasets["train"], batch_size=args.batch_size, shuffle=True,
-        pin_memory=DEVICE.type == "cuda",
     )
     for epoch in range(args.epochs):
         model.train()
@@ -196,7 +199,7 @@ def main():
         batches = 0
         for images, labels in train_loader:
             optimizer.zero_grad(set_to_none=True)
-            loss = criterion(model(images.to(DEVICE, non_blocking=True)), labels.to(DEVICE, non_blocking=True))
+            loss = criterion(model(images.to(DEVICE)), labels.to(DEVICE))
             loss.backward()
             optimizer.step()
             loss_total += loss.detach().item()
@@ -240,7 +243,10 @@ def main():
         return
     model.load_state_dict(best_state)
     probabilities, targets = score(model, datasets["val"], args.batch_size)
-    threshold, validation_metrics = select_threshold(probabilities, targets, args.max_false_accept_rate, classes)
+    threshold, validation_metrics = select_threshold(
+        probabilities, targets, args.max_false_accept_rate, classes,
+        min_threshold=args.min_threshold,
+    )
     test_probabilities, test_targets = score(model, datasets["test"], args.batch_size)
     test_metrics = gate_metrics(test_probabilities, test_targets, threshold, classes)
     # End-to-end freshness evaluation on supported test inputs accepted with the true region.

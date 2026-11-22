@@ -501,21 +501,18 @@ train_loader = DataLoader(
     train_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    pin_memory=DEVICE.type == "cuda",
 )
 
 val_loader = DataLoader(
     val_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
-    pin_memory=DEVICE.type == "cuda",
 )
 
 test_loader = DataLoader(
     test_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
-    pin_memory=DEVICE.type == "cuda",
 )
 
 
@@ -692,8 +689,8 @@ for epoch in range(EPOCHS):
 
     for images, labels in train_loader:
 
-        images = images.to(DEVICE, non_blocking=True)
-        labels = labels.to(DEVICE, non_blocking=True)
+        images = images.to(DEVICE)
+        labels = labels.to(DEVICE)
 
         optimizer.zero_grad(set_to_none=True)
 
@@ -748,8 +745,8 @@ for epoch in range(EPOCHS):
 
         for images, labels in val_loader:
 
-            images = images.to(DEVICE, non_blocking=True)
-            labels = labels.to(DEVICE, non_blocking=True)
+            images = images.to(DEVICE)
+            labels = labels.to(DEVICE)
 
             outputs = model(images)
             v_loss = eval_criterion(outputs, labels)
