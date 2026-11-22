@@ -66,12 +66,12 @@ another session for final evaluation.
 
 ### Scanner integration
 
-Install Ultralytics in the Django runtime and set `EYE_DETECTOR_CHECKPOINT`
-to the absolute path to a trusted, evaluated fish/eye checkpoint
-(`0 = fish`, `1 = eye`). Restart Django after changing the checkpoint.
-Build or run Flutter with `--dart-define=ENABLE_EYE_PROPOSALS=true` to
-request eye proposals automatically on new uploads in Eye mode. The Django
-detector runs on CPU. Gill mode uses the manual crop editor.
+The normal app uses the Day 2 YOLOv8n checkpoint at
+`backend/ml/models/sariwaba_eye_detector.pt` (`0 = fish`, `1 = eye`).
+Django loads it on CPU with Ultralytics. Set `EYE_DETECTOR_CHECKPOINT` only
+when deliberately testing different weights. Restart Django after changing
+the checkpoint. Flutter requests eye proposals on new uploads in Eye mode
+by default. Gill mode uses the manual crop editor.
 
 The scanner sends the original photo to `POST /api/v1/classify/eye-proposals/`.
 Model A checks it first. An Eye close-up goes straight to the scanner preview,
