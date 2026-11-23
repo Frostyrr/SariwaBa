@@ -43,5 +43,3 @@ This guide describes the local November 23 configuration. It uses the earlier fo
 - [Model B confidence calculation](../../../backend/ml/predict.py)
 - [YOLO crop proposal code](../../../backend/ml/eye_proposals.py)
 - [API response and scan flow](../../../backend/classification/views.py)
-
-- [Earlier training and evaluation sessions](../training/historical-session-log.md)
