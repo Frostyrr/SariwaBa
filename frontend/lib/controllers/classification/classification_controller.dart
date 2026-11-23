@@ -190,6 +190,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   int _activeRequestId = 0;
 
   static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+  static const int maxSourceFileSizeBytes = 10 * 1024 * 1024;
 
   ClassificationController(
     this._service, {
@@ -322,10 +323,10 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       return;
     }
 
-    if (bytes.lengthInBytes > maxFileSizeBytes) {
+    if (bytes.lengthInBytes > maxSourceFileSizeBytes) {
       state = state.copyWith(
         isUploadingImage: false,
-        errorMessage: 'Image size exceeds 5 MB. Please select a smaller photo.',
+        errorMessage: 'The original photo must be 10 MB or smaller.',
         errorCode: 'IMAGE_TOO_LARGE',
         isInputRejection: true,
         clearSuccess: true,
@@ -390,15 +391,27 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   }
 
   bool get canFindEyes =>
-      const bool.fromEnvironment('ENABLE_EYE_PROPOSALS') &&
+      const bool.fromEnvironment('ENABLE_EYE_PROPOSALS', defaultValue: true) &&
       _service is EyeProposalService;
 
-  Future<List<EyeCropProposal>> findEyes() {
+  Future<EyeProposalResult> findEyes() {
     final bytes = state.selectedImageBytes;
-    if (!canFindEyes || bytes == null) return Future.value([]);
+    if (!canFindEyes || bytes == null) {
+      return Future.value((alreadyEye: false, proposals: <EyeCropProposal>[]));
+    }
     return (_service as EyeProposalService).findEyes(
       bytes,
       state.selectedImageName ?? 'tilapia.jpg',
+    );
+  }
+
+  void showEyeProposalRejection(ClassificationApiException error) {
+    state = state.copyWith(
+      errorCode: error.code,
+      errorMessage: error.actionableMessage,
+      isInputRejection: error.isInputRejection,
+      clearResult: true,
+      clearSuccess: true,
     );
   }
 
@@ -492,6 +505,16 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       state = state.copyWith(
         errorMessage: 'Please select an anatomical region (Eye or Gill) before confirming the image.',
         errorCode: 'INVALID_REGION_TYPE',
+        isInputRejection: true,
+        clearSuccess: true,
+      );
+      return;
+    }
+
+    if (bytes.lengthInBytes > maxFileSizeBytes) {
+      state = state.copyWith(
+        errorCode: 'IMAGE_TOO_LARGE',
+        errorMessage: 'Use Edit Crop to make the close-up 5 MB or smaller.',
         isInputRejection: true,
         clearSuccess: true,
       );

@@ -215,16 +215,20 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'BFAR PNS 67:2008 Compliance',
-                          style: TextStyle(
-                            letterSpacing: -0.25,
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: SariwaColors.colorMutedInk,
+                        Expanded(
+                          child: Text(
+                            'BFAR PNS 67:2008 Compliance',
+                            style: TextStyle(
+                              letterSpacing: -0.25,
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: SariwaColors.colorMutedInk,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 12),
                         ElevatedButton(
                           onPressed: () => Navigator.of(context).pop(),
                           style: ElevatedButton.styleFrom(
@@ -397,14 +401,17 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        letterSpacing: -0.25,
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: color,
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          letterSpacing: -0.25,
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

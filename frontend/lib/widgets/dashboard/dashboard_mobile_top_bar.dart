@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../constants/theme/app_colors.dart';
@@ -60,20 +61,17 @@ class DashboardMobileTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.86),
-            border: Border(
-              bottom: BorderSide(
-                color: SariwaColors.borderLightTeal.withValues(alpha: 0.8),
-                width: 1.0,
-              ),
-            ),
+    final bar = Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: kIsWeb ? 0.96 : 0.86),
+        border: Border(
+          bottom: BorderSide(
+            color: SariwaColors.borderLightTeal.withValues(alpha: 0.8),
+            width: 1.0,
           ),
-          child: SafeArea(
+        ),
+      ),
+      child: SafeArea(
             bottom: false,
             child: Padding(
               padding: EdgeInsets.fromLTRB(
@@ -266,7 +264,14 @@ class DashboardMobileTopBar extends StatelessWidget {
               ),
             ),
           ),
-        ),
+        );
+
+    if (kIsWeb) return bar;
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: bar,
       ),
     );
   }

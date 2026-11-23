@@ -73,12 +73,13 @@ def gate_metrics(probabilities, targets, threshold, classes=VALIDATOR_CLASSES):
     return metrics
 
 
-def select_threshold(probabilities, targets, max_false_accept_rate, classes=VALIDATOR_CLASSES):
+def select_threshold(probabilities, targets, max_false_accept_rate, classes=VALIDATOR_CLASSES, min_threshold=0.5):
     # Includes boundaries just above observed scores, so a false acceptance can be excluded.
-    candidates = {0.5, 1.0}
+    floor = max(0.5, float(min_threshold))
+    candidates = {floor, 1.0}
     for scores in probabilities:
         value = max(scores)
-        if value >= 0.5:
+        if value >= floor:
             candidates.update([value, min(1.0, math.nextafter(value, 1.0))])
     best = None
     for threshold in sorted(candidates):
@@ -106,68 +107,146 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--metadata-dir", type=Path, default=METADATA_DIR)
     parser.add_argument("--four-class", action="store_true", help="Train using a separate whole-Tilapia manifest.")
+    parser.add_argument("--training-only", action="store_true",
+        help="Save a four-class local test checkpoint without calibration or evaluation.")
     parser.add_argument("--output-dir", type=Path, default=Path("ml/candidates/validator"))
-    parser.add_argument("--epochs", type=int, default=15)
+    parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--min-eval-per-class", type=int, default=20)
     parser.add_argument("--max-false-accept-rate", type=float, default=0.05)
+    parser.add_argument("--min-threshold", type=float, default=0.5,
+        help="Minimum acceptance threshold floor considered during validation calibration.")
     parser.add_argument("--freshness-threshold", type=float, default=0.8)
+    parser.add_argument("--unfreeze-from", type=int, default=4,
+        help="First MobileNetV3 features block index to unfreeze (0=all, -1=freeze all).")
+    parser.add_argument("--backbone-lr", type=float, default=2e-4)
+    parser.add_argument("--head-lr", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--label-smoothing", type=float, default=0.02)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     if (args.epochs < 1 or args.batch_size < 1 or args.min_eval_per_class < 1
-            or not 0 <= args.max_false_accept_rate < 1 or not 0.5 <= args.freshness_threshold <= 1):
+            or not 0 <= args.max_false_accept_rate < 1 or not 0.5 <= args.freshness_threshold <= 1
+            or not 0.5 <= args.min_threshold <= 1
+            or args.backbone_lr <= 0 or args.head_lr <= 0 or not 0 <= args.label_smoothing < 0.5):
         parser.error("Invalid training/evaluation options.")
     if args.output_dir.exists():
         parser.error("Output directory already exists. Use a new candidate directory.")
     if args.four_class and args.metadata_dir.resolve() == METADATA_DIR.resolve():
         parser.error("--four-class requires a separate --metadata-dir.")
+    if args.training_only and not args.four_class:
+        parser.error("--training-only requires --four-class.")
     classes = VALIDATOR_V2_CLASSES if args.four_class else VALIDATOR_CLASSES
     indices = range(len(classes))
     counts = audit_partitions(args.metadata_dir, allow_unknown_specimen=args.four_class)
-    for split in ("train", "val", "test"):
+    splits = ("train",) if args.training_only else ("train", "val", "test")
+    if args.training_only and (counts["val"] or counts["test"]):
+        parser.error("--training-only requires a training-only manifest.")
+    for split in splits:
         minimum = 1 if split == "train" else args.min_eval_per_class
         if any(counts[split][label] < minimum for label in classes):
             raise ValueError(f"{split} needs at least {minimum} reviewed images of every class; found {counts[split]}.")
     random.seed(args.seed)
     torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
     training_transform = transforms.Compose([
-        transforms.Resize((224, 224)), transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(10),
-        transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15),
-        transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        transforms.RandomResizedCrop(224, scale=(0.88, 1.0), ratio=(0.85, 1.18)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(20),
+        transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25, hue=0.04),
+        transforms.RandomApply([transforms.GaussianBlur(kernel_size=3)], p=0.15),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ])
     datasets = {
         split: SariwaBaSharedDataset("validator_v2" if args.four_class else "validator", split=split,
             transform=training_transform if split == "train" else _build_eval_transform(224),
             metadata_dir=args.metadata_dir)
-        for split in ("train", "val", "test")
+        for split in splits
     }
     model = models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.DEFAULT)
-    for parameter in model.features.parameters():
-        parameter.requires_grad = False
+    num_blocks = len(model.features)
+    freeze_limit = num_blocks if args.unfreeze_from < 0 else min(args.unfreeze_from, num_blocks)
+    for idx, block in enumerate(model.features):
+        trainable = idx >= freeze_limit
+        for parameter in block.parameters():
+            parameter.requires_grad = trainable
     model.classifier[3] = nn.Linear(model.classifier[3].in_features, len(classes))
     model.to(DEVICE)
-    optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.001)
-    weights = torch.tensor([1 / counts["train"][label] for label in classes], device=DEVICE)
-    criterion = nn.CrossEntropyLoss(weight=weights)
-    best_score, best_state = -1, None
+    backbone_params = [p for p in model.features.parameters() if p.requires_grad]
+    param_groups = [{"params": list(model.classifier.parameters()), "lr": args.head_lr}]
+    if backbone_params:
+        param_groups.append({"params": backbone_params, "lr": args.backbone_lr})
+    optimizer = torch.optim.AdamW(param_groups, weight_decay=args.weight_decay)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
+    total_train = sum(counts["train"][label] for label in classes)
+    raw_weights = [math.sqrt(total_train / counts["train"][label]) for label in classes]
+    mean_w = sum(raw_weights) / len(raw_weights)
+    weights = torch.tensor([w / mean_w for w in raw_weights], dtype=torch.float32, device=DEVICE)
+    criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=args.label_smoothing)
+    eval_criterion = nn.CrossEntropyLoss(weight=weights)
+    print(f"Device: {DEVICE} | Unfreeze from block: {freeze_limit}/{num_blocks} | Class weights: {[round(w, 3) for w in weights.tolist()]}", flush=True)
+    best_key, best_state, best_epoch = None, None, 0
+    train_loader = DataLoader(
+        datasets["train"], batch_size=args.batch_size, shuffle=True,
+    )
     for epoch in range(args.epochs):
         model.train()
-        model.features.eval()  # Keep frozen backbone batch-normalization statistics fixed.
-        for images, labels in DataLoader(datasets["train"], batch_size=args.batch_size, shuffle=True):
-            optimizer.zero_grad()
+        for idx in range(freeze_limit):
+            model.features[idx].eval()  # Keep frozen backbone BN statistics fixed.
+        loss_total = 0.0
+        batches = 0
+        for images, labels in train_loader:
+            optimizer.zero_grad(set_to_none=True)
             loss = criterion(model(images.to(DEVICE)), labels.to(DEVICE))
             loss.backward()
             optimizer.step()
+            loss_total += loss.detach().item()
+            batches += 1
+        scheduler.step()
+        train_loss = loss_total / max(1, batches)
+        if args.training_only:
+            print(f"Epoch {epoch+1}/{args.epochs}: training loss {train_loss:.4f}", flush=True)
+            continue
         probabilities, targets = score(model, datasets["val"], args.batch_size)
         matrix = gate_metrics(probabilities, targets, 0.5, classes)["confusion_matrix"]
-        macro_recall = sum(matrix[k][k] / sum(matrix[k]) for k in indices) / len(classes)
-        print(f"Epoch {epoch+1}: validation macro recall {macro_recall:.4f}", flush=True)
-        if macro_recall > best_score:
-            best_score, best_state = macro_recall, copy.deepcopy(model.state_dict())
+        recalls = [matrix[k][k] / max(1, sum(matrix[k])) for k in indices]
+        precisions = [matrix[k][k] / max(1, sum(matrix[r][k] for r in indices)) for k in indices]
+        f1s = [2 * p * r / (p + r) if (p + r) > 0 else 0.0 for p, r in zip(precisions, recalls)]
+        macro_recall = sum(recalls) / len(classes)
+        macro_f1 = sum(f1s) / len(classes)
+        with torch.inference_mode():
+            val_loss = eval_criterion(
+                torch.tensor([[math.log(max(p, 1e-7)) for p in row] for row in probabilities], device=DEVICE),
+                torch.tensor(targets, device=DEVICE),
+            ).item()
+        print(f"Epoch {epoch+1:02d}/{args.epochs}: train_loss={train_loss:.4f} | val_loss={val_loss:.4f} | val_macro_f1={macro_f1:.4f} | val_macro_recall={macro_recall:.4f}", flush=True)
+        key = (round(macro_f1, 6), round(macro_recall, 6), -val_loss)
+        if best_key is None or key > best_key:
+            best_key = key
+            best_epoch = epoch + 1
+            best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+    if args.training_only:
+        args.output_dir.mkdir(parents=True)
+        torch.save({
+            "model_state_dict": {k: v.cpu() for k, v in model.state_dict().items()},
+            "classes": classes, "image_size": 224, "smoke_only": True,
+            "training": {
+                "epochs": args.epochs, "batch_size": args.batch_size,
+                "seed": args.seed, "class_counts": dict(counts["train"]),
+                "manifest_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                    for p in args.metadata_dir.glob("*.csv")},
+            },
+        }, args.output_dir / "validator-v2-training-only.pth")
+        print(f"Training-only candidate saved to {args.output_dir}. No threshold was calibrated.")
+        return
     model.load_state_dict(best_state)
     probabilities, targets = score(model, datasets["val"], args.batch_size)
-    threshold, validation_metrics = select_threshold(probabilities, targets, args.max_false_accept_rate, classes)
+    threshold, validation_metrics = select_threshold(
+        probabilities, targets, args.max_false_accept_rate, classes,
+        min_threshold=args.min_threshold,
+    )
     test_probabilities, test_targets = score(model, datasets["test"], args.batch_size)
     test_metrics = gate_metrics(test_probabilities, test_targets, threshold, classes)
     # End-to-end freshness evaluation on supported test inputs accepted with the true region.

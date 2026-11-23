@@ -56,5 +56,6 @@ torch==2.14.1
 torchvision==0.29.1
 typing_extensions==4.16.0
 tzdata==2026.3
+ultralytics==8.4.216
 uritemplate==4.2.0
 urllib3==2.8.0

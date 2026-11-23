@@ -187,8 +187,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
     setState(() => _findingEyes = true);
     try {
-      final proposals = await widget.controller.findEyes();
+      final result = await widget.controller.findEyes();
       if (!mounted || !isCurrent()) return;
+      if (result.alreadyEye) {
+        await _handleConfirmFullCloseUp(classifyImmediately: false);
+        return;
+      }
+      final proposals = result.proposals;
       if (proposals.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No eye crop found. Adjust the crop or take a close-up.')),
@@ -234,6 +239,11 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
         selected.bytes,
         normalizedCropRect: selected.rect,
       );
+      await _completeConfirmation(classifyImmediately: false);
+    } on ClassificationApiException catch (error) {
+      if (mounted && isCurrent()) {
+        widget.controller.showEyeProposalRejection(error);
+      }
     } catch (_) {
       if (mounted && isCurrent()) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1367,6 +1377,14 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
               ),
               child: Column(
                 children: [
+                  if (widget.isModal && _showFindEye)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _findEyeButton(),
+                      ),
+                    ),
                   // Framing Mode Pill Switch: Frame Region vs Full Close-Up
                   Container(
                     padding: const EdgeInsets.all(3),
@@ -1959,10 +1977,13 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
                   height: 48,
                   child: ElevatedButton.icon(
                     key: const Key('modal_result_done_button'),
-                    onPressed: widget.onCloseModal,
-                    icon: const Icon(CupertinoIcons.checkmark_alt, size: 16),
+                    onPressed: () {
+                      controller.clearSelection();
+                      widget.onCloseModal?.call();
+                    },
+                    icon: const Icon(CupertinoIcons.camera_viewfinder, size: 16),
                     label: const Text(
-                      'Done',
+                      'Scan Another',
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,

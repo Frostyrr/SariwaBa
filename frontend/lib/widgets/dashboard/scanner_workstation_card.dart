@@ -314,6 +314,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         return;
       }
       if (!state.isCropConfirmed) {
+        if (controller.canFindEyes && state.selectedRegion?.apiValue == 'eye') {
+          widget.onOpenCropModal();
+          return;
+        }
         controller.confirmFullImageAsCloseUp();
       }
       await controller.classify();

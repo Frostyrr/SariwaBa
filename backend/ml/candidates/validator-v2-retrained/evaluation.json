@@ -1,0 +1,109 @@
+{
+  "validation": {
+    "confusion_matrix": [
+      [
+        81,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        64,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        59,
+        3
+      ],
+      [
+        0,
+        0,
+        1,
+        42
+      ]
+    ],
+    "class_counts": {
+      "eye": 81,
+      "gill": 64,
+      "unsupported": 62,
+      "whole_tilapia": 43
+    },
+    "unsupported_false_accept_rate": 0.0,
+    "supported_correct_accept_rate": {
+      "eye": 0.9382716049382716,
+      "gill": 1.0
+    },
+    "supported_rejection_rate": {
+      "eye": 0.06172839506172845,
+      "gill": 0.0
+    },
+    "supported_wrong_region_accept_count": 0,
+    "whole_tilapia_prompt_rate": 0.8604651162790697,
+    "whole_tilapia_false_route_rate": 0.0,
+    "unsupported_whole_prompt_rate": 0.03225806451612903
+  },
+  "test": {
+    "confusion_matrix": [
+      [
+        98,
+        0,
+        4,
+        1
+      ],
+      [
+        0,
+        66,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        59,
+        3
+      ],
+      [
+        12,
+        1,
+        1,
+        34
+      ]
+    ],
+    "class_counts": {
+      "eye": 103,
+      "gill": 66,
+      "unsupported": 62,
+      "whole_tilapia": 48
+    },
+    "unsupported_false_accept_rate": 0.0,
+    "supported_correct_accept_rate": {
+      "eye": 0.8543689320388349,
+      "gill": 1.0
+    },
+    "supported_rejection_rate": {
+      "eye": 0.1456310679611651,
+      "gill": 0.0
+    },
+    "supported_wrong_region_accept_count": 0,
+    "whole_tilapia_prompt_rate": 0.375,
+    "whole_tilapia_false_route_rate": 0.041666666666666664,
+    "unsupported_whole_prompt_rate": 0.0
+  },
+  "end_to_end_test": {},
+  "freshness_threshold": 0.8,
+  "acceptance_threshold": 0.85,
+  "target_false_accept_rate": 0.05,
+  "manifest_sha256": {
+    "splits.csv": "0458ffd67bcdd0e7114488a6572ee211b9ad07828ffc2f25d1eae146075fa757",
+    "validator_labels.csv": "f7a51d94ddfd775b5034c8cdd0a5c6c2f3f247af77bbc9dc356427722707c6f3"
+  },
+  "seed": 42,
+  "min_eval_per_class": 20,
+  "freshness_checkpoint_sha256": null,
+  "end_to_end_status": "not_evaluated_no_freshness_ground_truth",
+  "limitations": "Validator uses reviewed held-out partitions. Existing freshness checkpoint training membership is unknown, so its end-to-end scores are exploratory, not independent held-out performance. No independent species or food-safety verification. Review negative-category diversity and specimen provenance before deployment."
+}

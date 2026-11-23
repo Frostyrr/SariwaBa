@@ -14,6 +14,7 @@ class DetectorUnavailable(Exception):
 
 
 _inference_lock = Lock()
+DEFAULT_CHECKPOINT = Path(__file__).resolve().parent / "models" / "sariwaba_eye_detector.pt"
 
 
 @lru_cache(maxsize=1)
@@ -27,13 +28,14 @@ def _load_detector(checkpoint):
 
 
 def propose_eye_crops(image):
-    checkpoint = os.environ.get("EYE_DETECTOR_CHECKPOINT")
-    if not checkpoint or not Path(checkpoint).is_file():
+    override = os.environ.get("EYE_DETECTOR_CHECKPOINT")
+    checkpoint = Path(override) if override else DEFAULT_CHECKPOINT
+    if not checkpoint.is_file():
         raise DetectorUnavailable
 
     try:
         with _inference_lock:
-            model = _load_detector(str(Path(checkpoint).resolve()))
+            model = _load_detector(str(checkpoint.resolve()))
             result = model.predict(
                 image, device="cpu", imgsz=640, conf=0.25, classes=[1],
                 max_det=8, verbose=False,
@@ -48,4 +50,7 @@ def propose_eye_crops(image):
             continue
         if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
             continue
-        yield padded_crop(coordinates, *image.size)
+        yield padded_crop(coordinates, *image.size), (
+            (left + right) / (2 * image.width),
+            (top + bottom) / (2 * image.height),
+        )
