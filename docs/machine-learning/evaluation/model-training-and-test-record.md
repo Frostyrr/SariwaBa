@@ -53,6 +53,6 @@ All 51 backend classification tests passed before the eye finder switch. The new
 
 ## Project records
 
-- [Day 3 training details](tilapia-validation-pipeline.md#day-3-training-and-test-results-on-23-november-2026)
+- [Day 3 training details](../methods/tilapia-validation-pipeline.md#day-3-training-and-test-results-on-23-november-2026)
 - The local run folder at `backend/datasets/local_collection/training_runs/` contains the Day 3 Model A evaluation, Model B comparison, and both new-batch test records.
 - The local YOLO run at `backend/datasets/local_collection/yolo/batch_2026-11-21/day03_detector_2026-11-23/` contains the epoch results, previous model backup, and comparison.

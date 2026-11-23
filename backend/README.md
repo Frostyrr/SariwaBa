@@ -21,7 +21,7 @@ Mao ni ang atong working environment para sa backend.
 
 # Supported-input validation
 
-See [the Tilapia validation pipeline guide](../docs/tilapia-validation-pipeline.md)
+See [the Tilapia validation pipeline guide](../docs/machine-learning/methods/tilapia-validation-pipeline.md)
 for the mandatory validator, migration, dataset review, training, and activation.
 Until a trained validator checkpoint is installed, classification returns 503.
 
