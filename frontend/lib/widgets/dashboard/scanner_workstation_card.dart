@@ -266,19 +266,37 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             controller.selectEyeProposal(i);
                           },
                         ),
-                    // Top-right Close (×) button to clear/replace photo
+                    // Top-right Crop + Close (×) overlay controls
                     Positioned(
                       top: 12,
                       right: 12,
-                      child: _buildCarouselArrowButton(
-                        icon: CupertinoIcons.xmark,
-                        tooltip: 'Remove photo',
-                        onTap: state.isClassifying
-                            ? () {}
-                            : () {
-                                HapticFeedback.selectionClick();
-                                controller.clearSelection();
-                              },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildCarouselArrowButton(
+                            key: const Key('scanner_adjust_crop_button'),
+                            icon: CupertinoIcons.crop,
+                            tooltip: 'Adjust crop',
+                            onTap: state.isClassifying
+                                ? () {}
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    controller.editCrop();
+                                    widget.onOpenCropModal();
+                                  },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildCarouselArrowButton(
+                            icon: CupertinoIcons.xmark,
+                            tooltip: 'Remove photo',
+                            onTap: state.isClassifying
+                                ? () {}
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    controller.clearSelection();
+                                  },
+                          ),
+                        ],
                       ),
                     ),
                     if (state.eyeProposals.length > 1) ...[
@@ -388,23 +406,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     : controller.detectEyesForCurrentImage,
               ),
             ],
-            _buildToolbarIconButton(
-              key: const Key('scanner_adjust_crop_button'),
-              tooltip: 'Adjust crop',
-              icon: CupertinoIcons.crop,
-              onTap: state.isClassifying
-                  ? null
-                  : () {
-                      controller.editCrop();
-                      widget.onOpenCropModal();
-                    },
-            ),
-            _buildToolbarIconButton(
-              tooltip: 'Replace photo',
-              icon: CupertinoIcons.photo,
-              iconColor: SariwaColors.textSecondaryDark,
-              onTap: state.isClassifying ? null : controller.clearSelection,
-            ),
           ],
         ),
         const SizedBox(height: 14),
@@ -573,6 +574,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
   }
 
   Widget _buildCarouselArrowButton({
+    Key? key,
     required IconData icon,
     required String tooltip,
     required VoidCallback onTap,
@@ -583,6 +585,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         color: const Color(0xB80A1926),
         shape: const CircleBorder(),
         child: InkWell(
+          key: key,
           onTap: onTap,
           customBorder: const CircleBorder(),
           child: Container(

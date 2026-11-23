@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
+import '../../../constants/config/app_config.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../utils/csv_export.dart';
@@ -279,17 +280,22 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         height: 42,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.75),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.90),
+            color: SariwaColors.borderLightTeal,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: SariwaColors.brandPrimary.withValues(alpha: 0.04),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -354,17 +360,22 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         height: 42,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.75),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.90),
+            color: SariwaColors.borderLightTeal,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: SariwaColors.brandPrimary.withValues(alpha: 0.04),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -411,17 +422,22 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         height: 42,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.75),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.90),
+            color: SariwaColors.borderLightTeal,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: SariwaColors.brandPrimary.withValues(alpha: 0.04),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -468,17 +484,22 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         height: 42,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.75),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.90),
+            color: SariwaColors.borderLightTeal,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: SariwaColors.brandPrimary.withValues(alpha: 0.04),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -1068,6 +1089,9 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      _buildScanCropThumbnail(scan),
+                      const SizedBox(width: 10),
                       Expanded(
                         flex: 3,
                         child: Column(
@@ -1270,6 +1294,8 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                         ),
                       ),
                       const SizedBox(width: 4),
+                      _buildScanCropThumbnail(scan),
+                      const SizedBox(width: 8),
                       _buildReferenceStatusPill(scan.isFresh),
                     ],
                   ),
@@ -1380,6 +1406,47 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           child: card,
         );
       },
+    );
+  }
+
+  Widget _buildScanCropThumbnail(ClassificationResult scan) {
+    final rawUrl = scan.imageUrl?.trim();
+    final resolvedUrl = (rawUrl == null || rawUrl.isEmpty)
+        ? null
+        : (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+            ? rawUrl
+            : '${AppConfig.apiBaseUrl}${rawUrl.startsWith('/') ? '' : '/'}$rawUrl');
+
+    final ringColor =
+        scan.isFresh ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+
+    return Container(
+      width: 36,
+      height: 36,
+      padding: const EdgeInsets.all(1.5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: ringColor.withValues(alpha: 0.75), width: 1.5),
+        color: Colors.white,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: resolvedUrl != null
+            ? Image.network(
+                resolvedUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const Icon(
+                  CupertinoIcons.eye,
+                  size: 15,
+                  color: Color(0xFF94A3B8),
+                ),
+              )
+            : const Icon(
+                CupertinoIcons.eye,
+                size: 15,
+                color: Color(0xFF94A3B8),
+              ),
+      ),
     );
   }
 
