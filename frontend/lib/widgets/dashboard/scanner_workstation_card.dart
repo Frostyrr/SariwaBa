@@ -266,6 +266,21 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             controller.selectEyeProposal(i);
                           },
                         ),
+                    // Top-right Close (×) button to clear/replace photo
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: _buildCarouselArrowButton(
+                        icon: CupertinoIcons.xmark,
+                        tooltip: 'Remove photo',
+                        onTap: state.isClassifying
+                            ? () {}
+                            : () {
+                                HapticFeedback.selectionClick();
+                                controller.clearSelection();
+                              },
+                      ),
+                    ),
                     if (state.eyeProposals.length > 1) ...[
                       // Previous Eye Arrow (<)
                       Positioned(

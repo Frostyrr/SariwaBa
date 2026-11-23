@@ -484,6 +484,40 @@ class ClassificationController extends StateNotifier<ClassificationState> {
           _updateBatchItem(i, BatchScanStatus.complete, result: result);
         } on ClassificationApiException catch (e) {
           if (!mounted) return;
+          if (e.code == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED' &&
+              canFindEyes &&
+              (state.selectedRegion ?? AnatomicalRegion.auto) !=
+                  AnatomicalRegion.gill) {
+            try {
+              final wholeBytes = await photo.readAsBytes();
+              if (!mounted) return;
+              final eyeResult = await (_service as EyeProposalService).findEyes(
+                wholeBytes,
+                photo.name,
+              );
+              if (!mounted) return;
+              if (eyeResult.proposals.isNotEmpty) {
+                final eyeResultClass = await _service.classifyImage(
+                  bytes: eyeResult.proposals.first.bytes,
+                  filename: photo.name,
+                  regionType: 'eye',
+                );
+                if (!mounted) return;
+                final history = await _historyWithResult(eyeResultClass);
+                if (!mounted) return;
+                state = state.copyWith(history: history);
+                _updateBatchItem(
+                  i,
+                  BatchScanStatus.complete,
+                  result: eyeResultClass,
+                );
+                continue;
+              }
+            } catch (_) {
+              if (!mounted) return;
+            }
+          }
+
           final needsCrop = const {
             'WHOLE_TILAPIA_CLOSE_UP_REQUIRED',
             'CONTENT_UNCERTAIN',
@@ -508,7 +542,12 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         }
       }
     } finally {
-      if (mounted) state = state.copyWith(isBatchRunning: false);
+      if (mounted) {
+        state = state.copyWith(isBatchRunning: false);
+        if (state.batchScans.isNotEmpty) {
+          await openBatchPhoto(0);
+        }
+      }
     }
   }
 
@@ -623,6 +662,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearResult: true,
     );
 
+    if (canFindEyes && effectiveRegion != AnatomicalRegion.gill) {
+      detectEyesForCurrentImage();
+    }
   }
 
   /// Select the target Tilapia anatomical region (Eye or Gill)
@@ -960,6 +1002,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       isUploadingImage: false,
       isClassifying: false,
       isEditingCrop: false,
+      isBatchRunning: false,
+      batchScans: const [],
       clearProcessingStage: true,
       clearImage: true,
       clearRegion: true,
