@@ -180,19 +180,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ],
           ),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            key: const Key('scanner_batch_upload'),
-            onPressed:
-                state.isBatchRunning ||
-                    state.isClassifying ||
-                    state.isFindingEyes ||
-                    state.isUploadingImage
-                ? null
-                : controller.pickBatch,
-            icon: const Icon(Icons.photo_library_outlined),
-            label: const Text('Select multiple photos'),
-          ),
-          const SizedBox(height: 12),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 220),
             switchInCurve: Curves.easeOutCubic,

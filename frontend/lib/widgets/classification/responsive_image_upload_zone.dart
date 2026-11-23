@@ -157,7 +157,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
             if (!widget.state.isUploadingImage) {
-              widget.controller.pickImage(ImageSource.gallery);
+              widget.controller.pickBatch();
             }
             return null;
           },
@@ -170,7 +170,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         excludeSemantics: true,
         onTap: widget.state.isUploadingImage
             ? null
-            : () => widget.controller.pickImage(ImageSource.gallery),
+            : () => widget.controller.pickBatch(),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -191,7 +191,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
               borderRadius: BorderRadius.circular(20),
               onTap: widget.state.isUploadingImage
                   ? null
-                  : () => widget.controller.pickImage(ImageSource.gallery),
+                  : () => widget.controller.pickBatch(),
               child: CustomPaint(
                 painter: DashedBorderPainter(
                   color: borderColor,
