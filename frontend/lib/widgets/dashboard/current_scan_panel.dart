@@ -734,7 +734,10 @@ class CurrentScanPanel extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               OutlinedButton(
-                onPressed: onAdjustCrop,
+                onPressed: () {
+                  controller.editCrop();
+                  onAdjustCrop();
+                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.textPrimaryDark,
                   side: const BorderSide(color: Color(0xFFCBD5E1)),
@@ -866,7 +869,10 @@ class CurrentScanPanel extends StatelessWidget {
                 ),
               OutlinedButton.icon(
                 key: const Key('rejection_edit_crop_button'),
-                onPressed: onAdjustCrop,
+                onPressed: () {
+                  controller.editCrop();
+                  onAdjustCrop();
+                },
                 icon: const Icon(CupertinoIcons.crop, size: 14),
                 label: const Text('Adjust crop'),
               ),

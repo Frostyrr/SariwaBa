@@ -588,9 +588,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ],
                         ),
                         child: const Icon(
-                          CupertinoIcons.camera_fill,
+                          CupertinoIcons.plus,
                           color: Colors.white,
-                          size: 22,
+                          size: 24,
                         ),
                       ),
                     ),

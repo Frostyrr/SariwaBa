@@ -393,7 +393,15 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         imageQuality: 90,
         limit: maxBatchPhotos,
       );
-      if (mounted && photos.isNotEmpty) await processBatch(photos);
+      if (mounted && photos.length == 1) {
+        final single = photos.first;
+        final bytes = await single.readAsBytes();
+        if (mounted) {
+          setSelectedImage(bytes: bytes, filename: single.name);
+        }
+      } else if (mounted && photos.length > 1) {
+        await processBatch(photos);
+      }
     } catch (_) {
       if (!mounted) return;
       state = state.copyWith(errorMessage: 'Could not open the photo picker.');

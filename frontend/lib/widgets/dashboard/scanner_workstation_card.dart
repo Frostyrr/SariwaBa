@@ -212,47 +212,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     child: _buildInlineImageWorkspace(state, controller),
                   ),
           ),
-          if (state.batchScans.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text(
-              state.isBatchRunning
-                  ? 'Checking photos one at a time…'
-                  : 'Batch results',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            for (final (index, item) in state.batchScans.indexed)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  item.photo.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(switch (item.status) {
-                  BatchScanStatus.queued => 'Waiting',
-                  BatchScanStatus.checking => 'Checking freshness…',
-                  BatchScanStatus.needsReview =>
-                    'Needs review · ${item.message}',
-                  BatchScanStatus.rejected => item.message ?? 'Photo rejected',
-                  BatchScanStatus.failed =>
-                    item.message ?? 'Could not check this photo',
-                  BatchScanStatus.complete => item.result?.label ?? 'Complete',
-                }),
-                trailing:
-                    item.status == BatchScanStatus.needsReview ||
-                        item.status == BatchScanStatus.failed
-                    ? TextButton(
-                        onPressed:
-                            state.isBatchRunning ||
-                                state.isClassifying ||
-                                state.isUploadingImage
-                            ? null
-                            : () => controller.openBatchPhoto(index),
-                        child: const Text('Review'),
-                      )
-                    : null,
-              ),
-          ],
         ],
       ),
     );
@@ -396,36 +355,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           runSpacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            SegmentedButton<AnatomicalRegion>(
-              segments: [
-                ButtonSegment(
-                  value: AnatomicalRegion.auto,
-                  label: Text(
-                    state.selectedRegion == AnatomicalRegion.auto &&
-                            state.latestResult?.anatomicalRegion != null
-                        ? "Auto: ${state.latestResult!.anatomicalRegion!.displayName}"
-                        : "Auto",
-                  ),
-                ),
-                ButtonSegment(
-                  value: AnatomicalRegion.eye,
-                  label: Text('Eye'),
-                  icon: Icon(CupertinoIcons.eye, size: 15),
-                ),
-                ButtonSegment(
-                  value: AnatomicalRegion.gill,
-                  label: Text('Gill'),
-                  icon: Icon(CupertinoIcons.waveform_path, size: 15),
-                ),
-              ],
-              selected: {state.selectedRegion ?? AnatomicalRegion.auto},
-              onSelectionChanged: state.isClassifying
-                  ? null
-                  : (selection) {
-                      HapticFeedback.selectionClick();
-                      controller.selectRegion(selection.first);
-                    },
-            ),
+            _buildSoftRegionSwitcher(state, controller),
             if (canUseEyeFinder && controller.canFindEyes) ...[
               _buildToolbarIconButton(
                 key: const Key('scanner_find_eye_button'),
@@ -447,7 +377,12 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               key: const Key('scanner_adjust_crop_button'),
               tooltip: 'Adjust crop',
               icon: CupertinoIcons.crop,
-              onTap: state.isClassifying ? null : widget.onOpenCropModal,
+              onTap: state.isClassifying
+                  ? null
+                  : () {
+                      controller.editCrop();
+                      widget.onOpenCropModal();
+                    },
             ),
             _buildToolbarIconButton(
               tooltip: 'Replace photo',
