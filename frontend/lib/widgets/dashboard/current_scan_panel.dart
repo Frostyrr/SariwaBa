@@ -39,9 +39,34 @@ class CurrentScanPanel extends StatelessWidget {
     final String panelKey;
     final Widget body;
 
-    if (state.batchScans.isNotEmpty && !state.hasSelectedImage) {
-      panelKey = 'batch_${state.batchScans.length}_${state.isBatchRunning}';
-      body = _buildBatchResultsCard();
+    if (state.batchScans.isNotEmpty) {
+      panelKey =
+          'batch_${state.batchScans.length}_${state.isBatchRunning}_${state.selectedImageName}_${state.latestResult?.scanId}_${state.errorCode}';
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state.hasSelectedImage) ...[
+            if (state.isFindingEyes) ...[
+              _buildDetectingEyesBanner(),
+              const SizedBox(height: 12),
+            ] else if (state.alreadyCloseUpEye) ...[
+              _buildCloseUpDetectedBanner(),
+              const SizedBox(height: 12),
+            ],
+            if (state.latestResult != null) ...[
+              _buildResultCard(state.latestResult!),
+              const SizedBox(height: 16),
+            ] else if (state.errorMessage != null) ...[
+              _buildRecoveryCard(),
+              const SizedBox(height: 16),
+            ] else ...[
+              _buildReadyToCheckCard(),
+              const SizedBox(height: 16),
+            ],
+          ],
+          _buildBatchResultsCard(),
+        ],
+      );
     } else if (!state.hasSelectedImage) {
       panelKey = 'idle';
       body = _buildIdleState();

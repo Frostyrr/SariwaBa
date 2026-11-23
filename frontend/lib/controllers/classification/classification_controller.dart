@@ -252,6 +252,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   final bool isAuthenticated;
   int _activeRequestId = 0;
   int _eyeDetectRequestId = 0;
+  Future<void> _eyeDetectQueue = Future.value();
   int? _reviewedBatchIndex;
   static const maxBatchPhotos = 10;
 
@@ -621,6 +622,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearSuccess: true,
       clearResult: true,
     );
+
   }
 
   /// Select the target Tilapia anatomical region (Eye or Gill)
@@ -641,6 +643,13 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearSuccess: true,
       clearResult: regionChanged,
     );
+
+    if (regionChanged &&
+        state.selectedImageBytes != null &&
+        canFindEyes &&
+        region != AnatomicalRegion.gill) {
+      detectEyesForCurrentImage();
+    }
   }
 
   /// Switch to the alternate anatomical region (Eye <-> Gill) during rejection recovery
@@ -686,11 +695,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       eyeProposalFreshness: const {},
     );
 
-    try {
-      final result = await (_service as EyeProposalService).findEyes(
-        bytes,
-        state.selectedImageName ?? 'tilapia.jpg',
-      );
+    final queuedTask = _eyeDetectQueue.catchError((_) {}).then((_) async {
       if (!mounted ||
           reqId != _eyeDetectRequestId ||
           !identical(state.selectedImageBytes, bytes) ||
@@ -698,50 +703,66 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         return;
       }
 
-      if (result.alreadyEye) {
-        state = state.copyWith(
-          isFindingEyes: false,
-          alreadyCloseUpEye: true,
-          eyeProposals: const [],
-          clearSelectedEyeProposal: true,
+      try {
+        final result = await (_service as EyeProposalService).findEyes(
+          bytes,
+          state.selectedImageName ?? 'tilapia.jpg',
         );
-        confirmFullImageAsCloseUp();
-        return;
-      }
+        if (!mounted ||
+            reqId != _eyeDetectRequestId ||
+            !identical(state.selectedImageBytes, bytes) ||
+            state.selectedRegion != region) {
+          return;
+        }
 
-      if (result.proposals.isNotEmpty) {
-        final first = result.proposals.first;
+        if (result.alreadyEye) {
+          state = state.copyWith(
+            isFindingEyes: false,
+            alreadyCloseUpEye: true,
+            eyeProposals: const [],
+            clearSelectedEyeProposal: true,
+          );
+          confirmFullImageAsCloseUp();
+          return;
+        }
+
+        if (result.proposals.isNotEmpty) {
+          final first = result.proposals.first;
+          state = state.copyWith(
+            isFindingEyes: false,
+            alreadyCloseUpEye: false,
+            eyeProposals: result.proposals,
+            selectedEyeProposalIndex: 0,
+            confirmedImageBytes: first.bytes,
+            isCropConfirmed: true,
+            isFullImageConfirmed: false,
+            lastCropNormalizedRect: first.rect,
+            clearError: true,
+            clearResult: true,
+          );
+          return;
+        }
+
         state = state.copyWith(
           isFindingEyes: false,
           alreadyCloseUpEye: false,
           eyeProposals: result.proposals,
-          selectedEyeProposalIndex: 0,
-          confirmedImageBytes: first.bytes,
-          isCropConfirmed: true,
-          isFullImageConfirmed: false,
-          lastCropNormalizedRect: first.rect,
-          clearError: true,
-          clearResult: true,
+          clearSelectedEyeProposal: true,
         );
-        return;
+      } on ClassificationApiException catch (e) {
+        if (!mounted || reqId != _eyeDetectRequestId) return;
+        state = state.copyWith(isFindingEyes: false);
+        if (e.isInputRejection) {
+          showEyeProposalRejection(e);
+        }
+      } catch (_) {
+        if (!mounted || reqId != _eyeDetectRequestId) return;
+        state = state.copyWith(isFindingEyes: false);
       }
+    });
 
-      state = state.copyWith(
-        isFindingEyes: false,
-        alreadyCloseUpEye: false,
-        eyeProposals: result.proposals,
-        clearSelectedEyeProposal: true,
-      );
-    } on ClassificationApiException catch (e) {
-      if (!mounted || reqId != _eyeDetectRequestId) return;
-      state = state.copyWith(isFindingEyes: false);
-      if (e.isInputRejection) {
-        showEyeProposalRejection(e);
-      }
-    } catch (_) {
-      if (!mounted || reqId != _eyeDetectRequestId) return;
-      state = state.copyWith(isFindingEyes: false);
-    }
+    _eyeDetectQueue = queuedTask;
+    return queuedTask;
   }
 
   /// Select one detected eye proposal from the gallery or image marker.
@@ -845,6 +866,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearSuccess: true,
       clearResult: true,
     );
+
   }
 
   /// Confirm the entire uploaded image when it is already a suitable Eye or Gill close-up
@@ -894,6 +916,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearSuccess: true,
       clearResult: true,
     );
+
   }
 
   /// Re-open the interactive crop editor to adjust framing or zoom
@@ -909,6 +932,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       clearSuccess: true,
       clearResult: true,
     );
+
   }
 
   /// Alias used by guest session reset handlers
