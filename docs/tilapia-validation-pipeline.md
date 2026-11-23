@@ -232,3 +232,93 @@ Candidate evaluation measures whole-fish prompts, whole fish that incorrectly
 reach freshness, and unsupported images that are accepted or prompted as
 whole Tilapia. This training mode does not use freshness labels or evaluate
 freshness accuracy. The existing three-class checkpoint stays compatible.
+
+## Day 3 training and test results on 23 November 2026
+
+The Android and iPhone collections supplied 618 Day 3 photos after 31 repeat
+images were removed. The collection included 174 eye, 233 gill, and 211
+whole-fish photos. The collector labeled the Day 3 close-ups Not Fresh.
+The local photos were used for training. The test sets came from existing
+project records, so the results below describe those test sets. Testing on a
+new local fish batch is still pending.
+
+### Model B freshness classifier
+
+Model B trained on 2,837 eye and gill photos, including 407 Day 3 close-ups
+and 30 local Fresh close-ups from Days 1 and 2. The run had 441 validation
+photos to select the saved version and 390 test photos to measure the result.
+Six epochs were planned and completed. An epoch is one pass through the
+training photos. The trainer selected epoch 2 based on how well it classified
+both freshness categories on the validation set. Validation accuracy was 98.19%.
+
+| Result on the same 390 test photos | Previous Model B | Day 3 model |
+| --- | ---: | ---: |
+| Photos classified correctly | 274 (70.26%) | 377 (96.67%) |
+| Not Fresh photos called Fresh | 108 of 214 | 0 of 214 |
+| Fresh photos called Not Fresh | 8 of 176 | 13 of 176 |
+
+This was a comparison of model predictions on the saved test photos. The exact
+training list for the previous model is unavailable. The candidate also used a
+different training mix, so the comparison cannot isolate the effect of adding
+Day 3. The candidate file, image lists, and training log are saved locally in
+`backend/datasets/local_collection/training_runs/day03_2026-11-23/`. The local Docker backend now uses the Day 3 Model B. The previous file is saved in the run folder as `model-b-before-day03.pth`.
+
+#### Day 3 close-up check
+
+In a separate check on the 407 Day 3 close-ups, the previous Model B called
+406 Fresh. The Day 3 model called all 407 Not Fresh. Those photos were part of
+the Day 3 model's training, so this check shows how it handled those examples.
+After the switch, the Docker backend also returned Not Fresh for one Day 3 eye
+photo and one Day 3 gill photo.
+
+### Model A photo checker
+
+Model A trained on 2,301 photos, including all 618 Day 3 photos. It used
+250 validation photos to select the saved version and 279 test photos to
+measure performance. All six planned epochs completed. The trainer selected
+epoch 3 because it had the best validation score across the four photo
+categories.
+
+| Result on the same 279 test photos | Current Model A | Day 3 candidate |
+| --- | ---: | ---: |
+| Eye close-ups correctly accepted | 88 of 103 | 97 of 103 |
+| Gill close-ups correctly accepted | 66 of 66 | 66 of 66 |
+| Whole-fish photos correctly routed to eye selection | 18 of 48 | 34 of 48 |
+| Whole-fish photos incorrectly accepted as close-ups | 2 of 48 | 10 of 48 |
+| Unsupported photos incorrectly accepted as close-ups | 0 of 62 | 2 of 62 |
+
+The candidate let more valid eye photos through, but also let more unsuitable
+photos through. Keep the current Model A for the defense. Model B is the
+stronger candidate for the next check on new fish. The local app continues to use the previous Model A.
+
+### Model C eye finder
+
+The eye finder started from the previous model and trained for 15 epochs.
+It used 311 training photos, 50 earlier validation photos, and 171 Day 3
+test photos. The Roboflow export listed eye before fish. The training copy
+reordered the labels to match the app. The GPU stopped during epoch 10.
+Training resumed from epoch 9 with eight photos per batch instead of 16.
+
+| Eye detection on the same 171 test photos | Previous model | Day 3 model |
+| --- | ---: | ---: |
+| Labeled eyes found (recall) | 85.23% | 87.92% |
+| Correct eye detections (precision) | 92.58% | 89.06% |
+| Eye detection score across confidence settings (mAP50) | 85.32% | 88.61% |
+
+The Day 3 test photos were excluded from training. The training and test
+photos came from the same collection and may show the same fish, so a
+new batch is still needed to measure performance on new fish.
+
+The Day 3 detector is active in the local Docker backend. The backend
+returned eye proposals on all ten smoke-test photos and passed its
+health check. The previous detector is saved as `previous-detector.pt`
+in the local run folder, `day03_detector_2026-11-23`.
+
+### Backend checks and active versions
+
+All 51 backend classification tests passed in Docker before the eye finder
+was switched. After the switch, the eye finder returned crops for ten sample
+photos and the local server responded successfully to its health check.
+The local app uses the earlier Model A and the Day 3 versions of Models B
+and C. A separate collection of new fish is still needed to check all three
+models together on fish they have never seen.
