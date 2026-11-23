@@ -1,0 +1,885 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../constants/theme/app_colors.dart';
+import '../../constants/theme/app_typography.dart';
+import '../../controllers/classification/classification_controller.dart';
+import '../../models/classification/classification_result.dart';
+import '../../services/classification/classification_service.dart';
+import '../common/app_button.dart';
+import 'frosted_glass_card.dart';
+
+/// Current-scan right column (wide) / stacked panel (narrow) containing:
+/// - Idle empty state before any scan
+/// - Detected Eyes gallery (grid on desktop, horizontal strip on mobile)
+/// - Exact selected crop preview + Check freshness CTA
+/// - Model-aligned Freshness Result card ("Model confidence")
+/// - Local recovery actions (Find Eyes, Adjust crop, Change region, Retry, Retake)
+class CurrentScanPanel extends StatelessWidget {
+  final ClassificationState state;
+  final ClassificationController controller;
+  final bool isWide;
+  final VoidCallback onAdjustCrop;
+  final VoidCallback? onViewHistory;
+
+  const CurrentScanPanel({
+    super.key,
+    required this.state,
+    required this.controller,
+    required this.isWide,
+    required this.onAdjustCrop,
+    this.onViewHistory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final String panelKey;
+    final Widget body;
+
+    if (state.batchScans.isNotEmpty && !state.hasSelectedImage) {
+      panelKey = 'batch_${state.batchScans.length}_${state.isBatchRunning}';
+      body = _buildBatchResultsCard();
+    } else if (!state.hasSelectedImage) {
+      panelKey = 'idle';
+      body = _buildIdleState();
+    } else if (state.latestResult != null) {
+      panelKey =
+          'result_${state.latestResult!.scanId ?? state.latestResult!.label}_${state.selectedEyeProposalIndex}';
+      body = _buildResultCard(state.latestResult!);
+    } else if (state.errorMessage != null) {
+      panelKey = 'error_${state.errorCode}';
+      body = _buildRecoveryCard();
+    } else {
+      panelKey =
+          'ready_${state.selectedEyeProposalIndex}_${state.isFindingEyes}_${state.alreadyCloseUpEye}';
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state.isFindingEyes) ...[
+            _buildDetectingEyesBanner(),
+            const SizedBox(height: 14),
+          ] else if (state.alreadyCloseUpEye) ...[
+            _buildCloseUpDetectedBanner(),
+            const SizedBox(height: 14),
+          ],
+          _buildReadyToCheckCard(),
+        ],
+      );
+    }
+
+    return FrostedGlassCard(
+      padding: const EdgeInsets.all(22),
+      borderRadius: 24,
+      blurSigma: 6,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.03),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        ),
+        child: KeyedSubtree(key: ValueKey(panelKey), child: body),
+      ),
+    );
+  }
+
+  Widget _buildBatchResultsCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                CupertinoIcons.square_stack_3d_up,
+                size: 17,
+                color: SariwaColors.brandPrimary,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                state.isBatchRunning
+                    ? 'Checking batch (${state.batchScans.length})…'
+                    : 'Batch Results (${state.batchScans.length})',
+                style: const TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w700,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        for (final (index, item) in state.batchScans.indexed) ...[
+          _buildBatchItemCard(index, item),
+          if (index < state.batchScans.length - 1) const SizedBox(height: 10),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBatchItemCard(int index, BatchScanItem item) {
+    final result = item.result;
+    final isComplete = item.status == BatchScanStatus.complete && result != null;
+    final isFresh = result?.isFresh ?? false;
+
+    final Color pillBg;
+    final Color pillText;
+    final Color dotColor;
+    final String statusLabel;
+
+    if (isComplete) {
+      pillBg = isFresh ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
+      pillText = isFresh ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
+      dotColor = isFresh ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+      statusLabel = result.label;
+    } else if (item.status == BatchScanStatus.checking) {
+      pillBg = SariwaColors.brandPrimary.withValues(alpha: 0.10);
+      pillText = SariwaColors.brandPrimary;
+      dotColor = SariwaColors.brandPrimary;
+      statusLabel = 'Checking…';
+    } else if (item.status == BatchScanStatus.queued) {
+      pillBg = const Color(0xFFF1F5F9);
+      pillText = const Color(0xFF64748B);
+      dotColor = const Color(0xFF94A3B8);
+      statusLabel = 'Waiting';
+    } else {
+      pillBg = const Color(0xFFFEF3C7);
+      pillText = const Color(0xFFB45309);
+      dotColor = const Color(0xFFD97706);
+      statusLabel = item.status == BatchScanStatus.rejected
+          ? 'Rejected'
+          : 'Needs review';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: SariwaColors.borderLightTeal),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.photo.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isComplete
+                      ? 'Model confidence: ${result.formattedConfidence}'
+                      : (item.message ?? statusLabel),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: pillBg,
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  statusLabel,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: pillText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIdleState() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                CupertinoIcons.sparkles,
+                size: 18,
+                color: SariwaColors.brandPrimary,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Current Scan',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: AppTypography.defaultLetterSpacing,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'Upload or capture a Tilapia photo on the left to inspect its freshness. Detected eyes and your prediction result will appear here.',
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.45,
+            color: SariwaColors.textSecondaryDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildGuideStep(
+          '1',
+          'Close-up eye or gill',
+          'Ready to check immediately—no crop modal required.',
+        ),
+        const SizedBox(height: 10),
+        _buildGuideStep(
+          '2',
+          'Whole Tilapia or crowded tray',
+          'Eyes are detected automatically. Tap any numbered fish to preview its crop.',
+        ),
+        const SizedBox(height: 10),
+        _buildGuideStep(
+          '3',
+          'Model-aligned verdict',
+          'Displays Fresh or Not Fresh with the model confidence score.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuideStep(String num, String title, String subtitle) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            num,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: SariwaColors.brandPrimary,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.35,
+                  color: SariwaColors.textSecondaryDark,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetectingEyesBanner() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: SariwaColors.brandPrimary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: SariwaColors.brandPrimary.withValues(alpha: 0.22),
+        ),
+      ),
+      child: const Row(
+        children: [
+          CupertinoActivityIndicator(radius: 8),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Detecting Tilapia eyes...',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: SariwaColors.brandPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCloseUpDetectedBanner() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: SariwaColors.freshIconBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: SariwaColors.freshBorder),
+      ),
+      child: const Row(
+        children: [
+          Icon(
+            CupertinoIcons.checkmark_seal_fill,
+            size: 16,
+            color: SariwaColors.statusFresh,
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Close-up eye ready — tap Check freshness.',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: SariwaColors.freshText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetectedEyesGallery() {
+    final proposals = state.eyeProposals;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              CupertinoIcons.eye_fill,
+              size: 16,
+              color: SariwaColors.brandPrimary,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                proposals.length == 1
+                    ? 'Detected Eye (1)'
+                    : 'Detected Eyes (${proposals.length})',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          proposals.length == 1
+              ? 'Previewing detected eye. Tap Check freshness when ready.'
+              : 'Tap a numbered eye to select its fish before checking freshness.',
+          style: const TextStyle(
+            fontSize: 12,
+            color: SariwaColors.textSecondaryDark,
+          ),
+        ),
+        const SizedBox(height: 10),
+        if (isWide)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final tileWidth = (constraints.maxWidth - 10) / 2;
+              return Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (int i = 0; i < proposals.length; i++)
+                    SizedBox(
+                      width: tileWidth,
+                      child: _buildEyeTile(i, proposals[i]),
+                    ),
+                ],
+              );
+            },
+          )
+        else
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (int i = 0; i < proposals.length; i++) ...[
+                  SizedBox(width: 132, child: _buildEyeTile(i, proposals[i])),
+                  const SizedBox(width: 10),
+                ],
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildEyeTile(int index, EyeCropProposal proposal) {
+    final isSelected = state.selectedEyeProposalIndex == index;
+    final checkedFresh = state.eyeProposalFreshness[index];
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: 'Eye ${index + 1}${isSelected ? ', selected' : ''}',
+      child: InkWell(
+        key: Key('eye_proposal_tile_$index'),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          controller.selectEyeProposal(index);
+        },
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? SariwaColors.brandPrimary.withValues(alpha: 0.09)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? SariwaColors.brandPrimary
+                  : const Color(0xFFCBD5E1),
+              width: isSelected ? 2.0 : 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(9),
+                child: Image.memory(
+                  proposal.bytes,
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Eye #${index + 1}',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
+                        color: isSelected
+                            ? SariwaColors.brandPrimary
+                            : SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      checkedFresh != null
+                          ? (checkedFresh ? 'Fresh ✓' : 'Not Fresh !')
+                          : (isSelected ? 'Selected' : 'Tap to select'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: checkedFresh != null
+                            ? (checkedFresh
+                                  ? SariwaColors.freshText
+                                  : SariwaColors.notFreshText)
+                            : SariwaColors.textSecondaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReadyToCheckCard() {
+    final previewBytes = state.confirmedImageBytes ?? state.selectedImageBytes;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (previewBytes != null)
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFA),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: SariwaColors.borderLightTeal),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(
+                    previewBytes,
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.selectedEyeProposalIndex != null
+                            ? 'Selected: Eye #${state.selectedEyeProposalIndex! + 1}'
+                            : 'Ready to inspect',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: SariwaColors.textPrimaryDark,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        state.isClassifying
+                            ? (state.processingStage ??
+                                  'Analyzing freshness...')
+                            : (state.isFullImageConfirmed ||
+                                      !state.isCropConfirmed
+                                  ? 'Tap Check freshness under the scanner to analyze this close-up.'
+                                  : 'Exact cropped eye will be analyzed when you tap Check freshness.'),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.35,
+                          color: SariwaColors.textSecondaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildResultCard(ClassificationResult result) {
+    final isFresh = result.isFresh;
+    final primaryColor = isFresh
+        ? SariwaColors.statusFresh
+        : SariwaColors.notFreshPrimary;
+    final bgColor = isFresh
+        ? SariwaColors.freshIconBg
+        : SariwaColors.notFreshIconBg;
+    final borderColor = isFresh
+        ? SariwaColors.freshBorder
+        : SariwaColors.notFreshBorder;
+    final cropBytes = state.confirmedImageBytes ?? state.selectedImageBytes;
+
+    return Container(
+      key: const Key('classification_result_view'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor, width: 1.4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              if (cropBytes != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.memory(
+                    cropBytes,
+                    width: 54,
+                    height: 54,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      result.label,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Model confidence: ${result.formattedConfidence}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: result.confidence.clamp(0.0, 1.0),
+              minHeight: 7,
+              backgroundColor: Colors.white,
+              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: SariwaColors.textSecondaryDark,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton.primary(
+                  label: 'Scan Another',
+                  height: 44,
+                  borderRadius: 12,
+                  icon: const Icon(
+                    CupertinoIcons.camera_viewfinder,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                  onPressed: controller.clearSelection,
+                ),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: onAdjustCrop,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: SariwaColors.textPrimaryDark,
+                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Adjust crop'),
+              ),
+            ],
+          ),
+          if (onViewHistory != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                key: const Key('result_view_history_button'),
+                onPressed: onViewHistory,
+                icon: const Icon(CupertinoIcons.clock, size: 15),
+                label: const Text('View scan history →'),
+                style: TextButton.styleFrom(
+                  foregroundColor: SariwaColors.brandPrimary,
+                  textStyle: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecoveryCard() {
+    final code = state.errorCode;
+    final isWholeTilapia = code == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED';
+    final isRegionMismatch = code == 'REGION_MISMATCH';
+    final isNetworkOrServer = !state.isInputRejection;
+
+    return Container(
+      key: const Key('image_rejection_card'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SariwaColors.notFreshIconBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: SariwaColors.notFreshBorder, width: 1.3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.exclamationmark_triangle_fill,
+                size: 18,
+                color: SariwaColors.notFreshPrimary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isNetworkOrServer
+                      ? 'Connection or Server Issue'
+                      : ClassificationApiException.rejectionTitleForCode(code),
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w700,
+                    color: SariwaColors.notFreshText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            state.errorMessage ?? 'Unable to classify this photo.',
+            style: const TextStyle(
+              fontSize: 12.5,
+              height: 1.4,
+              color: SariwaColors.textPrimaryDark,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (isWholeTilapia &&
+                  controller.canFindEyes &&
+                  state.selectedRegion != AnatomicalRegion.gill)
+                FilledButton.icon(
+                  onPressed: state.isBatchRunning || state.isFindingEyes
+                      ? null
+                      : controller.detectEyesForCurrentImage,
+                  icon: const Icon(CupertinoIcons.eye, size: 15),
+                  label: const Text('Find Eyes'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: SariwaColors.brandPrimary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              if (isRegionMismatch)
+                FilledButton.icon(
+                  key: const Key('rejection_change_region_button'),
+                  onPressed: controller.changeRegion,
+                  icon: const Icon(CupertinoIcons.arrow_2_circlepath, size: 15),
+                  label: Text(
+                    state.selectedRegion == AnatomicalRegion.eye
+                        ? 'Switch to Gill'
+                        : 'Switch to Eye',
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: SariwaColors.brandPrimary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              if (isNetworkOrServer)
+                FilledButton.icon(
+                  key: const Key('rejection_try_again_button'),
+                  onPressed: controller.classify,
+                  icon: const Icon(CupertinoIcons.refresh, size: 15),
+                  label: const Text('Retry'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: SariwaColors.brandPrimary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              OutlinedButton.icon(
+                key: const Key('rejection_edit_crop_button'),
+                onPressed: onAdjustCrop,
+                icon: const Icon(CupertinoIcons.crop, size: 14),
+                label: const Text('Adjust crop'),
+              ),
+              OutlinedButton.icon(
+                key: const Key('rejection_replace_image_button'),
+                onPressed: controller.clearSelection,
+                icon: const Icon(CupertinoIcons.photo, size: 14),
+                label: const Text('Retake photo'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

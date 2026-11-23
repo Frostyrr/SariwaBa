@@ -24,6 +24,22 @@ enum ClassificationWorkflowStage {
   networkOrServerError,
 }
 
+enum BatchScanStatus {
+  queued,
+  checking,
+  needsReview,
+  rejected,
+  failed,
+  complete,
+}
+
+typedef BatchScanItem = ({
+  XFile photo,
+  BatchScanStatus status,
+  String? message,
+  ClassificationResult? result,
+});
+
 class ClassificationState {
   final Uint8List? selectedImageBytes;
   final String? selectedImageName;
@@ -44,11 +60,18 @@ class ClassificationState {
   final String? errorCode;
   final bool isInputRejection;
   final String? successMessage;
+  final List<BatchScanItem> batchScans;
+  final bool isBatchRunning;
+  final List<EyeCropProposal> eyeProposals;
+  final int? selectedEyeProposalIndex;
+  final bool isFindingEyes;
+  final bool alreadyCloseUpEye;
+  final Map<int, bool> eyeProposalFreshness;
 
   const ClassificationState({
     this.selectedImageBytes,
     this.selectedImageName,
-    this.selectedRegion = AnatomicalRegion.eye,
+    this.selectedRegion = AnatomicalRegion.auto,
     this.confirmedImageBytes,
     this.isCropConfirmed = false,
     this.isFullImageConfirmed = false,
@@ -65,7 +88,20 @@ class ClassificationState {
     this.errorCode,
     this.isInputRejection = false,
     this.successMessage,
+    this.batchScans = const [],
+    this.isBatchRunning = false,
+    this.eyeProposals = const [],
+    this.selectedEyeProposalIndex,
+    this.isFindingEyes = false,
+    this.alreadyCloseUpEye = false,
+    this.eyeProposalFreshness = const {},
   });
+
+  EyeCropProposal? get selectedEyeProposal {
+    final idx = selectedEyeProposalIndex;
+    if (idx == null || idx < 0 || idx >= eyeProposals.length) return null;
+    return eyeProposals[idx];
+  }
 
   bool get hasSelectedImage => selectedImageBytes != null;
   bool get hasSelectedRegion => selectedRegion != null;
@@ -135,6 +171,15 @@ class ClassificationState {
     bool clearError = false,
     String? successMessage,
     bool clearSuccess = false,
+    List<BatchScanItem>? batchScans,
+    bool? isBatchRunning,
+    List<EyeCropProposal>? eyeProposals,
+    int? selectedEyeProposalIndex,
+    bool clearSelectedEyeProposal = false,
+    bool clearEyeProposals = false,
+    bool? isFindingEyes,
+    bool? alreadyCloseUpEye,
+    Map<int, bool>? eyeProposalFreshness,
   }) {
     return ClassificationState(
       selectedImageBytes: clearImage
@@ -144,7 +189,7 @@ class ClassificationState {
           ? null
           : (selectedImageName ?? this.selectedImageName),
       selectedRegion: clearRegion
-          ? AnatomicalRegion.eye
+          ? AnatomicalRegion.auto
           : (selectedRegion ?? this.selectedRegion),
       confirmedImageBytes: clearImage || clearConfirmedImage
           ? null
@@ -178,6 +223,24 @@ class ClassificationState {
       successMessage: clearSuccess
           ? null
           : (successMessage ?? this.successMessage),
+      batchScans: batchScans ?? this.batchScans,
+      isBatchRunning: isBatchRunning ?? this.isBatchRunning,
+      eyeProposals: clearImage || clearEyeProposals
+          ? const []
+          : (eyeProposals ?? this.eyeProposals),
+      selectedEyeProposalIndex:
+          clearImage || clearEyeProposals || clearSelectedEyeProposal
+          ? null
+          : (selectedEyeProposalIndex ?? this.selectedEyeProposalIndex),
+      isFindingEyes: clearImage || clearEyeProposals
+          ? false
+          : (isFindingEyes ?? this.isFindingEyes),
+      alreadyCloseUpEye: clearImage || clearEyeProposals
+          ? false
+          : (alreadyCloseUpEye ?? this.alreadyCloseUpEye),
+      eyeProposalFreshness: clearImage || clearEyeProposals
+          ? const {}
+          : (eyeProposalFreshness ?? this.eyeProposalFreshness),
     );
   }
 }
@@ -188,6 +251,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   final GuestHistoryCache _guestCache;
   final bool isAuthenticated;
   int _activeRequestId = 0;
+  int _eyeDetectRequestId = 0;
+  int? _reviewedBatchIndex;
+  static const maxBatchPhotos = 10;
 
   static const int maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
   static const int maxSourceFileSizeBytes = 10 * 1024 * 1024;
@@ -267,7 +333,10 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         bytes[2] == 0xFF;
 
     // Require a valid JPEG/PNG/WebP/HEIC byte signature and (if an extension is present) a supported extension
-    if (!isPngHeader && !isJpegHeader && !isWebpHeader(bytes) && !isHeicHeader(bytes)) {
+    if (!isPngHeader &&
+        !isJpegHeader &&
+        !isWebpHeader(bytes) &&
+        !isHeicHeader(bytes)) {
       return false;
     }
     if (lower.contains('.') && !hasAllowedExtension) {
@@ -310,6 +379,183 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     }
   }
 
+  Future<void> pickBatch() async {
+    if (state.isBatchRunning ||
+        state.isClassifying ||
+        state.isFindingEyes ||
+        state.isUploadingImage)
+      return;
+    state = state.copyWith(isUploadingImage: true, clearError: true);
+    try {
+      final photos = await _picker.pickMultiImage(
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 90,
+        limit: maxBatchPhotos,
+      );
+      if (mounted && photos.isNotEmpty) await processBatch(photos);
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(errorMessage: 'Could not open the photo picker.');
+    } finally {
+      if (mounted) state = state.copyWith(isUploadingImage: false);
+    }
+  }
+
+  Future<void> processBatch(List<XFile> photos) async {
+    if (photos.isEmpty ||
+        state.isBatchRunning ||
+        state.isClassifying ||
+        state.isFindingEyes)
+      return;
+    if (photos.length > maxBatchPhotos) {
+      state = state.copyWith(
+        errorMessage: 'Select up to $maxBatchPhotos photos.',
+      );
+      return;
+    }
+
+    _reviewedBatchIndex = null;
+    state = state.copyWith(
+      isBatchRunning: true,
+      isUploadingImage: false,
+      clearError: true,
+      batchScans: [
+        for (final photo in photos)
+          (
+            photo: photo,
+            status: BatchScanStatus.queued,
+            message: null,
+            result: null,
+          ),
+      ],
+    );
+    try {
+      for (var i = 0; i < photos.length && mounted; i++) {
+        final photo = photos[i];
+        _updateBatchItem(i, BatchScanStatus.checking);
+        try {
+          final length = await photo.length();
+          if (!mounted) return;
+          if (length > maxSourceFileSizeBytes) {
+            _updateBatchItem(
+              i,
+              BatchScanStatus.rejected,
+              message: 'Photo exceeds 10 MB.',
+            );
+            continue;
+          }
+          final bytes = await photo.readAsBytes();
+          if (!mounted) return;
+          if (!isSupportedImageFormat(bytes, photo.name)) {
+            _updateBatchItem(
+              i,
+              BatchScanStatus.rejected,
+              message: 'Unsupported photo format.',
+            );
+            continue;
+          }
+          if (bytes.lengthInBytes > maxFileSizeBytes) {
+            _updateBatchItem(
+              i,
+              BatchScanStatus.needsReview,
+              message: 'Crop or resize this photo before checking.',
+            );
+            continue;
+          }
+          final result = await _service.classifyImage(
+            bytes: bytes,
+            filename: photo.name,
+            regionType: 'auto',
+          );
+          if (!mounted) return;
+          final history = await _historyWithResult(result);
+          if (!mounted) return;
+          state = state.copyWith(history: history);
+          _updateBatchItem(i, BatchScanStatus.complete, result: result);
+        } on ClassificationApiException catch (e) {
+          if (!mounted) return;
+          final needsCrop = const {
+            'WHOLE_TILAPIA_CLOSE_UP_REQUIRED',
+            'CONTENT_UNCERTAIN',
+            'UNSUPPORTED_IMAGE',
+          }.contains(e.code);
+          _updateBatchItem(
+            i,
+            needsCrop
+                ? BatchScanStatus.needsReview
+                : (e.isInputRejection
+                      ? BatchScanStatus.rejected
+                      : BatchScanStatus.failed),
+            message: e.actionableMessage,
+          );
+        } catch (_) {
+          if (!mounted) return;
+          _updateBatchItem(
+            i,
+            BatchScanStatus.failed,
+            message: 'Could not check this photo.',
+          );
+        }
+      }
+    } finally {
+      if (mounted) state = state.copyWith(isBatchRunning: false);
+    }
+  }
+
+  Future<void> openBatchPhoto(int index) async {
+    if (state.isBatchRunning || state.isClassifying || state.isUploadingImage)
+      return;
+    final item = state.batchScans[index];
+    state = state.copyWith(isUploadingImage: true);
+    try {
+      final bytes = await item.photo.readAsBytes();
+      if (!mounted ||
+          index >= state.batchScans.length ||
+          !identical(state.batchScans[index].photo, item.photo))
+        return;
+      selectRegion(AnatomicalRegion.auto);
+      setSelectedImage(bytes: bytes, filename: item.photo.name);
+      if (identical(state.selectedImageBytes, bytes))
+        _reviewedBatchIndex = index;
+    } catch (_) {
+      if (!mounted) return;
+      _updateBatchItem(
+        index,
+        BatchScanStatus.failed,
+        message: 'Could not open this photo.',
+      );
+    } finally {
+      if (mounted) state = state.copyWith(isUploadingImage: false);
+    }
+  }
+
+  void _updateBatchItem(
+    int index,
+    BatchScanStatus status, {
+    String? message,
+    ClassificationResult? result,
+  }) {
+    final items = [...state.batchScans];
+    items[index] = (
+      photo: items[index].photo,
+      status: status,
+      message: message,
+      result: result,
+    );
+    state = state.copyWith(batchScans: List.unmodifiable(items));
+  }
+
+  Future<List<ClassificationResult>> _historyWithResult(
+    ClassificationResult result,
+  ) async {
+    if (!isAuthenticated) return _guestCache.addScan(result);
+    return [
+      if (result.saved && result.scanId != null) result,
+      ...state.history,
+    ];
+  }
+
   /// Validate and set selected image bytes (usable by both ImagePicker and tests)
   void setSelectedImage({required Uint8List bytes, required String filename}) {
     if (bytes.isEmpty) {
@@ -345,19 +591,24 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       return;
     }
 
-    // Invalidate any in-flight classification request from a previous selection
+    _reviewedBatchIndex = null;
+    // Invalidate any in-flight classification or eye-detection request
     _activeRequestId++;
+    _eyeDetectRequestId++;
+
+    final effectiveRegion = state.selectedRegion ?? AnatomicalRegion.auto;
 
     state = state.copyWith(
       selectedImageBytes: bytes,
       selectedImageName: filename,
-      selectedRegion: state.selectedRegion ?? AnatomicalRegion.eye,
+      selectedRegion: effectiveRegion,
       isUploadingImage: false,
       isClassifying: false,
       isEditingCrop: false,
       clearProcessingStage: true,
       clearConfirmedImage: true,
       clearCropRect: true,
+      clearEyeProposals: true,
       clearError: true,
       clearSuccess: true,
       clearResult: true,
@@ -369,6 +620,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     final regionChanged = state.selectedRegion != region;
     if (regionChanged) {
       _activeRequestId++;
+      _eyeDetectRequestId++;
     }
     state = state.copyWith(
       selectedRegion: region,
@@ -376,6 +628,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       isEditingCrop: false,
       clearProcessingStage: regionChanged,
       clearConfirmedImage: regionChanged,
+      clearEyeProposals: regionChanged,
       clearError: true,
       clearSuccess: true,
       clearResult: regionChanged,
@@ -396,12 +649,110 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
   Future<EyeProposalResult> findEyes() {
     final bytes = state.selectedImageBytes;
-    if (!canFindEyes || bytes == null) {
+    if (state.isBatchRunning || !canFindEyes || bytes == null) {
       return Future.value((alreadyEye: false, proposals: <EyeCropProposal>[]));
     }
     return (_service as EyeProposalService).findEyes(
       bytes,
       state.selectedImageName ?? 'tilapia.jpg',
+    );
+  }
+
+  /// Auto-detect or manually trigger eye proposals with stale-request guards.
+  Future<void> detectEyesForCurrentImage() async {
+    final bytes = state.selectedImageBytes;
+    final region = state.selectedRegion;
+    if (state.isBatchRunning ||
+        !canFindEyes ||
+        bytes == null ||
+        region == AnatomicalRegion.gill) {
+      return;
+    }
+
+    final reqId = ++_eyeDetectRequestId;
+    state = state.copyWith(
+      isFindingEyes: true,
+      alreadyCloseUpEye: false,
+      eyeProposals: const [],
+      clearSelectedEyeProposal: true,
+      eyeProposalFreshness: const {},
+    );
+
+    try {
+      final result = await (_service as EyeProposalService).findEyes(
+        bytes,
+        state.selectedImageName ?? 'tilapia.jpg',
+      );
+      if (!mounted ||
+          reqId != _eyeDetectRequestId ||
+          !identical(state.selectedImageBytes, bytes) ||
+          state.selectedRegion != region) {
+        return;
+      }
+
+      if (result.alreadyEye) {
+        state = state.copyWith(
+          isFindingEyes: false,
+          alreadyCloseUpEye: true,
+          eyeProposals: const [],
+          clearSelectedEyeProposal: true,
+        );
+        confirmFullImageAsCloseUp();
+        return;
+      }
+
+      if (result.proposals.isNotEmpty) {
+        final first = result.proposals.first;
+        state = state.copyWith(
+          isFindingEyes: false,
+          alreadyCloseUpEye: false,
+          eyeProposals: result.proposals,
+          selectedEyeProposalIndex: 0,
+          confirmedImageBytes: first.bytes,
+          isCropConfirmed: true,
+          isFullImageConfirmed: false,
+          lastCropNormalizedRect: first.rect,
+          clearError: true,
+          clearResult: true,
+        );
+        return;
+      }
+
+      state = state.copyWith(
+        isFindingEyes: false,
+        alreadyCloseUpEye: false,
+        eyeProposals: result.proposals,
+        clearSelectedEyeProposal: true,
+      );
+    } on ClassificationApiException catch (e) {
+      if (!mounted || reqId != _eyeDetectRequestId) return;
+      state = state.copyWith(isFindingEyes: false);
+      if (e.isInputRejection) {
+        showEyeProposalRejection(e);
+      }
+    } catch (_) {
+      if (!mounted || reqId != _eyeDetectRequestId) return;
+      state = state.copyWith(isFindingEyes: false);
+    }
+  }
+
+  /// Select one detected eye proposal from the gallery or image marker.
+  /// Clears any previous live result so switching eyes never shows stale data.
+  void selectEyeProposal(int index) {
+    if (index < 0 || index >= state.eyeProposals.length) return;
+    final proposal = state.eyeProposals[index];
+    _activeRequestId++;
+    state = state.copyWith(
+      selectedEyeProposalIndex: index,
+      confirmedImageBytes: proposal.bytes,
+      isCropConfirmed: true,
+      isFullImageConfirmed: false,
+      lastCropNormalizedRect: proposal.rect,
+      isClassifying: false,
+      clearProcessingStage: true,
+      clearError: true,
+      clearResult: true,
+      clearSuccess: true,
     );
   }
 
@@ -570,7 +921,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
   /// Clear the currently selected image and reset workflow state
   void clearSelection() {
+    _reviewedBatchIndex = null;
     _activeRequestId++;
+    _eyeDetectRequestId++;
     state = state.copyWith(
       isUploadingImage: false,
       isClassifying: false,
@@ -589,7 +942,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
   /// Run MobileNetV3 classification against the Django backend
   Future<void> classify() async {
     // Prevent duplicate concurrent submissions
-    if (state.isClassifying) return;
+    if (state.isClassifying || state.isBatchRunning) return;
 
     if (state.selectedImageBytes == null) {
       state = state.copyWith(
@@ -622,7 +975,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     }
 
     final bytesToSubmit = state.confirmedImageBytes!;
-    final region = state.selectedRegion!;
+    final region = state.selectedEyeProposal != null
+        ? AnatomicalRegion.eye
+        : state.selectedRegion!;
     final baseName = state.selectedImageName ?? 'tilapia_scan.jpg';
     final isPng =
         bytesToSubmit.length >= 8 &&
@@ -654,12 +1009,18 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       // Ignore stale response if image, region, or crop changed while in flight
       if (!mounted || requestId != _activeRequestId) return;
 
-      final updatedHistory = isAuthenticated
-          ? List<ClassificationResult>.from(state.history)
-          : await _guestCache.addScan(result);
+      final updatedHistory = await _historyWithResult(result);
       if (!mounted || requestId != _activeRequestId) return;
-      if (isAuthenticated && result.saved && result.scanId != null) {
-        updatedHistory.insert(0, result);
+      final batchIndex = _reviewedBatchIndex;
+      if (batchIndex != null) {
+        _updateBatchItem(batchIndex, BatchScanStatus.complete, result: result);
+      }
+
+      final updatedEyeFreshness = Map<int, bool>.from(
+        state.eyeProposalFreshness,
+      );
+      if (state.selectedEyeProposalIndex != null) {
+        updatedEyeFreshness[state.selectedEyeProposalIndex!] = result.isFresh;
       }
 
       state = state.copyWith(
@@ -667,6 +1028,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         clearProcessingStage: true,
         latestResult: result,
         history: updatedHistory,
+        eyeProposalFreshness: updatedEyeFreshness,
         successMessage: !isAuthenticated
             ? 'Analysis complete. Saved on this device only (latest 10 guest scans).'
             : result.saved
@@ -750,8 +1112,9 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       }
       if (!mounted) return;
       final targetSet = scanIds.toSet();
-      final updated =
-          state.history.where((s) => !targetSet.contains(s.scanId)).toList();
+      final updated = state.history
+          .where((s) => !targetSet.contains(s.scanId))
+          .toList();
       state = state.copyWith(
         history: updated,
         clearDeleting: true,
@@ -788,7 +1151,8 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       if (!mounted) return;
       state = state.copyWith(
         clearDeleting: true,
-        errorMessage: 'Could not clear classification history. Please try again.',
+        errorMessage:
+            'Could not clear classification history. Please try again.',
       );
     }
   }

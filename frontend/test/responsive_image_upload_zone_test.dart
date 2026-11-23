@@ -95,7 +95,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text('JPG, JPEG, PNG, HEIC · Max 5 MB'),
+          find.text('JPG, JPEG, PNG, HEIC · Max 10 MB'),
           findsOneWidget,
         );
         expect(find.byIcon(CupertinoIcons.arrow_up_doc), findsOneWidget);
@@ -108,7 +108,7 @@ void main() {
         expect(find.byKey(const Key('region_option_gill')), findsOneWidget);
 
         // Eye selected by default
-        expect(controller.state.selectedRegion, AnatomicalRegion.eye);
+        expect(controller.state.selectedRegion, AnatomicalRegion.auto);
 
         // 3. Click anywhere in upload zone opens gallery picker
         await tester.tap(find.byKey(const Key('empty_upload_dropzone')));
@@ -272,7 +272,7 @@ void main() {
           tester.getSemantics(find.byKey(const Key('region_option_eye'))),
           matchesSemantics(
             isButton: true,
-            isSelected: true,
+            isSelected: false,
             hasSelectedState: true,
             hasTapAction: true,
             label: 'Eye (Mata) region',

@@ -50,7 +50,7 @@ ALLOWED_CONTENT_TYPES = {
     "",
 }
 ALLOWED_DECODED_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF", "HEIC"}
-ALLOWED_REGION_TYPES = {"eye", "gill"}
+ALLOWED_REGION_TYPES = {"auto", "eye", "gill"}
 
 PRELIMINARY_DISCLAIMER = (
     "This is a preliminary visual freshness assessment and does not guarantee food safety."
@@ -170,7 +170,7 @@ def classify_fish(request):
             {
                 "error": {
                     "code": "INVALID_REGION_TYPE",
-                    "message": "A valid anatomical region_type ('eye' or 'gill') is required.",
+                    "message": "A valid anatomical region_type ('auto', 'eye' or 'gill') is required.",
                 }
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -321,6 +321,11 @@ def classify_fish(request):
     try:
         image_file.seek(0)
         validation = validate_image(image_file, region_type)
+        if region_type == "auto":
+            detected_region = validation.get("region_type")
+            if detected_region not in {"eye", "gill"}:
+                raise ModelInferenceError("Validator did not resolve the anatomical region.")
+            region_type = detected_region
         image_file.seek(0)
         prediction = predict_image(image_file, region_type=region_type)
         confidence = float(prediction["confidence"])

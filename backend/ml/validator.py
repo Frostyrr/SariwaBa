@@ -99,11 +99,12 @@ def decide_input(probabilities, region_type, threshold, classes=VALIDATOR_CLASSE
     if label == "whole_tilapia":
         raise InputRejectedError("WHOLE_TILAPIA_CLOSE_UP_REQUIRED",
             "This appears to be a whole Tilapia. Take a close-up of its eye or exposed gill to assess freshness.", confidence)
-    if label != region_type:
+    if region_type != "auto" and label != region_type:
         raise InputRejectedError("REGION_MISMATCH",
             f"The image appears to show a {label}. Change the selected region or submit another image.", confidence)
     return {"region_verified": True, "species_verified": False,
-            "validation_scope": VALIDATOR_SCOPES[len(classes)], "validation_confidence": confidence}
+            "validation_scope": VALIDATOR_SCOPES[len(classes)], "validation_confidence": confidence,
+            **({"region_type": label} if region_type == "auto" else {})}
 
 
 @lru_cache(maxsize=1)

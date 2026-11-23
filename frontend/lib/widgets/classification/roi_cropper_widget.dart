@@ -175,7 +175,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
 
   bool get _showFindEye =>
       widget.controller.canFindEyes &&
-      widget.state.selectedRegion?.apiValue == 'eye';
+      widget.state.selectedRegion != AnatomicalRegion.gill;
 
   Future<void> _findEyes() async {
     final source = widget.state.selectedImageBytes;
