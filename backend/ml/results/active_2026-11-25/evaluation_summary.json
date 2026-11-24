@@ -1,0 +1,284 @@
+{
+  "model_b_freshness": {
+    "checkpoint": "d:\\Projects\\SariwaBa\\backend\\ml\\models\\sariwaba_mobilenetv3_best.pth",
+    "best_epoch": 2,
+    "classes": [
+      "Fresh",
+      "NonFresh"
+    ],
+    "splits": {
+      "val": {
+        "total": 441,
+        "correct": 439,
+        "accuracy_pct": 99.5465,
+        "avg_loss": 0.080544,
+        "macro_f1": 0.995465,
+        "confusion_matrix": [
+          [
+            218,
+            1
+          ],
+          [
+            1,
+            221
+          ]
+        ]
+      },
+      "test": {
+        "total": 390,
+        "correct": 385,
+        "accuracy_pct": 98.7179,
+        "avg_loss": 0.081549,
+        "macro_f1": 0.987063,
+        "confusion_matrix": [
+          [
+            174,
+            2
+          ],
+          [
+            3,
+            211
+          ]
+        ]
+      },
+      "train": {
+        "total": 3351,
+        "correct": 3346,
+        "accuracy_pct": 99.8508,
+        "avg_loss": 0.037243,
+        "macro_f1": 0.998506,
+        "confusion_matrix": [
+          [
+            1735,
+            3
+          ],
+          [
+            2,
+            1611
+          ]
+        ]
+      }
+    }
+  },
+  "model_a_validator": {
+    "checkpoint": "d:\\Projects\\SariwaBa\\backend\\ml\\models\\sariwaba_validator.pth",
+    "model_version": "validator-f10d30ceded6",
+    "acceptance_threshold": 0.85,
+    "classes": [
+      "eye",
+      "gill",
+      "unsupported",
+      "whole_tilapia"
+    ],
+    "splits_raw_argmax": {
+      "val": {
+        "total": 250,
+        "correct": 246,
+        "accuracy_pct": 98.4,
+        "avg_loss": 0.095786,
+        "macro_f1": 0.980337,
+        "confusion_matrix": [
+          [
+            81,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            64,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            60,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            41
+          ]
+        ]
+      },
+      "test": {
+        "total": 279,
+        "correct": 259,
+        "accuracy_pct": 92.8315,
+        "avg_loss": 0.277063,
+        "macro_f1": 0.919537,
+        "confusion_matrix": [
+          [
+            97,
+            1,
+            4,
+            1
+          ],
+          [
+            0,
+            66,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            61,
+            1
+          ],
+          [
+            10,
+            1,
+            2,
+            35
+          ]
+        ]
+      },
+      "train": {
+        "total": 2093,
+        "correct": 2084,
+        "accuracy_pct": 99.57,
+        "avg_loss": 0.033149,
+        "macro_f1": 0.99499,
+        "confusion_matrix": [
+          [
+            761,
+            0,
+            0,
+            5
+          ],
+          [
+            0,
+            542,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            228,
+            4
+          ],
+          [
+            0,
+            0,
+            0,
+            553
+          ]
+        ]
+      }
+    },
+    "gated_evaluation": {
+      "validation": {
+        "confusion_matrix": [
+          [
+            81,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            64,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            60,
+            2
+          ],
+          [
+            0,
+            1,
+            1,
+            41
+          ]
+        ],
+        "class_counts": {
+          "eye": 81,
+          "gill": 64,
+          "unsupported": 62,
+          "whole_tilapia": 43
+        },
+        "unsupported_false_accept_rate": 0.0,
+        "supported_correct_accept_rate": {
+          "eye": 0.8888888888888888,
+          "gill": 0.984375
+        },
+        "supported_rejection_rate": {
+          "eye": 0.11111111111111116,
+          "gill": 0.015625
+        },
+        "supported_wrong_region_accept_count": 0,
+        "whole_tilapia_prompt_rate": 0.7441860465116279,
+        "whole_tilapia_false_route_rate": 0.0,
+        "unsupported_whole_prompt_rate": 0.016129032258064516
+      },
+      "test": {
+        "confusion_matrix": [
+          [
+            97,
+            1,
+            4,
+            1
+          ],
+          [
+            0,
+            66,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            61,
+            1
+          ],
+          [
+            10,
+            1,
+            2,
+            35
+          ]
+        ],
+        "class_counts": {
+          "eye": 103,
+          "gill": 66,
+          "unsupported": 62,
+          "whole_tilapia": 48
+        },
+        "unsupported_false_accept_rate": 0.0,
+        "supported_correct_accept_rate": {
+          "eye": 0.7669902912621359,
+          "gill": 0.9393939393939394
+        },
+        "supported_rejection_rate": {
+          "eye": 0.23300970873786409,
+          "gill": 0.06060606060606055
+        },
+        "supported_wrong_region_accept_count": 0,
+        "whole_tilapia_prompt_rate": 0.3125,
+        "whole_tilapia_false_route_rate": 0.0,
+        "unsupported_whole_prompt_rate": 0.0
+      },
+      "end_to_end_test": {},
+      "freshness_threshold": 0.8,
+      "acceptance_threshold": 0.85,
+      "target_false_accept_rate": 0.05,
+      "manifest_sha256": {
+        "splits.csv": "95c2fc89b407c858488e183fd8e39cdc1ff9ab384eca6f6b1c36f709ac4066dd",
+        "validator_labels.csv": "016883875cd169b93d1268d288470b303eef4e83a2bedf1e431bc7f8e06901ac"
+      },
+      "seed": 42,
+      "min_eval_per_class": 20,
+      "freshness_checkpoint_sha256": null,
+      "end_to_end_status": "not_evaluated_no_freshness_ground_truth",
+      "limitations": "Validator uses reviewed held-out partitions. Existing freshness checkpoint training membership is unknown, so its end-to-end scores are exploratory, not independent held-out performance. No independent species or food-safety verification. Review negative-category diversity and specimen provenance before deployment."
+    }
+  }
+}

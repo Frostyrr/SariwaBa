@@ -1,0 +1,5 @@
+Actual \ Predicted,eye,gill,unsupported,whole_tilapia
+eye,97,1,4,1
+gill,0,66,0,0
+unsupported,0,0,61,1
+whole_tilapia,10,1,2,35
