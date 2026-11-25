@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// SariwaBa Design System Color Tokens (`SariwaColors`)
 /// Extracted from Version 1 Mascot, Logo, and Underwater Backdrop.

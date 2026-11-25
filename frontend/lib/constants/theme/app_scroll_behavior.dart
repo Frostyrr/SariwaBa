@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// App-wide scroll behavior enabling mouse/trackpad dragging on web
 /// (useful for horizontal chip/tab strips) while keeping native touch physics.

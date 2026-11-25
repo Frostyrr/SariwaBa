@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Reusable glassmorphic card container with Gaussian blur and subtle unclipped dual-layer drop shadows.
 class FrostedGlassCard extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/classification/classification_result.dart';
 import 'package:frontend/widgets/classification/classification_result_card.dart';

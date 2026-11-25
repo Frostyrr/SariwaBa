@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Keeps dashboard controls and their overlay routes on the light surface theme.
 class DashboardLightTheme extends StatelessWidget {
