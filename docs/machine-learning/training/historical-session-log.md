@@ -41,3 +41,31 @@ Freshly bought market tilapia photos under `backend/datasets/local_collection_v2
 - Restarted Docker container `sariwaba_backend` (`docker compose restart backend`).
 - All 29 targeted backend tests passed (`1.05s`).
 - Live HTTP checks against `http://localhost:8000` confirmed `POST /api/v1/classify/eye-proposals/` and `POST /api/v1/classify/` returned HTTP 200 with `validator-f10d30ceded6` (`region_verified: True`).
+
+
+---
+
+## Session — 25 November 2026 (Evening, Manila Time): Final-Day Dataset Audit (`local_collection` Day 5 & `local_collection_v2` Day 3) and Hold-Out Decision
+
+### Context & Dataset Intake
+Collection concluded on the morning of 25 November 2026 (`24 November` skipped due to full-day academic schedule):
+- **`local_collection` Day 5 (`226` photos — severely decomposed / Not Fresh):** `android/day 5` (`19` eyes, `35` gills) and `iphone_jpg/day_05` (`68` eyes, `68` gills, `36` whole).
+- **`local_collection_v2` Day 3 (`240` photos — spoiled / Not Fresh):** `day_03/eyes` (`128`) and `day_03/whole` (`112`); gills omitted due to small specimen size.
+
+### Verified Historical Split Lineage (Active Checkpoints)
+- **`local_collection` Days 1–2 (Fresh):** Used in `train` across Models A, B, and C (plus `50` images in YOLO `val` and `41` eye crops in Model A `val`/`test`).
+- **`local_collection` Day 3 (Not Fresh):** Used `100%` in `train` for active Models A and B (`balanced_2026-11-23`), and split `156` `train` / `171` `test` in active Model C (`day03_detector_2026-11-23`).
+- **`local_collection_v2` Day 1 (Fresh):** Kept **`100%` held-out (`test` only)** for Model B and Model C; `120` photos (`60` eyes, `60` whole) were included in Model A `train` for red-tray calibration (`day_03` remained unseen by all three models).
+
+### Evaluation Findings & Strategic Decision (Do Not Retrain — Keep as Held-Out Test & Stress-Test Sets)
+1. **Strong End-to-End Generalization on Unseen Batch 2 (`local_collection_v2`):**
+   - On `day_03/whole` (`112` spoiled photos), Model C proposed an eye on **`111/112` (`99.11%`)**, Model A accepted **`104/111` (`93.69%`)**, and Model B predicted **Not Fresh on `100/104` (`96.15%`)**.
+   - Combined with `day_01/whole` (`66/75` = `88.00%` Fresh), active Models C → A → B achieved **92.74% end-to-end accuracy (`166/179`)** on a local fish cohort completely unseen by Models B and C.
+   - Visual inspection showed `day_03/eyes` (`128` photos) were framed as wide half-body shots on the red lid rather than tight eye close-ups (`17.97%` direct Model A acceptance; `61.72%` raw Model B accuracy), whereas routing them through YOLO cropping lifted Model B accuracy to **`87.23%`** (`41/47`).
+2. **Batch 1 Day 5 Extreme-Decomposition Boundary Identified:**
+   - Day 5 eyes still present in whole-fish or close-up shots were classified **Not Fresh** at **`91.2%–100.0%`** by Model B, while liquefied/missing eyeballs in `20/36` Day 5 whole carcasses appropriately yielded no YOLO eye box (`44.44%` proposal rate).
+   - Day 5 gill photos contained a metal knife blade prying open dark, decomposed cavities (`57%–71%` rejected as `CONTENT_UNCERTAIN` by Model A; wide silvery-scale framing misclassified by Model B). Training on knife-occluded putrid cavities or empty skull sockets would degrade retail-stage precision.
+3. **Decision:** Keep all active checkpoints unchanged (`validator-f10d30ceded6`, `sariwaba_mobilenetv3_best.pth`, `sariwaba_eye_detector.pt`). Preserve `local_collection_v2` (Day 1 + Day 3) as the primary **independent local test cohort** (including optional Roboflow annotation of `v2/day_03/whole` for YOLO box-IoU testing only), and retain `local_collection` Day 5 as a **documented extreme-spoilage boundary/stress test**.
+4. **Saved Artifacts:**
+   - Standard & Batch 2 confusion matrices (`.png`, `.csv`, `.json`): `backend/ml/results/active_2026-11-25/`
+   - Detailed Nov 25 cohort JSON metrics: `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json`

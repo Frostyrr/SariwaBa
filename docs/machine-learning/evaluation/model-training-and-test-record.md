@@ -1,6 +1,6 @@
 # SariwaBa Model Training and Test Record
 
-Updated 23 November 2026, Manila time.
+Updated 25 November 2026, Manila time.
 
 ## What changed today
 
@@ -72,3 +72,43 @@ After testing the freshly bought Batch 2 (`local_collection_v2/day_01`, photogra
 
 - **Verification:** All 29 targeted backend classification/validator/eye-proposal tests passed (`1.05s`), and live Docker API checks on `http://localhost:8000` confirmed `POST /api/v1/classify/eye-proposals/` and `POST /api/v1/classify/` returned HTTP 200 with `validator-f10d30ceded6` (`region_verified: True`).
 - **Artifacts:** `backend/datasets/local_collection/training_runs/balanced_2026-11-23/` (`model_b_manifest.csv`, `model_b_balanced.pth`, `model_a_metadata/`, `model_a_balanced/`).
+
+
+## 25 November 2026 — Held-Out Confusion Matrix Export & Final-Day Cohort Evaluation
+
+No models were retrained or replaced on 25 November. All active checkpoints (`validator-f10d30ceded6`, `model_b_balanced.pth` / `sariwaba_mobilenetv3_best.pth`, and Day 3 `sariwaba_eye_detector.pt`) were evaluated across their standard partitions and on `466` newly added final-day photos collected on the morning of 25 November (`226` in `local_collection` Day 5; `240` in `local_collection_v2` Day 3). Collection on 24 November (`local_collection` Day 4 / `local_collection_v2` Day 2) was skipped due to a full-day academic schedule.
+
+### 1. Active Model B Confusion Matrix on Standard Held-Out Test Split (`390` photos)
+
+| Expected label | Predicted Fresh | Predicted Not Fresh | Recall |
+| --- | ---: | ---: | ---: |
+| Fresh (`176`) | **174** | 2 | 98.86% |
+| Not Fresh (`214`) | 3 | **211** | 98.60% |
+
+Overall test accuracy: **98.72%** (`385/390`; val accuracy **99.55%**, train accuracy **99.85%**). Confusion matrix CSV/PNG exports for active Models A and B are saved under `backend/ml/results/active_2026-11-25/`.
+
+### 2. Unseen Batch 2 (`local_collection_v2`: Day 1 Fresh vs. Day 3 Not Fresh) End-to-End Evaluation
+
+`local_collection_v2` (`3` small market tilapia on a red plastic tray; gills omitted due to small operculum size) was kept **100% outside Model B and Model C training/validation** (`120` Day 1 photos were used in Model A tray calibration; Day 3 was unseen by all three models):
+
+- **`day_03/whole` (`112` spoiled Not Fresh whole-fish photos):**
+  - **Model A (whole-fish check):** `102/112` (**91.07%**) prompted `WHOLE_TILAPIA_CLOSE_UP_REQUIRED` (`10` `CONTENT_UNCERTAIN`; `0` falsely accepted as eye).
+  - **Model C (YOLO eye proposals):** Proposed an eye crop on **`111/112` (99.11%)** of photos.
+  - **Model A (on first YOLO eye crop):** Accepted **`104/111` (93.69%)**.
+  - **Model B (on gated YOLO eye crops):** Classified **`100/104` (96.15%)** as **Not Fresh** (`104/111` = `93.69%` ungated).
+- **Combined Batch 2 End-to-End Whole-Fish → YOLO Eye Crop Confusion Matrix (`179` gated whole-fish scans across Day 1 Fresh & Day 3 Not Fresh):**
+
+| Expected label (`local_collection_v2`) | Predicted Fresh | Predicted Not Fresh | Recall |
+| --- | ---: | ---: | ---: |
+| Day 1 Fresh (`75`) | **66** | 9 | 88.00% |
+| Day 3 Not Fresh (`104`) | 4 | **100** | 96.15% |
+
+Overall unseen Batch 2 end-to-end accuracy: **92.74%** (`166/179`). Direct `day_03/eyes` uploads (`128` wide half-body shots on the red lid) had `17.97%` direct Model A acceptance (`61.72%` ungated / `69.57%` gated Model B accuracy), whereas passing those wide shots through YOLO eye cropping raised Model B Not-Fresh accuracy to **87.23%** (`41/47` gated crops), matching the live `/api/v1/classify/eye-proposals/` fallback workflow.
+
+### 3. Batch 1 Day 5 (`local_collection` Extreme Putrefaction Stress Test — `226` photos)
+
+By Day 5 (`android/day 5`: `19` eyes, `35` gills; `iphone_jpg/day_05`: `68` eyes, `68` gills, `36` whole), specimens exhibited advanced post-market putrefaction (liquefied/missing eyeballs leaving hollow sockets, degraded dark gill cavities held open with a metal knife blade, and motion blur on Android close-ups):
+
+- **Eyes & Whole-Fish YOLO Crops:** Model B classified **94.74%** (`18/19`) of Android Day 5 eyes and **91.18%** (`62/68`; `89.58%` gated on `48` accepted) of iPhone Day 5 eyes as **Not Fresh** (Model A accepted `5.26%` of blurry Android Day 5 eyes and `70.59%` of iPhone Day 5 eyes). On `iphone_jpg/day_05/whole` (`36` photos), YOLO proposed eyes on `16/36` (`44.44%`, reflecting missing/liquefied eyeballs in the remaining carcasses); `15/16` (`93.75%`) passed Model A and **100.0%** (`15/15`) were classified **Not Fresh** by Model B.
+- **Knife-Pried Decomposed Gills (`35` Android, `68` iPhone):** Visible metal knife blades and wide silvery-body framing caused Model A to reject `57.14%` (Android) and `70.59%` (iPhone) as `CONTENT_UNCERTAIN`, and Model B misclassified wide uncropped shots (`26.67%` Android / `5.00%` iPhone gated Not-Fresh accuracy). Because Day 5 carcasses with knife-pried hollow gill cavities fall outside retail market screening conditions, Day 5 photos are retained strictly as a **documented out-of-distribution stress-test record** and excluded from training.
+- **Artifacts:** `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json` and `backend/ml/results/active_2026-11-25/`.
