@@ -93,7 +93,7 @@ Overall test accuracy: **98.72%** (`385/390`; val accuracy **99.55%**, train acc
 
 - **`day_03/whole` (`112` spoiled Not Fresh whole-fish photos):**
   - **Model A (whole-fish check):** `102/112` (**91.07%**) prompted `WHOLE_TILAPIA_CLOSE_UP_REQUIRED` (`10` `CONTENT_UNCERTAIN`; `0` falsely accepted as eye).
-  - **Model C (YOLO eye proposals):** Proposed an eye crop on **`111/112` (99.11%)** of photos.
+  - **Model C (YOLO eye proposals & annotated ground-truth test):** Proposed an eye crop on **`111/112` (99.11%)** of photos. Against the Roboflow ground-truth export (`SariwaBa Batch 3.v2-day-3.yolov8`, remapped to `{0: fish, 1: eye}` in `v2_yolo_day03/`), active Model C achieved **`92.57%` eye `mAP50`**, **`51.38%` eye `mAP50–95`** (up from `47.42%` on Day 1), **`91.68%` eye precision**, and **`78.72%` eye recall** (`fish mAP50 = 99.50%`, `overall mAP50 = 96.04%`). Across all **`187` combined Batch 2 whole-fish photos** (`75` Day 1 + `112` Day 3 in `v2_yolo_combined/`), Model C achieved **`95.39%` eye `mAP50`** (`49.36%` `mAP50–95`, `94.13%` precision, `77.64%` recall) and **`97.32%` overall `mAP50`** (`178/186` = `95.7%` true eyes matched in the `conf=0.25` confusion matrix).
   - **Model A (on first YOLO eye crop):** Accepted **`104/111` (93.69%)**.
   - **Model B (on gated YOLO eye crops):** Classified **`100/104` (96.15%)** as **Not Fresh** (`104/111` = `93.69%` ungated).
 - **Combined Batch 2 End-to-End Whole-Fish → YOLO Eye Crop Confusion Matrix (`179` gated whole-fish scans across Day 1 Fresh & Day 3 Not Fresh):**

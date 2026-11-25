@@ -65,7 +65,11 @@ Collection concluded on the morning of 25 November 2026 (`24 November` skipped d
 2. **Batch 1 Day 5 Extreme-Decomposition Boundary Identified:**
    - Day 5 eyes still present in whole-fish or close-up shots were classified **Not Fresh** at **`91.2%–100.0%`** by Model B, while liquefied/missing eyeballs in `20/36` Day 5 whole carcasses appropriately yielded no YOLO eye box (`44.44%` proposal rate).
    - Day 5 gill photos contained a metal knife blade prying open dark, decomposed cavities (`57%–71%` rejected as `CONTENT_UNCERTAIN` by Model A; wide silvery-scale framing misclassified by Model B). Training on knife-occluded putrid cavities or empty skull sockets would degrade retail-stage precision.
-3. **Decision:** Keep all active checkpoints unchanged (`validator-f10d30ceded6`, `sariwaba_mobilenetv3_best.pth`, `sariwaba_eye_detector.pt`). Preserve `local_collection_v2` (Day 1 + Day 3) as the primary **independent local test cohort** (including optional Roboflow annotation of `v2/day_03/whole` for YOLO box-IoU testing only), and retain `local_collection` Day 5 as a **documented extreme-spoilage boundary/stress test**.
-4. **Saved Artifacts:**
-   - Standard & Batch 2 confusion matrices (`.png`, `.csv`, `.json`): `backend/ml/results/active_2026-11-25/`
-   - Detailed Nov 25 cohort JSON metrics: `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json`
+3. **Decision:** Keep all active checkpoints unchanged (`validator-f10d30ceded6`, `sariwaba_mobilenetv3_best.pth`, `sariwaba_eye_detector.pt`). Preserve `local_collection_v2` (Day 1 + Day 3) as the primary **independent local test cohort**, and retain `local_collection` Day 5 as a **documented extreme-spoilage boundary/stress test**.
+4. **Annotated Batch 2 YOLOv8 Ground-Truth Evaluation (`SariwaBa Batch 3.v2-day-3.yolov8`):**
+   - Evaluated active `sariwaba_eye_detector.pt` (remapped `{0: fish, 1: eye}`) on `v2_yolo_day03` (`112` Day 3 images, `112` eyes) and `v2_yolo_combined` (`187` Day 1 + Day 3 images, `186` eyes):
+     - **`v2_yolo_day03` (`112` spoiled fish):** Eye `Precision = 91.68%`, `Recall = 78.72%`, **`mAP50 = 92.57%`**, **`mAP50–95 = 51.38%`** (improved from Day 1's `47.42%` due to tighter eye-ring annotations); Overall `mAP50 = 96.04%`.
+     - **`v2_yolo_combined` (`187` Fresh + Not Fresh fish):** Eye `Precision = 94.13%`, `Recall = 77.64%`, **`mAP50 = 95.39%`**, `mAP50–95 = 49.36%`; Overall **`mAP50 = 97.32%`** (`178/186` = `95.7%` annotated eyes matched at runtime `conf=0.25`).
+5. **Saved Artifacts:**
+   - Standard, Batch 2, and Model C (`conf=0.25`) confusion matrices (`.png`, `.csv`, `.json`): `backend/ml/results/active_2026-11-25/`
+   - Detailed Nov 25 cohort & YOLO JSON metrics: `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json`, `v2_yolo_day03/results.json`, and `v2_yolo_combined/results.json`
