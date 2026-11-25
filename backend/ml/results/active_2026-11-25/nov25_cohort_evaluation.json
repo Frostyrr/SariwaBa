@@ -1,0 +1,275 @@
+{
+  "models": {
+    "model_a": "validator-f10d30ceded6",
+    "model_a_threshold": 0.85,
+    "model_b_best_epoch": 2,
+    "model_c": "sariwaba_eye_detector.pt (Day 3 YOLOv8n)"
+  },
+  "local_collection_day05_not_fresh": {
+    "android_day5_eyes": {
+      "count": 19,
+      "region_type": "eye",
+      "expected_freshness": "NonFresh",
+      "model_a_raw_argmax": {
+        "eye": 19
+      },
+      "model_a_gate_outcomes": {
+        "CONTENT_UNCERTAIN": 18,
+        "ACCEPTED": 1
+      },
+      "model_a_accept_rate_pct": 5.26,
+      "model_b_all_predictions": {
+        "NonFresh": 18,
+        "Fresh": 1
+      },
+      "model_b_all_accuracy_pct": 94.74,
+      "model_b_mean_confidence": 0.7673,
+      "model_b_gated_predictions": {
+        "NonFresh": 1
+      },
+      "model_b_gated_accuracy_pct": 100.0
+    },
+    "android_day5_gills": {
+      "count": 35,
+      "region_type": "gill",
+      "expected_freshness": "NonFresh",
+      "model_a_raw_argmax": {
+        "gill": 31,
+        "eye": 4
+      },
+      "model_a_gate_outcomes": {
+        "ACCEPTED": 15,
+        "CONTENT_UNCERTAIN": 20
+      },
+      "model_a_accept_rate_pct": 42.86,
+      "model_b_all_predictions": {
+        "Fresh": 16,
+        "NonFresh": 19
+      },
+      "model_b_all_accuracy_pct": 54.29,
+      "model_b_mean_confidence": 0.7275,
+      "model_b_gated_predictions": {
+        "Fresh": 11,
+        "NonFresh": 4
+      },
+      "model_b_gated_accuracy_pct": 26.67
+    },
+    "iphone_day05_eyes": {
+      "count": 68,
+      "region_type": "eye",
+      "expected_freshness": "NonFresh",
+      "model_a_raw_argmax": {
+        "eye": 68
+      },
+      "model_a_gate_outcomes": {
+        "ACCEPTED": 48,
+        "CONTENT_UNCERTAIN": 20
+      },
+      "model_a_accept_rate_pct": 70.59,
+      "model_b_all_predictions": {
+        "NonFresh": 62,
+        "Fresh": 6
+      },
+      "model_b_all_accuracy_pct": 91.18,
+      "model_b_mean_confidence": 0.6968,
+      "model_b_gated_predictions": {
+        "NonFresh": 43,
+        "Fresh": 5
+      },
+      "model_b_gated_accuracy_pct": 89.58
+    },
+    "iphone_day05_gills": {
+      "count": 68,
+      "region_type": "gill",
+      "expected_freshness": "NonFresh",
+      "model_a_raw_argmax": {
+        "gill": 55,
+        "eye": 13
+      },
+      "model_a_gate_outcomes": {
+        "CONTENT_UNCERTAIN": 48,
+        "ACCEPTED": 20
+      },
+      "model_a_accept_rate_pct": 29.41,
+      "model_b_all_predictions": {
+        "Fresh": 41,
+        "NonFresh": 27
+      },
+      "model_b_all_accuracy_pct": 39.71,
+      "model_b_mean_confidence": 0.6685,
+      "model_b_gated_predictions": {
+        "Fresh": 19,
+        "NonFresh": 1
+      },
+      "model_b_gated_accuracy_pct": 5.0
+    },
+    "iphone_day05_whole": {
+      "count": 36,
+      "expected_freshness": "NonFresh",
+      "model_a_whole_raw_argmax": {
+        "whole_tilapia": 36
+      },
+      "model_a_whole_gate_outcomes": {
+        "WHOLE_TILAPIA_CLOSE_UP_REQUIRED": 33,
+        "CONTENT_UNCERTAIN": 3
+      },
+      "model_a_whole_prompt_rate_pct": 91.67,
+      "model_c_photos_with_eye_proposal": 16,
+      "model_c_proposal_rate_pct": 44.44,
+      "model_c_total_proposals": 19,
+      "model_c_mean_top_conf": 0.3945,
+      "first_yolo_crop_model_a_gate": {
+        "UNSUPPORTED_IMAGE": 1,
+        "ACCEPTED": 15
+      },
+      "first_yolo_crop_model_a_accept_pct": 93.75,
+      "first_yolo_crop_model_b_all": {
+        "Fresh": 1,
+        "NonFresh": 15
+      },
+      "first_yolo_crop_model_b_all_acc_pct": 93.75,
+      "first_yolo_crop_model_b_gated": {
+        "NonFresh": 15
+      },
+      "first_yolo_crop_model_b_gated_acc_pct": 100.0
+    }
+  },
+  "local_collection_v2_day01_fresh": {
+    "eyes": {
+      "count": 119,
+      "region_type": "eye",
+      "expected_freshness": "Fresh",
+      "model_a_raw_argmax": {
+        "eye": 119
+      },
+      "model_a_gate_outcomes": {
+        "ACCEPTED": 118,
+        "CONTENT_UNCERTAIN": 1
+      },
+      "model_a_accept_rate_pct": 99.16,
+      "model_b_all_predictions": {
+        "Fresh": 84,
+        "NonFresh": 35
+      },
+      "model_b_all_accuracy_pct": 70.59,
+      "model_b_mean_confidence": 0.7218,
+      "model_b_gated_predictions": {
+        "Fresh": 83,
+        "NonFresh": 35
+      },
+      "model_b_gated_accuracy_pct": 70.34
+    },
+    "whole": {
+      "count": 75,
+      "expected_freshness": "Fresh",
+      "model_a_whole_raw_argmax": {
+        "whole_tilapia": 75
+      },
+      "model_a_whole_gate_outcomes": {
+        "WHOLE_TILAPIA_CLOSE_UP_REQUIRED": 75
+      },
+      "model_a_whole_prompt_rate_pct": 100.0,
+      "model_c_photos_with_eye_proposal": 75,
+      "model_c_proposal_rate_pct": 100.0,
+      "model_c_total_proposals": 81,
+      "model_c_mean_top_conf": 0.7015,
+      "first_yolo_crop_model_a_gate": {
+        "ACCEPTED": 75
+      },
+      "first_yolo_crop_model_a_accept_pct": 100.0,
+      "first_yolo_crop_model_b_all": {
+        "NonFresh": 9,
+        "Fresh": 66
+      },
+      "first_yolo_crop_model_b_all_acc_pct": 88.0,
+      "first_yolo_crop_model_b_gated": {
+        "NonFresh": 9,
+        "Fresh": 66
+      },
+      "first_yolo_crop_model_b_gated_acc_pct": 88.0
+    }
+  },
+  "local_collection_v2_day03_not_fresh": {
+    "eyes": {
+      "count": 128,
+      "region_type": "eye",
+      "expected_freshness": "NonFresh",
+      "model_a_raw_argmax": {
+        "eye": 91,
+        "whole_tilapia": 34,
+        "unsupported": 3
+      },
+      "model_a_gate_outcomes": {
+        "CONTENT_UNCERTAIN": 102,
+        "ACCEPTED": 23,
+        "UNSUPPORTED_IMAGE": 3
+      },
+      "model_a_accept_rate_pct": 17.97,
+      "model_b_all_predictions": {
+        "Fresh": 49,
+        "NonFresh": 79
+      },
+      "model_b_all_accuracy_pct": 61.72,
+      "model_b_mean_confidence": 0.6912,
+      "model_b_gated_predictions": {
+        "NonFresh": 16,
+        "Fresh": 7
+      },
+      "model_b_gated_accuracy_pct": 69.57
+    },
+    "whole": {
+      "count": 112,
+      "expected_freshness": "NonFresh",
+      "model_a_whole_raw_argmax": {
+        "whole_tilapia": 112
+      },
+      "model_a_whole_gate_outcomes": {
+        "WHOLE_TILAPIA_CLOSE_UP_REQUIRED": 102,
+        "CONTENT_UNCERTAIN": 10
+      },
+      "model_a_whole_prompt_rate_pct": 91.07,
+      "model_c_photos_with_eye_proposal": 111,
+      "model_c_proposal_rate_pct": 99.11,
+      "model_c_total_proposals": 145,
+      "model_c_mean_top_conf": 0.6265,
+      "first_yolo_crop_model_a_gate": {
+        "ACCEPTED": 104,
+        "CONTENT_UNCERTAIN": 3,
+        "UNSUPPORTED_IMAGE": 4
+      },
+      "first_yolo_crop_model_a_accept_pct": 93.69,
+      "first_yolo_crop_model_b_all": {
+        "NonFresh": 104,
+        "Fresh": 7
+      },
+      "first_yolo_crop_model_b_all_acc_pct": 93.69,
+      "first_yolo_crop_model_b_gated": {
+        "NonFresh": 100,
+        "Fresh": 4
+      },
+      "first_yolo_crop_model_b_gated_acc_pct": 96.15
+    }
+  },
+  "batch2_unseen_confusion_matrices": {
+    "end_to_end_yolo_crops_gated": [
+      [
+        66,
+        9
+      ],
+      [
+        4,
+        100
+      ]
+    ],
+    "direct_eye_closeups_gated": [
+      [
+        83,
+        35
+      ],
+      [
+        7,
+        16
+      ]
+    ]
+  }
+}

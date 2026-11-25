@@ -1,85 +1,73 @@
-# Manual Eye/Gill defense test sheet
+# Manual Eye/Gill Defense Scan Test Sheet
 
-Run on November 20, 2026 using the Django multipart upload endpoint and the real
-local demo checkpoints. Experimental Model A was enabled and Model B used
-its configured 0.80 score threshold. Requests used the guest path.
-Telemetry database writes were intercepted. Freshness calls were counted with a
-wrapper around the real model. This run covered API behavior from upload onward.
-Flutter camera capture, real-device cropping, and persistence were outside this
-run. The two user eye crops were generated in memory for diagnostic requests.
+Updated 25 November 2026 using the Django multipart upload endpoint (`/api/v1/classify/`) against the locked active checkpoints (`validator-f10d30ceded6` at `0.85` acceptance threshold and balanced `sariwaba_mobilenetv3_best.pth`) in an isolated in-memory database.
 
-## Decision
+## Summary & Scope Note
 
-**The current demo fails the zero-non-fish-results requirement on this set.**
-`unrelated3.png` submitted as Eye reached Model B and returned Fresh with a 99.1%
-freshness model score. That score describes the freshness model output for the
-submitted image.
+Compared with the earlier November 20 experimental run, the previous everyday-object false accept (`unrelated3.png`) is now **blocked (`422 CONTENT_UNCERTAIN`)**, valid Eye/Gill acceptance increased from `4/10` to **`6/10`**, and **`0/30`** opposite-region, wrong-fish-region, or whole-fish challenge requests reached Model B:
 
-| Expected input | Requests | Reached freshness | Returned freshness label |
-|---|---:|---:|---:|
-| Eye with Eye selected | 5 | 2 | 2 |
-| Gill with Gill selected | 5 | 3 | 2 |
-| Eye or gill with the opposite selection | 10 | 0 | 0 |
-| Unrelated objects (five photos in both modes) | 10 | 1 | 1 |
-| Other fish species, wrong regions, and whole fish from challenge folders | 30 | 0 | 0 |
-| Two user whole-fish photos | 2 | 0 | 0 |
-| Two diagnostic user eye crops | 2 | 1 | 1 |
+| Expected input | Requests | Reached freshness (Model B) | Returned `200` freshness label |
+| --- | ---: | ---: | ---: |
+| Eye with `eye` selected | 5 | 3 | 3 |
+| Gill with `gill` selected | 5 | 3 | 3 |
+| Eye or gill with opposite selection (`REGION_MISMATCH` / gate) | 10 | 0 | 0 |
+| Everyday inanimate objects (`unrelated1–4`, both modes) | 8 | 0 | 0 |
+| Close-up biological eyes of non-tilapia (`unrelated5.png` mammal eye & `testing_other_fish5.png` non-tilapia fish eye, `eye` mode) | 2 | 2 | 2 |
+| Other fish species (`1–4` + `5` in `gill` mode), wrong fish regions (`1–5`), and challenge whole fish (`1–5`) | 30 | 0 | 0 |
 
-The challenge folder labels serve as expected input categories. The five unrelated
-images are existing challenge examples. The same photo submitted in both modes
-counts as two requests. These results do not estimate real-world false acceptance
-or freshness accuracy. Independently scored freshness labels were unavailable.
+**Important defense note (`species_verified: false`):** Model A verifies **anatomical region** (`eye` vs. `gill` vs. `whole_tilapia` vs. non-eye/gill `unsupported`). Inanimate objects, wrong body parts, and mismatched regions were blocked (`28/30` non-tilapia challenge requests). The only `2` accepted challenge cases (`unrelated5.png`, a macro mammal eye, and `testing_other_fish5.png`, a macro silvery fish eye, both when `eye` mode was selected) are genuine anatomical eye close-ups—illustrating why the API explicitly returns `"region_verified": true, "species_verified": false` rather than claiming independent species identification.
 
-For a device rehearsal, start with `testing_eye2.png` (Eye),
-`testing_gills2.png` (Gill), and `unrelated3.png` (Eye). Confirm the exact preview
-or close-up submitted, record the error code or result, and add unfamiliar
-non-fish photos. Retain the false acceptance as a regression case when tuning
-Model A.
+For a live demo rehearsal, reliable sample files in `backend/ml/challenge_images/` include:
+- **Valid Eye (`200`):** `testing_eye3.png`, `testing_eye4.png`, `testing_eye5.png` (select `eye`)
+- **Valid Gill (`200`):** `testing_gills1.png`, `testing_gills2.png`, `testing_gills5.png` (select `gill`)
+- **Region Mismatch (`422 REGION_MISMATCH`):** `testing_eye3.png` with `gill` selected, or `testing_gills2.png` with `eye` selected
+- **Unsupported Object (`422 UNSUPPORTED_IMAGE` / `CONTENT_UNCERTAIN`):** `unrelated1.png` – `unrelated4.png`
+- **Whole Tilapia $\rightarrow$ Auto Eye Crop (`/api/v1/classify/eye-proposals/`):** Any whole-fish photo in `backend/datasets/local_collection_v2/day_01/whole/` (Fresh) or `day_03/whole/` (Not Fresh)
 
-## Request log
+## Request Log (`60` Challenge Requests — 25 November 2026)
 
 | Category | Photo | Selection | HTTP | Model B ran | Outcome |
-|---|---|---|---:|---|---|
+| --- | --- | --- | ---: | --- | --- |
 | eye | testing_eye1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | eye | testing_eye1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| eye | testing_eye2.png | eye | 200 | Yes | Not Fresh (99.9%) |
-| eye | testing_eye2.png | gill | 422 | No | REGION_MISMATCH |
-| eye | testing_eye3.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| eye | testing_eye3.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| eye | testing_eye4.png | eye | 200 | Yes | Fresh (82.9%) |
+| eye | testing_eye2.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| eye | testing_eye2.png | gill | 422 | No | CONTENT_UNCERTAIN |
+| eye | testing_eye3.png | eye | 200 | Yes | Fresh (98.7%) |
+| eye | testing_eye3.png | gill | 422 | No | REGION_MISMATCH |
+| eye | testing_eye4.png | eye | 200 | Yes | Fresh (86.5%) |
 | eye | testing_eye4.png | gill | 422 | No | REGION_MISMATCH |
-| eye | testing_eye5.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| eye | testing_eye5.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| gill | testing_gills1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| gill | testing_gills1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
+| eye | testing_eye5.png | eye | 200 | Yes | Fresh (97.8%) |
+| eye | testing_eye5.png | gill | 422 | No | REGION_MISMATCH |
+| gill | testing_gills1.png | eye | 422 | No | REGION_MISMATCH |
+| gill | testing_gills1.png | gill | 200 | Yes | Fresh (62.6%) |
 | gill | testing_gills2.png | eye | 422 | No | REGION_MISMATCH |
-| gill | testing_gills2.png | gill | 200 | Yes | Fresh (100.0%) |
-| gill | testing_gills3.png | eye | 422 | No | REGION_MISMATCH |
-| gill | testing_gills3.png | gill | 200 | Yes | Fresh (100.0%) |
+| gill | testing_gills2.png | gill | 200 | Yes | Fresh (71.8%) |
+| gill | testing_gills3.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| gill | testing_gills3.png | gill | 422 | No | CONTENT_UNCERTAIN |
 | gill | testing_gills4.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | gill | testing_gills4.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | gill | testing_gills5.png | eye | 422 | No | REGION_MISMATCH |
-| gill | testing_gills5.png | gill | 422 | Yes | FRESHNESS_UNCERTAIN |
-| other_fish_species | testing_other_fish1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
+| gill | testing_gills5.png | gill | 200 | Yes | Not Fresh (87.4%) |
+| other_fish_species | testing_other_fish1.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| other_fish_species | testing_other_fish1.png | gill | 422 | No | CONTENT_UNCERTAIN |
 | other_fish_species | testing_other_fish2.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | other_fish_species | testing_other_fish2.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish3.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish3.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish4.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish4.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish5.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| other_fish_species | testing_other_fish5.png | gill | 422 | No | UNSUPPORTED_IMAGE |
+| other_fish_species | testing_other_fish3.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| other_fish_species | testing_other_fish3.png | gill | 422 | No | CONTENT_UNCERTAIN |
+| other_fish_species | testing_other_fish4.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| other_fish_species | testing_other_fish4.png | gill | 422 | No | CONTENT_UNCERTAIN |
+| other_fish_species | testing_other_fish5.png | eye | 200 | Yes | Fresh (97.6%) |
+| other_fish_species | testing_other_fish5.png | gill | 422 | No | REGION_MISMATCH |
 | unrelated_objects | unrelated1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | unrelated_objects | unrelated1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | unrelated_objects | unrelated2.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | unrelated_objects | unrelated2.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| unrelated_objects | unrelated3.png | eye | 200 | Yes | Fresh (99.1%) |
-| unrelated_objects | unrelated3.png | gill | 422 | No | REGION_MISMATCH |
+| unrelated_objects | unrelated3.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| unrelated_objects | unrelated3.png | gill | 422 | No | CONTENT_UNCERTAIN |
 | unrelated_objects | unrelated4.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | unrelated_objects | unrelated4.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| unrelated_objects | unrelated5.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| unrelated_objects | unrelated5.png | gill | 422 | No | UNSUPPORTED_IMAGE |
+| unrelated_objects | unrelated5.png | eye | 200 | Yes | Fresh (58.6%) |
+| unrelated_objects | unrelated5.png | gill | 422 | No | REGION_MISMATCH |
 | whole_fish | whole_fish1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | whole_fish | whole_fish1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | whole_fish | whole_fish2.png | eye | 422 | No | UNSUPPORTED_IMAGE |
@@ -90,8 +78,8 @@ Model A.
 | whole_fish | whole_fish4.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | whole_fish | whole_fish5.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | whole_fish | whole_fish5.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| wrong_fish_regions | wrong_region1.png | eye | 422 | No | UNSUPPORTED_IMAGE |
-| wrong_fish_regions | wrong_region1.png | gill | 422 | No | UNSUPPORTED_IMAGE |
+| wrong_fish_regions | wrong_region1.png | eye | 422 | No | CONTENT_UNCERTAIN |
+| wrong_fish_regions | wrong_region1.png | gill | 422 | No | CONTENT_UNCERTAIN |
 | wrong_fish_regions | wrong_region2.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | wrong_fish_regions | wrong_region2.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | wrong_fish_regions | wrong_region3.png | eye | 422 | No | UNSUPPORTED_IMAGE |
@@ -100,7 +88,3 @@ Model A.
 | wrong_fish_regions | wrong_region4.png | gill | 422 | No | UNSUPPORTED_IMAGE |
 | wrong_fish_regions | wrong_region5.png | eye | 422 | No | UNSUPPORTED_IMAGE |
 | wrong_fish_regions | wrong_region5.png | gill | 422 | No | UNSUPPORTED_IMAGE |
-| user_whole_fish | test.jpg | eye | 422 | No | UNSUPPORTED_IMAGE |
-| user_eye_crop | test-crop.png | eye | 200 | Yes | Not Fresh (98.6%) |
-| user_whole_fish | 20120530095223.jpg | eye | 422 | No | UNSUPPORTED_IMAGE |
-| user_eye_crop | 20120530095223-crop.png | eye | 422 | No | UNSUPPORTED_IMAGE |

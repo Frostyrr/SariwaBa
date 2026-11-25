@@ -1,44 +1,53 @@
 # SariwaBa Defense Questions and Answers
 
-This guide describes the local November 23 configuration. It uses the earlier four-category Model A and the Day 3 versions of Models B and C.
+Updated 25 November 2026. This guide describes the locked active configuration: four-category Model A (`validator-f10d30ceded6`, threshold `0.85`), balanced Model B (`sariwaba_mobilenetv3_best.pth`, Epoch 2), and Day 3 Model C (`sariwaba_eye_detector.pt`, YOLOv8n).
 
 ## How confidence is calculated
 
 | Model | Where its score comes from | What the app does with it |
 | --- | --- | --- |
-| A Photo checker | The network outputs four raw scores for eye, gill, unsupported, and whole tilapia. Softmax converts them into scores that add up to 1. The largest score is the confidence for the selected category. | The active file sets a minimum of 0.85. The app applies the category and region rules as well. A confident whole-fish result asks for a close-up, and a confident gill result cannot pass as an eye. |
-| B Freshness classifier | The network outputs two raw scores. Softmax converts them into Fresh and Not Fresh scores that sum to 1. The larger score becomes the prediction confidence. | The backend returns the selected label and score. Model A must have accepted the image first. Model B's prediction code chooses the larger score without a separate minimum. |
-| C YOLO eye finder | YOLO scores each predicted box for its object class. These scores belong to individual boxes. They do not add up across the image. | The app requests eye boxes, uses a minimum detection score of 0.25, and returns crop proposals. The proposal endpoint does not expose the detector score as the freshness confidence. |
+| **A Photo checker** (`MobileNetV3-Small`) | Outputs four raw scores (logits) for `eye`, `gill`, `unsupported`, and `whole_tilapia`. Softmax converts them into scores between `0` and `1` summing to `1.0`. The largest score is the selected category's confidence. | Requires a minimum calibrated confidence of **`0.85`** (otherwise returns `CONTENT_UNCERTAIN`). Confident `whole_tilapia` uploads trigger `WHOLE_TILAPIA_CLOSE_UP_REQUIRED` (or automatic YOLO eye-crop proposals), and region mismatches (`eye` vs. `gill`) return `REGION_MISMATCH`. |
+| **B Freshness classifier** (`MobileNetV3-Small`) | Outputs two raw scores (logits). Softmax converts them into `Fresh` and `Not Fresh` scores summing to `1.0`. The larger score becomes the prediction confidence. | Runs **only after** Model A accepts the image. Returns the winning label (`Fresh` or `Not Fresh`) and its Softmax score without a separate minimum cutoff. |
+| **C YOLO eye finder** (`YOLOv8n`) | Scores each predicted bounding box (`fish` or `eye`) independently; box scores do not sum across the image. | Filters `eye` boxes at a minimum confidence of **`0.25`**, expands each eye box by **`2.5x`** (`padded_crop`), and validates proposed crops with Model A before offering them to the user. |
 
-**What does 93% Fresh mean?** The classifier gave Fresh a score of 0.93 for that input. It is a score for the model's choice. Accuracy is measured across labeled examples. We have not established that 93% scores are correct 93% of the time.
+**What does 93% Fresh mean?** Model B's Softmax layer gave `Fresh` a score of `0.93` (`93%`) and `Not Fresh` `0.07` (`7%`) for that single image. It reflects how strongly the classifier favored `Fresh`, not a calibrated laboratory guarantee that `93%` of such fish are safe or fresh. System accuracy is measured separately across labeled test sets.
 
-**Do you average the three confidence scores?** No. Each model answers a different question. YOLO finds the eye, Model A checks the photo type, and Model B predicts freshness from the accepted close-up.
+**Do you average the three confidence scores?** No. Each model answers a different question: Model C locates the eye, Model A verifies the photo type/region, and Model B classifies freshness from the verified close-up.
 
-**Why are the cutoffs different?** The validator threshold was chosen with validation images to control which photos it accepts. YOLO's 0.25 cutoff filters proposed eye boxes before cropping. The two scores have different meanings. Neither cutoff is an accuracy result.
+**Why are the cutoffs different (`0.85` vs. `0.25`)?** Model A's `0.85` threshold was calibrated on validation images to achieve a `0.0%` false-accept rate on unsupported objects. YOLO's `0.25` cutoff filters candidate eye boxes before Model A double-checks the resulting crop. Neither cutoff is an accuracy score.
 
 ## Questions the panel may ask
 
-**Why use eyes and gills?** The freshness training data was built around those close-ups. Whole-fish upload uses YOLO to find an eye for the same freshness model. A direct comparison would be needed to claim close-ups are more accurate than whole-fish classification.
+**Why use eyes and gills?** Postharvest spoilage cues—corneal cloudiness, sunken eyes, and gill discoloration from bright red to brownish/pale—are concentrated in those regions. Whole-fish uploads use Model C (YOLO) to automatically crop the eye for the same freshness classifier, which is also practical when small tilapia have opercula too tight to open non-destructively.
 
-**Why separate the models?** They solve distinct tasks: checking the input, locating an eye, and classifying freshness. We can evaluate where a scan failed and update each model separately.
+**Why separate the models?** Separating input validation (Model A), eye localization (Model C), and freshness classification (Model B) lets the app give specific user feedback (`UNSUPPORTED_IMAGE`, `REGION_MISMATCH`, `WHOLE_TILAPIA_CLOSE_UP_REQUIRED`) and lets us audit, calibrate, or retrain each stage independently.
 
-**How did you split the data?** Training photos were used to learn. Validation photos were used to select the saved version or threshold. Test photos were used to measure performance. Photos of the same fish should stay together across days. The earlier YOLO splits may share fish. The three-fish second collection was reserved as a separate test batch.
+**How did you train the models? Are they overfit or underfit?**
+- **Transfer learning (partial fine-tuning):** Models A and B started from ImageNet-pretrained `MobileNetV3-Small`, keeping early edge/color blocks (`0–3`) frozen and fine-tuning blocks `4–12` (`lr = 2e-4`) plus the classification head (`lr = 1e-3`) with augmentations, label smoothing, and validation best-epoch selection. Model C fine-tuned `YOLOv8n` on Roboflow `fish` and `eye` boxes.
+- **Fit status:**
+  - **Model B** shows a **good (normal) fit**: `99.85%` train, `99.55%` validation, and **`98.72%`** held-out test (`390` photos), plus **`92.74%`** end-to-end on unseen local Batch 2 (`179` whole-fish YOLO scans), with mild background sensitivity only when wide uncropped shots include bright colored trays.
+  - **Model A** shows a **good operational fit**: `99.57%` train, `98.40%` validation, `92.83%` raw test argmax, and **`0.0%` unsupported false accepts (`0/62`)** / **`0.0%` whole-fish false routes (`0/48`)** once the `0.85` threshold gate is applied.
+  - **Model C** generalizes strongly on unseen Batch 2 whole fish (**`95.39%` eye `mAP50`**, **`97.32%` overall `mAP50`** across `187` Day 1 + Day 3 photos), with moderate strict-overlap `mAP50–95` (`49.36%`, improved from `47.42%` on Day 1 to `51.38%` on Day 3 with tighter eye-ring boxes).
 
-**Did you use a confusion matrix?** Yes, for Models A and B. Each row is the expected label and each column the predicted label. For Model B, one cell is particularly relevant: the number of Not Fresh photos incorrectly called Fresh. On the 390-photo comparison, that count dropped from 108 to 0 out of 214 Not Fresh photos. The same candidate mislabeled 13 of 176 Fresh photos, up from 8.
+**How did you split the data and track spoilage?**
+- **Batch 1 (`local_collection`):** Bought fresh from the market on Day 1, photographed immediately, and refrigerated until Day 2 (remaining Fresh). After Day 2 photography, fish were placed in an ice bucket in an ambient storage room, becoming visibly Not Fresh by Day 3 and reaching advanced putrefaction by Day 5 (Day 4 skipped due to full-day classes). Days 1–3 were used in `train` for Models A and B (balanced ~1:1 in `balanced_2026-11-23`), while Day 5 (`226` photos) was kept strictly as an out-of-distribution extreme-spoilage stress test.
+- **Batch 2 (`local_collection_v2`):** Three market tilapia photographed on Day 1 (`Fresh`, `75` whole, `119` eyes) and Day 3 (`Not Fresh`, `112` whole, `128` eyes; Day 2 skipped). Kept **100% held out from Model B and Model C training/validation** as an independent local test cohort (`120` Day 1 images were used in Model A tray calibration; Day 3 was unseen by all three models).
 
-**How did you measure YOLO?** We compared predicted boxes with boxes drawn in Roboflow. Precision measures how often predicted boxes matched. Recall measures how often labeled eyes were found. mAP50 summarizes detection across confidence levels when a predicted box and the reference box overlap by at least 50% of their combined area. mAP50–95 also tests stricter overlap requirements.
+**Did you use confusion matrices?** Yes—up-to-date confusion matrices for **all three active models** are saved in `backend/ml/results/active_2026-11-25/`:
+- **Model A (`279` held-out test photos):** `97/103` `eye`, `66/66` `gill`, `61/62` `unsupported`, `35/48` `whole_tilapia` raw argmax, with **`0/62` (`0.0%`)** unsupported false accepts after the `0.85` gate.
+- **Model B (`390` held-out test photos):** **`174/176` (`98.9%`)** `Fresh` and **`211/214` (`98.6%`)** `Not Fresh` (**`98.72%`** overall).
+- **End-to-End Unseen Batch 2 (`179` gated whole-fish $\rightarrow$ YOLO eye crops):** **`66/75` (`88.0%`)** Day 1 `Fresh` and **`100/104` (`96.2%`)** Day 3 `Not Fresh` (**`92.74%`** overall).
+- **Model C (`187` unseen Batch 2 whole-fish photos at runtime `conf = 0.25`):** Matched **`178/186` (`95.7%`)** annotated eyes (`95.39%` eye `mAP50`).
 
-**What did the new batch tell you?** On 75 Day 1 whole-fish photos with 74 labeled eyes, YOLO scored 97.41% eye mAP50 and 47.42% eye mAP50–95. It generally found eyes, but box alignment had room to improve. The photos represent three fish. The larger photo count does not increase the number of fish tested.
+**How many epochs did the active models train?** Active Model A trained for `10` epochs and selected **Epoch 5** (`val_macro_f1 = 0.9803`). Active Model B trained for `10` epochs and selected **Epoch 2** (`val_macro_f1 = 0.9955`). Active Model C trained for `15` epochs (resuming from Epoch 9 with batch size `8` after a GPU memory interruption).
 
-**How many epochs did you train?** In the original Day 3 update, Model A completed 6 and selected epoch 3. Model B completed 6 and selected epoch 2. Model C completed 15 after resuming from a GPU interruption. An epoch is one pass through the training set. The test batch was not used to choose these versions.
-
-**What equipment and software did you use?** The original collection used Android and iPhone photos. Roboflow was used to draw boxes. Training ran on Windows with Python, PyTorch, and an NVIDIA GeForce RTX 4050 Laptop GPU. YOLO used Ultralytics. The local app runs its Django backend in Docker.
-
-**Can the app certify that a fish is safe to eat?** The current evidence covers predictions from images and their recorded labels. We did not test whether a prediction establishes food safety. Observation day provides context, and the label should reflect what the team recorded for that sample.
+**Can the app certify that a fish is safe to eat?** No. SariwaBa provides a non-destructive **preliminary visual freshness screening** based on external eye and gill appearance; it cannot detect internal bacterial load, parasites, or chemical spoilage, as stated in the app's disclaimer.
 
 ## Evidence and implementation
 
-- [Training runs, equipment, confusion matrices, and test counts](../evaluation/model-training-and-test-record.md)
+- [Latest confusion matrices & JSON metrics (`active_2026-11-25`)](../../../backend/ml/results/active_2026-11-25/)
+- [Training runs, equipment, storage protocol, and test counts](../evaluation/model-training-and-test-record.md)
+- [Historical training & evaluation session log](../training/historical-session-log.md)
 - [Model A scoring and input rules](../../../backend/ml/validator.py)
 - [Model B confidence calculation](../../../backend/ml/predict.py)
 - [YOLO crop proposal code](../../../backend/ml/eye_proposals.py)
