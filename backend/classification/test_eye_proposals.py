@@ -62,14 +62,41 @@ class EyeProposalTests(SimpleTestCase):
         self.validator.assert_not_called()
 
     @patch("classification.views.propose_eye_crops")
-    def test_rejected_original_never_reaches_detector(self, propose):
-        for code in ("UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN", "REGION_MISMATCH"):
-            with self.subTest(code=code):
-                self.validator.side_effect = InputRejectedError(code, "Rejected")
-                response = self.upload()
-                self.assertEqual(response.status_code, 422)
-                self.assertEqual(response.json()["error"]["code"], code)
-                propose.assert_not_called()
+    def test_region_mismatch_never_reaches_detector(self, propose):
+        self.validator.side_effect = InputRejectedError("REGION_MISMATCH", "Rejected")
+        response = self.upload()
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()["error"]["code"], "REGION_MISMATCH")
+        propose.assert_not_called()
+
+    @patch("classification.views.propose_eye_crops")
+    def test_rejected_whole_photo_only_returns_valid_eye_crops(self, propose):
+        propose.return_value = [
+            ((20, 16, 60, 56), (0.4, 0.45)),
+            ((60, 0, 90, 30), (0.75, 0.1)),
+        ]
+        self.validator.side_effect = [
+            InputRejectedError("UNSUPPORTED_IMAGE", "Rejected original"),
+            InputRejectedError("CONTENT_UNCERTAIN", "Rejected first crop"),
+            {},
+        ]
+        response = self.upload()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([p["rect"] for p in response.json()["proposals"]], [
+            [0.6, 0.0, 0.9, 0.375],
+        ])
+        self.assertEqual(self.validator.call_count, 3)
+
+    @patch("classification.views.propose_eye_crops")
+    def test_no_valid_crop_preserves_original_rejection(self, propose):
+        propose.return_value = [((20, 16, 60, 56), (0.4, 0.45))]
+        self.validator.side_effect = [
+            InputRejectedError("CONTENT_UNCERTAIN", "Rejected original"),
+            InputRejectedError("UNSUPPORTED_IMAGE", "Rejected crop"),
+        ]
+        response = self.upload()
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()["error"]["code"], "CONTENT_UNCERTAIN")
 
     @patch("classification.views.propose_eye_crops")
     def test_existing_eye_close_up_skips_detector(self, propose):

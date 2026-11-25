@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Painter for the AI Inspection Reticle & Holographic Scanning Beam
 class ScanningReticlePainter extends CustomPainter {

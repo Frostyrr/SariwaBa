@@ -2,9 +2,9 @@ import '../../widgets/dashboard/dashboard_light_theme.dart';
 
 import 'dart:ui' as ui;
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -193,36 +193,55 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       previous,
       next,
     ) {
-      final isNewUnconfirmedImage =
-          next.hasSelectedImage &&
-          !next.isCropConfirmed &&
-          previous?.selectedImageBytes != next.selectedImageBytes;
-      final isReopenedCropEditor =
-          next.hasSelectedImage &&
-          !next.isCropConfirmed &&
-          previous?.isEditingCrop == false &&
-          next.isEditingCrop == true;
-
-      if (isNewUnconfirmedImage || isReopenedCropEditor) {
+      if (!next.hasSelectedImage && _isCropModalOpen) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          final latest = ref.read(classificationControllerProvider);
-          if (latest.hasSelectedImage &&
-              !latest.isCropConfirmed &&
-              identical(latest.selectedImageBytes, next.selectedImageBytes)) {
-            // Let the user choose Eye or Gill before any server validation.
-            // Optional eye detection is available inside the editor.
-            _showRoiCropperModal();
+          if (mounted) {
+            _closeRoiCropperModal();
           }
         });
-      } else if (!next.hasSelectedImage) {
-        if (_isCropModalOpen) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              _closeRoiCropperModal();
-            }
-          });
-        }
+      }
+
+      if (next.successMessage != null &&
+          next.successMessage != previous?.successMessage) {
+        final msg = next.successMessage!;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(
+                      CupertinoIcons.checkmark_circle_fill,
+                      color: Color(0xFF6EE7B7),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        msg,
+                        style: const TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFF0A2229),
+                duration: const Duration(seconds: 3),
+                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            );
+          ref.read(classificationControllerProvider.notifier).clearNotification();
+        });
       }
     });
 
@@ -347,6 +366,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           onOpenCropModal: _showRoiCropperModal,
                           onViewMore: () =>
                               setState(() => _activeNav = 'History'),
+                          onViewAnalytics: () =>
+                              setState(() => _activeNav = 'Analytics'),
                           scrollController: controller,
                         ),
                       ),
@@ -406,7 +427,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
                   contentView = SariwaScrollbar(
                     controller: _secondaryScrollController,
-                    builder: (context, _) => secondaryView,
+                    builder: (context, _) => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      switchInCurve: Curves.easeOutCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(_activeNav),
+                        child: secondaryView,
+                      ),
+                    ),
                   );
                 }
 
@@ -560,9 +588,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ],
                         ),
                         child: const Icon(
-                          CupertinoIcons.camera_fill,
+                          CupertinoIcons.plus,
                           color: Colors.white,
-                          size: 22,
+                          size: 24,
                         ),
                       ),
                     ),

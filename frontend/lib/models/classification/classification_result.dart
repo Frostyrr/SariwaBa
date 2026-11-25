@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../constants/theme/app_colors.dart';
 
 /// Supported Tilapia anatomical regions for ROI selection and MobileNetV3 inference.
 enum AnatomicalRegion {
+  auto,
   eye,
   gill;
 
@@ -11,6 +12,8 @@ enum AnatomicalRegion {
 
   String get displayName {
     switch (this) {
+      case AnatomicalRegion.auto:
+        return 'Auto';
       case AnatomicalRegion.eye:
         return 'Eye';
       case AnatomicalRegion.gill:
@@ -20,6 +23,8 @@ enum AnatomicalRegion {
 
   String get tagalogName {
     switch (this) {
+      case AnatomicalRegion.auto:
+        return 'Detect eye or gill';
       case AnatomicalRegion.eye:
         return 'Mata (Eye)';
       case AnatomicalRegion.gill:
@@ -29,6 +34,8 @@ enum AnatomicalRegion {
 
   String get guidance {
     switch (this) {
+      case AnatomicalRegion.auto:
+        return 'Frame a clear close-up of the eye or exposed gill.';
       case AnatomicalRegion.eye:
         return "Select the fish's visible eye and surrounding area.";
       case AnatomicalRegion.gill:

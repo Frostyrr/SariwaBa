@@ -1,5 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
+
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
@@ -7,8 +11,8 @@ import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../constants/theme/timber_typography.dart';
 import '../classification/responsive_image_upload_zone.dart';
-import '../classification/roi_cropper_widget.dart';
 import '../common/app_button.dart';
+import '../common/staggered_reveal.dart';
 import 'frosted_glass_card.dart';
 
 /// Workstation scanner card providing image upload, interactive ROI cropping preview, classifying state, and result inspection.
@@ -31,13 +35,58 @@ class ScannerWorkstationCard extends StatefulWidget {
 }
 
 class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
+  ui.Image? _decodedImage;
+  Uint8List? _decodedBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncDecodedImage();
+  }
+
+  @override
+  void didUpdateWidget(covariant ScannerWorkstationCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(widget.state.selectedImageBytes, _decodedBytes)) {
+      _syncDecodedImage();
+    }
+  }
+
+  @override
+  void dispose() {
+    _decodedImage?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _syncDecodedImage() async {
+    final bytes = widget.state.selectedImageBytes;
+    _decodedBytes = bytes;
+    if (bytes == null) {
+      _decodedImage?.dispose();
+      _decodedImage = null;
+      return;
+    }
+    try {
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      if (!mounted || !identical(widget.state.selectedImageBytes, bytes)) {
+        frame.image.dispose();
+        return;
+      }
+      _decodedImage?.dispose();
+      setState(() => _decodedImage = frame.image);
+    } catch (_) {
+      // Fallback: image still renders via Image.memory
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
     final controller = widget.controller;
 
     return FrostedGlassCard(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(22),
       borderRadius: 24,
       blurSigma: 6,
       child: Column(
@@ -70,10 +119,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Freshness Inspection',
+                            'Freshness Scanner',
                             style: TextStyle(
                               fontSize: 17,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -81,7 +130,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           ),
                           SizedBox(height: 2),
                           Text(
-                            'Analyze a Tilapia eye or exposed gill image.',
+                            'Upload a Tilapia eye, exposed gill, or whole fish photo.',
                             style: TextStyle(
                               fontSize: 12,
                               letterSpacing: AppTypography.defaultLetterSpacing,
@@ -120,7 +169,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 11,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: Color(0xFF334155),
                       ),
@@ -130,46 +179,634 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          if (state.isUploadingImage)
-            _buildImageUploadingCard()
-          else if (state.selectedImageBytes == null)
-            ResponsiveImageUploadZone(
-              state: state,
-              controller: controller,
-            )
-          else if (widget.isCropModalOpen && !state.isCropConfirmed)
-            _buildActiveModalPlaceholderCard(state)
-          else
-            RoiCropperWidget(
-              state: state,
-              controller: controller,
-              isModal: false,
-              onOpenModal: widget.onOpenCropModal,
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.02),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
             ),
-          if (state.selectedImageBytes != null &&
-              !(widget.isCropModalOpen && !state.isCropConfirmed)) ...[
-            const SizedBox(height: 16),
-            _buildStep4ClassifySection(state, controller),
-          ],
-          if (state.errorMessage != null &&
-              state.isInputRejection &&
-              !const {
-                'MISSING_IMAGE',
-                'INVALID_REGION_TYPE',
-                'CONFIRMATION_REQUIRED',
-              }.contains(state.errorCode)) ...[
-            const SizedBox(height: 20),
-            _buildImageRejectionCard(state, controller),
-          ] else if (state.errorMessage != null && !state.isInputRejection) ...[
-            const SizedBox(height: 20),
-            _buildTechnicalErrorCard(state, controller),
-          ],
-          if (state.latestResult != null) ...[
-            const SizedBox(height: 20),
-            _buildInspectionResultView(state.latestResult!),
-          ],
+            child: state.isUploadingImage
+                ? KeyedSubtree(
+                    key: const ValueKey('scanner_uploading'),
+                    child: _buildImageUploadingCard(),
+                  )
+                : state.selectedImageBytes == null
+                ? KeyedSubtree(
+                    key: const ValueKey('scanner_dropzone'),
+                    child: ResponsiveImageUploadZone(
+                      state: state,
+                      controller: controller,
+                    ),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('scanner_workspace'),
+                    child: _buildInlineImageWorkspace(state, controller),
+                  ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInlineImageWorkspace(
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    final bytes = state.selectedImageBytes!;
+    final canUseEyeFinder = state.selectedRegion != AnatomicalRegion.gill;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Original image preview with letterboxing-aware numbered eye markers
+        ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Container(
+            height: 320,
+            width: double.infinity,
+            color: const Color(0xFF0A1926),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final containerSize = Size(
+                  constraints.maxWidth,
+                  constraints.maxHeight,
+                );
+                final displayedRect = _computeContainedImageRect(
+                  containerSize,
+                  _decodedImage,
+                );
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.memory(
+                      bytes,
+                      fit: BoxFit.contain,
+                      width: containerSize.width,
+                      height: containerSize.height,
+                    ),
+                    if (state.eyeProposals.isNotEmpty)
+                      for (int i = 0; i < state.eyeProposals.length; i++)
+                        _buildProposalMarker(
+                          index: i,
+                          proposal: state.eyeProposals[i],
+                          displayedRect: displayedRect,
+                          isSelected: state.selectedEyeProposalIndex == i,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            controller.selectEyeProposal(i);
+                          },
+                        ),
+                    // Top-right Crop + Close (×) overlay controls
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildCarouselArrowButton(
+                            key: const Key('scanner_adjust_crop_button'),
+                            icon: CupertinoIcons.crop,
+                            tooltip: 'Adjust crop',
+                            onTap: state.isClassifying
+                                ? () {}
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    controller.editCrop();
+                                    widget.onOpenCropModal();
+                                  },
+                          ),
+                          const SizedBox(width: 8),
+                          _buildCarouselArrowButton(
+                            icon: CupertinoIcons.xmark,
+                            tooltip: 'Remove photo',
+                            onTap: state.isClassifying
+                                ? () {}
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    controller.clearSelection();
+                                  },
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (state.eyeProposals.length > 1) ...[
+                      // Previous Eye Arrow (<)
+                      Positioned(
+                        left: 12,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: _buildCarouselArrowButton(
+                            icon: CupertinoIcons.chevron_left,
+                            tooltip: 'Previous eye',
+                            onTap: () {
+                              final current =
+                                  state.selectedEyeProposalIndex ?? 0;
+                              final prev =
+                                  (current - 1 + state.eyeProposals.length) %
+                                  state.eyeProposals.length;
+                              HapticFeedback.selectionClick();
+                              controller.selectEyeProposal(prev);
+                            },
+                          ),
+                        ),
+                      ),
+                      // Next Eye Arrow (>)
+                      Positioned(
+                        right: 12,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: _buildCarouselArrowButton(
+                            icon: CupertinoIcons.chevron_right,
+                            tooltip: 'Next eye',
+                            onTap: () {
+                              final current =
+                                  state.selectedEyeProposalIndex ?? -1;
+                              final next =
+                                  (current + 1) % state.eyeProposals.length;
+                              HapticFeedback.selectionClick();
+                              controller.selectEyeProposal(next);
+                            },
+                          ),
+                        ),
+                      ),
+                      // Counter pill (e.g., "1 / 4")
+                      Positioned(
+                        right: 12,
+                        bottom: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xCC0A1926),
+                            borderRadius: BorderRadius.circular(99),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.22),
+                            ),
+                          ),
+                          child: Text(
+                            state.selectedEyeProposalIndex != null
+                                ? '${state.selectedEyeProposalIndex! + 1} / ${state.eyeProposals.length}'
+                                : '${state.eyeProposals.length} eyes',
+                            style: const TextStyle(
+                              fontFamily: 'Geist',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+        if (state.eyeProposals.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _buildEyeFilmstrip(state, controller),
+        ],
+        const SizedBox(height: 14),
+        // Region toggle + compact icon toolbar (Detect Eyes, Adjust Crop, Replace)
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _buildSoftRegionSwitcher(state, controller),
+            if (canUseEyeFinder && controller.canFindEyes) ...[
+              _buildToolbarIconButton(
+                key: const Key('scanner_find_eye_button'),
+                tooltip: state.isFindingEyes
+                    ? 'Detecting Tilapia eyesâ€¦'
+                    : 'Detect Tilapia eyes',
+                isLoading: state.isFindingEyes,
+                icon: Icons.center_focus_strong_rounded,
+                iconColor: SariwaColors.brandPrimary,
+                onTap:
+                    state.isBatchRunning ||
+                        state.isFindingEyes ||
+                        state.isClassifying
+                    ? null
+                    : controller.detectEyesForCurrentImage,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 14),
+        AppButton.primary(
+          key: const Key('current_scan_check_freshness_button'),
+          label: state.isClassifying
+              ? (state.processingStage ?? 'Checking freshness...')
+              : 'Check freshness',
+          isLoading: state.isClassifying,
+          height: 48,
+          borderRadius: 14,
+          icon: const Icon(
+            CupertinoIcons.sparkles,
+            size: 17,
+            color: Colors.white,
+          ),
+          onPressed: state.isClassifying
+              ? null
+              : () async {
+                  HapticFeedback.mediumImpact();
+                  if (!state.isCropConfirmed) {
+                    controller.confirmFullImageAsCloseUp();
+                  }
+                  await controller.classify();
+                },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSoftRegionSwitcher(
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    final selected = state.selectedRegion ?? AnatomicalRegion.auto;
+
+    Widget buildOption(AnatomicalRegion region, String label, IconData icon) {
+      final isSelected = selected == region;
+      return GestureDetector(
+        onTap: state.isClassifying
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                controller.selectRegion(region);
+              },
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(9),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: Color(0x120F172A),
+                      blurRadius: 6,
+                      offset: Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? SariwaColors.brandPrimary
+                    : const Color(0xFF64748B),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected
+                      ? SariwaColors.textPrimaryDark
+                      : const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3.5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildOption(AnatomicalRegion.auto, 'Auto', CupertinoIcons.sparkles),
+          const SizedBox(width: 2),
+          buildOption(AnatomicalRegion.eye, 'Eye', CupertinoIcons.eye),
+          const SizedBox(width: 2),
+          buildOption(AnatomicalRegion.gill, 'Gill', CupertinoIcons.waveform_path),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToolbarIconButton({
+    Key? key,
+    required String tooltip,
+    required IconData icon,
+    Color? iconColor,
+    bool isLoading = false,
+    required VoidCallback? onTap,
+  }) {
+    final enabled = onTap != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: tooltip,
+      child: Tooltip(
+        message: tooltip,
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            key: key,
+            onTap: onTap == null
+                ? null
+                : () {
+                    HapticFeedback.selectionClick();
+                    onTap();
+                  },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: enabled
+                      ? const Color(0xFFCBD5E1)
+                      : const Color(0xFFE2E8F0),
+                ),
+              ),
+              child: Center(
+                child: isLoading
+                    ? const CupertinoActivityIndicator(radius: 8)
+                    : Icon(
+                        icon,
+                        size: 18,
+                        color: enabled
+                            ? (iconColor ?? SariwaColors.textPrimaryDark)
+                            : const Color(0xFF94A3B8),
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCarouselArrowButton({
+    Key? key,
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: const Color(0xB80A1926),
+        shape: const CircleBorder(),
+        child: InkWell(
+          key: key,
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+            ),
+            child: Icon(icon, size: 17, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEyeFilmstrip(
+    ClassificationState state,
+    ClassificationController controller,
+  ) {
+    final proposals = state.eyeProposals;
+    return SizedBox(
+      height: 76,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: proposals.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final proposal = proposals[index];
+          final isSelected = state.selectedEyeProposalIndex == index;
+          final checkedFresh = state.eyeProposalFreshness[index];
+
+          return StaggeredReveal(
+            staggerIndex: index.clamp(0, 6),
+            child: Semantics(
+              button: true,
+              selected: isSelected,
+              label: 'Eye ${index + 1}${isSelected ? ', selected' : ''}',
+              child: GestureDetector(
+                key: Key('eye_proposal_tile_$index'),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  controller.selectEyeProposal(index);
+                },
+                child: AnimatedScale(
+                  scale: isSelected ? 1.04 : 1.0,
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOutCubic,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    width: 84,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isSelected
+                            ? SariwaColors.brandPrimary
+                            : const Color(0xFFCBD5E1),
+                        width: isSelected ? 2.2 : 1.0,
+                      ),
+                    ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            proposal.bytes,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          left: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? SariwaColors.brandPrimary
+                                  : const Color(0xCC0A1926),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '#${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (checkedFresh != null)
+                          Positioned(
+                            right: 4,
+                            bottom: 4,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                checkedFresh
+                                    ? CupertinoIcons.checkmark_circle_fill
+                                    : CupertinoIcons
+                                          .exclamationmark_circle_fill,
+                                size: 14,
+                                color: checkedFresh
+                                    ? SariwaColors.statusFresh
+                                    : SariwaColors.notFreshPrimary,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Rect _computeContainedImageRect(Size containerSize, ui.Image? image) {
+    if (image == null || image.width == 0 || image.height == 0) {
+      return Offset.zero & containerSize;
+    }
+    final imageAspect = image.width / image.height;
+    final containerAspect = containerSize.width / containerSize.height;
+    if (imageAspect > containerAspect) {
+      final width = containerSize.width;
+      final height = width / imageAspect;
+      final dy = (containerSize.height - height) / 2;
+      return Rect.fromLTWH(0, dy, width, height);
+    } else {
+      final height = containerSize.height;
+      final width = height * imageAspect;
+      final dx = (containerSize.width - width) / 2;
+      return Rect.fromLTWH(dx, 0, width, height);
+    }
+  }
+
+  Widget _buildProposalMarker({
+    required int index,
+    required EyeCropProposal proposal,
+    required Rect displayedRect,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final left = displayedRect.left + proposal.rect.left * displayedRect.width;
+    final top = displayedRect.top + proposal.rect.top * displayedRect.height;
+    final width = (proposal.rect.width * displayedRect.width).clamp(
+      28.0,
+      220.0,
+    );
+    final height = (proposal.rect.height * displayedRect.height).clamp(
+      28.0,
+      220.0,
+    );
+
+    return Positioned(
+      left: left,
+      top: top,
+      width: width,
+      height: height,
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: 'Detected eye marker ${index + 1}',
+        child: GestureDetector(
+          key: Key('eye_proposal_marker_$index'),
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected
+                    ? SariwaColors.brandGlow
+                    : const Color(0xFFFACC15),
+                width: isSelected ? 3.0 : 2.0,
+              ),
+              color: isSelected
+                  ? SariwaColors.brandGlow.withValues(alpha: 0.18)
+                  : Colors.transparent,
+            ),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? SariwaColors.brandPrimary
+                      : const Color(0xE60A2229),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(7),
+                    bottomRight: Radius.circular(7),
+                  ),
+                ),
+                child: Text(
+                  '${index + 1}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -285,8 +922,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   state.latestResult != null
                       ? 'Viewing freshness results in inspection modal...'
                       : (state.isClassifying
-                          ? 'Evaluating image freshness in modal...'
-                          : 'Adjusting photo in crop view...'),
+                            ? 'Evaluating image freshness in modal...'
+                            : 'Adjusting photo in crop view...'),
                   style: const TextStyle(
                     fontSize: 12,
                     letterSpacing: AppTypography.defaultLetterSpacing,
@@ -453,7 +1090,9 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          ClassificationApiException.rejectionTitleForCode(code),
+                          ClassificationApiException.rejectionTitleForCode(
+                            code,
+                          ),
                           style: const TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 15.5,
@@ -658,18 +1297,24 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     final timestampText = result.formattedTimestamp;
 
     final isNotFresh = result.isNotFresh;
-    final primaryColor =
-        isNotFresh ? SariwaColors.notFreshPrimary : SariwaColors.brandPrimary;
-    final textColor =
-        isNotFresh ? SariwaColors.notFreshText : SariwaColors.freshText;
-    final iconBgColor =
-        isNotFresh ? SariwaColors.notFreshIconBg : SariwaColors.freshIconBg;
-    final cardBorderColor =
-        isNotFresh ? SariwaColors.notFreshBorder : SariwaColors.freshBorder;
-    final trackColor =
-        isNotFresh ? SariwaColors.notFreshTrack : SariwaColors.freshTrack;
-    final cardBgColor =
-        isNotFresh ? SariwaColors.notFreshCardBg : SariwaColors.freshCardBg;
+    final primaryColor = isNotFresh
+        ? SariwaColors.notFreshPrimary
+        : SariwaColors.brandPrimary;
+    final textColor = isNotFresh
+        ? SariwaColors.notFreshText
+        : SariwaColors.freshText;
+    final iconBgColor = isNotFresh
+        ? SariwaColors.notFreshIconBg
+        : SariwaColors.freshIconBg;
+    final cardBorderColor = isNotFresh
+        ? SariwaColors.notFreshBorder
+        : SariwaColors.freshBorder;
+    final trackColor = isNotFresh
+        ? SariwaColors.notFreshTrack
+        : SariwaColors.freshTrack;
+    final cardBgColor = isNotFresh
+        ? SariwaColors.notFreshCardBg
+        : SariwaColors.freshCardBg;
 
     return Container(
       key: const Key('classification_result_view'),
@@ -681,10 +1326,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             decoration: BoxDecoration(
               color: cardBgColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: cardBorderColor,
-                width: 1.0,
-              ),
+              border: Border.all(color: cardBorderColor, width: 1.0),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x060F172A),
@@ -747,16 +1389,17 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFF1F5F9),
-                                          borderRadius:
-                                              BorderRadius.circular(99),
+                                          borderRadius: BorderRadius.circular(
+                                            99,
+                                          ),
                                         ),
                                         child: Text(
                                           selectedRegionText,
                                           style: const TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w400,
-                                            letterSpacing:
-                                                AppTypography.defaultLetterSpacing,
+                                            letterSpacing: AppTypography
+                                                .defaultLetterSpacing,
                                             color: SariwaColors.brandPrimary,
                                           ),
                                         ),
@@ -775,10 +1418,9 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                         style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w400,
-                                          letterSpacing:
-                                              AppTypography.defaultLetterSpacing,
-                                          color:
-                                              SariwaColors.textSecondaryDark,
+                                          letterSpacing: AppTypography
+                                              .defaultLetterSpacing,
+                                          color: SariwaColors.textSecondaryDark,
                                         ),
                                       ),
                                     ),
@@ -788,7 +1430,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                               Icon(
                                 result.isFresh
                                     ? CupertinoIcons.checkmark_circle_fill
-                                    : CupertinoIcons.exclamationmark_circle_fill,
+                                    : CupertinoIcons
+                                          .exclamationmark_circle_fill,
                                 color: primaryColor,
                                 size: 20,
                               ),
@@ -867,8 +1510,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             ClassificationResult.confidenceExplanation,
                             style: TextStyle(
                               fontSize: 11.5,
-                              letterSpacing:
-                                  AppTypography.defaultLetterSpacing,
+                              letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textSecondaryDark,
                             ),
                           ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Keeps dashboard controls and their overlay routes on the light surface theme.
 class DashboardLightTheme extends StatelessWidget {
@@ -23,12 +23,59 @@ class DashboardLightTheme extends StatelessWidget {
         colorScheme: const ColorScheme.light(
           primary: teal,
           secondary: teal,
+          secondaryContainer: teal,
+          onSecondaryContainer: Colors.white,
           surface: Colors.white,
           onSurface: ink,
           onPrimary: Colors.white,
+          onSecondary: Colors.white,
           outline: Color(0xFF64748B),
           outlineVariant: Color(0xFFCBD5E1),
           error: Color(0xFFB91C1C),
+        ),
+        segmentedButtonTheme: SegmentedButtonThemeData(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) return teal;
+              return Colors.white;
+            }),
+            foregroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) return Colors.white;
+              return ink;
+            }),
+            iconColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) return Colors.white;
+              return const Color(0xFF475569);
+            }),
+            side: const WidgetStatePropertyAll(
+              BorderSide(color: Color(0xFFCBD5E1)),
+            ),
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: Colors.white,
+          selectedColor: teal,
+          checkmarkColor: Colors.white,
+          side: const BorderSide(color: Color(0xFFCBD5E1)),
+          labelStyle: WidgetStateTextStyle.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                fontFamily: 'Geist',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              );
+            }
+            return const TextStyle(
+              fontFamily: 'Geist',
+              fontWeight: FontWeight.w500,
+              color: ink,
+            );
+          }),
+          secondaryLabelStyle: const TextStyle(
+            fontFamily: 'Geist',
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
         canvasColor: menuSurface,
         textTheme: light.textTheme.apply(

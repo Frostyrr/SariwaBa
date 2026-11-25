@@ -1,5 +1,5 @@
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../../constants/content/workflow_steps_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/timber_typography.dart';

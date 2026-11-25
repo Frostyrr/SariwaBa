@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Simulated Mouse Cursor for Programmatic Product Demonstrations
 /// Renders an authentic, vector-drawn macOS/Figma style cursor pointer

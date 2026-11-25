@@ -1,18 +1,20 @@
 import 'dart:ui' as ui;
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 import '../../../widgets/dashboard/audit_history_card.dart';
+import '../../../widgets/dashboard/current_scan_panel.dart';
 import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/dashboard_notification_banner.dart';
-import '../../../widgets/dashboard/kpi_metrics_row.dart';
 import '../../../widgets/dashboard/scanner_workstation_card.dart';
 
-/// Main Inspection Workstation section providing the KPI strip, live scanner card, and audit history.
+/// Main Inspection Workstation section:
+/// - Wide: Left column (Scanner + Audit History), Right column (Current-Scan Panel: Detected Eyes + Result)
+/// - Narrow: Scanner -> Current-Scan Panel -> Audit History
 class InspectionWorkspaceSection extends StatelessWidget {
   final dynamic user;
   final bool isGuestUser;
@@ -24,6 +26,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
   final VoidCallback onBackHome;
   final VoidCallback onOpenCropModal;
   final VoidCallback? onViewMore;
+  final VoidCallback? onViewAnalytics;
   final ScrollController? scrollController;
 
   const InspectionWorkspaceSection({
@@ -38,11 +41,16 @@ class InspectionWorkspaceSection extends StatelessWidget {
     required this.onBackHome,
     required this.onOpenCropModal,
     this.onViewMore,
+    this.onViewAnalytics,
     this.scrollController,
   });
 
   @override
   Widget build(BuildContext context) {
+    final totalScans = classState.history.length;
+    final freshScans = classState.history.where((s) => s.isFresh).length;
+    final notFreshScans = totalScans - freshScans;
+
     return RefreshIndicator.adaptive(
       color: SariwaColors.brandPrimary,
       onRefresh: () async {
@@ -56,45 +64,33 @@ class InspectionWorkspaceSection extends StatelessWidget {
         ),
         padding: EdgeInsets.symmetric(
           horizontal: isDesktop ? 36 : 16,
-          vertical: isDesktop ? 28 : 16,
+          vertical: isDesktop ? 22 : 16,
         ),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1320),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (isDesktop) ...[
                   StaggeredReveal(
                     staggerIndex: 0,
                     child: _buildDashboardHeader(context),
                   ),
-                  const SizedBox(height: 20),
-                  KpiMetricsRow(history: classState.history),
-                  const SizedBox(height: 22),
-                ],
-                if (classState.successMessage != null) ...[
-                  DashboardNotificationBanner(
-                    message: classState.successMessage!,
-                    isError: false,
-                    state: classState,
-                    controller: classController,
-                    onOpenCropModal: onOpenCropModal,
-                  ),
                   const SizedBox(height: 18),
                 ],
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final isTwoCol = constraints.maxWidth >= 820;
+                    final isWide = constraints.maxWidth >= 900;
 
-                    if (isTwoCol) {
+                    if (isWide) {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 6,
+                            flex: 7,
                             child: StaggeredReveal(
-                              staggerIndex: 5,
+                              staggerIndex: 1,
                               child: ScannerWorkstationCard(
                                 state: classState,
                                 controller: classController,
@@ -107,11 +103,13 @@ class InspectionWorkspaceSection extends StatelessWidget {
                           Expanded(
                             flex: 5,
                             child: StaggeredReveal(
-                              staggerIndex: 6,
-                              child: AuditHistoryCard(
+                              staggerIndex: 2,
+                              child: CurrentScanPanel(
                                 state: classState,
                                 controller: classController,
-                                onViewMore: onViewMore,
+                                isWide: true,
+                                onAdjustCrop: onOpenCropModal,
+                                onViewHistory: onViewMore,
                               ),
                             ),
                           ),
@@ -119,8 +117,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                       );
                     }
 
-                    // Mobile / compact: Action-first — scanner card on top,
-                    // followed by summary metrics and recent scans.
+                    // Narrow workspace: Scanner -> Current-Scan Panel
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -133,29 +130,138 @@ class InspectionWorkspaceSection extends StatelessWidget {
                             onOpenCropModal: onOpenCropModal,
                           ),
                         ),
-                        if (!isDesktop) ...[
-                          const SizedBox(height: 20),
-                          KpiMetricsRow(history: classState.history),
-                        ],
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 16),
                         StaggeredReveal(
-                          staggerIndex: 2,
-                          child: AuditHistoryCard(
+                          staggerIndex: 1,
+                          child: CurrentScanPanel(
                             state: classState,
                             controller: classController,
-                            onViewMore: onViewMore,
+                            isWide: false,
+                            onAdjustCrop: onOpenCropModal,
+                            onViewHistory: onViewMore,
                           ),
                         ),
                       ],
                     );
                   },
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 32),
                 _buildSimpleFooter(),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompactAtmosphericHeader({
+    required int totalScans,
+    required int freshScans,
+    required int notFreshScans,
+  }) {
+    return DashboardAtmosphericBanner(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Freshness Inspection',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Inspect close-up eyes, exposed gills, or whole Tilapia photos.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    letterSpacing: AppTypography.defaultLetterSpacing,
+                    color: Color(0xFFD1FAF4),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          MouseRegion(
+            cursor: onViewAnalytics != null
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: GestureDetector(
+              onTap: onViewAnalytics,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.28),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$totalScans scans',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Text(
+                      '  ·  ',
+                      style: TextStyle(color: Color(0x99FFFFFF)),
+                    ),
+                    Text(
+                      '$freshScans Fresh',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6EE7B7),
+                      ),
+                    ),
+                    const Text(
+                      '  ·  ',
+                      style: TextStyle(color: Color(0x99FFFFFF)),
+                    ),
+                    Text(
+                      '$notFreshScans Not Fresh',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFFCA5A5),
+                      ),
+                    ),
+                    if (onViewAnalytics != null) ...[
+                      const SizedBox(width: 6),
+                      const Icon(
+                        CupertinoIcons.chevron_right,
+                        size: 13,
+                        color: Color(0xFFD1FAF4),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

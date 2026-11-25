@@ -1,6 +1,6 @@
 import '../../../widgets/classification/classification_result_card.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../constants/theme/app_colors.dart';

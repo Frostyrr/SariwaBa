@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -157,7 +157,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
             if (!widget.state.isUploadingImage) {
-              widget.controller.pickImage(ImageSource.gallery);
+              widget.controller.pickBatch();
             }
             return null;
           },
@@ -170,7 +170,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         excludeSemantics: true,
         onTap: widget.state.isUploadingImage
             ? null
-            : () => widget.controller.pickImage(ImageSource.gallery),
+            : () => widget.controller.pickBatch(),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -191,7 +191,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
               borderRadius: BorderRadius.circular(20),
               onTap: widget.state.isUploadingImage
                   ? null
-                  : () => widget.controller.pickImage(ImageSource.gallery),
+                  : () => widget.controller.pickBatch(),
               child: CustomPaint(
                 painter: DashedBorderPainter(
                   color: borderColor,
@@ -304,8 +304,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
       children: [
         // Left: Eye | Gill Segmented Control with subtle label
         Flexible(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const Text(
                 'Inspection Region:',
@@ -317,7 +319,6 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                   color: Color(0xFF64748B),
                 ),
               ),
-              const SizedBox(width: 10),
               _buildRegionSegmentedSelector(animDuration, isFullWidth: false),
             ],
           ),
@@ -367,10 +368,20 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
     required bool isFullWidth,
   }) {
     final selectedRegion =
-        widget.state.selectedRegion ?? AnatomicalRegion.eye;
+        widget.state.selectedRegion ?? AnatomicalRegion.auto;
 
     final eyeSelected = selectedRegion == AnatomicalRegion.eye;
     final gillSelected = selectedRegion == AnatomicalRegion.gill;
+
+    final autoSegment = _buildSegmentOption(
+      key: const Key('region_option_auto'),
+      label: 'Auto',
+      tagalogName: 'Eye or Gill',
+      icon: CupertinoIcons.sparkles,
+      isSelected: selectedRegion == AnatomicalRegion.auto,
+      animDuration: animDuration,
+      onTap: () => widget.controller.selectRegion(AnatomicalRegion.auto),
+    );
 
     Widget eyeSegment = _buildSegmentOption(
       key: const Key('region_option_eye'),
@@ -408,16 +419,19 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
       child: isFullWidth
           ? Row(
               children: [
+                Expanded(child: autoSegment),
+                const SizedBox(width: 4),
                 Expanded(child: eyeSegment),
                 const SizedBox(width: 4),
                 Expanded(child: gillSegment),
               ],
             )
-          : Row(
-              mainAxisSize: MainAxisSize.min,
+          : Wrap(
+              spacing: 4,
+              runSpacing: 4,
               children: [
+                autoSegment,
                 eyeSegment,
-                const SizedBox(width: 4),
                 gillSegment,
               ],
             ),

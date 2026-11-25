@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../constants/theme/app_colors.dart';
 
 /// Atmospheric banner with blurred underwater background and high-contrast deep gradient overlay.

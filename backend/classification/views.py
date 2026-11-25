@@ -50,7 +50,7 @@ ALLOWED_CONTENT_TYPES = {
     "",
 }
 ALLOWED_DECODED_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF", "HEIC"}
-ALLOWED_REGION_TYPES = {"eye", "gill"}
+ALLOWED_REGION_TYPES = {"auto", "eye", "gill"}
 
 PRELIMINARY_DISCLAIMER = (
     "This is a preliminary visual freshness assessment and does not guarantee food safety."
@@ -82,10 +82,13 @@ def eye_proposals(request):
     except (ValueError, OSError, Image.DecompressionBombError):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    original_rejection = None
     try:
         validate_image(upload, "eye")
     except InputRejectedError as exc:
-        if exc.code != "WHOLE_TILAPIA_CLOSE_UP_REQUIRED":
+        if exc.code in {"UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN"}:
+            original_rejection = exc
+        elif exc.code != "WHOLE_TILAPIA_CLOSE_UP_REQUIRED":
             return Response(
                 {"error": {"code": exc.code, "message": str(exc)}},
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -102,8 +105,15 @@ def eye_proposals(request):
             crop.thumbnail((1024, 1024))
             with io.BytesIO() as output:
                 crop.save(output, format="JPEG", quality=95)
+                crop_bytes = output.getvalue()
+                if original_rejection is not None:
+                    # A wide photo can fail the photo checker even when its eye crop passes.
+                    try:
+                        validate_image(output, "eye")
+                    except InputRejectedError:
+                        continue
                 proposals.append({
-                    "crop_base64": base64.b64encode(output.getvalue()).decode("ascii"),
+                    "crop_base64": base64.b64encode(crop_bytes).decode("ascii"),
                     "rect": [left / image.width, top / image.height,
                              right / image.width, bottom / image.height],
                     "eye_center": eye_center,
@@ -112,6 +122,13 @@ def eye_proposals(request):
         if exc.__cause__ is not None:
             logging.getLogger(__name__).exception("Eye detector failed.")
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except (ModelUnavailableError, ModelInferenceError):
+        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    if original_rejection is not None and not proposals:
+        return Response(
+            {"error": {"code": original_rejection.code, "message": str(original_rejection)}},
+            status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
     return Response({"proposals": proposals})
 
 
@@ -153,7 +170,7 @@ def classify_fish(request):
             {
                 "error": {
                     "code": "INVALID_REGION_TYPE",
-                    "message": "A valid anatomical region_type ('eye' or 'gill') is required.",
+                    "message": "A valid anatomical region_type ('auto', 'eye' or 'gill') is required.",
                 }
             },
             status=status.HTTP_400_BAD_REQUEST,
@@ -304,6 +321,11 @@ def classify_fish(request):
     try:
         image_file.seek(0)
         validation = validate_image(image_file, region_type)
+        if region_type == "auto":
+            detected_region = validation.get("region_type")
+            if detected_region not in {"eye", "gill"}:
+                raise ModelInferenceError("Validator did not resolve the anatomical region.")
+            region_type = detected_region
         image_file.seek(0)
         prediction = predict_image(image_file, region_type=region_type)
         confidence = float(prediction["confidence"])

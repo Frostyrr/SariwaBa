@@ -116,8 +116,24 @@ class PipelineAPITests(TestCase):
         self.assertFalse(ClassificationHistory.objects.exists())
         self.assertEqual(ClassificationTelemetryLog.objects.filter(status="REJECTED_ASSESSMENT").count(), 4)
 
+    @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.9})
+    @patch("classification.views.validate_image")
+    def test_auto_uses_detected_gill_in_one_request(self, validator, freshness):
+        validator.return_value = decide_input(
+            [0.02, 0.94, 0.02, 0.02], "auto", 0.85, VALIDATOR_V2_CLASSES
+        )
+        response = self.client.post("/api/v1/classify/",
+            {"image": _create_test_image(), "region_type": "auto"}, format="multipart")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["region_type"], "gill")
+        validator.assert_called_once()
+        self.assertEqual(validator.call_args.args[1], "auto")
+        freshness.assert_called_once()
+        self.assertEqual(freshness.call_args.kwargs["region_type"], "gill")
+        self.assertEqual(ClassificationHistory.objects.get().region_type, "gill")
+
     def test_four_class_gate_routes_whole_fish_to_close_up_in_both_modes(self):
-        for region in ("eye", "gill"):
+        for region in ("eye", "gill", "auto"):
             with self.subTest(region=region), self.assertRaises(InputRejectedError) as error:
                 decide_input([0.02, 0.03, 0.02, 0.93], region, 0.8, VALIDATOR_V2_CLASSES)
             self.assertEqual(error.exception.code, "WHOLE_TILAPIA_CLOSE_UP_REQUIRED")
