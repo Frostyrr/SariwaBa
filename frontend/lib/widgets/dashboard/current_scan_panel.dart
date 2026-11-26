@@ -940,7 +940,11 @@ class CurrentScanPanel extends StatelessWidget {
                   onPressed: controller.changeRegion,
                   icon: const Icon(CupertinoIcons.arrow_2_circlepath, size: 15),
                   label: Text(
-                    state.selectedRegion == AnatomicalRegion.eye
+                    (state.selectedRegion == AnatomicalRegion.eye ||
+                            (state.errorMessage?.toLowerCase().contains(
+                                  'gill',
+                                ) ??
+                                false))
                         ? 'Switch to Gill'
                         : 'Switch to Eye',
                   ),

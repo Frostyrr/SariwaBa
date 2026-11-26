@@ -712,9 +712,17 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
   /// Switch to the alternate anatomical region (Eye <-> Gill) during rejection recovery
   void changeRegion() {
-    final nextRegion = state.selectedRegion == AnatomicalRegion.eye
-        ? AnatomicalRegion.gill
-        : AnatomicalRegion.eye;
+    final msg = (state.errorMessage ?? '').toLowerCase();
+    final AnatomicalRegion nextRegion;
+    if (state.selectedRegion == AnatomicalRegion.auto) {
+      nextRegion = msg.contains('gill')
+          ? AnatomicalRegion.gill
+          : AnatomicalRegion.eye;
+    } else {
+      nextRegion = state.selectedRegion == AnatomicalRegion.eye
+          ? AnatomicalRegion.gill
+          : AnatomicalRegion.eye;
+    }
     selectRegion(nextRegion);
   }
 
@@ -831,6 +839,20 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         );
       } on ClassificationApiException catch (e) {
         if (!mounted || reqId != _eyeDetectRequestId) return;
+        // In Auto mode, eye-proposals returns REGION_MISMATCH when Model A
+        // detects a valid exposed gill close-up. Treat it as ready to classify
+        // rather than surfacing a false mismatch error.
+        if (e.code == 'REGION_MISMATCH' && region == AnatomicalRegion.auto) {
+          state = state.copyWith(
+            isFindingEyes: false,
+            alreadyCloseUpEye: false,
+            eyeProposals: const [],
+            clearSelectedEyeProposal: true,
+            clearError: true,
+          );
+          confirmFullImageAsCloseUp();
+          return;
+        }
         state = state.copyWith(isFindingEyes: false);
         if (e.isInputRejection) {
           showEyeProposalRejection(e);
