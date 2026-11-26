@@ -66,6 +66,7 @@ class ClassificationState {
   final int? selectedEyeProposalIndex;
   final bool isFindingEyes;
   final bool alreadyCloseUpEye;
+  final bool alreadyCloseUpGill;
   final Map<int, bool> eyeProposalFreshness;
   final Size? sourceImageSize;
 
@@ -95,6 +96,7 @@ class ClassificationState {
     this.selectedEyeProposalIndex,
     this.isFindingEyes = false,
     this.alreadyCloseUpEye = false,
+    this.alreadyCloseUpGill = false,
     this.eyeProposalFreshness = const {},
     this.sourceImageSize,
   });
@@ -181,6 +183,7 @@ class ClassificationState {
     bool clearEyeProposals = false,
     bool? isFindingEyes,
     bool? alreadyCloseUpEye,
+    bool? alreadyCloseUpGill,
     Map<int, bool>? eyeProposalFreshness,
     Size? sourceImageSize,
     bool clearSourceImageSize = false,
@@ -242,6 +245,9 @@ class ClassificationState {
       alreadyCloseUpEye: clearImage || clearEyeProposals
           ? false
           : (alreadyCloseUpEye ?? this.alreadyCloseUpEye),
+      alreadyCloseUpGill: clearImage || clearEyeProposals
+          ? false
+          : (alreadyCloseUpGill ?? this.alreadyCloseUpGill),
       eyeProposalFreshness: clearImage || clearEyeProposals
           ? const {}
           : (eyeProposalFreshness ?? this.eyeProposalFreshness),
@@ -756,6 +762,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(
       isFindingEyes: true,
       alreadyCloseUpEye: false,
+      alreadyCloseUpGill: false,
       eyeProposals: const [],
       clearSelectedEyeProposal: true,
       eyeProposalFreshness: const {},
@@ -802,8 +809,12 @@ class ClassificationController extends StateNotifier<ClassificationState> {
 
         if (result.alreadyEye) {
           state = state.copyWith(
+            selectedRegion: region == AnatomicalRegion.auto
+                ? AnatomicalRegion.eye
+                : region,
             isFindingEyes: false,
             alreadyCloseUpEye: true,
+            alreadyCloseUpGill: false,
             eyeProposals: const [],
             clearSelectedEyeProposal: true,
             sourceImageSize: result.imageSize,
@@ -840,12 +851,17 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       } on ClassificationApiException catch (e) {
         if (!mounted || reqId != _eyeDetectRequestId) return;
         // In Auto mode, eye-proposals returns REGION_MISMATCH when Model A
-        // detects a valid exposed gill close-up. Treat it as ready to classify
-        // rather than surfacing a false mismatch error.
+        // detects a valid exposed gill close-up. Automatically switch to Gill
+        // and confirm the close-up rather than surfacing a false mismatch error.
         if (e.code == 'REGION_MISMATCH' && region == AnatomicalRegion.auto) {
+          final isGill = e.message.toLowerCase().contains('gill');
           state = state.copyWith(
+            selectedRegion: isGill
+                ? AnatomicalRegion.gill
+                : AnatomicalRegion.eye,
             isFindingEyes: false,
-            alreadyCloseUpEye: false,
+            alreadyCloseUpEye: !isGill,
+            alreadyCloseUpGill: isGill,
             eyeProposals: const [],
             clearSelectedEyeProposal: true,
             clearError: true,

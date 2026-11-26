@@ -170,7 +170,9 @@ void main() {
       );
       await Future<void>.delayed(Duration.zero);
 
-      expect(controller.state.selectedRegion, AnatomicalRegion.auto);
+      expect(controller.state.selectedRegion, AnatomicalRegion.gill);
+      expect(controller.state.alreadyCloseUpGill, isTrue);
+      expect(controller.state.alreadyCloseUpEye, isFalse);
       expect(controller.state.errorCode, isNull);
       expect(controller.state.errorMessage, isNull);
       expect(controller.state.isCropConfirmed, isTrue);
