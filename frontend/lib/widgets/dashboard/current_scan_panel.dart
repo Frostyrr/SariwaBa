@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +7,7 @@ import '../../constants/theme/app_typography.dart';
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
+import '../classification/eye_zoom_modal.dart';
 import '../common/app_button.dart';
 import 'frosted_glass_card.dart';
 
@@ -54,13 +53,13 @@ class CurrentScanPanel extends StatelessWidget {
               const SizedBox(height: 12),
             ],
             if (state.latestResult != null) ...[
-              _buildResultCard(state.latestResult!),
+              _buildResultCard(context, state.latestResult!),
               const SizedBox(height: 16),
             ] else if (state.errorMessage != null) ...[
               _buildRecoveryCard(),
               const SizedBox(height: 16),
             ] else ...[
-              _buildReadyToCheckCard(),
+              _buildReadyToCheckCard(context),
               const SizedBox(height: 16),
             ],
           ],
@@ -73,7 +72,7 @@ class CurrentScanPanel extends StatelessWidget {
     } else if (state.latestResult != null) {
       panelKey =
           'result_${state.latestResult!.scanId ?? state.latestResult!.label}_${state.selectedEyeProposalIndex}';
-      body = _buildResultCard(state.latestResult!);
+      body = _buildResultCard(context, state.latestResult!);
     } else if (state.errorMessage != null) {
       panelKey = 'error_${state.errorCode}';
       body = _buildRecoveryCard();
@@ -90,7 +89,7 @@ class CurrentScanPanel extends StatelessWidget {
             _buildCloseUpDetectedBanner(),
             const SizedBox(height: 14),
           ],
-          _buildReadyToCheckCard(),
+          _buildReadyToCheckCard(context),
         ],
       );
     }
@@ -636,7 +635,29 @@ class CurrentScanPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildReadyToCheckCard() {
+  void _openSelectedEyeZoom(BuildContext context, Uint8List fallbackBytes) {
+    if (state.eyeProposals.isNotEmpty) {
+      EyeZoomModal.show(
+        context,
+        images: [for (final p in state.eyeProposals) p.bytes],
+        initialIndex: state.selectedEyeProposalIndex ?? 0,
+        onIndexChanged: controller.selectEyeProposal,
+      );
+      return;
+    }
+    final regionLabel = switch (state.selectedRegion) {
+      AnatomicalRegion.gill => 'Selected Gill Close-Up',
+      AnatomicalRegion.eye => 'Selected Eye Close-Up',
+      _ => 'Selected Close-Up Preview',
+    };
+    EyeZoomModal.show(
+      context,
+      images: [fallbackBytes],
+      titleBuilder: (_, _) => regionLabel,
+    );
+  }
+
+  Widget _buildReadyToCheckCard(BuildContext context) {
     final previewBytes = state.confirmedImageBytes ?? state.selectedImageBytes;
 
     return Column(
@@ -652,14 +673,16 @@ class CurrentScanPanel extends StatelessWidget {
             ),
             child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.memory(
-                    previewBytes,
-                    width: 64,
-                    height: 64,
-                    fit: BoxFit.cover,
-                  ),
+                HoverZoomEyePreview(
+                  key: const Key('selected_eye_preview_thumbnail'),
+                  imageBytes: previewBytes,
+                  width: 64,
+                  height: 64,
+                  borderRadius: 12,
+                  tooltip: state.selectedEyeProposalIndex != null
+                      ? 'Hover or click to zoom Eye #${state.selectedEyeProposalIndex! + 1}'
+                      : 'Hover or click to zoom preview',
+                  onTapZoom: () => _openSelectedEyeZoom(context, previewBytes),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -701,7 +724,7 @@ class CurrentScanPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildResultCard(ClassificationResult result) {
+  Widget _buildResultCard(BuildContext context, ClassificationResult result) {
     final isFresh = result.isFresh;
     final primaryColor = isFresh
         ? SariwaColors.statusFresh
@@ -728,14 +751,14 @@ class CurrentScanPanel extends StatelessWidget {
           Row(
             children: [
               if (cropBytes != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.memory(
-                    cropBytes,
-                    width: 54,
-                    height: 54,
-                    fit: BoxFit.cover,
-                  ),
+                HoverZoomEyePreview(
+                  key: const Key('result_eye_preview_thumbnail'),
+                  imageBytes: cropBytes,
+                  width: 54,
+                  height: 54,
+                  borderRadius: 10,
+                  tooltip: 'Hover or click to zoom analyzed close-up',
+                  onTapZoom: () => _openSelectedEyeZoom(context, cropBytes),
                 ),
                 const SizedBox(width: 12),
               ],
@@ -776,9 +799,11 @@ class CurrentScanPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
-            style: TextStyle(
+          Text(
+            result.speciesVerified
+                ? 'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.'
+                : 'Scope: ${result.species} only (species is not auto-verified). Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
+            style: const TextStyle(
               fontSize: 11.5,
               height: 1.35,
               color: SariwaColors.textSecondaryDark,

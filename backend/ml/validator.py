@@ -2,6 +2,7 @@
 import math
 from functools import lru_cache
 from pathlib import Path
+from threading import Lock
 
 import torch
 try:
@@ -21,6 +22,7 @@ VALIDATOR_CLASSES = ["eye", "gill", "unsupported"]
 VALIDATOR_V2_CLASSES = [*VALIDATOR_CLASSES, "whole_tilapia"]
 VALIDATOR_SCOPES = {3: "tilapia_eye_gill", 4: "tilapia_eye_gill_whole"}
 _BUNDLE = None
+_VALIDATOR_LOCK = Lock()
 
 
 class InputRejectedError(ValueError):
@@ -34,51 +36,54 @@ def get_validator_bundle(force_reload=False):
     global _BUNDLE
     if _BUNDLE is not None and not force_reload:
         return _BUNDLE
-    try:
-        checkpoint = torch.load(VALIDATOR_PATH, map_location=DEVICE, weights_only=True)
-        classes = checkpoint["classes"]
-        if (classes not in (VALIDATOR_CLASSES, VALIDATOR_V2_CLASSES)
-                or checkpoint["validation_scope"] != VALIDATOR_SCOPES[len(classes)]
-                or checkpoint["threshold_source"] != "validation_split"):
-            raise ValueError("Validator metadata does not match the supported-input contract.")
-        threshold = float(checkpoint["acceptance_threshold"])
-        if not math.isfinite(threshold) or not 0.5 <= threshold <= 1:
-            raise ValueError("Invalid validator acceptance threshold.")
-        evaluation = checkpoint["evaluation"]
-        test = evaluation["test"]
-        if (evaluation["acceptance_threshold"] != threshold
-                or test["unsupported_false_accept_rate"] is None
-                or not 0 <= test["unsupported_false_accept_rate"] <= evaluation["target_false_accept_rate"] < 1
-                or any(test["class_counts"].get(label, 0) < evaluation["min_eval_per_class"]
-                       for label in classes)
-                or evaluation["min_eval_per_class"] < 1
-                or any(not 0 < rate <= 1 for rate in test["supported_correct_accept_rate"].values())
-                or set(test["supported_correct_accept_rate"]) != {"eye", "gill"}):
-            raise ValueError("Validator failed its held-out acceptance policy.")
-        if classes == VALIDATOR_V2_CLASSES and (
-            not 0 < test["whole_tilapia_prompt_rate"] <= 1
-            or not 0 <= test["whole_tilapia_false_route_rate"] <= evaluation["target_false_accept_rate"]
-            or not 0 <= test["unsupported_whole_prompt_rate"] <= evaluation["target_false_accept_rate"]
-        ):
-            raise ValueError("Validator failed its whole-fish routing policy.")
-        image_size = int(checkpoint["image_size"])
-        if image_size != 224:
-            raise ValueError("Unsupported validator preprocessing size.")
-        net = models.mobilenet_v3_small(weights=None)
-        net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(classes))
-        net.load_state_dict(checkpoint["model_state_dict"])
-        net.to(DEVICE).eval()
-        _BUNDLE = {
-            "model": net, "transform": _build_eval_transform(image_size),
-            "threshold": threshold, "model_version": checkpoint["model_version"],
-            "classes": classes,
-        }
-        return _BUNDLE
-    except Exception as exc:
-        raise ModelUnavailableError(
-            "Supported-input validation is unavailable. A trained and evaluated "
-            "Tilapia eye/gill validator must be installed before scanning."
-        ) from exc
+    with _VALIDATOR_LOCK:
+        if _BUNDLE is not None and not force_reload:
+            return _BUNDLE
+        try:
+            checkpoint = torch.load(VALIDATOR_PATH, map_location=DEVICE, weights_only=True)
+            classes = checkpoint["classes"]
+            if (classes not in (VALIDATOR_CLASSES, VALIDATOR_V2_CLASSES)
+                    or checkpoint["validation_scope"] != VALIDATOR_SCOPES[len(classes)]
+                    or checkpoint["threshold_source"] != "validation_split"):
+                raise ValueError("Validator metadata does not match the supported-input contract.")
+            threshold = float(checkpoint["acceptance_threshold"])
+            if not math.isfinite(threshold) or not 0.5 <= threshold <= 1:
+                raise ValueError("Invalid validator acceptance threshold.")
+            evaluation = checkpoint["evaluation"]
+            test = evaluation["test"]
+            if (evaluation["acceptance_threshold"] != threshold
+                    or test["unsupported_false_accept_rate"] is None
+                    or not 0 <= test["unsupported_false_accept_rate"] <= evaluation["target_false_accept_rate"] < 1
+                    or any(test["class_counts"].get(label, 0) < evaluation["min_eval_per_class"]
+                           for label in classes)
+                    or evaluation["min_eval_per_class"] < 1
+                    or any(not 0 < rate <= 1 for rate in test["supported_correct_accept_rate"].values())
+                    or set(test["supported_correct_accept_rate"]) != {"eye", "gill"}):
+                raise ValueError("Validator failed its held-out acceptance policy.")
+            if classes == VALIDATOR_V2_CLASSES and (
+                not 0 < test["whole_tilapia_prompt_rate"] <= 1
+                or not 0 <= test["whole_tilapia_false_route_rate"] <= evaluation["target_false_accept_rate"]
+                or not 0 <= test["unsupported_whole_prompt_rate"] <= evaluation["target_false_accept_rate"]
+            ):
+                raise ValueError("Validator failed its whole-fish routing policy.")
+            image_size = int(checkpoint["image_size"])
+            if image_size != 224:
+                raise ValueError("Unsupported validator preprocessing size.")
+            net = models.mobilenet_v3_small(weights=None)
+            net.classifier[3] = nn.Linear(net.classifier[3].in_features, len(classes))
+            net.load_state_dict(checkpoint["model_state_dict"])
+            net.to(DEVICE).eval()
+            _BUNDLE = {
+                "model": net, "transform": _build_eval_transform(image_size),
+                "threshold": threshold, "model_version": checkpoint["model_version"],
+                "classes": classes,
+            }
+            return _BUNDLE
+        except Exception as exc:
+            raise ModelUnavailableError(
+                "Supported-input validation is unavailable. A trained and evaluated "
+                "Tilapia eye/gill validator must be installed before scanning."
+            ) from exc
 
 
 def decide_input(probabilities, region_type, threshold, classes=VALIDATOR_CLASSES):
@@ -223,10 +228,13 @@ def validate_image(image_source, region_type):
         experimental = settings.DEBUG and settings.EXPERIMENTAL_VALIDATOR_DEMO
         bundle = get_experimental_bundle() if experimental else get_validator_bundle()
     try:
-        if hasattr(image_source, "seek"):
-            image_source.seek(0)
-        with Image.open(image_source) as raw:
-            tensor = bundle["transform"](ImageOps.exif_transpose(raw).convert("RGB"))
+        if isinstance(image_source, Image.Image):
+            tensor = bundle["transform"](image_source.convert("RGB"))
+        else:
+            if hasattr(image_source, "seek"):
+                image_source.seek(0)
+            with Image.open(image_source) as raw:
+                tensor = bundle["transform"](ImageOps.exif_transpose(raw).convert("RGB"))
         with torch.inference_mode():
             probabilities = bundle["model"](tensor.unsqueeze(0).to(DEVICE)).softmax(1)[0].tolist()
     except Exception as exc:

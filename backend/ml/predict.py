@@ -1,4 +1,5 @@
 from pathlib import Path
+from threading import Lock
 from typing import Any, Dict, Optional
 
 import torch
@@ -35,6 +36,7 @@ class ModelInferenceError(RuntimeError):
 
 
 _MODEL_BUNDLE: Optional[Dict[str, Any]] = None
+_MODEL_LOCK = Lock()
 
 
 def _build_eval_transform(image_size: int) -> transforms.Compose:
@@ -58,54 +60,58 @@ def get_model_bundle(force_reload: bool = False) -> Dict[str, Any]:
     if _MODEL_BUNDLE is not None and not force_reload:
         return _MODEL_BUNDLE
 
-    if not MODEL_PATH.exists() or not MODEL_PATH.is_file():
-        raise ModelUnavailableError(
-            f"Trained MobileNetV3 checkpoint not found at {MODEL_PATH}."
-        )
+    with _MODEL_LOCK:
+        if _MODEL_BUNDLE is not None and not force_reload:
+            return _MODEL_BUNDLE
 
-    try:
-        checkpoint = torch.load(
-            MODEL_PATH,
-            map_location=DEVICE,
-            weights_only=False,
-        )
-    except Exception as exc:
-        raise ModelUnavailableError(
-            f"Failed to load MobileNetV3 checkpoint: {exc}"
-        ) from exc
+        if not MODEL_PATH.exists() or not MODEL_PATH.is_file():
+            raise ModelUnavailableError(
+                f"Trained MobileNetV3 checkpoint not found at {MODEL_PATH}."
+            )
 
-    if not isinstance(checkpoint, dict):
-        raise ModelUnavailableError("Invalid checkpoint structure.")
+        try:
+            checkpoint = torch.load(
+                MODEL_PATH,
+                map_location=DEVICE,
+                weights_only=False,
+            )
+        except Exception as exc:
+            raise ModelUnavailableError(
+                f"Failed to load MobileNetV3 checkpoint: {exc}"
+            ) from exc
 
-    classes = checkpoint.get("classes")
-    state_dict = checkpoint.get("model_state_dict")
-    if not classes or not state_dict:
-        raise ModelUnavailableError(
-            "Checkpoint is missing required 'classes' or 'model_state_dict' keys."
-        )
+        if not isinstance(checkpoint, dict):
+            raise ModelUnavailableError("Invalid checkpoint structure.")
 
-    image_size = int(checkpoint.get("image_size", 224))
+        classes = checkpoint.get("classes")
+        state_dict = checkpoint.get("model_state_dict")
+        if not classes or not state_dict:
+            raise ModelUnavailableError(
+                "Checkpoint is missing required 'classes' or 'model_state_dict' keys."
+            )
 
-    try:
-        net = models.mobilenet_v3_small(weights=None)
-        num_features = net.classifier[3].in_features
-        net.classifier[3] = nn.Linear(num_features, len(classes))
-        net.load_state_dict(state_dict)
-        net = net.to(DEVICE)
-        net.eval()
-    except Exception as exc:
-        raise ModelUnavailableError(
-            f"Incompatible MobileNetV3 architecture or state_dict: {exc}"
-        ) from exc
+        image_size = int(checkpoint.get("image_size", 224))
 
-    _MODEL_BUNDLE = {
-        "model": net,
-        "classes": list(classes),
-        "class_to_idx": checkpoint.get("class_to_idx", {}),
-        "image_size": image_size,
-        "transform": _build_eval_transform(image_size),
-    }
-    return _MODEL_BUNDLE
+        try:
+            net = models.mobilenet_v3_small(weights=None)
+            num_features = net.classifier[3].in_features
+            net.classifier[3] = nn.Linear(num_features, len(classes))
+            net.load_state_dict(state_dict)
+            net = net.to(DEVICE)
+            net.eval()
+        except Exception as exc:
+            raise ModelUnavailableError(
+                f"Incompatible MobileNetV3 architecture or state_dict: {exc}"
+            ) from exc
+
+        _MODEL_BUNDLE = {
+            "model": net,
+            "classes": list(classes),
+            "class_to_idx": checkpoint.get("class_to_idx", {}),
+            "image_size": image_size,
+            "transform": _build_eval_transform(image_size),
+        }
+        return _MODEL_BUNDLE
 
 
 def normalize_label(label: str) -> str:
@@ -127,15 +133,19 @@ def predict_image(
     transform = bundle["transform"]
 
     try:
-        if hasattr(image_source, "seek"):
-            image_source.seek(0)
-
-        with Image.open(image_source) as raw_img:
-            oriented_img = ImageOps.exif_transpose(raw_img)
-            rgb_img = oriented_img.convert("RGB")
+        if isinstance(image_source, Image.Image):
+            rgb_img = image_source.convert("RGB")
             image_tensor = transform(rgb_img).unsqueeze(0).to(DEVICE)
+        else:
+            if hasattr(image_source, "seek"):
+                image_source.seek(0)
 
-        with torch.no_grad():
+            with Image.open(image_source) as raw_img:
+                oriented_img = ImageOps.exif_transpose(raw_img)
+                rgb_img = oriented_img.convert("RGB")
+                image_tensor = transform(rgb_img).unsqueeze(0).to(DEVICE)
+
+        with torch.inference_mode():
             outputs = net(image_tensor)
             probabilities = torch.softmax(outputs, dim=1)
             confidence, predicted_index = torch.max(probabilities, dim=1)

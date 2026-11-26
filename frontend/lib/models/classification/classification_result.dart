@@ -70,6 +70,7 @@ class ClassificationResult {
   final DateTime? createdAt;
   final String? modelVersion;
   final bool? regionVerified;
+  final bool speciesVerified;
   final String? validatorVersion;
 
   static const String defaultDisclaimer =
@@ -90,6 +91,7 @@ class ClassificationResult {
     this.createdAt,
     this.modelVersion,
     this.regionVerified,
+    this.speciesVerified = false,
     this.validatorVersion,
   });
 
@@ -119,6 +121,7 @@ class ClassificationResult {
           : null,
       modelVersion: json['model_version'] as String?,
       regionVerified: json['region_verified'] as bool?,
+      speciesVerified: json['species_verified'] as bool? ?? false,
       validatorVersion: json['validator_version'] as String?,
     );
   }
@@ -132,7 +135,7 @@ class ClassificationResult {
       'region_type': regionType,
       'species': species,
       'assessment_species': species,
-      'species_verified': false,
+      'species_verified': speciesVerified,
       'disclaimer': disclaimer,
       'saved': saved,
       'image_url': imageUrl,

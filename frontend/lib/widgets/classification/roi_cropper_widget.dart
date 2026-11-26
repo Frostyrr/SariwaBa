@@ -386,15 +386,37 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
         imageSize,
       );
 
-      final srcRect = Rect.fromLTRB(
+      final rawSrcRect = Rect.fromLTRB(
         normalizedRect.left * imageSize.width,
         normalizedRect.top * imageSize.height,
         normalizedRect.right * imageSize.width,
         normalizedRect.bottom * imageSize.height,
       );
 
-      final outWidth = srcRect.width.round().clamp(64, 1024);
-      final outHeight = srcRect.height.round().clamp(64, 1024);
+      // Keep manual crops strictly 1:1 square in natural pixel space so
+      // backend Resize((224, 224)) never stretches/warps edge-clamped crops.
+      final maxSquareSide = math.min(imageSize.width, imageSize.height);
+      final double desiredSide = math
+          .max(rawSrcRect.width, rawSrcRect.height)
+          .clamp(math.min(32.0, maxSquareSide), maxSquareSide)
+          .toDouble();
+      final double sqLeft = (rawSrcRect.center.dx - desiredSide / 2.0)
+          .clamp(0.0, imageSize.width - desiredSide)
+          .toDouble();
+      final double sqTop = (rawSrcRect.center.dy - desiredSide / 2.0)
+          .clamp(0.0, imageSize.height - desiredSide)
+          .toDouble();
+      final srcRect = Rect.fromLTWH(sqLeft, sqTop, desiredSide, desiredSide);
+      final squareNormalizedRect = Rect.fromLTWH(
+        sqLeft / imageSize.width,
+        sqTop / imageSize.height,
+        desiredSide / imageSize.width,
+        desiredSide / imageSize.height,
+      );
+
+      final outSide = desiredSide.round().clamp(64, 1024);
+      final outWidth = outSide;
+      final outHeight = outSide;
 
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
@@ -432,7 +454,7 @@ class _RoiCropperWidgetState extends State<RoiCropperWidget> {
       }
       widget.controller.confirmCroppedRegion(
         byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-        normalizedCropRect: normalizedRect,
+        normalizedCropRect: squareNormalizedRect,
       );
     } catch (_) {
       if (!mounted) return;

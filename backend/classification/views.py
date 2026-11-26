@@ -3,6 +3,7 @@ import io
 import logging
 import time
 import math
+from django.conf import settings
 from PIL import Image, ImageOps, UnidentifiedImageError
 try:
     from pillow_heif import register_heif_opener
@@ -36,6 +37,8 @@ MAX_EYE_SOURCE_BYTES = 10 * 1024 * 1024
 MIN_IMAGE_DIMENSION = 32
 MAX_IMAGE_DIMENSION = 4096
 MAX_IMAGE_PIXELS = 16_777_216  # 4096 x 4096
+MAX_EYE_SOURCE_DIMENSION = 8192
+MAX_EYE_SOURCE_PIXELS = 50_331_648  # Up to ~50 MP smartphone camera whole-fish photos
 
 ALLOWED_CONTENT_TYPES = {
     "image/jpeg",
@@ -63,7 +66,10 @@ PRELIMINARY_DISCLAIMER = (
 def eye_proposals(request):
     upload = request.FILES.get("image")
     if upload is None or upload.size <= 0:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": {"code": "EMPTY_IMAGE", "message": "A valid Tilapia photo is required."}},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     if upload.size > MAX_EYE_SOURCE_BYTES:
         return Response(
             {"error": {"code": "IMAGE_TOO_LARGE", "message": "The original photo must be 10 MB or smaller."}},
@@ -72,19 +78,36 @@ def eye_proposals(request):
 
     try:
         with Image.open(upload) as source:
+            decoded_format = (source.format or "").upper()
             width, height = source.size
-            if (source.format not in ALLOWED_DECODED_FORMATS
-                    or not all(MIN_IMAGE_DIMENSION <= size <= MAX_IMAGE_DIMENSION
+            if (decoded_format not in ALLOWED_DECODED_FORMATS
+                    or not all(MIN_IMAGE_DIMENSION <= size <= MAX_EYE_SOURCE_DIMENSION
                                for size in source.size)
-                    or width * height > MAX_IMAGE_PIXELS):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                    or width * height > MAX_EYE_SOURCE_PIXELS):
+                return Response(
+                    {
+                        "error": {
+                            "code": "INVALID_IMAGE_DIMENSIONS",
+                            "message": "Photo format or dimensions are outside supported limits.",
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             image = ImageOps.exif_transpose(source).convert("RGB")
+            if image.width > MAX_IMAGE_DIMENSION or image.height > MAX_IMAGE_DIMENSION:
+                image.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.Resampling.LANCZOS)
     except (ValueError, OSError, Image.DecompressionBombError):
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": {"code": "INVALID_IMAGE", "message": "The uploaded file could not be decoded as a valid image."}},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    is_heic = decoded_format in {"HEIC", "HEIF"}
+    size_meta = {"image_width": image.width, "image_height": image.height}
 
     original_rejection = None
     try:
-        validate_image(upload, "eye")
+        validate_image(image, "eye")
     except InputRejectedError as exc:
         if exc.code in {"UNSUPPORTED_IMAGE", "CONTENT_UNCERTAIN"}:
             original_rejection = exc
@@ -94,42 +117,57 @@ def eye_proposals(request):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
     except (ModelUnavailableError, ModelInferenceError):
-        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(
+            {"error": {"code": "MODEL_UNAVAILABLE", "message": "Eye validation model is currently unavailable."}},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     else:
-        return Response({"already_eye": True, "proposals": []})
+        payload = {"already_eye": True, "proposals": []}
+        if is_heic:
+            payload.update(size_meta)
+        return Response(payload)
 
     proposals = []
     try:
         for (left, top, right, bottom), eye_center in propose_eye_crops(image):
             crop = image.crop((left, top, right, bottom))
-            crop.thumbnail((1024, 1024))
+            crop.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+            # Enforce Model A supported-input gate on every proposed YOLO crop,
+            # including whole-Tilapia uploads, so stray reflections/glare never bypass validation.
+            try:
+                validate_image(crop, "eye")
+            except InputRejectedError:
+                continue
             with io.BytesIO() as output:
                 crop.save(output, format="JPEG", quality=95)
                 crop_bytes = output.getvalue()
-                if original_rejection is not None:
-                    # A wide photo can fail the photo checker even when its eye crop passes.
-                    try:
-                        validate_image(output, "eye")
-                    except InputRejectedError:
-                        continue
-                proposals.append({
-                    "crop_base64": base64.b64encode(crop_bytes).decode("ascii"),
-                    "rect": [left / image.width, top / image.height,
-                             right / image.width, bottom / image.height],
-                    "eye_center": eye_center,
-                })
+            proposals.append({
+                "crop_base64": base64.b64encode(crop_bytes).decode("ascii"),
+                "rect": [left / image.width, top / image.height,
+                         right / image.width, bottom / image.height],
+                "eye_center": eye_center,
+            })
     except DetectorUnavailable as exc:
         if exc.__cause__ is not None:
             logging.getLogger(__name__).exception("Eye detector failed.")
-        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(
+            {"error": {"code": "MODEL_UNAVAILABLE", "message": "Automatic eye detection is currently unavailable."}},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     except (ModelUnavailableError, ModelInferenceError):
-        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return Response(
+            {"error": {"code": "MODEL_UNAVAILABLE", "message": "Eye validation model is currently unavailable."}},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     if original_rejection is not None and not proposals:
         return Response(
             {"error": {"code": original_rejection.code, "message": str(original_rejection)}},
             status=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
-    return Response({"proposals": proposals})
+    payload = {"proposals": proposals}
+    if proposals or is_heic:
+        payload.update(size_meta)
+    return Response(payload)
 
 
 @api_view(["POST"])
@@ -233,55 +271,52 @@ def classify_fish(request):
         with Image.open(image_file) as img:
             decoded_format = (img.format or "").upper()
             width, height = img.size
-            img.verify()
 
-        if decoded_format not in ALLOWED_DECODED_FORMATS:
-            ClassificationTelemetryLog.objects.create(
-                user=user,
-                region_type=region_type,
-                status="REJECTED_UNSUPPORTED_TYPE",
-                error_code="UNSUPPORTED_IMAGE_TYPE",
-            )
-            return Response(
-                {
-                    "error": {
-                        "code": "UNSUPPORTED_IMAGE_TYPE",
-                        "message": "Decoded image format is not supported. Only JPEG, PNG, WebP, and HEIC images are allowed.",
-                    }
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            if decoded_format not in ALLOWED_DECODED_FORMATS:
+                ClassificationTelemetryLog.objects.create(
+                    user=user,
+                    region_type=region_type,
+                    status="REJECTED_UNSUPPORTED_TYPE",
+                    error_code="UNSUPPORTED_IMAGE_TYPE",
+                )
+                return Response(
+                    {
+                        "error": {
+                            "code": "UNSUPPORTED_IMAGE_TYPE",
+                            "message": "Decoded image format is not supported. Only JPEG, PNG, WebP, and HEIC images are allowed.",
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        if (
-            width < MIN_IMAGE_DIMENSION
-            or height < MIN_IMAGE_DIMENSION
-            or width > MAX_IMAGE_DIMENSION
-            or height > MAX_IMAGE_DIMENSION
-            or (width * height) > MAX_IMAGE_PIXELS
-        ):
-            ClassificationTelemetryLog.objects.create(
-                user=user,
-                region_type=region_type,
-                status="REJECTED_DIMENSIONS",
-                error_code="INVALID_IMAGE_DIMENSIONS",
-            )
-            return Response(
-                {
-                    "error": {
-                        "code": "INVALID_IMAGE_DIMENSIONS",
-                        "message": (
-                            f"Image dimensions ({width}x{height}) are outside the allowed range "
-                            f"({MIN_IMAGE_DIMENSION}x{MIN_IMAGE_DIMENSION} to {MAX_IMAGE_DIMENSION}x{MAX_IMAGE_DIMENSION} px)."
-                        ),
-                    }
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            if (
+                width < MIN_IMAGE_DIMENSION
+                or height < MIN_IMAGE_DIMENSION
+                or width > MAX_IMAGE_DIMENSION
+                or height > MAX_IMAGE_DIMENSION
+                or (width * height) > MAX_IMAGE_PIXELS
+            ):
+                ClassificationTelemetryLog.objects.create(
+                    user=user,
+                    region_type=region_type,
+                    status="REJECTED_DIMENSIONS",
+                    error_code="INVALID_IMAGE_DIMENSIONS",
+                )
+                return Response(
+                    {
+                        "error": {
+                            "code": "INVALID_IMAGE_DIMENSIONS",
+                            "message": (
+                                f"Image dimensions ({width}x{height}) are outside the allowed range "
+                                f"({MIN_IMAGE_DIMENSION}x{MIN_IMAGE_DIMENSION} to {MAX_IMAGE_DIMENSION}x{MAX_IMAGE_DIMENSION} px)."
+                            ),
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
-        # Second pass: fully decode pixel data to catch truncated or corrupted streams
-        image_file.seek(0)
-        with Image.open(image_file) as img_check:
-            img_check.load()
+            # Single-pass full pixel decode catches truncated/corrupted streams without reopening
+            img.load()
 
         image_file.seek(0)
     except Image.DecompressionBombError:
@@ -333,6 +368,13 @@ def classify_fish(request):
             raise ModelInferenceError("Invalid freshness confidence.")
         if prediction["label"] not in {"Fresh", "Not Fresh"}:
             raise ModelInferenceError("Invalid freshness label.")
+        min_freshness_conf = float(getattr(settings, "FRESHNESS_MIN_CONFIDENCE", 0.55))
+        if confidence < min_freshness_conf:
+            raise InputRejectedError(
+                "FRESHNESS_UNCERTAIN",
+                "We couldn't get a clear freshness reading from this angle. Please try a brighter, closer photo.",
+                confidence,
+            )
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
     except InputRejectedError as exc:
         latency_ms = round((time.perf_counter() - start_time) * 1000, 2)

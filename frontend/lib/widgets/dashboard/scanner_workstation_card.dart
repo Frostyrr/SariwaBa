@@ -10,6 +10,7 @@ import '../../services/classification/classification_service.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../constants/theme/timber_typography.dart';
+import '../classification/eye_zoom_modal.dart';
 import '../classification/responsive_image_upload_zone.dart';
 import '../common/app_button.dart';
 import '../common/staggered_reveal.dart';
@@ -37,6 +38,22 @@ class ScannerWorkstationCard extends StatefulWidget {
 class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
   ui.Image? _decodedImage;
   Uint8List? _decodedBytes;
+  int? _hoveredEyeTileIndex;
+  int? _hoveredEyeMarkerIndex;
+
+  void _openEyeZoomModal(
+    ClassificationState state,
+    ClassificationController controller,
+    int initialIndex,
+  ) {
+    if (state.eyeProposals.isEmpty) return;
+    EyeZoomModal.show(
+      context,
+      images: [for (final p in state.eyeProposals) p.bytes],
+      initialIndex: initialIndex,
+      onIndexChanged: controller.selectEyeProposal,
+    );
+  }
 
   @override
   void initState() {
@@ -243,6 +260,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 final displayedRect = _computeContainedImageRect(
                   containerSize,
                   _decodedImage,
+                  state.sourceImageSize,
                 );
 
                 return Stack(
@@ -261,9 +279,19 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           proposal: state.eyeProposals[i],
                           displayedRect: displayedRect,
                           isSelected: state.selectedEyeProposalIndex == i,
+                          isHovered: _hoveredEyeMarkerIndex == i,
+                          onHoverChanged: (hovered) {
+                            setState(
+                              () => _hoveredEyeMarkerIndex = hovered ? i : null,
+                            );
+                          },
                           onTap: () {
                             HapticFeedback.selectionClick();
-                            controller.selectEyeProposal(i);
+                            if (state.selectedEyeProposalIndex == i) {
+                              _openEyeZoomModal(state, controller, i);
+                            } else {
+                              controller.selectEyeProposal(i);
+                            }
                           },
                         ),
                     // Top-right Crop + Close (×) overlay controls
@@ -616,6 +644,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         itemBuilder: (context, index) {
           final proposal = proposals[index];
           final isSelected = state.selectedEyeProposalIndex == index;
+          final isHovered = _hoveredEyeTileIndex == index;
           final checkedFresh = state.eyeProposalFreshness[index];
 
           return StaggeredReveal(
@@ -623,91 +652,162 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             child: Semantics(
               button: true,
               selected: isSelected,
-              label: 'Eye ${index + 1}${isSelected ? ', selected' : ''}',
-              child: GestureDetector(
-                key: Key('eye_proposal_tile_$index'),
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  controller.selectEyeProposal(index);
-                },
-                child: AnimatedScale(
-                  scale: isSelected ? 1.04 : 1.0,
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOutCubic,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    curve: Curves.easeOutCubic,
-                    width: 84,
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
+              label: isSelected
+                  ? 'Eye ${index + 1}, selected. Activate to zoom'
+                  : 'Eye ${index + 1}',
+              child: Tooltip(
+                message: isSelected
+                    ? 'Click to zoom Eye #${index + 1}'
+                    : 'Select Eye #${index + 1}',
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  onEnter: (_) =>
+                      setState(() => _hoveredEyeTileIndex = index),
+                  onExit: (_) {
+                    if (_hoveredEyeTileIndex == index) {
+                      setState(() => _hoveredEyeTileIndex = null);
+                    }
+                  },
+                  child: GestureDetector(
+                    key: Key('eye_proposal_tile_$index'),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      if (isSelected) {
+                        _openEyeZoomModal(state, controller, index);
+                      } else {
+                        controller.selectEyeProposal(index);
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOutCubic,
+                      width: 84,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? SariwaColors.brandPrimary
-                            : const Color(0xFFCBD5E1),
-                        width: isSelected ? 2.2 : 1.0,
+                            ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? SariwaColors.brandPrimary
+                              : (isHovered
+                                    ? SariwaColors.brandGlow
+                                    : const Color(0xFFCBD5E1)),
+                          width: isSelected ? 2.2 : 1.2,
+                        ),
                       ),
-                    ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.memory(
-                            proposal.bytes,
-                            fit: BoxFit.cover,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.memory(
+                              proposal.bytes,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          left: 4,
-                          top: 4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? SariwaColors.brandPrimary
-                                  : const Color(0xCC0A1926),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '#${index + 1}',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                          if (isSelected)
+                            IgnorePointer(
+                              child: AnimatedOpacity(
+                                key: Key('eye_proposal_hover_zoom_$index'),
+                                opacity: isHovered ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 180),
+                                curve: Curves.easeOutCubic,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x8C0A1926),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.22,
+                                        ),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.65,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        CupertinoIcons.zoom_in,
+                                        size: 15,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        if (checkedFresh != null)
                           Positioned(
-                            right: 4,
-                            bottom: 4,
+                            left: 4,
+                            top: 4,
                             child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
                               ),
-                              child: Icon(
-                                checkedFresh
-                                    ? CupertinoIcons.checkmark_circle_fill
-                                    : CupertinoIcons
-                                          .exclamationmark_circle_fill,
-                                size: 14,
-                                color: checkedFresh
-                                    ? SariwaColors.statusFresh
-                                    : SariwaColors.notFreshPrimary,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? SariwaColors.brandPrimary
+                                    : const Color(0xCC0A1926),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '#${index + 1}',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                      ],
+                          if (isSelected && !isHovered)
+                            Positioned(
+                              left: 4,
+                              bottom: 4,
+                              child: Container(
+                                padding: const EdgeInsets.all(2.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xBF0A1926),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.zoom_in,
+                                  size: 10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          if (checkedFresh != null)
+                            Positioned(
+                              right: 4,
+                              bottom: 4,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  checkedFresh
+                                      ? CupertinoIcons.checkmark_circle_fill
+                                      : CupertinoIcons
+                                            .exclamationmark_circle_fill,
+                                  size: 14,
+                                  color: checkedFresh
+                                      ? SariwaColors.statusFresh
+                                      : SariwaColors.notFreshPrimary,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -719,11 +819,25 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     );
   }
 
-  Rect _computeContainedImageRect(Size containerSize, ui.Image? image) {
-    if (image == null || image.width == 0 || image.height == 0) {
+  Rect _computeContainedImageRect(
+    Size containerSize,
+    ui.Image? image,
+    Size? fallbackSize,
+  ) {
+    final double imgWidth;
+    final double imgHeight;
+    if (image != null && image.width > 0 && image.height > 0) {
+      imgWidth = image.width.toDouble();
+      imgHeight = image.height.toDouble();
+    } else if (fallbackSize != null &&
+        fallbackSize.width > 0 &&
+        fallbackSize.height > 0) {
+      imgWidth = fallbackSize.width;
+      imgHeight = fallbackSize.height;
+    } else {
       return Offset.zero & containerSize;
     }
-    final imageAspect = image.width / image.height;
+    final imageAspect = imgWidth / imgHeight;
     final containerAspect = containerSize.width / containerSize.height;
     if (imageAspect > containerAspect) {
       final width = containerSize.width;
@@ -743,6 +857,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     required EyeCropProposal proposal,
     required Rect displayedRect,
     required bool isSelected,
+    required bool isHovered,
+    required ValueChanged<bool> onHoverChanged,
     required VoidCallback onTap,
   }) {
     final left = displayedRect.left + proposal.rect.left * displayedRect.width;
@@ -764,44 +880,88 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
       child: Semantics(
         button: true,
         selected: isSelected,
-        label: 'Detected eye marker ${index + 1}',
-        child: GestureDetector(
-          key: Key('eye_proposal_marker_$index'),
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isSelected
-                    ? SariwaColors.brandGlow
-                    : const Color(0xFFFACC15),
-                width: isSelected ? 3.0 : 2.0,
-              ),
-              color: isSelected
-                  ? SariwaColors.brandGlow.withValues(alpha: 0.18)
-                  : Colors.transparent,
-            ),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        label: isSelected
+            ? 'Detected eye marker ${index + 1}, selected. Activate to zoom'
+            : 'Detected eye marker ${index + 1}',
+        child: Tooltip(
+          message: isSelected
+              ? 'Click to zoom Eye #${index + 1}'
+              : 'Select Eye #${index + 1}',
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => onHoverChanged(true),
+            onExit: (_) => onHoverChanged(false),
+            child: GestureDetector(
+              key: Key('eye_proposal_marker_$index'),
+              onTap: onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isSelected
+                        ? SariwaColors.brandGlow
+                        : const Color(0xFFFACC15),
+                    width: isSelected ? 3.0 : 2.0,
+                  ),
                   color: isSelected
-                      ? SariwaColors.brandPrimary
-                      : const Color(0xE60A2229),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(7),
-                    bottomRight: Radius.circular(7),
-                  ),
+                      ? SariwaColors.brandGlow.withValues(
+                          alpha: isHovered ? 0.28 : 0.18,
+                        )
+                      : Colors.transparent,
                 ),
-                child: Text(
-                  '${index + 1}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? SariwaColors.brandPrimary
+                              : const Color(0xE60A2229),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(7),
+                            bottomRight: Radius.circular(7),
+                          ),
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: AnimatedOpacity(
+                          opacity: isHovered ? 1.0 : 0.85,
+                          duration: const Duration(milliseconds: 160),
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Color(0xD90A1926),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(7),
+                                bottomRight: Radius.circular(7),
+                              ),
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.zoom_in,
+                              size: 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),

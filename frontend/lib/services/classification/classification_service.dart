@@ -2,7 +2,7 @@ import '../../controllers/auth/auth_controller.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui' show Offset, Rect;
+import 'dart:ui' show Offset, Rect, Size;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -161,11 +161,75 @@ class ClassificationServiceImpl
 
   ClassificationServiceImpl(this._dio, {this.guestRequest = false});
 
-  @override
-  Future<EyeProposalResult> findEyes(
-    Uint8List bytes,
-    String filename,
-  ) async {
+  static const Set<String> _explicitHeicBrands = {
+    'heic',
+    'heix',
+    'hevc',
+    'hevx',
+    'heim',
+    'heis',
+    'hevm',
+    'hevs',
+  };
+
+  static const Set<String> _nonHeicMajorBrands = {
+    'avif',
+    'avis',
+    'mp41',
+    'mp42',
+    'isom',
+    'iso2',
+    'avc1',
+    'qt  ',
+    'm4a ',
+    'm4v ',
+    '3gp4',
+    '3gp5',
+  };
+
+  /// Strictly checks ISO-BMFF `ftyp` major & 4-byte aligned compatible brands
+  /// so MP4/MOV/AVIF files are never misclassified as HEIC/HEIF.
+  static bool isHeicBytes(Uint8List bytes) {
+    if (bytes.length < 12) return false;
+    if (bytes[4] != 0x66 ||
+        bytes[5] != 0x74 ||
+        bytes[6] != 0x79 ||
+        bytes[7] != 0x70) {
+      return false;
+    }
+    final boxSize =
+        (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+    final end = boxSize >= 16 && boxSize <= bytes.length
+        ? (boxSize > 64 ? 64 : boxSize)
+        : (bytes.length > 36 ? 36 : bytes.length);
+
+    final majorBrand = String.fromCharCodes(bytes.sublist(8, 12)).toLowerCase();
+    if (_explicitHeicBrands.contains(majorBrand)) {
+      return true;
+    }
+
+    final compatBrands = <String>{};
+    for (int offset = 16; offset + 4 <= end; offset += 4) {
+      compatBrands.add(
+        String.fromCharCodes(bytes.sublist(offset, offset + 4)).toLowerCase(),
+      );
+    }
+    if (compatBrands.any(_explicitHeicBrands.contains)) {
+      return true;
+    }
+    if (_nonHeicMajorBrands.contains(majorBrand) ||
+        compatBrands.contains('avif') ||
+        compatBrands.contains('avis')) {
+      return false;
+    }
+    if (majorBrand == 'mif1' || majorBrand == 'msf1') {
+      return true;
+    }
+    return false;
+  }
+
+  Future<({bool alreadyEye, List<EyeCropProposal> proposals, Size? imageSize})>
+  findEyesDetailed(Uint8List bytes, String filename) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '${ApiEndpoints.classify}eye-proposals/',
       data: FormData.fromMap({
@@ -177,36 +241,63 @@ class ClassificationServiceImpl
       }),
       options: Options(
         extra: {'guestRequest': guestRequest},
-        validateStatus: (status) => status == 200 || status == 422,
+        validateStatus: (status) =>
+            status == 200 || status == 400 || status == 413 || status == 422,
       ),
     );
-    final data = response.data!;
-    if (response.statusCode == 422) {
-      final error = data['error'] as Map<String, dynamic>;
+    final data = response.data ?? const <String, dynamic>{};
+    if (response.statusCode != 200) {
+      final error = data['error'];
+      if (error is Map) {
+        throw ClassificationApiException(
+          code: (error['code'] ?? 'INVALID_IMAGE').toString(),
+          message: (error['message'] ?? 'Could not process this photo.')
+              .toString(),
+          statusCode: response.statusCode,
+        );
+      }
       throw ClassificationApiException(
-        code: error['code'] as String,
-        message: error['message'] as String,
-        statusCode: 422,
+        code: 'INVALID_IMAGE',
+        message: 'Could not process this photo.',
+        statusCode: response.statusCode,
       );
     }
-    final proposals = (data['proposals'] as List<dynamic>).map<EyeCropProposal>((proposal) {
-      final rect = (proposal['rect'] as List<dynamic>).cast<num>();
-      final crop = Rect.fromLTRB(
-        rect[0].toDouble(),
-        rect[1].toDouble(),
-        rect[2].toDouble(),
-        rect[3].toDouble(),
-      );
-      final center = (proposal['eye_center'] as List<dynamic>?)?.cast<num>();
-      return (
-        bytes: base64Decode(proposal['crop_base64'] as String),
-        rect: crop,
-        eyeCenter: center == null
-            ? crop.center
-            : Offset(center[0].toDouble(), center[1].toDouble()),
-      );
-    }).toList();
-    return (alreadyEye: data['already_eye'] == true, proposals: proposals);
+    final width = (data['image_width'] as num?)?.toDouble();
+    final height = (data['image_height'] as num?)?.toDouble();
+    final imageSize =
+        (width != null && height != null && width > 0 && height > 0)
+        ? Size(width, height)
+        : null;
+    final proposals = (data['proposals'] as List<dynamic>)
+        .map<EyeCropProposal>((proposal) {
+          final rect = (proposal['rect'] as List<dynamic>).cast<num>();
+          final crop = Rect.fromLTRB(
+            rect[0].toDouble(),
+            rect[1].toDouble(),
+            rect[2].toDouble(),
+            rect[3].toDouble(),
+          );
+          final center = (proposal['eye_center'] as List<dynamic>?)?.cast<num>();
+          return (
+            bytes: base64Decode(proposal['crop_base64'] as String),
+            rect: crop,
+            eyeCenter: center == null
+                ? crop.center
+                : Offset(center[0].toDouble(), center[1].toDouble()),
+          );
+        })
+        .toList();
+    return (
+      alreadyEye: data['already_eye'] == true,
+      proposals: proposals,
+      imageSize: imageSize,
+    );
+  }
+
+  @override
+  Future<EyeProposalResult> findEyes(Uint8List bytes, String filename) async {
+    final detailed = await findEyesDetailed(bytes, filename);
+    return (alreadyEye: detailed.alreadyEye, proposals: detailed.proposals);
   }
 
   static DioMediaType _detectMediaType(Uint8List bytes, String filename) {
@@ -224,21 +315,11 @@ class ClassificationServiceImpl
       return DioMediaType('image', 'jpeg');
     }
     final lower = filename.toLowerCase();
-    if (bytes.length >= 12 &&
-        bytes[4] == 0x66 &&
-        bytes[5] == 0x74 &&
-        bytes[6] == 0x79 &&
-        bytes[7] == 0x70) {
+    if (isHeicBytes(bytes)) {
       if (lower.endsWith('.heif')) {
         return DioMediaType('image', 'heif');
       }
       return DioMediaType('image', 'heic');
-    }
-    if (lower.endsWith('.heic')) {
-      return DioMediaType('image', 'heic');
-    }
-    if (lower.endsWith('.heif')) {
-      return DioMediaType('image', 'heif');
     }
     if (bytes.length >= 12 &&
         bytes[0] == 0x52 &&
@@ -250,6 +331,12 @@ class ClassificationServiceImpl
         bytes[10] == 0x42 &&
         bytes[11] == 0x50) {
       return DioMediaType('image', 'webp');
+    }
+    if (lower.endsWith('.heic')) {
+      return DioMediaType('image', 'heic');
+    }
+    if (lower.endsWith('.heif')) {
+      return DioMediaType('image', 'heif');
     }
     if (lower.endsWith('.webp')) {
       return DioMediaType('image', 'webp');
@@ -277,12 +364,7 @@ class ClassificationServiceImpl
         bytes[0] == 0xFF &&
         bytes[1] == 0xD8 &&
         bytes[2] == 0xFF;
-    final isHeic =
-        bytes.length >= 12 &&
-        bytes[4] == 0x66 &&
-        bytes[5] == 0x74 &&
-        bytes[6] == 0x79 &&
-        bytes[7] == 0x70;
+    final isHeic = isHeicBytes(bytes);
     final isWebp =
         bytes.length >= 12 &&
         bytes[0] == 0x52 &&

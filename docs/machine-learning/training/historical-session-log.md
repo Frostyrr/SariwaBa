@@ -73,3 +73,18 @@ Collection concluded on the morning of 25 November 2026 (`24 November` skipped d
 5. **Saved Artifacts:**
    - Standard, Batch 2, and Model C (`conf=0.25`) confusion matrices (`.png`, `.csv`, `.json`): `backend/ml/results/active_2026-11-25/`
    - Detailed Nov 25 cohort & YOLO JSON metrics: `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json`, `v2_yolo_day03/results.json`, and `v2_yolo_combined/results.json`
+
+## 26 November 2026 — Comprehensive ML Pipeline Audit, Zero-Retraining Fixes & End-to-End Re-Verification
+
+1. **Zero-Retraining Runtime Pipeline Fixes (No Model Checkpoints Changed):**
+   - Locked Nov 25 checkpoints (`validator-f10d30ceded6`, `model_b_balanced.pth` / `sariwaba_mobilenetv3_best.pth`, Day 3 `sariwaba_eye_detector.pt`) remained untouched; all individual Model A, B, and C held-out confusion matrices in `backend/ml/results/active_2026-11-25/` stay valid.
+   - **Backend fixes:** Enforced Model A (`validate_image(crop, "eye")`) on every YOLO crop in `eye_proposals` (closing the `WHOLE_TILAPIA_CLOSE_UP_REQUIRED` gate bypass); upgraded `propose_eye_crops` to query `classes=[0, 1]` on `DEVICE` with fish-body containment ranking; added `FRESHNESS_MIN_CONFIDENCE = 0.55` (`422 FRESHNESS_UNCERTAIN` coin-flip abstention); added thread locks, single-pass image validation, `<=50 MP` whole-fish source downscaling, HEIC `image_width`/`image_height` metadata, and `10 MB` RAM upload limits.
+   - **Frontend fixes:** Cleared stale `selectedEyeProposalIndex` on manual/full crops; enforced strict ISO-BMFF `ftyp` HEIC brand validation (rejecting MP4/MOV/AVIF) and HEIC marker dimension alignment; aligned Batch Scan (`processBatch`) with `selectedRegion` and YOLO fallback codes; locked `RoiCropperWidget` manual crops to `1:1` natural-pixel squares; added `<=2048 px` web drag-and-drop canvas normalization; surfaced `species_verified: false` scope notice.
+2. **Deferred Retraining Backlog:**
+   - Recorded all four items requiring retraining (`RT-01` backend `_build_eval_transform` aspect-preserving resize, `RT-02` removing `Image.draft()` in training loaders, `RT-03` `ImageCms` Display P3 → sRGB conversion, `RT-04` optional multi-species/region-head expansions) with a completion tracking log in `docs/machine-learning/training/deferred-retraining-backlog.md`.
+3. **End-to-End Pipeline Re-Verification (`2026-11-26`):**
+   - **Unseen Batch 2 (`local_collection_v2` whole-fish, `187` photos):** Valid eye-proposal coverage improved from `179/187` (`95.72%`) to **`182/187` (`97.33%`)** (`18` stray off-fish YOLO boxes dropped, `25` invalid crops blocked by Model A, `2` Day 3 photos rescued by a valid 2nd crop). End-to-end accuracy rose from `166/179` (`92.74%`) to **`169/182` (`92.86%`)** raw and **`162/173` (`93.64%`)** with the `0.55` confidence floor (`66/74 = 89.19%` Day 1 Fresh; `96/99 = 96.97%` Day 3 Not Fresh).
+   - **Direct Batch 2 Day 1 Eyes (`118` gated):** Accuracy improved from `70.34%` (`83/118`) to **`74.29%` (`78/105`)** with the `0.55` floor (`8` errors caught vs `5` correct abstained).
+   - **Day 5 Rotten Whole (`36` photos):** Maintained **`100.0%` (`15/15`)** gated Not-Fresh accuracy while blocking `1` invalid YOLO crop at `/eye-proposals/`.
+   - **Test Suite & Deployment:** `72/72` Django backend tests passed, `32/32` targeted Flutter tests passed (`0` analyzer errors), and `sariwaba_backend` Docker container was restarted.
+   - **Artifacts:** `backend/ml/results/active_2026-11-25/pipeline_audit_fixes_2026-11-26.json` and refreshed `backend/ml/results/active_2026-11-25/batch2_v2_end_to_end_yolo_confusion_matrix.png`.

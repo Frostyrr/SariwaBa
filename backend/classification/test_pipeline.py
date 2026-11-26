@@ -161,6 +161,14 @@ class PipelineAPITests(TestCase):
         self.assertEqual(response.data["confidence"], 0.699)
         self.assertEqual(ClassificationHistory.objects.get().confidence, 0.699)
 
+    @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.52})
+    @patch("classification.views.validate_image", return_value={"region_verified": True})
+    def test_coin_flip_freshness_score_abstains_with_freshness_uncertain(self, validator, freshness):
+        response = self.post()
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.data["error"]["code"], "FRESHNESS_UNCERTAIN")
+        self.assertFalse(ClassificationHistory.objects.exists())
+
     @patch("classification.views.predict_image", return_value={"label": "Fresh", "confidence": 0.94})
     @patch("classification.views.validate_image", return_value={
         "region_verified": True, "species_verified": False, "validator_version": "test-v1"})
