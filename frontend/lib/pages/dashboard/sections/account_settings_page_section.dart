@@ -304,6 +304,11 @@ class _AccountSettingsPageSectionState
                 // 3. Sessions & Security Card
                 _buildSessionsSecurityCard(),
 
+                if (!widget.isGuestUser) ...[
+                  const SizedBox(height: 16),
+                  _buildSignOutCard(),
+                ],
+
                 const SizedBox(height: 24),
 
                 // 4. Danger Zone Card (Only for authenticated users)
@@ -319,6 +324,99 @@ class _AccountSettingsPageSectionState
         ),
       ),
     );
+  }
+
+  Widget _buildSignOutCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.borderLightTeal),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              CupertinoIcons.square_arrow_right,
+              size: 18,
+              color: SariwaColors.textPrimaryDark,
+            ),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Sign Out',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Log out of your SariwaBa account on this device.',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton(
+            key: const Key('settings_sign_out_button'),
+            onPressed: _confirmSignOut,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: SariwaColors.notFreshText,
+              side: const BorderSide(color: SariwaColors.notFreshBorder),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmSignOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text(
+          'Are you sure you want to log out of your SariwaBa account?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: SariwaColors.notFreshPrimary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      await widget.authController.signOut();
+    }
   }
 
   Widget _buildHeader() {

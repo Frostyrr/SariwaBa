@@ -989,14 +989,29 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                   ),
                   const Expanded(
                     flex: 2,
-                    child: Text(
-                      'CONFIDENCE',
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.8,
-                        color: Color(0xFF64748B),
+                    child: Tooltip(
+                      message:
+                          'Model prediction confidence (certainty), not a freshness percentage.',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'CONFIDENCE',
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.8,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            CupertinoIcons.info_circle,
+                            size: 13,
+                            color: Color(0xFF94A3B8),
+                          ),
+                        ],
                       ),
                     ),
                   ),

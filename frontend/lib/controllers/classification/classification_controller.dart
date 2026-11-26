@@ -1,9 +1,9 @@
 import '../auth/auth_controller.dart';
 import '../../services/storage/guest_history_cache.dart';
 
-import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -275,6 +275,29 @@ class ClassificationController extends StateNotifier<ClassificationState> {
        _picker = picker ?? ImagePicker(),
        super(const ClassificationState()) {
     loadHistory();
+    retrieveLostCameraData();
+  }
+
+  /// Recover an image if Android killed the background Flutter activity while
+  /// the native camera app was open.
+  Future<void> retrieveLostCameraData() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    try {
+      final response = await _picker.retrieveLostData();
+      if (!mounted || response.isEmpty) return;
+      final file = response.file ??
+          (response.files != null && response.files!.isNotEmpty
+              ? response.files!.first
+              : null);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        if (mounted) {
+          setSelectedImage(bytes: bytes, filename: file.name);
+        }
+      }
+    } catch (_) {
+      // Ignore platforms/test harnesses where retrieveLostData is unimplemented.
+    }
   }
 
   /// Public convenience getter so widgets can check readiness after synchronous confirmation
@@ -335,21 +358,23 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(isUploadingImage: isUploading);
   }
 
-  /// Pick image from gallery or camera with an explicit loading state
-  Future<void> pickImage(ImageSource source) async {
+  /// Pick image from gallery or camera with an explicit loading state.
+  /// Returns true when a photo was captured/selected.
+  Future<bool> pickImage(ImageSource source) async {
     state = state.copyWith(isUploadingImage: true, clearError: true);
     try {
       final picked = await _picker.pickImage(
         source: source,
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageQuality: 90,
+        maxWidth: 1920,
+        imageQuality: 85,
       );
 
       if (picked != null) {
         final bytes = await picked.readAsBytes();
         setSelectedImage(bytes: bytes, filename: picked.name);
+        return true;
       }
+      return false;
     } catch (_) {
       state = state.copyWith(
         errorMessage: 'Unable to select image. Please try another photo.',
@@ -357,6 +382,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         isInputRejection: true,
         clearSuccess: true,
       );
+      return false;
     } finally {
       if (mounted) {
         state = state.copyWith(isUploadingImage: false);

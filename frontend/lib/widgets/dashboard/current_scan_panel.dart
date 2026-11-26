@@ -341,7 +341,7 @@ class CurrentScanPanel extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         const Text(
-          'Upload or capture a Tilapia photo on the left to inspect its freshness. Detected eyes and your prediction result will appear here.',
+          'Upload or capture a Tilapia photo to inspect its freshness. Detected eyes and your prediction result will appear here.',
           style: TextStyle(
             fontSize: 13,
             height: 1.45,

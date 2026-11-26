@@ -85,20 +85,23 @@ class DashboardMobileTopBar extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(CupertinoIcons.bars, size: 22),
-                        color: SariwaColors.textPrimaryDark,
-                        tooltip: 'Menu',
-                        constraints: const BoxConstraints(
-                          minWidth: 44,
-                          minHeight: 44,
+                      if (showTopTabs) ...[
+                        IconButton(
+                          icon: const Icon(CupertinoIcons.bars, size: 22),
+                          color: SariwaColors.textPrimaryDark,
+                          tooltip: 'Menu',
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          onPressed: () {
+                            HapticFeedback.selectionClick();
+                            onOpenDrawer();
+                          },
                         ),
-                        onPressed: () {
-                          HapticFeedback.selectionClick();
-                          onOpenDrawer();
-                        },
-                      ),
-                      const SizedBox(width: 4),
+                        const SizedBox(width: 4),
+                      ] else
+                        const SizedBox(width: 8),
                       if (showTopTabs)
                         GestureDetector(
                           onTap: onGoHome,
@@ -177,24 +180,25 @@ class DashboardMobileTopBar extends StatelessWidget {
                           minHeight: 44,
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          isGuestUser
-                              ? CupertinoIcons.arrow_right_circle
-                              : CupertinoIcons.square_arrow_right,
-                          size: 20,
-                          color: const Color(0xFF475569),
+                      if (showTopTabs)
+                        IconButton(
+                          icon: Icon(
+                            isGuestUser
+                                ? CupertinoIcons.arrow_right_circle
+                                : CupertinoIcons.square_arrow_right,
+                            size: 20,
+                            color: const Color(0xFF475569),
+                          ),
+                          tooltip: isGuestUser ? 'Sign in' : 'Sign out',
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          onPressed: () {
+                            HapticFeedback.selectionClick();
+                            (isGuestUser ? onSignIn : onSignOut)();
+                          },
                         ),
-                        tooltip: isGuestUser ? 'Sign in' : 'Sign out',
-                        constraints: const BoxConstraints(
-                          minWidth: 44,
-                          minHeight: 44,
-                        ),
-                        onPressed: () {
-                          HapticFeedback.selectionClick();
-                          (isGuestUser ? onSignIn : onSignOut)();
-                        },
-                      ),
                       if (showTopTabs)
                         IconButton(
                           icon: const Icon(

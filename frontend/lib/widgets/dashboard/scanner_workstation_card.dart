@@ -150,10 +150,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             'Upload a Tilapia eye, exposed gill, or whole fish photo.',
                             style: TextStyle(
                               fontSize: 12,
+                              height: 1.3,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textSecondaryDark,
                             ),
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                         ],
                       ),
@@ -244,6 +245,49 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Slim action header row ABOVE image canvas so Crop & Close never overlap bounding boxes
+        Row(
+          children: [
+            const Icon(
+              CupertinoIcons.photo,
+              size: 14,
+              color: SariwaColors.textSecondaryDark,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                state.selectedImageName ?? 'Tilapia specimen',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  color: SariwaColors.textSecondaryDark,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildToolbarIconButton(
+              key: const Key('scanner_adjust_crop_button'),
+              tooltip: 'Adjust crop',
+              icon: CupertinoIcons.crop,
+              onTap: state.isClassifying
+                  ? null
+                  : () {
+                      controller.editCrop();
+                      widget.onOpenCropModal();
+                    },
+            ),
+            const SizedBox(width: 6),
+            _buildToolbarIconButton(
+              tooltip: 'Remove photo',
+              icon: CupertinoIcons.xmark,
+              iconColor: SariwaColors.textSecondaryDark,
+              onTap: state.isClassifying ? null : controller.clearSelection,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
         // Original image preview with letterboxing-aware numbered eye markers
         ClipRRect(
           borderRadius: BorderRadius.circular(18),
@@ -294,39 +338,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             }
                           },
                         ),
-                    // Top-right Crop + Close (×) overlay controls
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildCarouselArrowButton(
-                            key: const Key('scanner_adjust_crop_button'),
-                            icon: CupertinoIcons.crop,
-                            tooltip: 'Adjust crop',
-                            onTap: state.isClassifying
-                                ? () {}
-                                : () {
-                                    HapticFeedback.selectionClick();
-                                    controller.editCrop();
-                                    widget.onOpenCropModal();
-                                  },
-                          ),
-                          const SizedBox(width: 8),
-                          _buildCarouselArrowButton(
-                            icon: CupertinoIcons.xmark,
-                            tooltip: 'Remove photo',
-                            onTap: state.isClassifying
-                                ? () {}
-                                : () {
-                                    HapticFeedback.selectionClick();
-                                    controller.clearSelection();
-                                  },
-                          ),
-                        ],
-                      ),
-                    ),
                     if (state.eyeProposals.length > 1) ...[
                       // Previous Eye Arrow (<)
                       Positioned(
@@ -437,29 +448,46 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           ],
         ),
         const SizedBox(height: 14),
-        AppButton.primary(
-          key: const Key('current_scan_check_freshness_button'),
-          label: state.isClassifying
-              ? (state.processingStage ?? 'Checking freshness...')
-              : 'Check freshness',
-          isLoading: state.isClassifying,
-          height: 48,
-          borderRadius: 14,
-          icon: const Icon(
-            CupertinoIcons.sparkles,
-            size: 17,
-            color: Colors.white,
+        if (state.latestResult != null && !state.isClassifying)
+          OutlinedButton.icon(
+            key: const Key('current_scan_check_freshness_button'),
+            onPressed: null,
+            icon: const Icon(CupertinoIcons.checkmark_alt_circle, size: 17),
+            label: const Text('Checked'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+              foregroundColor: SariwaColors.brandPrimary,
+              disabledForegroundColor: SariwaColors.textSecondaryDark,
+              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          )
+        else
+          AppButton.primary(
+            key: const Key('current_scan_check_freshness_button'),
+            label: state.isClassifying
+                ? (state.processingStage ?? 'Checking freshness...')
+                : 'Check freshness',
+            isLoading: state.isClassifying,
+            height: 48,
+            borderRadius: 14,
+            icon: const Icon(
+              CupertinoIcons.sparkles,
+              size: 17,
+              color: Colors.white,
+            ),
+            onPressed: state.isClassifying
+                ? null
+                : () async {
+                    HapticFeedback.mediumImpact();
+                    if (!state.isCropConfirmed) {
+                      controller.confirmFullImageAsCloseUp();
+                    }
+                    await controller.classify();
+                  },
           ),
-          onPressed: state.isClassifying
-              ? null
-              : () async {
-                  HapticFeedback.mediumImpact();
-                  if (!state.isCropConfirmed) {
-                    controller.confirmFullImageAsCloseUp();
-                  }
-                  await controller.classify();
-                },
-        ),
       ],
     );
   }

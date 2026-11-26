@@ -142,6 +142,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   for (final entry in const [
                     ('all', 'All Regions'),
@@ -153,6 +154,17 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                       selected: _regionFilter == entry.$1,
                       onSelected: (_) => setState(() => _regionFilter = entry.$1),
                     ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: SizedBox(
+                      height: 22,
+                      child: VerticalDivider(
+                        width: 1,
+                        thickness: 1.2,
+                        color: Color(0xFFCBD5E1),
+                      ),
+                    ),
+                  ),
                   for (final entry in const [
                     ('all', 'All Results'),
                     ('fresh', 'Fresh'),
@@ -168,197 +180,229 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
               ),
               const SizedBox(height: 16),
               KpiMetricsRow(history: history),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Visual Distribution Ratio Bar
-              FrostedGlassCard(
-                padding: const EdgeInsets.all(22),
-                borderRadius: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Freshness Ratio Distribution',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textPrimaryDark,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '$freshCount fresh tilapia vs $notFreshCount not fresh tilapia identified',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textSecondaryDark,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
-                      child: Container(
-                        height: 14,
-                        color: const Color(0xFFE2E8F0),
-                        child: total == 0
-                            ? null
-                            : Row(
-                                children: [
-                                  if (freshCount > 0)
-                                    Expanded(
-                                      flex: freshCount,
-                                      child: Container(
-                                        color: const Color(0xFF16A34A),
-                                      ),
-                                    ),
-                                  if (notFreshCount > 0)
-                                    Expanded(
-                                      flex: notFreshCount,
-                                      child: Container(
-                                        color: SariwaColors.notFreshPrimary,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
+              // Tightened, balanced proportions: Ratio Distribution + Anatomical Breakdown
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final ratioCard = FrostedGlassCard(
+                    padding: const EdgeInsets.all(20),
+                    borderRadius: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDistributionLegend(
-                          label: 'Fresh: $freshPct%',
-                          color: const Color(0xFF16A34A),
-                        ),
-                        const SizedBox(width: 16),
-                        _buildDistributionLegend(
-                          label: 'Not Fresh: $notFreshPct%',
-                          color: SariwaColors.notFreshPrimary,
-                        ),
-                        const Spacer(),
-                        Text(
-                          'Avg Conf: ${avgConf.toStringAsFixed(1)}%',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                        const Text(
+                          'Freshness Ratio Distribution',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                             letterSpacing: AppTypography.defaultLetterSpacing,
-                            color: Color(0xFF64748B),
+                            color: SariwaColors.textPrimaryDark,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$freshCount fresh tilapia vs $notFreshCount not fresh tilapia identified',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            letterSpacing: AppTypography.defaultLetterSpacing,
+                            color: SariwaColors.textSecondaryDark,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(99),
+                          child: Container(
+                            height: 14,
+                            color: const Color(0xFFE2E8F0),
+                            child: total == 0
+                                ? null
+                                : Row(
+                                    children: [
+                                      if (freshCount > 0)
+                                        Expanded(
+                                          flex: freshCount,
+                                          child: Container(
+                                            color: const Color(0xFF16A34A),
+                                          ),
+                                        ),
+                                      if (notFreshCount > 0)
+                                        Expanded(
+                                          flex: notFreshCount,
+                                          child: Container(
+                                            color: SariwaColors.notFreshPrimary,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _buildDistributionLegend(
+                              label: 'Fresh: $freshPct%',
+                              color: const Color(0xFF16A34A),
+                            ),
+                            const SizedBox(width: 16),
+                            _buildDistributionLegend(
+                              label: 'Not Fresh: $notFreshPct%',
+                              color: SariwaColors.notFreshPrimary,
+                            ),
+                            const Spacer(),
+                            Text(
+                              'Avg Conf: ${avgConf.toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: AppTypography.defaultLetterSpacing,
+                                color: Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
+                  );
 
-              // Anatomical Region Breakdown
-              Row(
-                children: [
-                  Expanded(
-                    child: FrostedGlassCard(
-                      padding: const EdgeInsets.all(20),
-                      borderRadius: 20,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
+                  final regionBreakdownRow = Row(
+                    children: [
+                      Expanded(
+                        child: FrostedGlassCard(
+                          padding: const EdgeInsets.all(18),
+                          borderRadius: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                CupertinoIcons.eye,
-                                size: 18,
-                                color: SariwaColors.brandPrimary,
+                              const Row(
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.eye,
+                                    size: 17,
+                                    color: SariwaColors.brandPrimary,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Eye Inspections',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing:
+                                            AppTypography.defaultLetterSpacing,
+                                        color: SariwaColors.textPrimaryDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(height: 10),
                               Text(
-                                'Eye Inspections',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
+                                '$eyeCount scans',
+                                style: const TextStyle(
+                                  fontSize: 21,
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
                                 ),
                               ),
+                              Text(
+                                total > 0
+                                    ? '${((eyeCount / total) * 100).toStringAsFixed(0)}% of total scans'
+                                    : 'Default region',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textSecondaryDark,
+                                ),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '$eyeCount scans',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textPrimaryDark,
-                            ),
-                          ),
-                          Text(
-                            total > 0
-                                ? '${((eyeCount / total) * 100).toStringAsFixed(0)}% of total scans'
-                                : 'Default region',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textSecondaryDark,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FrostedGlassCard(
-                      padding: const EdgeInsets.all(20),
-                      borderRadius: 20,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Row(
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: FrostedGlassCard(
+                          padding: const EdgeInsets.all(18),
+                          borderRadius: 20,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                CupertinoIcons.waveform_path,
-                                size: 18,
-                                color: Color(0xFF8B5CF6),
+                              const Row(
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.waveform_path,
+                                    size: 17,
+                                    color: Color(0xFF8B5CF6),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Gill Inspections',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing:
+                                            AppTypography.defaultLetterSpacing,
+                                        color: SariwaColors.textPrimaryDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(height: 10),
                               Text(
-                                'Gill Inspections',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
+                                '$gillCount scans',
+                                style: const TextStyle(
+                                  fontSize: 21,
+                                  fontWeight: FontWeight.w600,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
                                 ),
                               ),
+                              Text(
+                                total > 0
+                                    ? '${((gillCount / total) * 100).toStringAsFixed(0)}% of total scans'
+                                    : 'Exposed gill view',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  letterSpacing:
+                                      AppTypography.defaultLetterSpacing,
+                                  color: SariwaColors.textSecondaryDark,
+                                ),
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            '$gillCount scans',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textPrimaryDark,
-                            ),
-                          ),
-                          Text(
-                            total > 0
-                                ? '${((gillCount / total) * 100).toStringAsFixed(0)}% of total scans'
-                                : 'Exposed gill view',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textSecondaryDark,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+
+                  if (constraints.maxWidth >= 880) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 6, child: ratioCard),
+                        const SizedBox(width: 16),
+                        Expanded(flex: 6, child: regionBreakdownRow),
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ratioCard,
+                      const SizedBox(height: 16),
+                      regionBreakdownRow,
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 36),
               _buildSimpleFooter(),
