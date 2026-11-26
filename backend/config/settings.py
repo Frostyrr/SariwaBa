@@ -185,3 +185,11 @@ MAILERS = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Keep <=10 MB whole-fish / camera uploads in RAM instead of spilling temp files to disk
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Minimum freshness classifier confidence floor to abstain on near-50/50 coin-flip outputs
+FRESHNESS_MIN_CONFIDENCE = float(os.getenv("FRESHNESS_MIN_CONFIDENCE", "0.55"))
+

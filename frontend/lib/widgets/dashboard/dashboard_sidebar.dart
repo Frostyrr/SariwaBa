@@ -506,11 +506,11 @@ class DashboardSidebar extends StatelessWidget {
                         ? 'Sign in with Google to save your freshness scans to your history.'
                         : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
                     style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w300,
-                      height: 1.38,
+                      fontSize: 13.0,
+                      fontWeight: FontWeight.w400,
+                      height: 1.42,
                       letterSpacing: AppTypography.defaultLetterSpacing,
-                      color: Colors.white.withValues(alpha: 0.82),
+                      color: Colors.white.withValues(alpha: 0.92),
                     ),
                   ),
                   if (isGuestUser) ...[

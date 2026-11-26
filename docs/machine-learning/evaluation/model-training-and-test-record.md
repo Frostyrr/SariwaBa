@@ -112,3 +112,18 @@ By Day 5 (`android/day 5`: `19` eyes, `35` gills; `iphone_jpg/day_05`: `68` eyes
 - **Eyes & Whole-Fish YOLO Crops:** Model B classified **94.74%** (`18/19`) of Android Day 5 eyes and **91.18%** (`62/68`; `89.58%` gated on `48` accepted) of iPhone Day 5 eyes as **Not Fresh** (Model A accepted `5.26%` of blurry Android Day 5 eyes and `70.59%` of iPhone Day 5 eyes). On `iphone_jpg/day_05/whole` (`36` photos), YOLO proposed eyes on `16/36` (`44.44%`, reflecting missing/liquefied eyeballs in the remaining carcasses); `15/16` (`93.75%`) passed Model A and **100.0%** (`15/15`) were classified **Not Fresh** by Model B.
 - **Knife-Pried Decomposed Gills (`35` Android, `68` iPhone):** Visible metal knife blades and wide silvery-body framing caused Model A to reject `57.14%` (Android) and `70.59%` (iPhone) as `CONTENT_UNCERTAIN`, and Model B misclassified wide uncropped shots (`26.67%` Android / `5.00%` iPhone gated Not-Fresh accuracy). Because Day 5 carcasses with knife-pried hollow gill cavities fall outside retail market screening conditions, Day 5 photos are retained strictly as a **documented out-of-distribution stress-test record** and excluded from training.
 - **Artifacts:** `backend/datasets/local_collection/training_runs/nov25_final_day_eval/nov25_evaluation_results.json` and `backend/ml/results/active_2026-11-25/`.
+
+
+## 26 November 2026 — Runtime Pipeline Fixes & Updated Batch 2 End-to-End Check
+
+No models were retrained on 26 November; all three locked Nov 25 checkpoints and their individual held-out confusion matrices remain unchanged. After applying zero-retraining runtime pipeline fixes (Model A crop gate on all YOLO proposals, YOLO `classes=[0, 1]` fish-body containment ranking, and `FRESHNESS_MIN_CONFIDENCE = 0.55` coin-flip abstention — see [deferred-retraining-backlog.md](../training/deferred-retraining-backlog.md) for items deferred to future retraining), re-evaluating unseen Batch 2 (`local_collection_v2`, `187` whole-fish photos) showed:
+
+- **Valid whole-fish coverage:** Improved from `179/187` (`95.72%`) to **`182/187` (`97.33%`)** (`18` stray off-fish boxes dropped, `25` invalid crops blocked, `2` Day 3 photos rescued by a valid 2nd crop).
+- **Updated Batch 2 End-to-End Whole-Fish → YOLO Eye Crop Confusion Matrix (`173` confident predictions after `0.55` floor; `9` borderline coin-flip abstentions; raw un-abstained accuracy `169/182 = 92.86%`):**
+
+| Expected label (`local_collection_v2`) | Predicted Fresh | Predicted Not Fresh | Recall |
+| --- | ---: | ---: | ---: |
+| Day 1 Fresh (`74` confident, `1` error abstained) | **66** | 8 | 89.19% |
+| Day 3 Not Fresh (`99` confident, `8` abstained) | 3 | **96** | 96.97% |
+
+Overall unseen Batch 2 end-to-end accuracy with runtime pipeline fixes: **93.64%** (`162/173`, up from `92.74%`). Refreshed confusion matrix PNG and JSON metrics are saved in `backend/ml/results/active_2026-11-25/` (`batch2_v2_end_to_end_yolo_confusion_matrix.png`, `pipeline_audit_fixes_2026-11-26.json`).

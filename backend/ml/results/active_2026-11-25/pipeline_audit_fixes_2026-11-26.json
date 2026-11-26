@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-26",
+  "checkpoints_unchanged": true,
+  "freshness_min_confidence": 0.55,
+  "v2_combined_end_to_end_raw": {
+    "correct": 169,
+    "total": 182,
+    "accuracy_pct": 92.86,
+    "cm": [
+      [
+        66,
+        9
+      ],
+      [
+        4,
+        103
+      ]
+    ]
+  },
+  "v2_combined_end_to_end_confident": {
+    "correct": 162,
+    "total": 173,
+    "accuracy_pct": 93.64,
+    "abstained": 9,
+    "cm": [
+      [
+        66,
+        8
+      ],
+      [
+        3,
+        96
+      ]
+    ]
+  },
+  "v2_day01_eyes_confident": {
+    "correct": 78,
+    "total": 105,
+    "accuracy_pct": 74.29,
+    "abstained": 13
+  },
+  "v2_day03_eyes_confident": {
+    "correct": 14,
+    "total": 21,
+    "accuracy_pct": 66.67,
+    "abstained": 2
+  },
+  "day05_iphone_whole_confident": {
+    "correct": 15,
+    "total": 15,
+    "accuracy_pct": 100.0,
+    "filtered_invalid_crops": 1
+  }
+}

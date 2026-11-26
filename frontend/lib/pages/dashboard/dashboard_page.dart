@@ -243,6 +243,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ref.read(classificationControllerProvider.notifier).clearNotification();
         });
       }
+
+      if (next.latestResult != null &&
+          next.latestResult != previous?.latestResult &&
+          !_isCropModalOpen) {
+        final result = next.latestResult!;
+        final cropBytes = next.confirmedImageBytes ?? next.selectedImageBytes;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (AppBreakpoints.isMobile(MediaQuery.of(context).size.width)) {
+            _showMobileVerdictSheet(
+              result: result,
+              cropBytes: cropBytes,
+              controller: ref.read(classificationControllerProvider.notifier),
+            );
+          }
+        });
+      }
     });
 
     final isModalEffectivelyOpen =
@@ -320,11 +337,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     ? null
                     : _buildMobileBottomNav(
                         isAdmin: isAdmin,
-                        onQuickScan: () {
+                        onQuickScan: () async {
                           HapticFeedback.mediumImpact();
-                          setState(() => _activeNav = 'Inspection');
-                          classController.pickImage(ImageSource.camera);
+                          final picked = await classController.pickImage(
+                            ImageSource.camera,
+                          );
+                          if (mounted && picked) {
+                            setState(() => _activeNav = 'Inspection');
+                          }
                         },
+                        onQuickScanLongPress: () => _showQuickCaptureOptions(
+                          classController,
+                        ),
                       ),
             body: LayoutBuilder(
               builder: (context, constraints) {
@@ -478,9 +502,225 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
+  Future<void> _showQuickCaptureOptions(
+    ClassificationController classController,
+  ) async {
+    HapticFeedback.selectionClick();
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetCtx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'New Freshness Scan',
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: SariwaColors.textPrimaryDark,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(
+                Icons.camera_alt_rounded,
+                color: SariwaColors.brandPrimary,
+              ),
+              title: const Text('Take a Photo'),
+              subtitle: const Text('Open device camera for immediate capture'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              onTap: () async {
+                Navigator.of(sheetCtx).pop();
+                final picked =
+                    await classController.pickImage(ImageSource.camera);
+                if (mounted && picked) {
+                  setState(() => _activeNav = 'Inspection');
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                CupertinoIcons.photo_on_rectangle,
+                color: SariwaColors.brandPrimary,
+              ),
+              title: const Text('Upload from Gallery'),
+              subtitle: const Text('Select one or multiple Tilapia photos'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              onTap: () async {
+                Navigator.of(sheetCtx).pop();
+                setState(() => _activeNav = 'Inspection');
+                await classController.pickBatch();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showMobileVerdictSheet({
+    required dynamic result,
+    required Uint8List? cropBytes,
+    required ClassificationController controller,
+  }) async {
+    final isFresh = result.isFresh == true;
+    final primaryColor =
+        isFresh ? SariwaColors.statusFresh : SariwaColors.notFreshPrimary;
+    final bgColor =
+        isFresh ? SariwaColors.freshIconBg : SariwaColors.notFreshIconBg;
+    final borderColor =
+        isFresh ? SariwaColors.freshBorder : SariwaColors.notFreshBorder;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetCtx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: borderColor, width: 1.4),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      if (cropBytes != null) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            cropBytes,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              result.label as String,
+                              style: TextStyle(
+                                fontSize: 21,
+                                fontWeight: FontWeight.w800,
+                                color: primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Model confidence: ${result.formattedConfidence}',
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: SariwaColors.textPrimaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(99),
+                    child: LinearProgressIndicator(
+                      value: (result.confidence as double).clamp(0.0, 1.0),
+                      minHeight: 7,
+                      backgroundColor: Colors.white,
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      height: 1.35,
+                      color: SariwaColors.textSecondaryDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.of(sheetCtx).pop();
+                      controller.clearSelection();
+                    },
+                    icon: const Icon(Icons.camera_alt_rounded, size: 17),
+                    label: const Text('Scan Another'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: SariwaColors.brandPrimary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(0, 46),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(sheetCtx).pop();
+                    controller.editCrop();
+                    _showRoiCropperModal();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: SariwaColors.textPrimaryDark,
+                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                    minimumSize: const Size(0, 46),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Adjust crop'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMobileBottomNav({
     required bool isAdmin,
     required VoidCallback onQuickScan,
+    required VoidCallback onQuickScanLongPress,
   }) {
     Widget buildTabItem({
       required String navKey,
@@ -564,6 +804,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     child: GestureDetector(
                       key: const Key('mobile_quick_scan_button'),
                       onTap: onQuickScan,
+                      onLongPress: onQuickScanLongPress,
                       child: Container(
                         width: 52,
                         height: 44,
@@ -588,9 +829,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           ],
                         ),
                         child: const Icon(
-                          CupertinoIcons.plus,
+                          Icons.camera_alt_rounded,
                           color: Colors.white,
-                          size: 24,
+                          size: 22,
                         ),
                       ),
                     ),

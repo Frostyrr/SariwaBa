@@ -1,9 +1,9 @@
 import '../auth/auth_controller.dart';
 import '../../services/storage/guest_history_cache.dart';
 
-import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -67,6 +67,7 @@ class ClassificationState {
   final bool isFindingEyes;
   final bool alreadyCloseUpEye;
   final Map<int, bool> eyeProposalFreshness;
+  final Size? sourceImageSize;
 
   const ClassificationState({
     this.selectedImageBytes,
@@ -95,6 +96,7 @@ class ClassificationState {
     this.isFindingEyes = false,
     this.alreadyCloseUpEye = false,
     this.eyeProposalFreshness = const {},
+    this.sourceImageSize,
   });
 
   EyeCropProposal? get selectedEyeProposal {
@@ -180,6 +182,8 @@ class ClassificationState {
     bool? isFindingEyes,
     bool? alreadyCloseUpEye,
     Map<int, bool>? eyeProposalFreshness,
+    Size? sourceImageSize,
+    bool clearSourceImageSize = false,
   }) {
     return ClassificationState(
       selectedImageBytes: clearImage
@@ -241,6 +245,9 @@ class ClassificationState {
       eyeProposalFreshness: clearImage || clearEyeProposals
           ? const {}
           : (eyeProposalFreshness ?? this.eyeProposalFreshness),
+      sourceImageSize: clearImage || clearSourceImageSize
+          ? null
+          : (sourceImageSize ?? this.sourceImageSize),
     );
   }
 }
@@ -268,36 +275,36 @@ class ClassificationController extends StateNotifier<ClassificationState> {
        _picker = picker ?? ImagePicker(),
        super(const ClassificationState()) {
     loadHistory();
+    retrieveLostCameraData();
+  }
+
+  /// Recover an image if Android killed the background Flutter activity while
+  /// the native camera app was open.
+  Future<void> retrieveLostCameraData() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    try {
+      final response = await _picker.retrieveLostData();
+      if (!mounted || response.isEmpty) return;
+      final file = response.file ??
+          (response.files != null && response.files!.isNotEmpty
+              ? response.files!.first
+              : null);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        if (mounted) {
+          setSelectedImage(bytes: bytes, filename: file.name);
+        }
+      }
+    } catch (_) {
+      // Ignore platforms/test harnesses where retrieveLostData is unimplemented.
+    }
   }
 
   /// Public convenience getter so widgets can check readiness after synchronous confirmation
   bool get isReadyToClassify => state.isReadyToClassify;
 
-  static bool isHeicHeader(Uint8List bytes) {
-    if (bytes.length < 12) return false;
-    final hasFtyp =
-        bytes[4] == 0x66 &&
-        bytes[5] == 0x74 &&
-        bytes[6] == 0x79 &&
-        bytes[7] == 0x70;
-    if (!hasFtyp) return false;
-    final headerAscii = String.fromCharCodes(
-      bytes.sublist(8, bytes.length < 32 ? bytes.length : 32),
-    ).toLowerCase();
-    const heicBrands = [
-      'heic',
-      'heix',
-      'hevc',
-      'hevx',
-      'heim',
-      'heis',
-      'hevm',
-      'hevs',
-      'mif1',
-      'msf1',
-    ];
-    return heicBrands.any(headerAscii.contains);
-  }
+  static bool isHeicHeader(Uint8List bytes) =>
+      ClassificationServiceImpl.isHeicBytes(bytes);
 
   static bool isWebpHeader(Uint8List bytes) {
     return bytes.length >= 12 &&
@@ -351,21 +358,23 @@ class ClassificationController extends StateNotifier<ClassificationState> {
     state = state.copyWith(isUploadingImage: isUploading);
   }
 
-  /// Pick image from gallery or camera with an explicit loading state
-  Future<void> pickImage(ImageSource source) async {
+  /// Pick image from gallery or camera with an explicit loading state.
+  /// Returns true when a photo was captured/selected.
+  Future<bool> pickImage(ImageSource source) async {
     state = state.copyWith(isUploadingImage: true, clearError: true);
     try {
       final picked = await _picker.pickImage(
         source: source,
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageQuality: 90,
+        maxWidth: 1920,
+        imageQuality: 85,
       );
 
       if (picked != null) {
         final bytes = await picked.readAsBytes();
         setSelectedImage(bytes: bytes, filename: picked.name);
+        return true;
       }
+      return false;
     } catch (_) {
       state = state.copyWith(
         errorMessage: 'Unable to select image. Please try another photo.',
@@ -373,6 +382,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         isInputRejection: true,
         clearSuccess: true,
       );
+      return false;
     } finally {
       if (mounted) {
         state = state.copyWith(isUploadingImage: false);
@@ -472,10 +482,11 @@ class ClassificationController extends StateNotifier<ClassificationState> {
             );
             continue;
           }
+          final effectiveRegion = state.selectedRegion ?? AnatomicalRegion.auto;
           final result = await _service.classifyImage(
             bytes: bytes,
             filename: photo.name,
-            regionType: 'auto',
+            regionType: effectiveRegion.apiValue,
           );
           if (!mounted) return;
           final history = await _historyWithResult(result);
@@ -484,10 +495,15 @@ class ClassificationController extends StateNotifier<ClassificationState> {
           _updateBatchItem(i, BatchScanStatus.complete, result: result);
         } on ClassificationApiException catch (e) {
           if (!mounted) return;
-          if (e.code == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED' &&
+          final effectiveRegion = state.selectedRegion ?? AnatomicalRegion.auto;
+          const eyeFallbackCodes = {
+            'WHOLE_TILAPIA_CLOSE_UP_REQUIRED',
+            'CONTENT_UNCERTAIN',
+            'UNSUPPORTED_IMAGE',
+          };
+          if (eyeFallbackCodes.contains(e.code) &&
               canFindEyes &&
-              (state.selectedRegion ?? AnatomicalRegion.auto) !=
-                  AnatomicalRegion.gill) {
+              effectiveRegion != AnatomicalRegion.gill) {
             try {
               final wholeBytes = await photo.readAsBytes();
               if (!mounted) return;
@@ -746,10 +762,29 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       }
 
       try {
-        final result = await (_service as EyeProposalService).findEyes(
-          bytes,
-          state.selectedImageName ?? 'tilapia.jpg',
-        );
+        final svc = _service;
+        final ({
+          bool alreadyEye,
+          List<EyeCropProposal> proposals,
+          Size? imageSize,
+        })
+        result;
+        if (svc is ClassificationServiceImpl) {
+          result = await svc.findEyesDetailed(
+            bytes,
+            state.selectedImageName ?? 'tilapia.jpg',
+          );
+        } else {
+          final basic = await (svc as EyeProposalService).findEyes(
+            bytes,
+            state.selectedImageName ?? 'tilapia.jpg',
+          );
+          result = (
+            alreadyEye: basic.alreadyEye,
+            proposals: basic.proposals,
+            imageSize: null,
+          );
+        }
         if (!mounted ||
             reqId != _eyeDetectRequestId ||
             !identical(state.selectedImageBytes, bytes) ||
@@ -763,6 +798,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
             alreadyCloseUpEye: true,
             eyeProposals: const [],
             clearSelectedEyeProposal: true,
+            sourceImageSize: result.imageSize,
           );
           confirmFullImageAsCloseUp();
           return;
@@ -779,6 +815,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
             isCropConfirmed: true,
             isFullImageConfirmed: false,
             lastCropNormalizedRect: first.rect,
+            sourceImageSize: result.imageSize,
             clearError: true,
             clearResult: true,
           );
@@ -790,6 +827,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
           alreadyCloseUpEye: false,
           eyeProposals: result.proposals,
           clearSelectedEyeProposal: true,
+          sourceImageSize: result.imageSize,
         );
       } on ClassificationApiException catch (e) {
         if (!mounted || reqId != _eyeDetectRequestId) return;
@@ -873,6 +911,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         isInputRejection: true,
         clearConfirmedImage: true,
         clearCropRect: true,
+        clearSelectedEyeProposal: true,
         isCropConfirmed: false,
         isFullImageConfirmed: false,
         isEditingCrop: true,
@@ -902,6 +941,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       isFullImageConfirmed: false,
       isEditingCrop: false,
       lastCropNormalizedRect: normalizedCropRect,
+      clearSelectedEyeProposal: true,
       isClassifying: false,
       clearProcessingStage: true,
       clearError: true,
@@ -952,6 +992,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       isFullImageConfirmed: true,
       isEditingCrop: false,
       lastCropNormalizedRect: const Rect.fromLTWH(0, 0, 1, 1),
+      clearSelectedEyeProposal: true,
       isClassifying: false,
       clearProcessingStage: true,
       clearError: true,
@@ -968,6 +1009,7 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       isClassifying: false,
       isCropConfirmed: false,
       isEditingCrop: true,
+      clearSelectedEyeProposal: true,
       clearProcessingStage: true,
       clearConfirmedImage: true,
       clearError: true,
