@@ -75,6 +75,8 @@ flutter run -d chrome --web-port 7357
 
 # For demonstration
 flutter build web
+or
+flutter build web --wasm
 py -m http.server 7357 --bind localhost --directory build/web
 ```
 

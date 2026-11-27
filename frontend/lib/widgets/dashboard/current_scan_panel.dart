@@ -48,8 +48,8 @@ class CurrentScanPanel extends StatelessWidget {
             if (state.isFindingEyes) ...[
               _buildDetectingEyesBanner(),
               const SizedBox(height: 12),
-            ] else if (state.alreadyCloseUpEye) ...[
-              _buildCloseUpDetectedBanner(),
+            ] else if (state.alreadyCloseUpEye || state.alreadyCloseUpGill) ...[
+              _buildCloseUpDetectedBanner(isGill: state.alreadyCloseUpGill),
               const SizedBox(height: 12),
             ],
             if (state.latestResult != null) ...[
@@ -78,15 +78,15 @@ class CurrentScanPanel extends StatelessWidget {
       body = _buildRecoveryCard();
     } else {
       panelKey =
-          'ready_${state.selectedEyeProposalIndex}_${state.isFindingEyes}_${state.alreadyCloseUpEye}';
+          'ready_${state.selectedEyeProposalIndex}_${state.isFindingEyes}_${state.alreadyCloseUpEye}_${state.alreadyCloseUpGill}';
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (state.isFindingEyes) ...[
             _buildDetectingEyesBanner(),
             const SizedBox(height: 14),
-          ] else if (state.alreadyCloseUpEye) ...[
-            _buildCloseUpDetectedBanner(),
+          ] else if (state.alreadyCloseUpEye || state.alreadyCloseUpGill) ...[
+            _buildCloseUpDetectedBanner(isGill: state.alreadyCloseUpGill),
             const SizedBox(height: 14),
           ],
           _buildReadyToCheckCard(context),
@@ -449,7 +449,7 @@ class CurrentScanPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildCloseUpDetectedBanner() {
+  Widget _buildCloseUpDetectedBanner({bool isGill = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -457,18 +457,20 @@ class CurrentScanPanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: SariwaColors.freshBorder),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(
+          const Icon(
             CupertinoIcons.checkmark_seal_fill,
             size: 16,
             color: SariwaColors.statusFresh,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Close-up eye ready — tap Check freshness.',
-              style: TextStyle(
+              isGill
+                  ? 'Close-up gill ready — tap Check freshness.'
+                  : 'Close-up eye ready — tap Check freshness.',
+              style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: SariwaColors.freshText,
@@ -940,7 +942,11 @@ class CurrentScanPanel extends StatelessWidget {
                   onPressed: controller.changeRegion,
                   icon: const Icon(CupertinoIcons.arrow_2_circlepath, size: 15),
                   label: Text(
-                    state.selectedRegion == AnatomicalRegion.eye
+                    (state.selectedRegion == AnatomicalRegion.eye ||
+                            (state.errorMessage?.toLowerCase().contains(
+                                  'gill',
+                                ) ??
+                                false))
                         ? 'Switch to Gill'
                         : 'Switch to Eye',
                   ),

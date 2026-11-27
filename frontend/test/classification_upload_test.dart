@@ -153,6 +153,47 @@ void main() {
       expect(submittedRegion, 'gill');
     },
   );
+
+  test(
+    'Auto mode treats eye-proposals REGION_MISMATCH (gill close-up) as ready without error',
+    () async {
+      final service = _GillMismatchEyeRepo();
+      final controller = ClassificationController(
+        service,
+        isAuthenticated: false,
+      );
+      addTearDown(controller.dispose);
+
+      controller.setSelectedImage(
+        bytes: kValidPngBytes,
+        filename: 'gill_closeup.png',
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(controller.state.selectedRegion, AnatomicalRegion.gill);
+      expect(controller.state.alreadyCloseUpGill, isTrue);
+      expect(controller.state.alreadyCloseUpEye, isFalse);
+      expect(controller.state.errorCode, isNull);
+      expect(controller.state.errorMessage, isNull);
+      expect(controller.state.isCropConfirmed, isTrue);
+      expect(controller.state.isFullImageConfirmed, isTrue);
+    },
+  );
+}
+
+class _GillMismatchEyeRepo extends FakeClassificationRepository
+    implements EyeProposalService {
+  @override
+  Future<EyeProposalResult> findEyes(Uint8List bytes, String filename) {
+    return Future.error(
+      const ClassificationApiException(
+        code: 'REGION_MISMATCH',
+        message:
+            'The image appears to show a gill. Change the selected region or submit another image.',
+        statusCode: 422,
+      ),
+    );
+  }
 }
 
 class _RecordingClassificationRepo extends FakeClassificationRepository {
