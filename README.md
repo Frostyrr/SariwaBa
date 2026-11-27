@@ -78,6 +78,9 @@ flutter build web
 or
 flutter build web --wasm
 py -m http.server 7357 --bind localhost --directory build/web
+
+# build with google oauth on wireless
+flutter build apk --release --dart-define=API_BASE_URL=http://192.168.107.1:8000 --dart-define=GOOGLE_WEB_CLIENT_ID=104697469786-jjf8bei38i7c535in3fgc4vppifv8aem.apps.googleusercontent.com
 ```
 
 Google login on web uses Google's rendered sign-in button on the login page.
