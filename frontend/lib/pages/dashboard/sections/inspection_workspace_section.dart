@@ -79,7 +79,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
             isDesktop ? 36 : 0,
             isDesktop ? 24 : 0,
             isDesktop ? 36 : 0,
-            isDesktop ? 32 : 112, // pb-28 mobile clearance for floating bottom nav
+            isDesktop ? 32 : 128, // mobile clearance for floating bottom nav + camera FAB
           ),
           child: Center(
             child: ConstrainedBox(

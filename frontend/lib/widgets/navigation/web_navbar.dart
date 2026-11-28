@@ -72,7 +72,7 @@ class WebNavbar extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1180.0),
                         child: Container(
-                          height: 64,
+                          height: 72,
                           padding: EdgeInsets.symmetric(
                             horizontal: isDesktop ? 24.0 : 16.0,
                           ),
@@ -205,10 +205,9 @@ class WebNavbar extends StatelessWidget {
                                           color: Color(0x1A171717),
                                         ),
                                         elevation: 0,
-                                        minimumSize: const Size(0, 40),
+                                        minimumSize: const Size(0, 38),
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 18,
-                                          vertical: 10,
                                         ),
                                         shape: const StadiumBorder(),
                                         textStyle: const TextStyle(
@@ -228,10 +227,9 @@ class WebNavbar extends StatelessWidget {
                                             const Color(0xFF111111),
                                         foregroundColor: Colors.white,
                                         elevation: 0,
-                                        minimumSize: const Size(0, 40),
+                                        minimumSize: const Size(0, 38),
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 18,
-                                          vertical: 10,
                                         ),
                                         shape: const StadiumBorder(),
                                         textStyle: const TextStyle(

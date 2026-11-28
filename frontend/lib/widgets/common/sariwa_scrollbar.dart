@@ -56,7 +56,7 @@ class _SariwaScrollbarState extends State<SariwaScrollbar> {
   Widget build(BuildContext context) {
     final controller = _effectiveController;
 
-    if (!kIsWeb) {
+    if (!kIsWeb || MediaQuery.sizeOf(context).width < 768) {
       return widget.builder(context, controller);
     }
 

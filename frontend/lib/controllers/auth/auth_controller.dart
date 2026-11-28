@@ -132,6 +132,14 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
+  /// Navigate to FAQ section on Home page
+  void goToFaq() {
+    state = state.copyWith(
+      viewStatus: AuthViewStatus.faq,
+      clearError: true,
+    );
+  }
+
   /// Navigate to Downloads page
   void goToDownloads() {
     state = state.copyWith(

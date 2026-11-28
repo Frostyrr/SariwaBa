@@ -319,7 +319,7 @@ class _AccountSettingsPageSectionState
             widget.isDesktop ? horizontalPadding : 0,
             widget.isDesktop ? 24 : 0,
             widget.isDesktop ? horizontalPadding : 0,
-            widget.isDesktop ? 32 : 112,
+            widget.isDesktop ? 32 : 128,
           ),
           child: Center(
             child: ConstrainedBox(

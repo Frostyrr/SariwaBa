@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../../constants/content/faq_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
-import '../../../widgets/common/app_button.dart';
 import '../../../widgets/common/blur_fade.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 
@@ -367,7 +366,7 @@ class _FaqSectionState extends State<FaqSection> {
     final isMobile = MediaQuery.sizeOf(context).width < 768;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(24),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -381,49 +380,49 @@ class _FaqSectionState extends State<FaqSection> {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: SariwaColors.bgAbyssDark.withValues(alpha: 0.90),
+                color: const Color(0xFF111111).withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: SariwaColors.borderGlass,
+                  color: Colors.white.withValues(alpha: 0.12),
                   width: 1.0,
                 ),
-                borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(
-              vertical: isMobile ? 40 : 48,
-              horizontal: isMobile ? 24 : 32,
+              vertical: isMobile ? 44 : 56,
+              horizontal: isMobile ? 24 : 36,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Ready to inspect fish freshness with confidence?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.5,
-                    height: 1.2,
+                    fontSize: isMobile ? 24 : 30,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.7,
+                    height: 1.18,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 12),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
+                  constraints: const BoxConstraints(maxWidth: 540),
                   child: const Text(
                     'Evaluate Tilapia freshness directly in your browser or install the mobile app for field inspections.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w300,
-                      height: 1.5,
-                      color: SariwaColors.textSecondaryLight,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      height: 1.55,
+                      color: Color(0xFFA1A1AA),
                     ),
                   ),
                 ),
@@ -434,25 +433,54 @@ class _FaqSectionState extends State<FaqSection> {
                   spacing: 12,
                   runSpacing: 12,
                   children: [
-                    AppButton.primary(
-                      label: 'Download App',
+                    FilledButton.icon(
+                      onPressed: widget.onDownload,
                       icon: const Icon(
                         CupertinoIcons.arrow_down_to_line,
-                        color: Colors.white,
+                        color: Color(0xFF111111),
                         size: 16,
                       ),
-                      width: 176,
-                      height: 48,
-                      borderRadius: 999,
-                      onPressed: widget.onDownload,
+                      label: const Text('Download App'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF111111),
+                        elevation: 0,
+                        minimumSize: const Size(176, 48),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: const StadiumBorder(),
+                        textStyle: const TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                     if (widget.onTryInspection != null)
-                      AppButton.outline(
-                        label: 'Open Web Scanner',
-                        width: 184,
-                        height: 48,
-                        borderRadius: 999,
+                      OutlinedButton(
                         onPressed: widget.onTryInspection,
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.06),
+                          foregroundColor: Colors.white,
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            width: 1.0,
+                          ),
+                          minimumSize: const Size(184, 48),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        child: const Text('Open Web Scanner'),
                       ),
                   ],
                 ),

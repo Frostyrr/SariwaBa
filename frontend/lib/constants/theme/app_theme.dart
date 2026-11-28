@@ -397,34 +397,17 @@ class AppTheme {
         textStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
       ),
       scrollbarTheme: ScrollbarThemeData(
-        radius: const Radius.circular(SariwaRadius.pill),
+        radius: const Radius.circular(999),
         interactive: true,
-        thickness: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered) ||
-              states.contains(WidgetState.dragged)) {
-            return SariwaSpace.sm;
-          }
-          return 6.0;
-        }),
+        thickness: const WidgetStatePropertyAll(6.0),
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          final baseThumb = isDark
-              ? SariwaColors.brandLight
-              : colorScheme.primary;
-          if (states.contains(WidgetState.dragged)) {
-            return baseThumb.withValues(alpha: 0.72);
-          }
-          if (states.contains(WidgetState.hovered)) {
-            return baseThumb.withValues(alpha: 0.54);
-          }
-          return baseThumb.withValues(alpha: 0.32);
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.hovered) ||
               states.contains(WidgetState.dragged)) {
-            return colorScheme.outline.withValues(alpha: 0.25);
+            return const Color(0xFFA1A1AA);
           }
-          return Colors.transparent;
+          return const Color(0xFFD4D4D8);
         }),
+        trackColor: const WidgetStatePropertyAll(Colors.transparent),
         trackBorderColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
     );

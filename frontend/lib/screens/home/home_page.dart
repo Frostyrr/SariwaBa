@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth/auth_controller.dart';
+import '../../controllers/auth/auth_state.dart';
 import '../../widgets/common/sariwa_scrollbar.dart';
 import '../../widgets/common/smooth_web_scroll.dart';
 import '../../widgets/navigation/web_footer.dart';
@@ -35,6 +36,17 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final status = ref.read(authControllerProvider).viewStatus;
+      if (status == AuthViewStatus.features) {
+        _scrollToKey(_featuresKey);
+      } else if (status == AuthViewStatus.howItWorks) {
+        _scrollToKey(_howItWorksKey);
+      } else if (status == AuthViewStatus.faq) {
+        _scrollToKey(_faqKey);
+      }
+    });
   }
 
   void _onScroll() {

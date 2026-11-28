@@ -3,104 +3,115 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/auth/google_auth_button.dart';
-import '../../widgets/common/app_button.dart';
 import '../../widgets/common/staggered_reveal.dart';
 
-/// Dedicated Web Sign-In Page (`kIsWeb` — Desktop, Tablet & Mobile Browsers).
-/// Resend-inspired full-bleed Deep Lagoon layout: darkened `backgroundBlurred.jpg`
-/// backdrop, whisper-quiet `< Home` link top-left, and a focused borderless
-/// center column with smooth 60fps staggered reveals.
+/// Monochrome Sign-In Page ("95% Monochrome + 5% Surgical Teal") with
+/// primary Google Sign-In, subtle `or` divider, secondary white Guest pill,
+/// and radial-masked monochrome dot-grid stage.
 class WebSignInPage extends ConsumerWidget {
   const WebSignInPage({super.key});
 
-  /// Matches Google GSI `GSIButtonSize.large` rendered height (40px) so both
-  /// Google OAuth and Continue as Guest have identical proportions.
-  static const double _webAuthButtonHeight = 40.0;
+  static const Color _canvas = Color(0xFFF5F5F7);
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF737373);
 
-  /// Stays under Google GSI's 400px maximum width cap so both buttons share
-  /// the exact same width across desktop, tablet, and mobile viewports.
-  static const double _maxFormWidth = 360.0;
-
-  static const Duration _staggerStep = Duration(milliseconds: 60);
-  static const Duration _staggerDuration = Duration(milliseconds: 420);
+  static const double _maxCardWidth = 420.0;
+  static const Duration _staggerStep = Duration(milliseconds: 55);
+  static const Duration _staggerDuration = Duration(milliseconds: 380);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authController = ref.read(authControllerProvider.notifier);
     final authState = ref.watch(authControllerProvider);
-    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final size = MediaQuery.sizeOf(context);
+    final vh = size.height;
+    final isCompact = size.width < 520;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: SariwaColors.bgAbyssDark,
+        backgroundColor: _canvas,
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // Full-bleed underwater backdrop
+            // Subtle radial-masked monochrome dot-grid stage behind the card
             Positioned.fill(
-              child: Image.asset(
-                'assets/images/backgroundBlurred.jpg',
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            // Deep lagoon atmospheric vignette for crisp contrast
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: const [0.0, 0.50, 1.0],
+              child: IgnorePointer(
+                child: ShaderMask(
+                  shaderCallback: (bounds) => const RadialGradient(
+                    center: Alignment.center,
+                    radius: 0.62,
                     colors: [
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.68),
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.78),
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.90),
+                      Colors.white,
+                      Colors.white,
+                      Colors.transparent,
                     ],
+                    stops: [0.0, 0.52, 1.0],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: const CustomPaint(
+                    painter: _SignInDotGridPainter(
+                      spacing: 20.0,
+                      dotRadius: 1.15,
+                      color: Color(0x09000000), // Colors.black.withOpacity(0.035)
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // Centered Borderless Auth Column (unified across desktop & mobile)
             SafeArea(
               child: Center(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: isCompact ? 64 : 48,
+                    horizontal: 20,
+                    vertical: isCompact ? 72 : 48,
                   ),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: _maxFormWidth),
-                    child: _buildCenteredAuthColumn(authController, authState),
+                    constraints: const BoxConstraints(maxWidth: _maxCardWidth),
+                    child: Container(
+                      padding: EdgeInsets.all(isCompact ? 24 : 36),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: Colors.black.withValues(alpha: 0.06),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 32,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: _buildCenteredAuthColumn(
+                        vh: vh,
+                        authController: authController,
+                        authState: authState,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
 
-            // Top-left whisper-quiet `< Home` navigation
+            // Top-left crisp white `< Home` pill button (24px padding inside SafeArea)
             Positioned(
               top: 0,
               left: 0,
               child: SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isCompact ? 12 : 24,
-                    isCompact ? 12 : 20,
-                    12,
-                    0,
-                  ),
+                  padding: const EdgeInsets.all(24),
                   child: StaggeredReveal(
                     staggerIndex: 0,
                     staggerStep: _staggerStep,
                     duration: _staggerDuration,
                     slideOffset: const Offset(0, 8),
-                    child: _QuietHomeLink(onTap: authController.goToLanding),
+                    child: _HomePillButton(onTap: authController.goToLanding),
                   ),
                 ),
               ),
@@ -111,15 +122,19 @@ class WebSignInPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCenteredAuthColumn(
-    AuthController authController,
-    dynamic authState,
-  ) {
+  Widget _buildCenteredAuthColumn({
+    required double vh,
+    required AuthController authController,
+    required dynamic authState,
+  }) {
+    final headingSize = (vh * 0.040).clamp(26.0, 34.0);
+    final subtitleSize = (vh * 0.018).clamp(14.0, 16.0);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Centered 48x48 App Mark
+        // Centered App Mark
         StaggeredReveal(
           staggerIndex: 0,
           staggerStep: _staggerStep,
@@ -128,65 +143,65 @@ class WebSignInPage extends ConsumerWidget {
           child: Center(
             child: Image.asset(
               'assets/images/SariwaBa logo.png',
-              width: 52,
-              height: 52,
+              width: 48,
+              height: 48,
               fit: BoxFit.contain,
               semanticLabel: 'SariwaBa logo',
             ),
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Headline
-        const StaggeredReveal(
+        StaggeredReveal(
           staggerIndex: 1,
           staggerStep: _staggerStep,
           duration: _staggerDuration,
-          slideOffset: Offset(0, 12),
+          slideOffset: const Offset(0, 12),
           child: Text(
             'Sign in to SariwaBa',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 28,
-              fontWeight: FontWeight.w500,
+              fontSize: headingSize,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.7,
-              height: 1.18,
-              color: SariwaColors.textPrimaryLight,
+              height: 1.14,
+              color: _inkPrimary,
             ),
           ),
         ),
 
         const SizedBox(height: 8),
 
-        // Concise 1-line subtitle
-        const StaggeredReveal(
+        // Subtitle
+        StaggeredReveal(
           staggerIndex: 2,
           staggerStep: _staggerStep,
           duration: _staggerDuration,
-          slideOffset: Offset(0, 12),
+          slideOffset: const Offset(0, 12),
           child: Text(
             'Sync your scan history across devices, or inspect right away as a guest.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-              height: 1.48,
-              color: SariwaColors.textSecondaryLight,
+              fontSize: subtitleSize,
+              fontWeight: FontWeight.w400,
+              height: 1.5,
+              color: _inkMuted,
             ),
           ),
         ),
 
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
 
         if (authState.errorMessage != null) ...[
           _buildErrorBanner(authState.errorMessage as String),
           const SizedBox(height: 16),
         ],
 
-        // Google OAuth Button (40px height, 360px max width)
+        // Primary: Google Sign-In (filledBlack pill, full inner width, centered)
         StaggeredReveal(
           staggerIndex: 3,
           staggerStep: _staggerStep,
@@ -194,38 +209,90 @@ class WebSignInPage extends ConsumerWidget {
           slideOffset: const Offset(0, 12),
           child: SizedBox(
             width: double.infinity,
-            height: _webAuthButtonHeight,
-            child: GoogleAuthButton(
-              label: 'Sign in with Google',
-              isLoading: authState.isLoading == true,
-              onPressed: authController.continueWithGoogle,
+            height: 44,
+            child: Center(
+              child: GoogleAuthButton(
+                label: 'Continue with Google',
+                isLoading: authState.isLoading == true,
+                onPressed: authController.continueWithGoogle,
+              ),
             ),
           ),
         ),
 
-        const SizedBox(height: 12),
+        // Subtle `or` divider (16px vertical spacing)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Colors.black.withValues(alpha: 0.08),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'or',
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF71717A),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Colors.black.withValues(alpha: 0.08),
+                ),
+              ),
+            ],
+          ),
+        ),
 
-        // Primary Teal Continue as Guest button (stacked directly, no OR divider)
+        // Secondary: Crisp white pill Continue as Guest (height: 44)
         StaggeredReveal(
           staggerIndex: 4,
           staggerStep: _staggerStep,
           duration: _staggerDuration,
           slideOffset: const Offset(0, 12),
-          child: AppButton.primary(
-            label: 'Continue as Guest',
-            trailing: const Icon(
-              CupertinoIcons.arrow_right,
-              size: 16,
-              color: Colors.white,
-            ),
-            width: double.infinity,
-            height: _webAuthButtonHeight,
-            borderRadius: 999,
+          child: OutlinedButton(
             onPressed: authController.continueAsGuest,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: _inkPrimary,
+              side: BorderSide(color: Colors.black.withValues(alpha: 0.12)),
+              elevation: 0,
+              minimumSize: const Size(double.infinity, 44),
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.1,
+              ),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Continue as Guest'),
+                SizedBox(width: 8),
+                Icon(
+                  CupertinoIcons.arrow_right,
+                  size: 15,
+                  color: _inkPrimary,
+                ),
+              ],
+            ),
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Quiet footer note
         const StaggeredReveal(
@@ -239,8 +306,8 @@ class WebSignInPage extends ConsumerWidget {
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 12,
-              fontWeight: FontWeight.w300,
-              color: SariwaColors.textSecondaryLight,
+              fontWeight: FontWeight.w400,
+              color: _inkMuted,
             ),
           ),
         ),
@@ -252,15 +319,15 @@ class WebSignInPage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SariwaColors.notFreshIconBgDark,
+        color: const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.notFreshBorderDark),
+        border: Border.all(color: const Color(0xFFFECACA)),
       ),
       child: Row(
         children: [
           const Icon(
             CupertinoIcons.exclamationmark_circle,
-            color: SariwaColors.notFreshPrimaryDark,
+            color: Color(0xFFDC2626),
             size: 16,
           ),
           const SizedBox(width: 8),
@@ -269,9 +336,9 @@ class WebSignInPage extends ConsumerWidget {
               message,
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 12,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w400,
-                color: SariwaColors.notFreshTextDark,
+                color: Color(0xFF991B1B),
               ),
             ),
           ),
@@ -281,25 +348,21 @@ class WebSignInPage extends ConsumerWidget {
   }
 }
 
-/// Whisper-quiet `< Home` link with hover highlight, inspired by Resend.
-class _QuietHomeLink extends StatefulWidget {
+/// Crisp white `< Home` pill button in top-left corner.
+class _HomePillButton extends StatefulWidget {
   final VoidCallback onTap;
 
-  const _QuietHomeLink({required this.onTap});
+  const _HomePillButton({required this.onTap});
 
   @override
-  State<_QuietHomeLink> createState() => _QuietHomeLinkState();
+  State<_HomePillButton> createState() => _HomePillButtonState();
 }
 
-class _QuietHomeLinkState extends State<_QuietHomeLink> {
+class _HomePillButtonState extends State<_HomePillButton> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final color = _hovered
-        ? SariwaColors.textPrimaryLight
-        : SariwaColors.textSecondaryLight;
-
     return Semantics(
       button: true,
       label: 'Back to Home',
@@ -308,24 +371,31 @@ class _QuietHomeLinkState extends State<_QuietHomeLink> {
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: Material(
-          color: Colors.transparent,
+          color: _hovered ? const Color(0xFFFAFAFA) : Colors.white,
+          shape: StadiumBorder(
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+          ),
           child: InkWell(
             onTap: widget.onTap,
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            customBorder: const StadiumBorder(),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(CupertinoIcons.chevron_left, size: 16, color: color),
-                  const SizedBox(width: 4),
+                  Icon(
+                    CupertinoIcons.chevron_left,
+                    size: 15,
+                    color: Color(0xFF111111),
+                  ),
+                  SizedBox(width: 4),
                   Text(
                     'Home',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: color,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF111111),
                     ),
                   ),
                 ],
@@ -336,4 +406,35 @@ class _QuietHomeLinkState extends State<_QuietHomeLink> {
       ),
     );
   }
+}
+
+class _SignInDotGridPainter extends CustomPainter {
+  final double spacing;
+  final double dotRadius;
+  final Color color;
+
+  const _SignInDotGridPainter({
+    required this.spacing,
+    required this.dotRadius,
+    required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    for (double y = spacing / 2; y < size.height; y += spacing) {
+      for (double x = spacing / 2; x < size.width; x += spacing) {
+        canvas.drawCircle(Offset(x, y), dotRadius, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SignInDotGridPainter oldDelegate) =>
+      oldDelegate.spacing != spacing ||
+      oldDelegate.dotRadius != dotRadius ||
+      oldDelegate.color != color;
 }

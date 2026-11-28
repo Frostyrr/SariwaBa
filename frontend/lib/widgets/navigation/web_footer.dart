@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import '../../constants/theme/app_colors.dart';
+
 import '../../constants/theme/app_typography.dart';
 
-/// Web Footer Widget
+/// Monochrome Light Web Footer separated by a crisp 1px top hairline divider.
 class WebFooter extends StatelessWidget {
   final VoidCallback onHome;
   final VoidCallback onFeatures;
@@ -19,181 +19,191 @@ class WebFooter extends StatelessWidget {
     this.onFaq,
   });
 
+  static const Color _bgColor = Color(0xFFF5F5F7);
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF71717A);
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 768;
 
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/backgroundBlurred.jpg',
-                fit: BoxFit.cover,
-                alignment: Alignment.bottomCenter,
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: _bgColor,
+            border: Border(
+              top: BorderSide(
+                color: Colors.black.withValues(alpha: 0.06),
+                width: 1.0,
               ),
             ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: SariwaColors.bgAbyssDark.withValues(alpha: 0.94),
-                  border: const Border(
-                    top: BorderSide(
-                      color: SariwaColors.borderGlass,
-                      width: 1.0,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isDesktop ? 24 : 16,
+            vertical: isDesktop ? 40 : 32,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1140.0),
+              child: Column(
+                children: [
+                  if (isDesktop)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 30,
+                              semanticLabel: 'SariwaBa logo',
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'SariwaBa',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.3,
+                                color: _inkPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Wrap(
+                          spacing: 16,
+                          children: [
+                            _FooterLinkItem(label: 'Home', onTap: onHome),
+                            _FooterLinkItem(
+                              label: 'Features',
+                              onTap: onFeatures,
+                            ),
+                            _FooterLinkItem(
+                              label: 'How it Works',
+                              onTap: onHowItWorks,
+                            ),
+                            if (onFaq != null)
+                              _FooterLinkItem(label: 'FAQ', onTap: onFaq!),
+                            _FooterLinkItem(
+                              label: 'Downloads',
+                              onTap: onDownloads,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 28,
+                              semanticLabel: 'SariwaBa logo',
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'SariwaBa',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.3,
+                                color: _inkPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            _FooterLinkItem(label: 'Home', onTap: onHome),
+                            _FooterLinkItem(
+                              label: 'Features',
+                              onTap: onFeatures,
+                            ),
+                            _FooterLinkItem(
+                              label: 'How it Works',
+                              onTap: onHowItWorks,
+                            ),
+                            if (onFaq != null)
+                              _FooterLinkItem(label: 'FAQ', onTap: onFaq!),
+                            _FooterLinkItem(
+                              label: 'Downloads',
+                              onTap: onDownloads,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
+                  const SizedBox(height: 24),
+                  Divider(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    height: 1,
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  if (isDesktop)
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '© 2026 SariwaBa',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                            color: _inkMuted,
+                          ),
+                        ),
+                        Text(
+                          'Tilapia freshness checks for web and mobile',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                            color: _inkMuted,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    const Column(
+                      children: [
+                        Text(
+                          'Tilapia freshness checks for web and mobile',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                            color: _inkMuted,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '© 2026 SariwaBa',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w400,
+                            color: _inkMuted,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                ],
               ),
             ),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 24 : 16,
-                vertical: isDesktop ? 40 : 32,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1140.0),
-                  child: Column(
-                    children: [
-                      if (isDesktop)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Image.asset(
-                                  'assets/images/SariwaBa logo.png',
-                                  height: 32,
-                                  semanticLabel: 'SariwaBa logo',
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'SariwaBa',
-                                  style: AppTypography.brandLogo.copyWith(
-                                    fontSize: 20,
-                                    letterSpacing: -0.25,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Wrap(
-                              spacing: 16,
-                              children: [
-                                _FooterLinkItem(label: 'Home', onTap: onHome),
-                                _FooterLinkItem(
-                                  label: 'Features',
-                                  onTap: onFeatures,
-                                ),
-                                _FooterLinkItem(
-                                  label: 'How it Works',
-                                  onTap: onHowItWorks,
-                                ),
-                                if (onFaq != null)
-                                  _FooterLinkItem(label: 'FAQ', onTap: onFaq!),
-                                _FooterLinkItem(
-                                  label: 'Downloads',
-                                  onTap: onDownloads,
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      else
-                        Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/images/SariwaBa logo.png',
-                                  height: 32,
-                                  semanticLabel: 'SariwaBa logo',
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'SariwaBa',
-                                  style: AppTypography.brandLogo.copyWith(
-                                    fontSize: 20,
-                                    letterSpacing: -0.25,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                _FooterLinkItem(label: 'Home', onTap: onHome),
-                                _FooterLinkItem(
-                                  label: 'Features',
-                                  onTap: onFeatures,
-                                ),
-                                _FooterLinkItem(
-                                  label: 'How it Works',
-                                  onTap: onHowItWorks,
-                                ),
-                                if (onFaq != null)
-                                  _FooterLinkItem(label: 'FAQ', onTap: onFaq!),
-                                _FooterLinkItem(
-                                  label: 'Downloads',
-                                  onTap: onDownloads,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 24),
-                      const Divider(color: SariwaColors.borderGlass, height: 1),
-                      const SizedBox(height: 24),
-                      if (isDesktop)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '© 2026 SariwaBa',
-                              style: AppTypography.caption.copyWith(
-                                color: SariwaColors.textMutedLight,
-                              ),
-                            ),
-                            Text(
-                              'Tilapia freshness checks for web and mobile',
-                              style: AppTypography.caption.copyWith(
-                                color: SariwaColors.brandLight,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Column(
-                          children: [
-                            Text(
-                              'Tilapia freshness checks for web and mobile',
-                              style: AppTypography.caption.copyWith(
-                                color: SariwaColors.brandLight,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '© 2026 SariwaBa',
-                              style: AppTypography.caption.copyWith(
-                                color: SariwaColors.textMutedLight,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         );
       },
     );
@@ -231,15 +241,19 @@ class _FooterLinkItemState extends State<_FooterLinkItem> {
             child: InkWell(
               onTap: widget.onTap,
               borderRadius: BorderRadius.circular(8),
+              hoverColor: Colors.black.withValues(alpha: 0.04),
+              splashColor: Colors.black.withValues(alpha: 0.05),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Text(
                   widget.label,
-                  style: AppTypography.navLink.copyWith(
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
                     fontSize: 14,
+                    fontWeight: FontWeight.w400,
                     color: _isHovered
-                        ? SariwaColors.brandLight
-                        : SariwaColors.textSecondaryLight,
+                        ? const Color(0xFF111111)
+                        : const Color(0xFF525252),
                   ),
                 ),
               ),

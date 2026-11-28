@@ -93,6 +93,7 @@ class AppRoutes {
       case AuthViewStatus.landing:
       case AuthViewStatus.features:
       case AuthViewStatus.howItWorks:
+      case AuthViewStatus.faq:
         return home;
       case AuthViewStatus.downloads:
         return downloads;

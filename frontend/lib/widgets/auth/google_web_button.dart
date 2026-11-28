@@ -8,10 +8,11 @@ Widget buildGoogleWebButton() {
       return Center(
         child: SizedBox(
           width: width,
-          height: 40,
+          height: 44,
           child: google_web.renderButton(
             configuration: google_web.GSIButtonConfiguration(
-              theme: google_web.GSIButtonTheme.outline,
+              locale: 'en',
+              theme: google_web.GSIButtonTheme.filledBlack,
               size: google_web.GSIButtonSize.large,
               shape: google_web.GSIButtonShape.pill,
               minimumWidth: width,

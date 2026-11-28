@@ -5,6 +5,7 @@ enum AuthViewStatus {
   landing,
   features,
   howItWorks,
+  faq,
   downloads,
   login,
   authenticated,

@@ -168,7 +168,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             widget.isDesktop ? 36 : 0,
             widget.isDesktop ? 28 : 0,
             widget.isDesktop ? 36 : 0,
-            widget.isDesktop ? 28 : 112,
+            widget.isDesktop ? 28 : 128,
           ),
           child: Center(
             child: ConstrainedBox(

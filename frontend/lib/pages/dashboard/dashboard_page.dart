@@ -947,16 +947,29 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: false,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetCtx) => SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
+      barrierColor: Colors.transparent,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      builder: (sheetCtx) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border(
+            top: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1107,6 +1120,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
