@@ -109,7 +109,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width);
 
     return FrostedGlassCard(
-      padding: EdgeInsets.all(isMobileScreen ? 14 : 24),
+      padding: EdgeInsets.all(isMobileScreen ? 12 : 24),
       borderRadius: isMobileScreen ? 24 : 16,
       blurSigma: 6,
       child: Column(
@@ -440,19 +440,33 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             return ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: isMobileScreen
-                  ? AspectRatio(
-                      aspectRatio: clampedMobileAspect,
-                      child: viewportContent,
+                  ? LayoutBuilder(
+                      builder: (context, boxConstraints) {
+                        final maxMobileHeight =
+                            (MediaQuery.sizeOf(context).height * 0.34)
+                                .clamp(210.0, 280.0);
+                        final idealHeight =
+                            boxConstraints.maxWidth / clampedMobileAspect;
+                        final clampedHeight = idealHeight.clamp(
+                          160.0,
+                          maxMobileHeight,
+                        );
+                        return SizedBox(
+                          width: double.infinity,
+                          height: clampedHeight,
+                          child: viewportContent,
+                        );
+                      },
                     )
                   : viewportContent,
             );
           },
         ),
         if (state.eyeProposals.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: isMobileScreen ? 10 : 12),
           _buildEyeFilmstrip(state, controller),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: isMobileScreen ? 12 : 16),
         // Region toggle + compact icon toolbar (Detect Eyes)
         Row(
           children: [
@@ -477,7 +491,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ],
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: isMobileScreen ? 12 : 16),
         if (state.latestResult != null && !state.isClassifying)
           OutlinedButton.icon(
             key: const Key('current_scan_check_freshness_button'),

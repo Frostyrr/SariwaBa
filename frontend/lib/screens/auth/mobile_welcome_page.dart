@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../constants/config/app_config.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../controllers/auth/auth_controller.dart';
+import '../../services/storage/token_storage.dart';
 import '../../widgets/auth/google_auth_button.dart';
 
 /// Native Mobile Welcome & Sign-In Screen (`!kIsWeb` — Android & iOS).
@@ -15,7 +17,7 @@ import '../../widgets/auth/google_auth_button.dart';
 /// - Flat `#F5F5F7` canvas with top-left crisp white brand pill
 /// - Centered 3D phone mockup stage over concentric surgical-teal ripples
 /// - Bold Geist editorial headline & anchored white bottom action sheet
-class MobileWelcomePage extends ConsumerWidget {
+class MobileWelcomePage extends ConsumerStatefulWidget {
   const MobileWelcomePage({super.key});
 
   static const Color _canvasColor = Color(0xFFF5F5F7);
@@ -25,7 +27,129 @@ class MobileWelcomePage extends ConsumerWidget {
   static const Color _surgicalTeal = Color(0xFF0D9488);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MobileWelcomePage> createState() => _MobileWelcomePageState();
+}
+
+class _MobileWelcomePageState extends ConsumerState<MobileWelcomePage> {
+  Future<void> _openServerUrlDialog() async {
+    final controller = TextEditingController(text: AppConfig.apiBaseUrl);
+    final updated = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: MobileWelcomePage._surfaceWhite,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+          ),
+          title: const Text(
+            'Backend Server URL',
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: MobileWelcomePage._inkPrimary,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Set the laptop IP and port (e.g. Windows Hotspot 192.168.137.1:8000).',
+                style: TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 13,
+                  color: MobileWelcomePage._inkMuted,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 14,
+                  color: MobileWelcomePage._inkPrimary,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'http://192.168.137.1:8000',
+                  filled: true,
+                  fillColor: MobileWelcomePage._canvasColor,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.black.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.black.withValues(alpha: 0.1),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ActionChip(
+                    label: const Text('Hotspot (.137.1)'),
+                    onPressed: () {
+                      controller.text = 'http://192.168.137.1:8000';
+                    },
+                  ),
+                  ActionChip(
+                    label: const Text('Reset Default'),
+                    onPressed: () {
+                      controller.text = AppConfig.compileTimeApiBaseUrl;
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: MobileWelcomePage._inkMuted),
+              ),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(controller.text.trim()),
+              style: FilledButton.styleFrom(
+                backgroundColor: MobileWelcomePage._inkPrimary,
+                foregroundColor: MobileWelcomePage._surfaceWhite,
+              ),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+    controller.dispose();
+
+    if (updated == null || updated.isEmpty) return;
+    AppConfig.setRuntimeApiBaseUrl(updated);
+    await ref.read(tokenStorageProvider).saveApiBaseUrl(AppConfig.apiBaseUrl);
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authController = ref.read(authControllerProvider.notifier);
     final authState = ref.watch(authControllerProvider);
     final disableAnimations =
@@ -38,11 +162,11 @@ class MobileWelcomePage extends ConsumerWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: _surfaceWhite,
+        systemNavigationBarColor: MobileWelcomePage._surfaceWhite,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: _canvasColor,
+        backgroundColor: MobileWelcomePage._canvasColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -60,8 +184,15 @@ class MobileWelcomePage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Top-left crisp white brand pill
-                      _buildBrandPill(),
+                      // 1. Top-left crisp white brand pill + top-right server URL pill
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildBrandPill(),
+                          const SizedBox(width: 8),
+                          Flexible(child: _buildServerPill()),
+                        ],
+                      ),
 
                       // 2. Centered 3D Phone Mockup & Concentric Ripple Stage
                       Expanded(
@@ -103,7 +234,7 @@ class MobileWelcomePage extends ConsumerWidget {
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: -0.8,
                                 height: 1.08,
-                                color: _inkPrimary,
+                                color: MobileWelcomePage._inkPrimary,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -114,7 +245,7 @@ class MobileWelcomePage extends ConsumerWidget {
                                 fontSize: isCompactHeight ? 14.5 : 15,
                                 fontWeight: FontWeight.w400,
                                 height: 1.45,
-                                color: _inkMuted,
+                                color: MobileWelcomePage._inkMuted,
                               ),
                             ),
                           ],
@@ -129,7 +260,7 @@ class MobileWelcomePage extends ConsumerWidget {
             // 4. Anchored White Bottom Action Sheet
             Container(
               decoration: BoxDecoration(
-                color: _surfaceWhite,
+                color: MobileWelcomePage._surfaceWhite,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(28),
                 ),
@@ -195,8 +326,8 @@ class MobileWelcomePage extends ConsumerWidget {
                                 authController.continueAsGuest();
                               },
                         style: OutlinedButton.styleFrom(
-                          backgroundColor: _surfaceWhite,
-                          foregroundColor: _inkPrimary,
+                          backgroundColor: MobileWelcomePage._surfaceWhite,
+                          foregroundColor: MobileWelcomePage._inkPrimary,
                           side: BorderSide(
                             color: Colors.black.withValues(alpha: 0.12),
                             width: 1,
@@ -218,7 +349,7 @@ class MobileWelcomePage extends ConsumerWidget {
                             Icon(
                               CupertinoIcons.viewfinder,
                               size: 18,
-                              color: _inkPrimary,
+                              color: MobileWelcomePage._inkPrimary,
                             ),
                             SizedBox(width: 8),
                             Flexible(
@@ -240,7 +371,7 @@ class MobileWelcomePage extends ConsumerWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           height: 1.4,
-                          color: _inkMuted,
+                          color: MobileWelcomePage._inkMuted,
                         ),
                       ),
                     ],
@@ -258,7 +389,7 @@ class MobileWelcomePage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _surfaceWhite,
+        color: MobileWelcomePage._surfaceWhite,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: Colors.black.withValues(alpha: 0.08),
@@ -284,10 +415,69 @@ class MobileWelcomePage extends ConsumerWidget {
               fontSize: 14,
               fontWeight: FontWeight.w600,
               letterSpacing: -0.25,
-              color: _inkPrimary,
+              color: MobileWelcomePage._inkPrimary,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildServerPill() {
+    final uri = Uri.tryParse(AppConfig.apiBaseUrl);
+    final label = uri != null && uri.host.isNotEmpty
+        ? '${uri.host}:${uri.hasPort ? uri.port : 8000}'
+        : 'Server';
+    return Semantics(
+      button: true,
+      label: 'Configure backend server URL',
+      child: InkWell(
+        onTap: _openServerUrlDialog,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: MobileWelcomePage._surfaceWhite,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: Colors.black.withValues(alpha: 0.08),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: MobileWelcomePage._surgicalTeal,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: MobileWelcomePage._inkMuted,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                CupertinoIcons.slider_horizontal_3,
+                size: 13,
+                color: MobileWelcomePage._inkMuted,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

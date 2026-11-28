@@ -6,9 +6,23 @@ class TokenStorage {
 
   static const String _accessTokenKey = 'sariwaba_access_token';
   static const String _refreshTokenKey = 'sariwaba_refresh_token';
+  static const String _apiBaseUrlKey = 'sariwaba_api_base_url';
 
   TokenStorage({FlutterSecureStorage? storage})
       : _storage = storage ?? const FlutterSecureStorage();
+
+  Future<void> saveApiBaseUrl(String? url) async {
+    final trimmed = url?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      await _storage.delete(key: _apiBaseUrlKey);
+      return;
+    }
+    await _storage.write(key: _apiBaseUrlKey, value: trimmed);
+  }
+
+  Future<String?> getApiBaseUrl() async {
+    return _storage.read(key: _apiBaseUrlKey);
+  }
 
   Future<void> saveTokens({
     required String accessToken,

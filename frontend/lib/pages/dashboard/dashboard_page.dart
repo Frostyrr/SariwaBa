@@ -12,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../controllers/auth/auth_controller.dart';
 import '../../controllers/classification/classification_controller.dart';
+import '../../models/classification/classification_result.dart';
+import '../../services/classification/classification_service.dart';
 
 import '../../constants/config/app_breakpoints.dart';
 import '../../constants/config/platform_env.dart';
@@ -334,6 +336,27 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           }
         });
       }
+
+      if (next.errorMessage != null &&
+          next.errorMessage != previous?.errorMessage &&
+          next.latestResult == null &&
+          next.hasSelectedImage &&
+          !_isCropModalOpen) {
+        final errorCode = next.errorCode;
+        final errorMessage = next.errorMessage!;
+        final cropBytes = next.confirmedImageBytes ?? next.selectedImageBytes;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (AppBreakpoints.isMobile(MediaQuery.of(context).size.width)) {
+            _showMobileRejectionSheet(
+              errorCode: errorCode,
+              errorMessage: errorMessage,
+              cropBytes: cropBytes,
+              controller: ref.read(classificationControllerProvider.notifier),
+            );
+          }
+        });
+      }
     });
 
     final isModalEffectivelyOpen =
@@ -356,6 +379,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             extendBody: isMobileViewport,
             bottomNavigationBar: isMobileViewport
                 ? _buildMobileBottomNav(
+                    hideNav:
+                        _activeNav == 'Inspection' && classState.hasSelectedImage,
                     onQuickScan: () async {
                       HapticFeedback.mediumImpact();
                       final allowed = await _checkMobileMediaPermission(
@@ -1125,7 +1150,219 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
+  Future<void> _showMobileRejectionSheet({
+    required String? errorCode,
+    required String errorMessage,
+    required Uint8List? cropBytes,
+    required ClassificationController controller,
+  }) async {
+    final currentState = ref.read(classificationControllerProvider);
+    final code = errorCode;
+    final isWholeTilapia = code == 'WHOLE_TILAPIA_CLOSE_UP_REQUIRED';
+    final isRegionMismatch = code == 'REGION_MISMATCH';
+    final isNetworkOrServer =
+        code == 'NETWORK_ERROR' ||
+        code == 'REQUEST_FAILED' ||
+        code == 'MODEL_UNAVAILABLE' ||
+        code == 'INFERENCE_FAILED' ||
+        code == 'UNEXPECTED_RESPONSE';
+
+    final title = isNetworkOrServer
+        ? 'Connection or Server Issue'
+        : ClassificationApiException.rejectionTitleForCode(code);
+    final isWarning =
+        isWholeTilapia || code == 'FRESHNESS_UNCERTAIN' || isRegionMismatch;
+    final accentColor =
+        isWarning ? const Color(0xFFD97706) : const Color(0xFFDC2626);
+
+    final String primaryLabel;
+    final IconData primaryIcon;
+    final VoidCallback onPrimaryPressed;
+
+    if (isWholeTilapia &&
+        controller.canFindEyes &&
+        currentState.selectedRegion != AnatomicalRegion.gill) {
+      primaryLabel = 'Find Eyes';
+      primaryIcon = CupertinoIcons.eye;
+      onPrimaryPressed = () => controller.detectEyesForCurrentImage();
+    } else if (isRegionMismatch) {
+      final switchToGill =
+          currentState.selectedRegion == AnatomicalRegion.eye ||
+          errorMessage.toLowerCase().contains('gill');
+      primaryLabel = switchToGill ? 'Switch to Gill' : 'Switch to Eye';
+      primaryIcon = CupertinoIcons.arrow_2_circlepath;
+      onPrimaryPressed = () => controller.changeRegion();
+    } else if (isNetworkOrServer) {
+      primaryLabel = 'Try Again';
+      primaryIcon = CupertinoIcons.refresh;
+      onPrimaryPressed = () => controller.classify();
+    } else {
+      primaryLabel = 'Retake Photo';
+      primaryIcon = CupertinoIcons.camera_viewfinder;
+      onPrimaryPressed = () => controller.clearSelection();
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: false,
+      barrierColor: Colors.transparent,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      builder: (sheetCtx) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border(
+            top: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD4D4D8),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (cropBytes != null) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.memory(
+                          cropBytes,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.4,
+                              height: 1.15,
+                              color: accentColor,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            errorMessage,
+                            style: const TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w400,
+                              height: 1.4,
+                              color: Color(0xFF52525B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          Navigator.of(sheetCtx).pop();
+                          onPrimaryPressed();
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF111111),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          minimumSize: const Size(0, 48),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(primaryIcon, size: 16, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                primaryLabel,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(sheetCtx).pop();
+                        controller.editCrop();
+                        _showRoiCropperModal();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF111111),
+                        side: BorderSide(
+                          color: Colors.black.withValues(alpha: 0.12),
+                        ),
+                        minimumSize: const Size(0, 48),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        shape: const StadiumBorder(),
+                        textStyle: const TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      child: const Text('Adjust crop'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMobileBottomNav({
+    required bool hideNav,
     required VoidCallback onQuickScan,
     required VoidCallback onQuickScanLongPress,
   }) {
@@ -1170,7 +1407,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                HapticFeedback.selectionClick();
                 _navigateTo(navKey);
               },
               borderRadius: BorderRadius.circular(999),
@@ -1351,45 +1587,64 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final isShrunkStrong = _isNavScrolling || _hasInputFocus || keyboardOpen;
     final isShrunkMild = !isShrunkStrong && _isNavIdle;
 
-    final double targetScale = disableAnimations
+    final double targetScale = hideNav
         ? 1.0
-        : (isShrunkStrong ? 0.86 : (isShrunkMild ? 0.92 : 1.0));
-    final Offset targetOffset = disableAnimations
-        ? Offset.zero
-        : (isShrunkStrong
-            ? const Offset(0, 0.14)
-            : (isShrunkMild ? const Offset(0, 0.06) : Offset.zero));
-    final double targetOpacity = disableAnimations
-        ? 1.0
-        : (isShrunkStrong ? 0.80 : (isShrunkMild ? 0.88 : 1.0));
+        : (disableAnimations
+            ? 1.0
+            : (isShrunkStrong ? 0.86 : (isShrunkMild ? 0.92 : 1.0)));
+    final Offset targetOffset = hideNav
+        ? const Offset(0, 1.5)
+        : (disableAnimations
+            ? Offset.zero
+            : (isShrunkStrong
+                ? const Offset(0, 0.14)
+                : (isShrunkMild ? const Offset(0, 0.06) : Offset.zero)));
+    final double targetOpacity = hideNav
+        ? 0.0
+        : (disableAnimations
+            ? 1.0
+            : (isShrunkStrong ? 0.80 : (isShrunkMild ? 0.88 : 1.0)));
+
+    final Duration slideDuration = disableAnimations
+        ? Duration.zero
+        : (hideNav
+            ? const Duration(milliseconds: 240)
+            : const Duration(milliseconds: 260));
+    final Curve slideCurve =
+        hideNav ? const Cubic(0.22, 1, 0.36, 1) : Curves.easeOutCubic;
 
     return SafeArea(
       top: false,
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => _wakeBottomNav(),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-          child: AnimatedSlide(
-            offset: targetOffset,
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
-            child: AnimatedScale(
-              scale: targetScale,
-              alignment: Alignment.bottomCenter,
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutCubic,
-              child: AnimatedOpacity(
-                opacity: targetOpacity,
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: navPill),
-                    const SizedBox(width: 12),
-                    detachedCameraFab,
-                  ],
+      child: IgnorePointer(
+        ignoring: hideNav,
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) => _wakeBottomNav(),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: AnimatedSlide(
+              offset: targetOffset,
+              duration: slideDuration,
+              curve: slideCurve,
+              child: AnimatedScale(
+                scale: targetScale,
+                alignment: Alignment.bottomCenter,
+                duration: slideDuration,
+                curve: slideCurve,
+                child: AnimatedOpacity(
+                  opacity: targetOpacity,
+                  duration: disableAnimations
+                      ? Duration.zero
+                      : const Duration(milliseconds: 220),
+                  curve: slideCurve,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(child: navPill),
+                      const SizedBox(width: 12),
+                      detachedCameraFab,
+                    ],
+                  ),
                 ),
               ),
             ),

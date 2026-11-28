@@ -22,6 +22,7 @@ final Provider<Dio> apiClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
+        options.baseUrl = AppConfig.apiBaseUrl;
         if (options.extra['guestRequest'] == true) {
           options.headers.remove('Authorization');
           return handler.next(options);

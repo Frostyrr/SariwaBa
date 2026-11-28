@@ -61,6 +61,8 @@ class InspectionWorkspaceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hideBottomNav = !isDesktop && classState.hasSelectedImage;
+
     return SafeArea(
       top: !isDesktop,
       bottom: false,
@@ -79,7 +81,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
             isDesktop ? 32 : 0,
             isDesktop ? 40 : 0,
             isDesktop ? 32 : 0,
-            isDesktop ? 32 : 128, // mobile clearance for floating bottom nav + camera FAB
+            isDesktop ? 32 : (hideBottomNav ? 32 : 128),
           ),
           child: Center(
             child: ConstrainedBox(
