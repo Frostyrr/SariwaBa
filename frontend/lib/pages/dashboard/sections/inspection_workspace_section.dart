@@ -76,9 +76,9 @@ class InspectionWorkspaceSection extends StatelessWidget {
             parent: BouncingScrollPhysics(),
           ),
           padding: EdgeInsets.fromLTRB(
-            isDesktop ? 36 : 0,
-            isDesktop ? 24 : 0,
-            isDesktop ? 36 : 0,
+            isDesktop ? 32 : 0,
+            isDesktop ? 40 : 0,
+            isDesktop ? 32 : 0,
             isDesktop ? 32 : 128, // mobile clearance for floating bottom nav + camera FAB
           ),
           child: Center(
@@ -343,33 +343,6 @@ class InspectionWorkspaceSection extends StatelessWidget {
         final headerInfo = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Borderless status indicator (dot + muted label)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isGuestUser
-                        ? _inkMuted
-                        : SariwaColors.brandPrimary,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  isGuestUser ? 'Guest Mode' : 'Synced',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: _inkMuted,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
             Text(
               'Freshness Inspection',
               style: TextStyle(

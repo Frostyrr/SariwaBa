@@ -325,13 +325,13 @@ class CurrentScanPanel extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                color: const Color(0xFFF5F5F7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 CupertinoIcons.sparkles,
                 size: 18,
-                color: SariwaColors.brandPrimary,
+                color: Color(0xFF111111),
               ),
             ),
             const SizedBox(width: 12),
@@ -390,16 +390,16 @@ class CurrentScanPanel extends StatelessWidget {
           width: 22,
           height: 22,
           alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+          decoration: const BoxDecoration(
+            color: Color(0xFFF5F5F7),
             shape: BoxShape.circle,
           ),
           child: Text(
             num,
             style: const TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: SariwaColors.brandPrimary,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF111111),
             ),
           ),
         ),

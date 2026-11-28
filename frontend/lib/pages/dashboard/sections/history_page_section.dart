@@ -165,10 +165,10 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
             parent: BouncingScrollPhysics(),
           ),
           padding: EdgeInsets.fromLTRB(
-            widget.isDesktop ? 36 : 0,
-            widget.isDesktop ? 28 : 0,
-            widget.isDesktop ? 36 : 0,
-            widget.isDesktop ? 28 : 128,
+            widget.isDesktop ? 32 : 0,
+            widget.isDesktop ? 40 : 0,
+            widget.isDesktop ? 32 : 0,
+            widget.isDesktop ? 32 : 128,
           ),
           child: Center(
             child: ConstrainedBox(
@@ -525,10 +525,10 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
       icon: const Icon(CupertinoIcons.arrow_down_doc, size: 16),
       label: const Text('Export CSV'),
       style: OutlinedButton.styleFrom(
-        foregroundColor: SariwaColors.brandPrimary,
-        backgroundColor: SariwaColors.colorPale.withValues(alpha: 0.45),
+        foregroundColor: const Color(0xFF111111),
+        backgroundColor: Colors.white,
         side: BorderSide(
-          color: SariwaColors.brandPrimary.withValues(alpha: 0.25),
+          color: Colors.black.withValues(alpha: 0.10),
         ),
         minimumSize: const Size(0, 44),
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1637,11 +1637,22 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
                             IconButton(
                               icon: const Icon(CupertinoIcons.eye, size: 15),
                               tooltip: 'View details',
-                              color: SariwaColors.brandPrimary,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(
                                 minWidth: 32,
                                 minHeight: 32,
+                              ),
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    WidgetStateProperty.resolveWith((states) {
+                                  if (states.contains(WidgetState.hovered)) {
+                                    return const Color(0xFF111111);
+                                  }
+                                  return const Color(0xFF525252);
+                                }),
+                                overlayColor: WidgetStatePropertyAll(
+                                  Colors.black.withValues(alpha: 0.04),
+                                ),
                               ),
                               onPressed: () =>
                                   InspectionDetailsModal.show(context, scan),

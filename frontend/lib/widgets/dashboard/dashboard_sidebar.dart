@@ -53,7 +53,7 @@ class DashboardSidebar extends StatelessWidget {
       ),
       padding: EdgeInsets.fromLTRB(
         isCollapsed ? 12 : 18,
-        20,
+        24,
         isCollapsed ? 12 : 18,
         18,
       ),
@@ -65,7 +65,7 @@ class DashboardSidebar extends StatelessWidget {
               // Top Brand & Collapse Header
               _buildTopHeader(),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
 
               // Workspace section header or subtle divider
               if (!isCollapsed)
