@@ -141,6 +141,11 @@ class _Interactive3DPhoneState extends State<Interactive3DPhone>
             clipBehavior: Clip.none,
             children: [
               _buildDotGridStage(stageWidth, widget.height),
+              _buildConcentricTealRipples(
+                height: widget.height,
+                hoverT: 0.0,
+                smoothNorm: Offset.zero,
+              ),
               Positioned(bottom: 12, child: _buildAmbientShadow(stageWidth)),
               phoneImage,
               if (widget.showFloatingChips) ...[
@@ -212,6 +217,11 @@ class _Interactive3DPhoneState extends State<Interactive3DPhone>
                         clipBehavior: Clip.none,
                         children: [
                           _buildDotGridStage(stageWidth, widget.height),
+                          _buildConcentricTealRipples(
+                            height: widget.height,
+                            hoverT: hoverT,
+                            smoothNorm: smoothNorm,
+                          ),
                           Positioned(
                             bottom: 12,
                             child: Transform.translate(
@@ -253,6 +263,59 @@ class _Interactive3DPhoneState extends State<Interactive3DPhone>
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Translucent concentric surgical-teal ripple rings behind the phone with
+  /// subtle opposite-cursor parallax and gentle outer-ring hover expansion.
+  Widget _buildConcentricTealRipples({
+    required double height,
+    required double hoverT,
+    required Offset smoothNorm,
+  }) {
+    final scaleFactor = (height / 590.0).clamp(0.55, 1.15);
+    final outerSize = 460.0 * scaleFactor;
+    final middleSize = 350.0 * scaleFactor;
+    final innerSize = 240.0 * scaleFactor;
+    final outerHoverScale = 1.0 + (0.04 * hoverT);
+
+    return IgnorePointer(
+      child: Transform.translate(
+        offset: Offset(-smoothNorm.dx * 8.0, -smoothNorm.dy * 8.0),
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            Transform.scale(
+              scale: outerHoverScale,
+              child: Container(
+                width: outerSize,
+                height: outerSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: SariwaColors.brandPrimary.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Container(
+              width: middleSize,
+              height: middleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: SariwaColors.brandPrimary.withValues(alpha: 0.09),
+              ),
+            ),
+            Container(
+              width: innerSize,
+              height: innerSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: SariwaColors.brandPrimary.withValues(alpha: 0.14),
+              ),
+            ),
+          ],
         ),
       ),
     );
