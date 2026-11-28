@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth/auth_controller.dart';
 import '../../widgets/common/sariwa_scrollbar.dart';
+import '../../widgets/common/smooth_web_scroll.dart';
 import '../../widgets/navigation/web_footer.dart';
 import '../../widgets/navigation/web_navbar.dart';
 import 'sections/faq_section.dart';
@@ -11,8 +12,8 @@ import 'sections/landing_section.dart';
 import '../../constants/theme/app_colors.dart';
 
 /// Unified Home Page
-/// Imports modular sections for Landing (100vh hero), Features (off-white leaning primary teal),
-/// and How It Works (off-white leaning primary teal), with sticky navbar, smooth scrolling, and persistent footer.
+/// Imports modular sections for Landing, Features, How It Works, FAQ, and Footer,
+/// with sticky navbar, 60/120fps smooth mouse-wheel scrolling on Web, and smooth anchor scroll.
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -50,8 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         _featuresKey.currentContext?.findRenderObject() as RenderBox?;
     final howItWorksBox =
         _howItWorksKey.currentContext?.findRenderObject() as RenderBox?;
-    final faqBox =
-        _faqKey.currentContext?.findRenderObject() as RenderBox?;
+    final faqBox = _faqKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (featuresBox != null && featuresBox.hasSize) {
       final featuresTop = featuresBox.localToGlobal(Offset.zero).dy;
@@ -116,57 +116,61 @@ class _HomePageState extends ConsumerState<HomePage> {
       backgroundColor: SariwaColors.colorWorkspace,
       body: Stack(
         children: [
-          // Scrollable Page Sections
+          // Scrollable Page Sections with 60/120fps smooth mouse-wheel inertia on Web
           SariwaScrollbar(
             controller: _scrollController,
             builder: (context, controller) => SingleChildScrollView(
               controller: controller,
               physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                // Section 1: 100vh Landing Hero (Underwater illustration background)
-                LandingSection(
-                  key: _homeKey,
-                  isGuest: isGuest,
-                  user: authState.user,
-                  onConnectGoogle: () => authController.continueWithGoogle(),
-                  onHome: () => _scrollToKey(_homeKey),
-                  onFeatures: () => _scrollToKey(_featuresKey),
-                  onHowItWorks: () => _scrollToKey(_howItWorksKey),
-                  onDownloads: () => authController.goToDownloads(),
-                  onLogIn: () => authController.goToLogin(),
-                  onDashboard: () => authController.goToDashboard(),
-                  onSignOut: () => authController.signOut(),
-                ),
+              child: SmoothWebScrollChild(
+                controller: controller,
+                child: Column(
+                  children: [
+                    // Section 1: Landing Hero + Dashboard Showcase bridging into Features
+                    LandingSection(
+                      key: _homeKey,
+                      isGuest: isGuest,
+                      user: authState.user,
+                      onConnectGoogle: () =>
+                          authController.continueWithGoogle(),
+                      onHome: () => _scrollToKey(_homeKey),
+                      onFeatures: () => _scrollToKey(_featuresKey),
+                      onHowItWorks: () => _scrollToKey(_howItWorksKey),
+                      onDownloads: () => authController.goToDownloads(),
+                      onLogIn: () => authController.goToLogin(),
+                      onDashboard: () => authController.goToDashboard(),
+                      onSignOut: () => authController.signOut(),
+                    ),
 
-                // Section 2: Features Section (Off-white leaning primary teal #F0F7F6)
-                FeaturesSection(
-                  key: _featuresKey,
-                ),
+                    // Section 2: Features Section (Crisp #FFFFFF surface)
+                    FeaturesSection(
+                      key: _featuresKey,
+                    ),
 
-                // Section 3: How It Works Section (Discipline workflow & results)
-                HowItWorksSection(
-                  key: _howItWorksKey,
-                ),
+                    // Section 3: How It Works Section (4-step grid + Daylight results guide)
+                    HowItWorksSection(
+                      key: _howItWorksKey,
+                    ),
 
-                // Section 4: FAQ & Call-To-Action Section
-                FaqSection(
-                  key: _faqKey,
-                  onDownload: () => authController.goToDownloads(),
-                  onTryInspection: () => authController.goToDashboard(),
-                ),
+                    // Section 4: FAQ & Call-To-Action Section
+                    FaqSection(
+                      key: _faqKey,
+                      onDownload: () => authController.goToDownloads(),
+                      onTryInspection: () => authController.goToDashboard(),
+                    ),
 
-                // Section 5: Web Footer (Deep Abyss #0A2229)
-                WebFooter(
-                  onHome: () => _scrollToKey(_homeKey),
-                  onFeatures: () => _scrollToKey(_featuresKey),
-                  onHowItWorks: () => _scrollToKey(_howItWorksKey),
-                  onDownloads: () => authController.goToDownloads(),
-                  onFaq: () => _scrollToKey(_faqKey),
+                    // Section 5: Web Footer (Deep Abyss #0A2229)
+                    WebFooter(
+                      onHome: () => _scrollToKey(_homeKey),
+                      onFeatures: () => _scrollToKey(_featuresKey),
+                      onHowItWorks: () => _scrollToKey(_howItWorksKey),
+                      onDownloads: () => authController.goToDownloads(),
+                      onFaq: () => _scrollToKey(_faqKey),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
           ),
 
           // Sticky Top Web Navbar
@@ -195,4 +199,3 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 }
-

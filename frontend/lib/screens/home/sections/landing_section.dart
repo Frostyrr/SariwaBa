@@ -46,7 +46,7 @@ class LandingSection extends StatelessWidget {
       showTopRightGlow: true,
       showBottomGlow: false,
       useLightAtmospheric: true,
-      nextSectionColor: SariwaColors.colorWorkspace,
+      nextSectionColor: SariwaColors.cardSurfaceLight,
       child: Column(
         children: [
           // Top spacer compensating for sticky 56px + 20px padding WebNavbar
@@ -241,9 +241,11 @@ class LandingSection extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1140.0),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: isDesktop ? 48.0 : 36.0,
+                padding: EdgeInsets.fromLTRB(
+                  24.0,
+                  isDesktop ? 48.0 : 36.0,
+                  24.0,
+                  40.0,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -324,25 +326,51 @@ class LandingSection extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 40),
-
-                    // Desktop: Full Dashboard Showcase | Mobile: Native-scale Scan Preview Card
-                    StaggeredReveal(
-                      staggerIndex: 3,
-                      slideOffset: const Offset(0, 24),
-                      child: isDesktop
-                          ? DashboardShowcase(
-                              width: (screenWidth * 0.82).clamp(840.0, 1080.0),
-                            )
-                          : _buildMobileAppPreviewCard(),
-                    ),
-
-                    const SizedBox(height: 48),
                   ],
                 ),
               ),
             ),
+          ),
+
+          // Smooth Gradient Dissolve Bridge: Dashboard Preview straddling Hero -> Features (#FFFFFF)
+          Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.0, 0.35, 0.72, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        SariwaColors.cardSurfaceLight.withValues(alpha: 0.45),
+                        SariwaColors.cardSurfaceLight.withValues(alpha: 0.92),
+                        SariwaColors.cardSurfaceLight,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  24.0,
+                  0.0,
+                  24.0,
+                  isDesktop ? 24.0 : 16.0,
+                ),
+                child: StaggeredReveal(
+                  staggerIndex: 3,
+                  slideOffset: const Offset(0, 24),
+                  child: isDesktop
+                      ? DashboardShowcase(
+                          width: (screenWidth * 0.82).clamp(840.0, 1080.0),
+                        )
+                      : _buildMobileAppPreviewCard(),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -1,17 +1,11 @@
-import 'dart:ui';
 import 'package:material_ui/material_ui.dart';
 
 import '../../constants/theme/app_colors.dart';
 
 /// Atmospheric Background Stack
-/// Implements our premium coastal light-mode direction:
-/// - Predominantly warm ivory and off-white canvas (#FAF8F5)
-/// - Soft irregular seafoam gradients near outer edges (#14B8A6, #10B981)
-/// - Subtle translucent ocean-inspired wave forms (_CoastalWaveFormsPainter)
-/// - Delicate water-caustic highlights in upper-right & lower-left (_WaterCausticsPainter)
-/// - Natural seamless transition to subsequent section (#F0F7F6)
-/// - Clean central composition for optimal typography contrast
-/// - Fully static with zero continuous wave animations
+/// Single restrained coastal motif: soft top-edge wash of `backgroundBlurred.jpg`
+/// masked smoothly into a luminous seafoam-to-white daylight gradient.
+/// Zero competing multi-layer wallpaper painters, zero continuous animations.
 class AmbientGlowBackground extends StatelessWidget {
   final Widget child;
   final bool showTopRightGlow;
@@ -43,122 +37,74 @@ class AmbientGlowBackground extends StatelessWidget {
     return _buildLegacyDarkBackground();
   }
 
-  /// Premium Coastal Light-Mode Hero Background Composition
+  /// Restrained Coastal Light-Mode Hero Backdrop:
+  /// One soft top-edge `backgroundBlurred.jpg` canopy wash dissolving cleanly
+  /// into daylight seafoam -> `nextSectionColor` (#FFFFFF) with zero hard seam.
   Widget _buildCleanAtmosphericBackground() {
     return Stack(
       children: [
-        // Layer 1: Warm Ivory Canvas with smooth transition to next section (#F0F7F6)
+        // Layer 1: Smooth vertical daylight gradient into nextSectionColor
         Positioned.fill(
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: const [0.0, 0.35, 0.72, 1.0],
+                stops: const [0.0, 0.45, 0.78, 1.0],
                 colors: [
-                  const Color(0xFFFAF8F5), // Predominantly warm coastal ivory
-                  const Color(0xFFF5FAF8), // Gentle transition to soft coastal sea-mist
-                  const Color(0xFFF1F8F6), // Light coastal aqua tint
-                  nextSectionColor,        // 100% solid matching FeaturesSection (0xFFF0F7F6)
+                  SariwaColors.colorPale,
+                  SariwaColors.colorWorkspace,
+                  SariwaColors.cardSurfaceLight,
+                  nextSectionColor,
                 ],
               ),
             ),
           ),
         ),
 
-        // Layer 2: Subtle Translucent Ocean-Inspired Wave Forms
-        Positioned.fill(
-          child: CustomPaint(
-            painter: _CoastalWaveFormsPainter(),
-          ),
-        ),
-
-        // Layer 3: Delicate Water-Caustic Highlights (Upper-Right and Lower-Left)
-        Positioned.fill(
-          child: CustomPaint(
-            painter: _WaterCausticsPainter(),
-          ),
-        ),
-
-        // Layer 4: Upper-Right Soft Irregular Seafoam & Sunlight Flare
-        if (showTopRightGlow)
-          Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 540,
-              height: 540,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    SariwaColors.brandGlowTint, // Soft seafoam
-                    Color(0x0A2DD4BF),
-                    Color(0x002DD4BF),
-                  ],
-                  stops: [0.0, 0.48, 1.0],
+        // Layer 2: Soft top-edge canopy wash using backgroundBlurred.jpg
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 440,
+          child: RepaintBoundary(
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0, 0.55, 1.0],
+                colors: [
+                  Colors.white,
+                  Color(0x55FFFFFF),
+                  Colors.transparent,
+                ],
+              ).createShader(bounds),
+              blendMode: BlendMode.dstIn,
+              child: Opacity(
+                opacity: 0.16,
+                child: Image.asset(
+                  'assets/images/backgroundBlurred.jpg',
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),
             ),
           ),
-
-        // Layer 5: Lower-Left Soft Irregular Seafoam Glow
-        Positioned(
-          bottom: 40,
-          left: -120,
-          child: Container(
-            width: 480,
-            height: 480,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  Color(0x1210B981), // Muted emerald seafoam
-                  Color(0x0614B8A6),
-                  Color(0x0014B8A6),
-                ],
-                stops: [0.0, 0.50, 1.0],
-              ),
-            ),
-          ),
         ),
 
-        // Layer 6: Central Subtle Aqua Ambient Aura behind the dashboard
-        Positioned.fill(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment(0.0, 0.32),
-                radius: 0.85,
-                colors: [
-                  Color(0x120D9488), // Gentle coastal glow
-                  Color(0x0814B8A6),
-                  Color(0x0014B8A6),
-                ],
-                stops: [0.0, 0.40, 1.0],
-              ),
-            ),
-          ),
-        ),
-
-        // Layer 7: Architectural Precision Dot-Matrix Grid (Subtle)
-        Positioned.fill(
-          child: CustomPaint(
-            painter: _HeroGridPatternPainter(),
-          ),
-        ),
-
-        // Layer 8: Foreground Child Content
+        // Layer 3: Foreground content
         SafeArea(child: child),
       ],
     );
   }
 
-  /// Legacy Dark Underwater Treatment (for secondary utility screens)
+  /// Legacy Dark Underwater Treatment (for secondary dark utility screens)
   Widget _buildLegacyDarkBackground() {
     final assetPath = useBlurredAsset
         ? 'assets/images/backgroundBlurred.jpg'
-        : 'assets/images/background.jpg';
+        : 'assets/images/background.png';
 
     return Stack(
       children: [
@@ -166,167 +112,26 @@ class AmbientGlowBackground extends StatelessWidget {
           child: Image.asset(
             assetPath,
             fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
+            errorBuilder: (_, _, _) =>
+                const ColoredBox(color: SariwaColors.bgAbyssDark),
           ),
         ),
-        if (blurSigma > 0.0 && !useBlurredAsset)
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-                child: const SizedBox.expand(),
-              ),
-            ),
-          ),
         Positioned.fill(
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: const [0.0, 0.45, 0.85],
                 colors: [
-                  SariwaColors.bgAbyssDark.withValues(alpha: 0.65),
-                  SariwaColors.bgAbyssDark.withValues(alpha: 0.52),
-                  SariwaColors.bgAbyssDark.withValues(alpha: 0.70),
+                  SariwaColors.bgAbyssDark.withValues(alpha: 0.72),
+                  SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
                 ],
               ),
             ),
           ),
         ),
-        if (showTopRightGlow)
-          Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 380,
-              height: 380,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0x2E14B8A6),
-                    Color(0x0014B8A6),
-                  ],
-                ),
-              ),
-            ),
-          ),
         SafeArea(child: child),
       ],
     );
   }
-}
-
-/// Subtle Translucent Ocean-Inspired Wave Forms
-class _CoastalWaveFormsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    final strokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
-
-    // Organic Wave Form 1: Top-Left coastal curve
-    strokePaint.color = SariwaColors.brandGlow.withValues(alpha: 0.045);
-    final path1 = Path()
-      ..moveTo(w * -0.05, h * 0.12)
-      ..cubicTo(w * 0.15, h * 0.05, w * 0.28, h * 0.22, w * 0.45, h * 0.14)
-      ..cubicTo(w * 0.60, h * 0.08, w * 0.72, h * 0.18, w * 1.05, h * 0.09);
-    canvas.drawPath(path1, strokePaint);
-
-    // Organic Wave Form 2: Upper-Right contour
-    strokePaint.color = SariwaColors.brandPrimary.withValues(alpha: 0.035);
-    final path2 = Path()
-      ..moveTo(w * 0.35, h * 0.0)
-      ..cubicTo(w * 0.52, h * 0.16, w * 0.75, h * 0.04, w * 1.05, h * 0.20);
-    canvas.drawPath(path2, strokePaint);
-
-    // Organic Wave Form 3: Lower coastal contour below showcase
-    strokePaint.color = const Color(0xFF2DD4BF).withValues(alpha: 0.030);
-    final path3 = Path()
-      ..moveTo(w * -0.05, h * 0.76)
-      ..cubicTo(w * 0.22, h * 0.68, w * 0.48, h * 0.84, w * 0.80, h * 0.72)
-      ..cubicTo(w * 0.92, h * 0.68, w * 1.02, h * 0.78, w * 1.08, h * 0.75);
-    canvas.drawPath(path3, strokePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Delicate Water-Caustic Highlights
-/// Recreates the soft, organic light networks created by shallow water sunlight refractions.
-class _WaterCausticsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    // Upper-Right Caustic Network (Aqua Refraction)
-    final causticPaintUR = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
-      ..color = const Color(0xFF2DD4BF).withValues(alpha: 0.065)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10.0);
-
-    final urPath = Path()
-      ..moveTo(w * 0.68, h * 0.04)
-      ..quadraticBezierTo(w * 0.78, h * 0.14, w * 0.92, h * 0.08)
-      ..quadraticBezierTo(w * 0.98, h * 0.18, w * 0.88, h * 0.26)
-      ..quadraticBezierTo(w * 0.76, h * 0.20, w * 0.68, h * 0.04);
-    canvas.drawPath(urPath, causticPaintUR);
-
-    // Upper-Right Sunlit Warmth Caustic Thread
-    final urWarmPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
-      ..color = SariwaColors.warningBg.withValues(alpha: 0.045)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0);
-
-    final urWarmPath = Path()
-      ..moveTo(w * 0.74, h * 0.08)
-      ..cubicTo(w * 0.82, h * 0.16, w * 0.90, h * 0.12, w * 0.96, h * 0.22)
-      ..cubicTo(w * 0.88, h * 0.28, w * 0.80, h * 0.24, w * 0.74, h * 0.08);
-    canvas.drawPath(urWarmPath, urWarmPaint);
-
-    // Lower-Left Seafoam Caustic Shimmer
-    final causticPaintLL = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2
-      ..color = SariwaColors.statusFresh.withValues(alpha: 0.055)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
-
-    final llPath = Path()
-      ..moveTo(w * -0.05, h * 0.58)
-      ..quadraticBezierTo(w * 0.12, h * 0.68, w * 0.08, h * 0.82)
-      ..quadraticBezierTo(w * 0.20, h * 0.74, w * 0.26, h * 0.90);
-    canvas.drawPath(llPath, causticPaintLL);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Delicate Architectural Dot-Matrix Pattern Painter for Hero Atmosphere
-class _HeroGridPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    const spacing = 36.0;
-    final dotPaint = Paint()..style = PaintingStyle.fill;
-    final maxFadeY = size.height * 0.44;
-
-    for (double x = spacing; x < size.width; x += spacing) {
-      for (double y = 24.0; y < maxFadeY; y += spacing) {
-        final fade = (1.0 - (y / maxFadeY)).clamp(0.0, 1.0);
-        dotPaint.color = SariwaColors.brandPrimary.withValues(alpha: 0.035 * fade);
-        canvas.drawCircle(Offset(x, y), 1.0, dotPaint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

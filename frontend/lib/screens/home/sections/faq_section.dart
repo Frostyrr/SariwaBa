@@ -1,5 +1,6 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+
 import '../../../constants/content/faq_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
@@ -16,8 +17,10 @@ class FaqItem {
   });
 }
 
-/// Frequently Asked Questions Section
-/// Clean bordered accordions with accessible focus/tap feedback and atmospheric CTA.
+/// Editorial FAQ & Reading Results Section
+/// - Hairline-divided Fresh vs. Not Fresh quick guide on pure #FFFFFF (zero nested boxes)
+/// - Crisp hairline-separated FAQ rows (eliminating card-stacking fatigue)
+/// - Final atmospheric CTA banner
 class FaqSection extends StatefulWidget {
   final VoidCallback onDownload;
   final VoidCallback? onTryInspection;
@@ -65,13 +68,13 @@ class _FaqSectionState extends State<FaqSection> {
           ),
           padding: EdgeInsets.symmetric(
             vertical: isMobile ? 64.0 : 80.0,
-            horizontal: isMobile ? 16.0 : 24.0,
+            horizontal: isMobile ? 20.0 : 24.0,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1040.0),
+              constraints: const BoxConstraints(maxWidth: 960.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Semantics(
                     header: true,
@@ -92,51 +95,51 @@ class _FaqSectionState extends State<FaqSection> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   StaggeredReveal(
                     revealOnScroll: true,
                     staggerIndex: 1,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 620),
-                      child: const Text(
-                        'Clear answers about capture guidelines, confidence scores, and how your inspection records are stored.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          letterSpacing: -0.15,
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                          height: 1.5,
-                          color: SariwaColors.inkSlateSecondary,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 560),
+                        child: const Text(
+                          'How to read freshness results, photo guidelines, and how your scans are stored.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            letterSpacing: -0.15,
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            height: 1.5,
+                            color: SariwaColors.inkSlateSecondary,
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  SizedBox(height: isMobile ? 32 : 48),
 
-                  SizedBox(height: isMobile ? 28 : 36),
+                  // Flat Hairline-Divided "How to Read the Results" Comparison
+                  StaggeredReveal(
+                    revealOnScroll: true,
+                    staggerIndex: 1,
+                    child: _buildResultsGuide(isMobile: isMobile),
+                  ),
 
-                  ...List.generate(_faqList.length, (index) {
-                    final item = _faqList[index];
-                    final isExpanded = _expandedIndices.contains(index);
+                  SizedBox(height: isMobile ? 36 : 48),
 
-                    return StaggeredReveal(
-                      revealOnScroll: true,
-                      staggerIndex: index,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildAccordionCard(
-                          isMobile: isMobile,
-                          index: index,
-                          item: item,
-                          isExpanded: isExpanded,
-                        ),
-                      ),
-                    );
-                  }),
+                  // Crisp Hairline-Separated FAQ Rows (no card-stacking)
+                  const Divider(height: 1, color: SariwaColors.colorLine),
+                  for (var index = 0; index < _faqList.length; index++) ...[
+                    _buildAccordionRow(
+                      index: index,
+                      item: _faqList[index],
+                      isExpanded: _expandedIndices.contains(index),
+                    ),
+                    const Divider(height: 1, color: SariwaColors.colorLine),
+                  ],
 
-                  SizedBox(height: isMobile ? 40 : 52),
+                  SizedBox(height: isMobile ? 48 : 64),
 
                   StaggeredReveal(
                     revealOnScroll: true,
@@ -152,133 +155,187 @@ class _FaqSectionState extends State<FaqSection> {
     );
   }
 
-  Widget _buildAccordionCard({
-    required bool isMobile,
+  /// Flat hairline-separated visual reading guide (zero outer shadow / nested cards)
+  Widget _buildResultsGuide({required bool isMobile}) {
+    const freshCol = _GuideColumn(
+      title: 'Fresh (Sariwa)',
+      dotColor: SariwaColors.statusFresh,
+      titleColor: SariwaColors.freshText,
+      cues: [
+        (label: 'Eyes', detail: 'Clear, rounded cornea with dark pupils.'),
+        (label: 'Gills', detail: 'Bright red to crimson with clear mucus.'),
+      ],
+    );
+
+    const notFreshCol = _GuideColumn(
+      title: 'Not Fresh (Hindi Sariwa)',
+      dotColor: SariwaColors.statusSpoiled,
+      titleColor: SariwaColors.notFreshText,
+      cues: [
+        (label: 'Eyes', detail: 'Cloudy, milky, or sunken pupils.'),
+        (label: 'Gills', detail: 'Pale, grey, or brown with sticky slime.'),
+      ],
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: SariwaColors.colorWorkspace,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.colorLine),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              isMobile ? 20 : 28,
+              20,
+              isMobile ? 20 : 28,
+              16,
+            ),
+            child: const Text(
+              'How to Read the Results',
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.2,
+                color: SariwaColors.textPrimaryDark,
+              ),
+            ),
+          ),
+          const Divider(height: 1, color: SariwaColors.colorLine),
+          if (!isMobile)
+            const IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: freshCol,
+                    ),
+                  ),
+                  VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: SariwaColors.colorLine,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: notFreshCol,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(padding: EdgeInsets.all(20), child: freshCol),
+                Divider(height: 1, color: SariwaColors.colorLine),
+                Padding(padding: EdgeInsets.all(20), child: notFreshCol),
+              ],
+            ),
+          const Divider(height: 1, color: SariwaColors.colorLine),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 20 : 28,
+              vertical: 12,
+            ),
+            child: const Text(
+              'Visual estimate only — always pair with smell and texture checks.',
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: SariwaColors.inkSlateMuted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccordionRow({
     required int index,
     required FaqItem item,
     required bool isExpanded,
   }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isExpanded
-              ? SariwaColors.brandPrimary.withValues(alpha: 0.45)
-              : SariwaColors.colorLine,
-          width: 1.0,
-        ),
-      ),
-      child: Column(
-        children: [
-          Semantics(
-            button: true,
-            toggled: isExpanded,
-            label: item.question,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _toggleIndex(index),
-                borderRadius: BorderRadius.circular(12),
-                splashColor: SariwaColors.brandPrimary.withValues(alpha: 0.06),
-                highlightColor: SariwaColors.brandPrimary.withValues(
-                  alpha: 0.03,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 16.0 : 20.0,
-                    vertical: 16.0,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.question,
-                          style: TextStyle(
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: -0.2,
-                            color: isExpanded
-                                ? SariwaColors.brandPrimary
-                                : SariwaColors.textPrimaryDark,
-                          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          button: true,
+          toggled: isExpanded,
+          label: item.question,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _toggleIndex(index),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.question,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.2,
+                          color: isExpanded
+                              ? SariwaColors.brandPrimary
+                              : SariwaColors.textPrimaryDark,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      AnimatedRotation(
-                        turns: isExpanded ? 0.5 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: isExpanded
-                                ? SariwaColors.colorPale
-                                : SariwaColors.colorSurface,
-                            border: Border.all(color: SariwaColors.colorLine),
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            CupertinoIcons.chevron_down,
-                            size: 14,
-                            color: isExpanded
-                                ? SariwaColors.brandPrimary
-                                : SariwaColors.inkSlateMuted,
-                          ),
-                        ),
+                    ),
+                    const SizedBox(width: 16),
+                    AnimatedRotation(
+                      turns: isExpanded ? 0.5 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOutCubic,
+                      child: Icon(
+                        CupertinoIcons.chevron_down,
+                        size: 16,
+                        color: isExpanded
+                            ? SariwaColors.brandPrimary
+                            : SariwaColors.inkSlateMuted,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          AnimatedCrossFade(
-            firstChild: const SizedBox(width: double.infinity, height: 0),
-            secondChild: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 16.0 : 20.0,
-                  ),
-                  height: 1,
-                  color: SariwaColors.colorLineSubtle,
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isMobile ? 16.0 : 20.0,
-                    12.0,
-                    isMobile ? 16.0 : 20.0,
-                    16.0,
-                  ),
-                  child: Text(
-                    item.answer,
-                    style: const TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                      height: 1.5,
-                      letterSpacing: -0.1,
-                      color: SariwaColors.inkSlateSecondary,
-                    ),
-                  ),
-                ),
-              ],
+        ),
+        AnimatedCrossFade(
+          firstChild: const SizedBox(width: double.infinity, height: 0),
+          secondChild: Padding(
+            padding: const EdgeInsets.only(bottom: 20, right: 32),
+            child: Text(
+              item.answer,
+              style: const TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                height: 1.55,
+                letterSpacing: -0.1,
+                color: SariwaColors.inkSlateSecondary,
+              ),
             ),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
-            sizeCurve: Curves.easeOutCubic,
           ),
-        ],
-      ),
+          crossFadeState: isExpanded
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 200),
+          sizeCurve: Curves.easeOutCubic,
+        ),
+      ],
     );
   }
 
@@ -380,6 +437,85 @@ class _FaqSectionState extends State<FaqSection> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _GuideColumn extends StatelessWidget {
+  final String title;
+  final Color dotColor;
+  final Color titleColor;
+  final List<({String label, String detail})> cues;
+
+  const _GuideColumn({
+    required this.title,
+    required this.dotColor,
+    required this.titleColor,
+    required this.cues,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: titleColor,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        for (var i = 0; i < cues.length; i++) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 44,
+                child: Text(
+                  cues[i].label,
+                  style: const TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  cues[i].detail,
+                  style: const TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    height: 1.45,
+                    color: SariwaColors.inkSlateSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (i < cues.length - 1) const SizedBox(height: 8),
+        ],
+      ],
     );
   }
 }

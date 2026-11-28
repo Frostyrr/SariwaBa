@@ -332,12 +332,10 @@ class _AccountSettingsPageSectionState
                   const SizedBox(height: 16),
                 ],
 
-                if (widget.isGuestUser) ...[
-                  _buildGuestCallout(),
-                  const SizedBox(height: 16),
-                ],
-
-                _buildProfileInfoCard(),
+                if (widget.isGuestUser)
+                  _buildGuestCallout()
+                else
+                  _buildProfileInfoCard(),
                 const SizedBox(height: 16),
 
                 _buildAppResourcesCard(),
@@ -430,20 +428,16 @@ class _AccountSettingsPageSectionState
 
   Widget _buildGuestCallout() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SariwaColors.warningBg,
+        color: SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.warningBorder),
+        border: Border.all(color: SariwaColors.colorLine),
       ),
       child: Row(
         children: [
-          const Icon(
-            CupertinoIcons.person_crop_circle_badge_exclam,
-            color: SariwaColors.warningText,
-            size: 22,
-          ),
-          const SizedBox(width: 12),
+          UserAvatar(user: widget.user, radius: 24),
+          const SizedBox(width: 16),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,14 +446,14 @@ class _AccountSettingsPageSectionState
                   'Guest Mode',
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: SariwaColors.warningText,
+                    color: SariwaColors.textPrimaryDark,
                   ),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Sign in to back up scans across devices.',
+                  'Scans stay on this device. Sign in to sync across devices.',
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 12,

@@ -520,10 +520,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     duration: disableAnimations
                         ? Duration.zero
                         : Duration(
-                            milliseconds: _isPushTransition ? 300 : 240,
+                            milliseconds: _isPushTransition ? 280 : 180,
                           ),
                     switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
                     layoutBuilder: (currentChild, previousChildren) {
                       if (isPoppingSubpage) {
                         // Keep exiting sub-page on top while it slides out to the right
@@ -582,28 +582,40 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         }
                       }
 
-                      // Peer tabs (Inspect <-> History <-> Settings): directional glide + fade
+                      // Peer tabs (Inspect <-> History <-> Settings):
+                      // Quick exit + subtle 2.5% glide so tabs never double-expose or ghost.
                       if (isEntering) {
+                        final fadeIn = CurvedAnimation(
+                          parent: animation,
+                          curve: const Interval(
+                            0.15,
+                            1.0,
+                            curve: Curves.easeOutCubic,
+                          ),
+                        );
                         return SlideTransition(
                           position: Tween<Offset>(
-                            begin: Offset(_slideDirection * 0.08, 0),
+                            begin: Offset(_slideDirection * 0.025, 0),
                             end: Offset.zero,
                           ).animate(animation),
                           child: FadeTransition(
-                            opacity: animation,
+                            opacity: fadeIn,
                             child: child,
                           ),
                         );
                       } else {
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: Offset(-_slideDirection * 0.08, 0),
-                            end: Offset.zero,
-                          ).animate(animation),
-                          child: FadeTransition(
-                            opacity: animation,
-                            child: child,
+                        // Exiting animation runs 1.0 -> 0.0; fade out cleanly in first 35%
+                        final fadeOut = CurvedAnimation(
+                          parent: animation,
+                          curve: const Interval(
+                            0.65,
+                            1.0,
+                            curve: Curves.easeOut,
                           ),
+                        );
+                        return FadeTransition(
+                          opacity: fadeOut,
+                          child: child,
                         );
                       }
                     },
