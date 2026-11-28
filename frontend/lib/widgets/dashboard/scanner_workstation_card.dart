@@ -3,10 +3,12 @@ import 'dart:ui' as ui;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
+import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../constants/theme/timber_typography.dart';
@@ -22,6 +24,7 @@ class ScannerWorkstationCard extends StatefulWidget {
   final ClassificationController controller;
   final bool isCropModalOpen;
   final VoidCallback onOpenCropModal;
+  final Future<bool> Function(ImageSource source)? onRequestPermission;
 
   const ScannerWorkstationCard({
     super.key,
@@ -29,6 +32,7 @@ class ScannerWorkstationCard extends StatefulWidget {
     required this.controller,
     required this.isCropModalOpen,
     required this.onOpenCropModal,
+    this.onRequestPermission,
   });
 
   @override
@@ -101,95 +105,55 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
   Widget build(BuildContext context) {
     final state = widget.state;
     final controller = widget.controller;
+    final isMobileScreen =
+        AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width);
 
     return FrostedGlassCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 24,
+      padding: EdgeInsets.all(isMobileScreen ? 16 : 24),
+      borderRadius: 20,
       blurSigma: 6,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(9),
-                      decoration: BoxDecoration(
-                        color: SariwaColors.brandPrimary.withValues(
-                          alpha: 0.10,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        CupertinoIcons.viewfinder,
-                        size: 20,
-                        color: SariwaColors.brandPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Freshness Scanner',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textPrimaryDark,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Upload a Tilapia eye, exposed gill, or whole fish photo.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.3,
-                              letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: SariwaColors.textSecondaryDark,
-                            ),
-                            maxLines: 2,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: SariwaColors.brandPrimary.withValues(
+                    alpha: 0.10,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  CupertinoIcons.viewfinder,
+                  size: 20,
+                  color: SariwaColors.brandPrimary,
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: SariwaColors.brandPrimary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    const Text(
-                      'Tilapia only',
+                    Text(
+                      'Freshness Scanner',
                       style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                         letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: Color(0xFF334155),
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Eye, gill, or whole fish photo.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                        height: 1.3,
+                        letterSpacing: AppTypography.defaultLetterSpacing,
+                        color: SariwaColors.textSecondaryDark,
                       ),
                     ),
                   ],
@@ -223,6 +187,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     child: ResponsiveImageUploadZone(
                       state: state,
                       controller: controller,
+                      showMobileCameraButton: !isMobileScreen,
+                      onRequestPermission: widget.onRequestPermission,
                     ),
                   )
                 : KeyedSubtree(
@@ -253,14 +219,14 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               size: 14,
               color: SariwaColors.textSecondaryDark,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 state.selectedImageName ?? 'Tilapia specimen',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: SariwaColors.textSecondaryDark,
                 ),
@@ -278,7 +244,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       widget.onOpenCropModal();
                     },
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             _buildToolbarIconButton(
               tooltip: 'Remove photo',
               icon: CupertinoIcons.xmark,
@@ -287,10 +253,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         // Original image preview with letterboxing-aware numbered eye markers
         ClipRRect(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
             height: 320,
             width: double.infinity,
@@ -386,14 +352,14 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         bottom: 12,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
+                            horizontal: 12,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: const Color(0xCC0A1926),
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.22),
+                              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.22),
                             ),
                           ),
                           child: Text(
@@ -402,8 +368,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                 : '${state.eyeProposals.length} eyes',
                             style: const TextStyle(
                               fontFamily: 'Geist',
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               color: Colors.white,
                             ),
                           ),
@@ -420,20 +386,18 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           const SizedBox(height: 12),
           _buildEyeFilmstrip(state, controller),
         ],
-        const SizedBox(height: 14),
-        // Region toggle + compact icon toolbar (Detect Eyes, Adjust Crop, Replace)
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        const SizedBox(height: 16),
+        // Region toggle + compact icon toolbar (Detect Eyes)
+        Row(
           children: [
-            _buildSoftRegionSwitcher(state, controller),
+            Expanded(child: _buildSoftRegionSwitcher(state, controller)),
             if (canUseEyeFinder && controller.canFindEyes) ...[
+              const SizedBox(width: 8),
               _buildToolbarIconButton(
                 key: const Key('scanner_find_eye_button'),
                 tooltip: state.isFindingEyes
-                    ? 'Detecting Tilapia eyesâ€¦'
-                    : 'Detect Tilapia eyes',
+                    ? 'Detecting eyes...'
+                    : 'Detect eyes',
                 isLoading: state.isFindingEyes,
                 icon: Icons.center_focus_strong_rounded,
                 iconColor: SariwaColors.brandPrimary,
@@ -447,7 +411,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ],
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         if (state.latestResult != null && !state.isClassifying)
           OutlinedButton.icon(
             key: const Key('current_scan_check_freshness_button'),
@@ -458,21 +422,19 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               minimumSize: const Size(double.infinity, 48),
               foregroundColor: SariwaColors.brandPrimary,
               disabledForegroundColor: SariwaColors.textSecondaryDark,
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+              side: const BorderSide(color: SariwaColors.lineSlate),
+              shape: const StadiumBorder(),
             ),
           )
         else
           AppButton.primary(
             key: const Key('current_scan_check_freshness_button'),
             label: state.isClassifying
-                ? (state.processingStage ?? 'Checking freshness...')
+                ? (state.processingStage ?? 'Checking...')
                 : 'Check freshness',
             isLoading: state.isClassifying,
             height: 48,
-            borderRadius: 14,
+            borderRadius: 999,
             icon: const Icon(
               CupertinoIcons.sparkles,
               size: 17,
@@ -500,54 +462,65 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
 
     Widget buildOption(AnatomicalRegion region, String label, IconData icon) {
       final isSelected = selected == region;
-      return GestureDetector(
-        onTap: state.isClassifying
-            ? null
-            : () {
-                HapticFeedback.selectionClick();
-                controller.selectRegion(region);
-              },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(9),
-            boxShadow: isSelected
-                ? const [
-                    BoxShadow(
-                      color: Color(0x120F172A),
-                      blurRadius: 6,
-                      offset: Offset(0, 1),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 14,
-                color: isSelected
-                    ? SariwaColors.brandPrimary
-                    : const Color(0xFF64748B),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+      return Expanded(
+        child: GestureDetector(
+          onTap: state.isClassifying
+              ? null
+              : () {
+                  HapticFeedback.selectionClick();
+                  controller.selectRegion(region);
+                },
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? SariwaColors.cardSurfaceLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: isSelected
+                  ? const [
+                      BoxShadow(
+                        color: SariwaColors.shadowSubtle,
+                        blurRadius: 6,
+                        offset: Offset(0, 1),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
                   color: isSelected
-                      ? SariwaColors.textPrimaryDark
-                      : const Color(0xFF64748B),
+                      ? SariwaColors.brandPrimary
+                      : SariwaColors.inkSlateMuted,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.w400,
+                      color: isSelected
+                          ? SariwaColors.textPrimaryDark
+                          : SariwaColors.inkSlateMuted,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -556,18 +529,21 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     return Container(
       padding: const EdgeInsets.all(3.5),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: SariwaColors.surfaceSlateWash,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           buildOption(AnatomicalRegion.auto, 'Auto', CupertinoIcons.sparkles),
           const SizedBox(width: 2),
           buildOption(AnatomicalRegion.eye, 'Eye', CupertinoIcons.eye),
           const SizedBox(width: 2),
-          buildOption(AnatomicalRegion.gill, 'Gill', CupertinoIcons.waveform_path),
+          buildOption(
+            AnatomicalRegion.gill,
+            'Gill',
+            CupertinoIcons.waveform_path,
+          ),
         ],
       ),
     );
@@ -607,8 +583,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: enabled
-                      ? const Color(0xFFCBD5E1)
-                      : const Color(0xFFE2E8F0),
+                      ? SariwaColors.lineSlate
+                      : SariwaColors.surfaceSlateSubtle,
                 ),
               ),
               child: Center(
@@ -619,7 +595,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         size: 18,
                         color: enabled
                             ? (iconColor ?? SariwaColors.textPrimaryDark)
-                            : const Color(0xFF94A3B8),
+                            : SariwaColors.inkSlateSubtle,
                       ),
               ),
             ),
@@ -649,7 +625,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             height: 36,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+              border: Border.all(color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.28)),
             ),
             child: Icon(icon, size: 17, color: Colors.white),
           ),
@@ -668,7 +644,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: proposals.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final proposal = proposals[index];
           final isSelected = state.selectedEyeProposalIndex == index;
@@ -715,13 +691,13 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         color: isSelected
                             ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
                             : Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? SariwaColors.brandPrimary
                               : (isHovered
                                     ? SariwaColors.brandGlow
-                                    : const Color(0xFFCBD5E1)),
+                                    : SariwaColors.lineSlate),
                           width: isSelected ? 2.2 : 1.2,
                         ),
                       ),
@@ -729,7 +705,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         fit: StackFit.expand,
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             child: Image.memory(
                               proposal.bytes,
                               fit: BoxFit.cover,
@@ -745,18 +721,18 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
                                     color: const Color(0x8C0A1926),
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
                                     child: Container(
-                                      padding: const EdgeInsets.all(6),
+                                      padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
+                                        color: SariwaColors.cardSurfaceLight.withValues(
                                           alpha: 0.22,
                                         ),
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: Colors.white.withValues(
+                                          color: SariwaColors.cardSurfaceLight.withValues(
                                             alpha: 0.65,
                                           ),
                                         ),
@@ -776,20 +752,20 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             top: 4,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
+                                horizontal: 8,
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? SariwaColors.brandPrimary
                                     : const Color(0xCC0A1926),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 '#${index + 1}',
                                 style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.white,
                                 ),
                               ),
@@ -800,10 +776,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                               left: 4,
                               bottom: 4,
                               child: Container(
-                                padding: const EdgeInsets.all(2.5),
+                                padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   color: const Color(0xBF0A1926),
-                                  borderRadius: BorderRadius.circular(5),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Icon(
                                   CupertinoIcons.zoom_in,
@@ -925,7 +901,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? SariwaColors.brandGlow
@@ -944,7 +920,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       alignment: Alignment.topLeft,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
+                          horizontal: 8,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
@@ -952,15 +928,15 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                               ? SariwaColors.brandPrimary
                               : const Color(0xE60A2229),
                           borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(7),
-                            bottomRight: Radius.circular(7),
+                            topLeft: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
                           ),
                         ),
                         child: Text(
                           '${index + 1}',
                           style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),
@@ -973,12 +949,12 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           opacity: isHovered ? 1.0 : 0.85,
                           duration: const Duration(milliseconds: 160),
                           child: Container(
-                            padding: const EdgeInsets.all(3),
+                            padding: const EdgeInsets.all(4),
                             decoration: const BoxDecoration(
                               color: Color(0xD90A1926),
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(7),
-                                bottomRight: Radius.circular(7),
+                                topLeft: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
                               ),
                             ),
                             child: const Icon(
@@ -1007,7 +983,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.2),
       ),
       child: Column(
         children: [
@@ -1016,11 +992,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             height: 52,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.2),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x0A0F172A),
+                  color: SariwaColors.shadowSubtle,
                   blurRadius: 8,
                   offset: Offset(0, 3),
                 ),
@@ -1028,12 +1004,12 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ),
             child: const Center(child: CupertinoActivityIndicator(radius: 12)),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Text(
             'Uploading & Processing Photo...',
             style: TextStyle(
               fontFamily: TimberTypography.primarySansFamily,
-              fontSize: 15,
+              fontSize: 16,
               fontWeight: FontWeight.w500,
               letterSpacing: -0.2,
               color: SariwaColors.textPrimaryDark,
@@ -1054,10 +1030,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 240),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(99),
+              borderRadius: BorderRadius.circular(999),
               child: const LinearProgressIndicator(
                 minHeight: 5,
-                backgroundColor: Color(0xFFE2E8F0),
+                backgroundColor: SariwaColors.surfaceSlateSubtle,
                 color: SariwaColors.brandPrimary,
               ),
             ),
@@ -1070,16 +1046,16 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
   Widget _buildActiveModalPlaceholderCard(ClassificationState state) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: SariwaColors.surfaceSlateTint,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 0.8),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
@@ -1098,7 +1074,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 Text(
                   state.selectedImageName ?? 'tilapia_scan.jpg',
                   style: const TextStyle(
-                    fontSize: 13.5,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
@@ -1167,14 +1143,14 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           onPressed: state.isClassifying ? null : handleClassifyTap,
         ),
         if (state.isClassifying) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             key: const Key('analyzing_image_status'),
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.75),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.90)),
+              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.75),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1182,21 +1158,21 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(7),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: SariwaColors.brandPrimary.withValues(
                           alpha: 0.10,
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const CupertinoActivityIndicator(radius: 8),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         statusText,
                         style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                           color: SariwaColors.textPrimaryDark,
@@ -1205,12 +1181,12 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                   child: const LinearProgressIndicator(
                     minHeight: 6,
-                    backgroundColor: Color(0xFFE2E8F0),
+                    backgroundColor: SariwaColors.surfaceSlateSubtle,
                     color: SariwaColors.brandPrimary,
                   ),
                 ),
@@ -1233,7 +1209,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     return Container(
       key: const Key('image_rejection_card'),
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1243,7 +1219,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x060F172A),
+            color: SariwaColors.shadowHairline,
             blurRadius: 14,
             offset: Offset(0, 4),
           ),
@@ -1256,7 +1232,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: SariwaColors.statusSpoiled.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
@@ -1283,7 +1259,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           ),
                           style: const TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 15.5,
+                            fontSize: 16,
                             fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textPrimaryDark,
@@ -1322,11 +1298,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   label: const Text('Edit Crop'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -1344,11 +1320,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   label: const Text('Change Region'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.brandPrimary,
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -1359,11 +1335,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 label: const Text('Replace Image'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.statusSpoiled,
-                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                   backgroundColor: Colors.white,
                   visualDensity: VisualDensity.compact,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ),
@@ -1379,7 +1355,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     elevation: 0,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -1397,11 +1373,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
     return Container(
       key: const Key('technical_error_card'),
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1413,12 +1389,12 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                 color: SariwaColors.textSecondaryDark,
                 size: 20,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Service or Connection Issue',
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
@@ -1432,7 +1408,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             state.errorMessage ??
                 'Unable to reach the classification service. Please try again.',
             style: const TextStyle(
-              fontSize: 12.5,
+              fontSize: 14,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textSecondaryDark,
             ),
@@ -1454,7 +1430,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     elevation: 0,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -1465,11 +1441,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   label: const Text('Replace Image'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.textPrimaryDark,
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -1510,14 +1486,14 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: cardBgColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: cardBorderColor, width: 1.0),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x060F172A),
+                  color: SariwaColors.shadowHairline,
                   blurRadius: 16,
                   offset: Offset(0, 4),
                 ),
@@ -1544,7 +1520,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1562,7 +1538,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                       result.label,
                                       style: TextStyle(
                                         fontFamily: 'Geist',
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w400,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
@@ -1572,11 +1548,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                     if (selectedRegionText != null)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 9,
-                                          vertical: 3,
+                                          horizontal: 12,
+                                          vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF1F5F9),
+                                          color: SariwaColors.surfaceSlateWash,
                                           borderRadius: BorderRadius.circular(
                                             99,
                                           ),
@@ -1584,7 +1560,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                         child: Text(
                                           selectedRegionText,
                                           style: const TextStyle(
-                                            fontSize: 11,
+                                            fontSize: 12,
                                             fontWeight: FontWeight.w400,
                                             letterSpacing: AppTypography
                                                 .defaultLetterSpacing,
@@ -1594,17 +1570,17 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                       ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 9,
-                                        vertical: 3,
+                                        horizontal: 12,
+                                        vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFF8FAFC),
-                                        borderRadius: BorderRadius.circular(99),
+                                        color: SariwaColors.surfaceSlateTint,
+                                        borderRadius: BorderRadius.circular(999),
                                       ),
                                       child: Text(
                                         result.assessmentScopeLabel,
                                         style: const TextStyle(
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w400,
                                           letterSpacing: AppTypography
                                               .defaultLetterSpacing,
@@ -1635,7 +1611,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontFamily: 'Geist',
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                     letterSpacing:
                                         AppTypography.defaultLetterSpacing,
@@ -1648,7 +1624,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                                 result.formattedConfidence,
                                 style: TextStyle(
                                   fontFamily: 'Geist',
-                                  fontSize: 13,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
@@ -1659,7 +1635,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           ),
                           const SizedBox(height: 8),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(999),
                             child: LinearProgressIndicator(
                               value: result.confidence.clamp(0.0, 1.0),
                               minHeight: 7,
@@ -1674,7 +1650,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             Text(
                               'Classified at: $timestampText',
                               style: const TextStyle(
-                                fontSize: 11.5,
+                                fontSize: 12,
                                 letterSpacing:
                                     AppTypography.defaultLetterSpacing,
                                 color: SariwaColors.textSecondaryDark,
@@ -1686,7 +1662,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             Text(
                               'Model: ${result.modelVersion}',
                               style: const TextStyle(
-                                fontSize: 11.5,
+                                fontSize: 12,
                                 letterSpacing:
                                     AppTypography.defaultLetterSpacing,
                                 color: SariwaColors.textSecondaryDark,
@@ -1697,7 +1673,7 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                           const Text(
                             ClassificationResult.confidenceExplanation,
                             style: TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 12,
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textSecondaryDark,
                             ),
@@ -1710,14 +1686,14 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             key: const Key('result_save_status_banner'),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+              color: SariwaColors.surfaceSlateTint,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 0.8),
             ),
             child: Row(
               children: [
@@ -1747,19 +1723,19 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+              color: SariwaColors.surfaceSlateTint,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 0.8),
             ),
             child: Text(
               result.disclaimer,
               style: const TextStyle(
-                fontSize: 11.5,
+                fontSize: 12,
                 height: 1.4,
                 fontWeight: FontWeight.w400,
                 letterSpacing: AppTypography.defaultLetterSpacing,

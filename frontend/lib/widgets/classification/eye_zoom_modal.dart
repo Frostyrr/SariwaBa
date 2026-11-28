@@ -99,9 +99,9 @@ class _HoverZoomEyePreviewState extends State<HoverZoomEyePreview> {
                           height: 18,
                           decoration: BoxDecoration(
                             color: const Color(0xBF0A1926),
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.30),
+                              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.30),
                               width: 0.8,
                             ),
                           ),
@@ -123,12 +123,12 @@ class _HoverZoomEyePreviewState extends State<HoverZoomEyePreview> {
                           color: const Color(0x8C0A1926),
                           alignment: Alignment.center,
                           child: Container(
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
+                              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.18),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.55),
+                                color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.55),
                               ),
                             ),
                             child: const Icon(
@@ -335,9 +335,9 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                       padding: EdgeInsets.all(isCompact ? 14 : 20),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFAFAFA),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.95),
+                          color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.95),
                           width: 1.2,
                         ),
                         boxShadow: const [
@@ -364,11 +364,11 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.all(7),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: SariwaColors.brandPrimary
                                           .withValues(alpha: 0.10),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: const Icon(
                                       CupertinoIcons.eye_fill,
@@ -376,12 +376,12 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                       color: SariwaColors.brandPrimary,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 12),
                                   Text(
                                     title,
                                     style: const TextStyle(
-                                      fontSize: 15.5,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
                                       letterSpacing:
                                           AppTypography.defaultLetterSpacing,
                                       color: SariwaColors.textPrimaryDark,
@@ -399,7 +399,7 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                     enabled: _currentScale > _minScale + 0.05,
                                     onTap: () => _stepZoom(-0.5),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   GestureDetector(
                                     key: const Key('eye_zoom_reset_pill'),
                                     onTap: _currentScale > 1.02
@@ -411,15 +411,15 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                           : SystemMouseCursors.basic,
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
+                                          horizontal: 12,
+                                          vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
-                                              BorderRadius.circular(99),
+                                              BorderRadius.circular(999),
                                           border: Border.all(
-                                            color: const Color(0xFFE2E8F0),
+                                            color: SariwaColors.surfaceSlateSubtle,
                                           ),
                                         ),
                                         child: Text(
@@ -430,14 +430,14 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                           style: const TextStyle(
                                             fontFamily: 'Geist',
                                             fontSize: 12,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             color: SariwaColors.textPrimaryDark,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 8),
                                   _buildControlIconButton(
                                     key: const Key('eye_zoom_in_button'),
                                     icon: CupertinoIcons.zoom_in,
@@ -445,7 +445,7 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                                     enabled: _currentScale < _maxScale - 0.05,
                                     onTap: () => _stepZoom(0.5),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 12),
                                   _buildControlIconButton(
                                     key: const Key('eye_zoom_close_button'),
                                     icon: CupertinoIcons.xmark,
@@ -457,13 +457,13 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                           // Dark studio inspection viewport with InteractiveViewer
                           Flexible(
                             child: AspectRatio(
                               aspectRatio: isCompact ? 1.05 : 1.32,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(20),
                                 child: Container(
                                   color: const Color(0xFF0B1620),
                                   child: GestureDetector(
@@ -502,12 +502,12 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 12),
                           Text(
                             'Scroll, pinch, or double-tap to zoom in up to 500% and drag to pan.',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 12,
                               color: SariwaColors.textSecondaryDark,
                             ),
                           ),
@@ -544,11 +544,11 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                 key: const Key('eye_zoom_counter_pill'),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 7,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x260A1926),
@@ -563,8 +563,8 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                       : 'Eye 1 of 1',
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                   ),
                 ),
@@ -595,20 +595,20 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
               : SystemMouseCursors.basic,
           child: Material(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             child: InkWell(
               key: key,
               onTap: enabled ? onTap : null,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               child: Container(
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: enabled
-                        ? const Color(0xFFCBD5E1)
-                        : const Color(0xFFE2E8F0),
+                        ? SariwaColors.lineSlate
+                        : SariwaColors.surfaceSlateSubtle,
                   ),
                 ),
                 child: Icon(
@@ -616,7 +616,7 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                   size: 16,
                   color: enabled
                       ? SariwaColors.textPrimaryDark
-                      : const Color(0xFF94A3B8),
+                      : SariwaColors.inkSlateSubtle,
                 ),
               ),
             ),
@@ -653,7 +653,7 @@ class _EyeZoomModalState extends State<EyeZoomModal> {
                 height: 42,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: SariwaColors.surfaceSlateSubtle),
                 ),
                 child: Icon(
                   icon,

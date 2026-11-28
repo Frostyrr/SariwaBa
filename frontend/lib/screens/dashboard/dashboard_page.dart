@@ -357,7 +357,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                           style: TextStyle(
                             letterSpacing: -0.25,
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
@@ -430,7 +430,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               style: TextStyle(
                                 fontFamily: 'Geist',
                                 fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 letterSpacing: -0.25,
                                 color: SariwaColors.textPrimaryDark,
                               ),
@@ -587,7 +587,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         labelStyle: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                         ),
                         unselectedLabelStyle: TextStyle(
@@ -789,7 +789,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 letterSpacing: -0.25,
                 color: color,
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

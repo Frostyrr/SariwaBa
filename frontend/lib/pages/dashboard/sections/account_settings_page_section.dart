@@ -1,5 +1,8 @@
+import '../../../widgets/common/media_permission_gate.dart';
 import '../../../widgets/common/user_avatar.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
@@ -8,8 +11,7 @@ import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/auth/user_model.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
 
-/// Dedicated Account Settings page allowing authenticated users to review profile info,
-/// audit data handling, delete classification history, and delete their account.
+/// Streamlined Account Settings view with plain, concise copy and zero technical jargon.
 class AccountSettingsPageSection extends StatefulWidget {
   final UserModel? user;
   final bool isGuestUser;
@@ -18,6 +20,12 @@ class AccountSettingsPageSection extends StatefulWidget {
   final AuthController authController;
   final ClassificationController classificationController;
   final VoidCallback onSignIn;
+  final VoidCallback? onOpenGuidelines;
+  final VoidCallback? onOpenHowItWorks;
+  final VoidCallback? onOpenHelpFaq;
+  final VoidCallback? onOpenAdmin;
+  final VoidCallback? onGoDownloads;
+  final VoidCallback? onGoHome;
 
   const AccountSettingsPageSection({
     super.key,
@@ -28,6 +36,12 @@ class AccountSettingsPageSection extends StatefulWidget {
     required this.authController,
     required this.classificationController,
     required this.onSignIn,
+    this.onOpenGuidelines,
+    this.onOpenHowItWorks,
+    this.onOpenHelpFaq,
+    this.onOpenAdmin,
+    this.onGoDownloads,
+    this.onGoHome,
   });
 
   @override
@@ -39,14 +53,32 @@ class _AccountSettingsPageSectionState
     extends State<AccountSettingsPageSection> {
   bool _isClearingHistory = false;
   bool _isDeletingAccount = false;
+  bool _cameraAllowed = false;
+  bool _photosAllowed = false;
   String? _statusBannerMessage;
   bool _isStatusBannerError = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPermissions();
+  }
+
+  Future<void> _loadPermissions() async {
+    final perms = await MediaPermissionGate.getPermissions();
+    if (mounted) {
+      setState(() {
+        _cameraAllowed = perms.cameraAllowed;
+        _photosAllowed = perms.photosAllowed;
+      });
+    }
+  }
+
   String _formatDate(DateTime? dt) {
-    if (dt == null) return 'Active Account';
+    if (dt == null) return 'Active';
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
@@ -62,27 +94,31 @@ class _AccountSettingsPageSectionState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(CupertinoIcons.trash, color: Color(0xFFDC2626), size: 20),
+            Icon(
+              CupertinoIcons.trash,
+              color: SariwaColors.statusSpoiled,
+              size: 20,
+            ),
             SizedBox(width: 8),
             Text(
               'Clear All History?',
               style: TextStyle(
                 fontFamily: 'Geist',
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
         content: const Text(
-          'This permanently deletes your saved scans and their photos. Your account stays active. This cannot be undone.',
+          'Delete all saved scans and photos? This cannot be undone.',
           style: TextStyle(
             fontFamily: 'Geist',
-            fontSize: 13,
-            color: Color(0xFF475569),
+            fontSize: 14,
+            color: SariwaColors.inkSlateSecondary,
             height: 1.45,
           ),
         ),
@@ -93,12 +129,10 @@ class _AccountSettingsPageSectionState
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-              foregroundColor: Colors.white,
+              backgroundColor: SariwaColors.statusSpoiled,
+              foregroundColor: SariwaColors.cardSurfaceLight,
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: const StadiumBorder(),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Delete All Records'),
@@ -133,64 +167,46 @@ class _AccountSettingsPageSectionState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(
               CupertinoIcons.exclamationmark_triangle_fill,
-              color: Color(0xFFDC2626),
-              size: 22,
+              color: SariwaColors.statusSpoiled,
+              size: 20,
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 8),
             Text(
               'Delete SariwaBa Account?',
               style: TextStyle(
                 fontFamily: 'Geist',
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF991B1B),
+                fontWeight: FontWeight.w500,
+                color: SariwaColors.notFreshText,
               ),
             ),
           ],
         ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Are you sure you want to permanently delete your SariwaBa? account?',
-              style: TextStyle(
-                fontFamily: 'Geist',
-                fontSize: 13.5,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Your account and saved scans will be deleted, and you will be signed out. Your Google account will not be deleted. This cannot be undone.',
-              style: TextStyle(
-                fontFamily: 'Geist',
-                fontSize: 12.5,
-                color: Color(0xFF64748B),
-                height: 1.5,
-              ),
-            ),
-          ],
+        content: const Text(
+          'Your SariwaBa account and saved scans will be permanently deleted. Your Google account will not be affected.',
+          style: TextStyle(
+            fontFamily: 'Geist',
+            fontSize: 14,
+            color: SariwaColors.inkSlateMuted,
+            height: 1.45,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Keep Account'),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-              foregroundColor: Colors.white,
+              backgroundColor: SariwaColors.statusSpoiled,
+              foregroundColor: SariwaColors.cardSurfaceLight,
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: const StadiumBorder(),
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Yes, Delete My Account'),
@@ -203,7 +219,6 @@ class _AccountSettingsPageSectionState
       setState(() => _isDeletingAccount = true);
       try {
         await widget.authController.deleteAccount();
-        // Successful deletion redirects to landing automatically via AuthController
       } catch (e) {
         if (mounted) {
           final errorMsg = e.toString().replaceFirst('Exception: ', '');
@@ -222,17 +237,21 @@ class _AccountSettingsPageSectionState
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(CupertinoIcons.shield_slash, color: Color(0xFFDC2626), size: 20),
+            const Icon(
+              CupertinoIcons.shield_slash,
+              color: SariwaColors.statusSpoiled,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               title,
               style: const TextStyle(
                 fontFamily: 'Geist',
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -241,149 +260,15 @@ class _AccountSettingsPageSectionState
           message,
           style: const TextStyle(
             fontFamily: 'Geist',
-            fontSize: 13,
-            color: Color(0xFF334155),
+            fontSize: 14,
+            color: SariwaColors.inkSlateSecondary,
             height: 1.45,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Understood'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final horizontalPadding = widget.isDesktop ? 32.0 : 16.0;
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        controller: widget.scrollController,
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: 24,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 860),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Section Header
-                _buildHeader(),
-
-                const SizedBox(height: 20),
-
-                // Status Banner (if any)
-                if (_statusBannerMessage != null) ...[
-                  _buildStatusBanner(),
-                  const SizedBox(height: 16),
-                ],
-
-                // Guest Mode Callout (if unauthenticated)
-                if (widget.isGuestUser) ...[
-                  _buildGuestCallout(),
-                  const SizedBox(height: 20),
-                ],
-
-                // 1. Profile Information Card
-                _buildProfileInfoCard(),
-
-                const SizedBox(height: 20),
-
-                // 2. Privacy & Data Handling Card
-                _buildPrivacyDataCard(),
-
-                const SizedBox(height: 20),
-
-                // 3. Sessions & Security Card
-                _buildSessionsSecurityCard(),
-
-                if (!widget.isGuestUser) ...[
-                  const SizedBox(height: 16),
-                  _buildSignOutCard(),
-                ],
-
-                const SizedBox(height: 24),
-
-                // 4. Danger Zone Card (Only for authenticated users)
-                if (!widget.isGuestUser) ...[
-                  _buildDangerZoneCard(),
-                  const SizedBox(height: 32),
-                ],
-
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignOutCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              CupertinoIcons.square_arrow_right,
-              size: 18,
-              color: SariwaColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Sign Out',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Log out of your SariwaBa account on this device.',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: SariwaColors.textSecondaryDark,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          OutlinedButton(
-            key: const Key('settings_sign_out_button'),
-            onPressed: _confirmSignOut,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: SariwaColors.notFreshText,
-              side: const BorderSide(color: SariwaColors.notFreshBorder),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('Log Out'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -394,10 +279,9 @@ class _AccountSettingsPageSectionState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Log Out'),
-        content: const Text(
-          'Are you sure you want to log out of your SariwaBa account?',
-        ),
+        content: const Text('Log out of SariwaBa on this device?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -407,7 +291,8 @@ class _AccountSettingsPageSectionState
             onPressed: () => Navigator.of(ctx).pop(true),
             style: FilledButton.styleFrom(
               backgroundColor: SariwaColors.notFreshPrimary,
-              foregroundColor: Colors.white,
+              foregroundColor: SariwaColors.cardSurfaceLight,
+              shape: const StadiumBorder(),
             ),
             child: const Text('Log Out'),
           ),
@@ -419,57 +304,76 @@ class _AccountSettingsPageSectionState
     }
   }
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(99),
-                border: Border.all(
-                  color: SariwaColors.brandPrimary.withValues(alpha: 0.2),
-                ),
-              ),
-              child: const Text(
-                'ACCOUNT MANAGEMENT',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.8,
-                  color: SariwaColors.brandPrimary,
-                ),
-              ),
+  @override
+  Widget build(BuildContext context) {
+    final horizontalPadding = widget.isDesktop ? 32.0 : 16.0;
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SingleChildScrollView(
+        controller: widget.scrollController,
+        padding: EdgeInsets.fromLTRB(
+          horizontalPadding,
+          widget.isDesktop ? 24 : 16,
+          horizontalPadding,
+          widget.isDesktop ? 32 : 104,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 820),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 16),
+
+                if (_statusBannerMessage != null) ...[
+                  _buildStatusBanner(),
+                  const SizedBox(height: 16),
+                ],
+
+                if (widget.isGuestUser) ...[
+                  _buildGuestCallout(),
+                  const SizedBox(height: 16),
+                ],
+
+                _buildProfileInfoCard(),
+                const SizedBox(height: 16),
+
+                _buildAppResourcesCard(),
+                const SizedBox(height: 16),
+
+                if (!widget.isDesktop) ...[
+                  _buildPermissionsCard(),
+                  const SizedBox(height: 16),
+                ],
+
+                _buildSavedScansCard(),
+
+                if (!widget.isGuestUser) ...[
+                  const SizedBox(height: 16),
+                  _buildAccountAccessCard(),
+                  const SizedBox(height: 16),
+                  _buildDangerZoneCard(),
+                ],
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Account Settings',
-          style: TextStyle(
-            fontFamily: 'Geist',
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-            letterSpacing: AppTypography.defaultLetterSpacing,
-            color: SariwaColors.textPrimaryDark,
           ),
         ),
-        const SizedBox(height: 6),
-        const Text(
-          'Manage your profile, saved scans, and account.',
-          style: TextStyle(
-            fontFamily: 'Geist',
-            fontSize: 14,
-            fontWeight: FontWeight.w300,
-            letterSpacing: AppTypography.defaultLetterSpacing,
-            color: SariwaColors.textSecondaryDark,
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Text(
+      'Account Settings',
+      style: TextStyle(
+        fontFamily: 'Geist',
+        fontSize: widget.isDesktop ? 28 : 24,
+        fontWeight: FontWeight.w500,
+        letterSpacing: AppTypography.defaultLetterSpacing,
+        color: SariwaColors.textPrimaryDark,
+      ),
     );
   }
 
@@ -478,13 +382,13 @@ class _AccountSettingsPageSectionState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: _isStatusBannerError
-            ? const Color(0xFFFEF2F2)
-            : const Color(0xFFF0FDF4),
+            ? SariwaColors.notFreshIconBg
+            : SariwaColors.freshIconBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _isStatusBannerError
-              ? const Color(0xFFFECACA)
-              : const Color(0xFFBBF7D0),
+              ? SariwaColors.notFreshBorder
+              : SariwaColors.freshBorder,
         ),
       ),
       child: Row(
@@ -495,20 +399,20 @@ class _AccountSettingsPageSectionState
                 : CupertinoIcons.checkmark_circle,
             size: 18,
             color: _isStatusBannerError
-                ? const Color(0xFFDC2626)
-                : const Color(0xFF16A34A),
+                ? SariwaColors.statusSpoiled
+                : SariwaColors.statusFresh,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               _statusBannerMessage ?? '',
               style: TextStyle(
                 fontFamily: 'Geist',
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: _isStatusBannerError
-                    ? const Color(0xFF991B1B)
-                    : const Color(0xFF166534),
+                    ? SariwaColors.notFreshText
+                    : SariwaColors.freshText,
               ),
             ),
           ),
@@ -516,7 +420,7 @@ class _AccountSettingsPageSectionState
             icon: const Icon(CupertinoIcons.xmark, size: 14),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-            color: const Color(0xFF64748B),
+            color: SariwaColors.inkSlateMuted,
             onPressed: () => setState(() => _statusBannerMessage = null),
           ),
         ],
@@ -526,41 +430,41 @@ class _AccountSettingsPageSectionState
 
   Widget _buildGuestCallout() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        color: SariwaColors.warningBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.warningBorder),
       ),
       child: Row(
         children: [
           const Icon(
             CupertinoIcons.person_crop_circle_badge_exclam,
-            color: Color(0xFFD97706),
-            size: 24,
+            color: SariwaColors.warningText,
+            size: 22,
           ),
-          const SizedBox(width: 14),
-          Expanded(
+          const SizedBox(width: 12),
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Guest Session Active',
+                Text(
+                  'Guest Mode',
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF92400E),
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.warningText,
                   ),
                 ),
-                const SizedBox(height: 2),
-                const Text(
-                  'Guest scans stay on this device. Sign in with Google to save future scans to your account.',
+                SizedBox(height: 4),
+                Text(
+                  'Sign in to back up scans across devices.',
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFFB45309),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                    color: SariwaColors.inkSlateSecondary,
                   ),
                 ),
               ],
@@ -571,12 +475,10 @@ class _AccountSettingsPageSectionState
             onPressed: widget.onSignIn,
             style: ElevatedButton.styleFrom(
               backgroundColor: SariwaColors.brandPrimary,
-              foregroundColor: Colors.white,
+              foregroundColor: SariwaColors.cardSurfaceLight,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: const StadiumBorder(),
             ),
             child: const Text('Sign In'),
           ),
@@ -586,349 +488,533 @@ class _AccountSettingsPageSectionState
   }
 
   Widget _buildProfileInfoCard() {
-    final displayName = widget.user?.displayName ?? 'Guest Evaluator';
-    final email = widget.user?.email ?? 'No email linked (Guest session)';
+    final displayName = widget.user?.displayName ?? 'Guest';
+    final email = widget.user?.email ?? 'Local device session';
     final role = widget.user?.isAdmin == true
         ? 'Administrator'
         : widget.isGuestUser
             ? 'Guest'
             : 'Inspector';
-    final dateJoinedFormatted = widget.isGuestUser
-        ? 'Current Session'
-        : _formatDate(widget.user?.dateJoined);
+    final joinedLabel = widget.isGuestUser
+        ? null
+        : 'Joined ${_formatDate(widget.user?.dateJoined)}';
 
     return FrostedGlassCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 18,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(20),
+      borderRadius: 20,
+      child: Row(
         children: [
-          const Text(
-            'Profile Information',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: SariwaColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Your name and photo come from your Google account.',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 12.5,
-              fontWeight: FontWeight.w300,
-              color: SariwaColors.textSecondaryDark,
-            ),
-          ),
-          const Divider(height: 24, thickness: 1, color: Color(0xFFF1F5F9)),
-
-          Row(
-            children: [
-              UserAvatar(user: widget.user, radius: 28),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          UserAvatar(user: widget.user, radius: 24),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            displayName,
-                            style: const TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: SariwaColors.textPrimaryDark,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                    Flexible(
+                      child: Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.textPrimaryDark,
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: widget.user?.isAdmin == true
-                                ? const Color(0xFF8B5CF6).withValues(alpha: 0.12)
-                                : widget.isGuestUser
-                                    ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
-                                    : const Color(0xFF10B981).withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            role,
-                            style: TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: widget.user?.isAdmin == true
-                                  ? const Color(0xFF7C3AED)
-                                  : widget.isGuestUser
-                                      ? const Color(0xFFD97706)
-                                      : const Color(0xFF059669),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      email,
-                      style: const TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w300,
-                        color: SariwaColors.textSecondaryDark,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Account Created: $dateJoinedFormatted',
-                      style: const TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF64748B),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.user?.isAdmin == true
+                            ? SariwaColors.colorPale
+                            : widget.isGuestUser
+                                ? SariwaColors.warningBg
+                                : SariwaColors.successBg,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        role,
+                        style: TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: widget.user?.isAdmin == true
+                              ? SariwaColors.brandPrimary
+                              : widget.isGuestUser
+                                  ? SariwaColors.warningText
+                                  : SariwaColors.successText,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  email,
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                ),
+                if (joinedLabel != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    joinedLabel,
+                    style: const TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      color: SariwaColors.inkSlateMuted,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPrivacyDataCard() {
+  Widget _buildAppResourcesCard() {
+    Widget buildRow({
+      required IconData icon,
+      required String title,
+      required VoidCallback onTap,
+      Color? iconColor,
+    }) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? SariwaColors.brandPrimary)
+                        .withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 16,
+                    color: iconColor ?? SariwaColors.brandPrimary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: SariwaColors.inkSlateSubtle,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final rows = <Widget>[
+      if (widget.onOpenAdmin != null)
+        buildRow(
+          icon: CupertinoIcons.shield_fill,
+          title: 'Admin',
+          onTap: widget.onOpenAdmin!,
+        ),
+      if (widget.onOpenGuidelines != null)
+        buildRow(
+          icon: CupertinoIcons.checkmark_shield,
+          title: 'Freshness Guide',
+          onTap: widget.onOpenGuidelines!,
+        ),
+      if (widget.onOpenHowItWorks != null)
+        buildRow(
+          icon: CupertinoIcons.book,
+          title: 'How to Scan',
+          onTap: widget.onOpenHowItWorks!,
+        ),
+      if (widget.onOpenHelpFaq != null)
+        buildRow(
+          icon: CupertinoIcons.question_circle,
+          title: 'FAQs',
+          onTap: widget.onOpenHelpFaq!,
+        ),
+      if (widget.onGoDownloads != null)
+        buildRow(
+          icon: CupertinoIcons.device_phone_portrait,
+          title: 'Get the App',
+          onTap: widget.onGoDownloads!,
+        ),
+      if (widget.onGoHome != null)
+        buildRow(
+          icon: CupertinoIcons.house,
+          title: 'Home',
+          onTap: widget.onGoHome!,
+          iconColor: SariwaColors.inkSlateSecondary,
+        ),
+    ];
+
+    if (rows.isEmpty) return const SizedBox.shrink();
+
     return FrostedGlassCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 18,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      borderRadius: 20,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              'Resources',
+              style: TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: SariwaColors.textPrimaryDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          for (var i = 0; i < rows.length; i++) ...[
+            rows[i],
+            if (i < rows.length - 1)
+              const Divider(
+                height: 1,
+                indent: 48,
+                color: SariwaColors.colorLineSubtle,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPermissionsCard() {
+    Widget buildPermRow({
+      required IconData icon,
+      required String title,
+      required String subtitle,
+      required bool value,
+      required ValueChanged<bool> onChanged,
+    }) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 18,
+                color: SariwaColors.brandPrimary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      color: SariwaColors.inkSlateMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            CupertinoSwitch(
+              value: value,
+              activeTrackColor: SariwaColors.brandPrimary,
+              onChanged: (next) async {
+                HapticFeedback.selectionClick();
+                onChanged(next);
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
+    return FrostedGlassCard(
+      padding: const EdgeInsets.all(20),
+      borderRadius: 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Privacy & Saved Scans',
+            'Permissions',
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'Review or delete your saved scans.',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 12.5,
-              fontWeight: FontWeight.w300,
-              color: SariwaColors.textSecondaryDark,
+          const SizedBox(height: 8),
+          buildPermRow(
+            icon: CupertinoIcons.camera_fill,
+            title: 'Camera Access',
+            subtitle: _cameraAllowed ? 'Allowed for scans' : 'Ask before opening',
+            value: _cameraAllowed,
+            onChanged: (val) async {
+              setState(() => _cameraAllowed = val);
+              await MediaPermissionGate.setPermission(ImageSource.camera, val);
+            },
+          ),
+          const Divider(height: 12, color: SariwaColors.colorLineSubtle),
+          buildPermRow(
+            icon: CupertinoIcons.photo_fill,
+            title: 'Photo Upload',
+            subtitle:
+                _photosAllowed ? 'Allowed for uploads' : 'Ask before opening',
+            value: _photosAllowed,
+            onChanged: (val) async {
+              setState(() => _photosAllowed = val);
+              await MediaPermissionGate.setPermission(ImageSource.gallery, val);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSavedScansCard() {
+    return FrostedGlassCard(
+      padding: const EdgeInsets.all(20),
+      borderRadius: 20,
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: SariwaColors.surfaceSlateWash,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              CupertinoIcons.tray_full,
+              size: 18,
+              color: SariwaColors.inkSlateSecondary,
             ),
           ),
-          const Divider(height: 24, thickness: 1, color: Color(0xFFF1F5F9)),
-
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                CupertinoIcons.lock_shield,
-                size: 20,
-                color: Color(0xFF10B981),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your photos and account',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Signed-in scans are saved to your account. You can delete them below. Guest history stays on this device.',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        color: Color(0xFF64748B),
-                        height: 1.45,
-                      ),
-                    ),
-                  ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Saved Scans',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.textPrimaryDark,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  widget.isGuestUser
+                      ? 'Stored on this device only.'
+                      : 'Remove all saved scans and photos.',
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                    color: SariwaColors.inkSlateMuted,
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12),
+          OutlinedButton(
+            key: const Key('btn_clear_all_history'),
+            onPressed: _isClearingHistory ? null : _confirmClearAllHistory,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: SariwaColors.statusSpoiled,
+              side: const BorderSide(color: SariwaColors.notFreshBorder),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              _isClearingHistory ? 'Clearing...' : 'Clear History',
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-          const SizedBox(height: 18),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
-          const SizedBox(height: 18),
-
+  Widget _buildAccountAccessCard() {
+    return FrostedGlassCard(
+      padding: const EdgeInsets.all(20),
+      borderRadius: 20,
+      child: Column(
+        children: [
           Row(
             children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: SariwaColors.freshIconBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  CupertinoIcons.checkmark_shield_fill,
+                  size: 18,
+                  color: SariwaColors.statusFresh,
+                ),
+              ),
+              const SizedBox(width: 12),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Clear Scan History',
+                      'Google Sign-In',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 13.5,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1E293B),
+                        color: SariwaColors.textPrimaryDark,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    SizedBox(height: 4),
                     Text(
-                      'Permanently remove all scan records and associated fish photos belonging to your account.',
+                      'Connected to your Google account.',
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 12,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: SariwaColors.freshTrack,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'Connected',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.freshText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 24, color: SariwaColors.colorLineSubtle),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  CupertinoIcons.square_arrow_right,
+                  size: 18,
+                  color: SariwaColors.textPrimaryDark,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sign Out',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Log out on this device.',
+                      style: TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-              OutlinedButton.icon(
-                key: const Key('btn_clear_all_history'),
-                onPressed: _isClearingHistory ? null : _confirmClearAllHistory,
-                icon: _isClearingHistory
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(CupertinoIcons.trash, size: 15),
-                label: Text(
-                  _isClearingHistory ? 'Clearing...' : 'Clear All History',
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+              OutlinedButton(
+                key: const Key('settings_sign_out_button'),
+                onPressed: _confirmSignOut,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFDC2626),
-                  side: const BorderSide(color: Color(0xFFFCA5A5)),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  foregroundColor: SariwaColors.notFreshText,
+                  side: const BorderSide(color: SariwaColors.notFreshBorder),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: const StadiumBorder(),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSessionsSecurityCard() {
-    return FrostedGlassCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 18,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Sign-in & Security',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: SariwaColors.textPrimaryDark,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'You sign in using your Google account.',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 12.5,
-              fontWeight: FontWeight.w300,
-              color: SariwaColors.textSecondaryDark,
-            ),
-          ),
-          const Divider(height: 24, thickness: 1, color: Color(0xFFF1F5F9)),
-
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: const Icon(
-                  CupertinoIcons.checkmark_shield_fill,
-                  size: 20,
-                  color: Color(0xFF10B981),
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Google sign-in',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Manage your Google password and sign-in options in your Google account.',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Connected',
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF15803D),
-                  ),
-                ),
+                child: const Text('Log Out'),
               ),
             ],
           ),
@@ -939,111 +1025,65 @@ class _AccountSettingsPageSectionState
 
   Widget _buildDangerZoneCard() {
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFFECACA), width: 1.2),
+        color: SariwaColors.notFreshIconBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.notFreshBorder),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Row(
-            children: [
-              Icon(
-                CupertinoIcons.exclamationmark_triangle_fill,
-                color: Color(0xFFDC2626),
-                size: 20,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Danger Zone',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF991B1B),
-                ),
-              ),
-            ],
+          const Icon(
+            CupertinoIcons.exclamationmark_triangle_fill,
+            color: SariwaColors.statusSpoiled,
+            size: 18,
           ),
-          const SizedBox(height: 6),
-          const Text(
-            'Deleting your account is permanent.',
-            style: TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 12.5,
-              fontWeight: FontWeight.w300,
-              color: Color(0xFFB91C1C),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Delete Account',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.notFreshText,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Permanently delete your account and saved scans.',
+                  style: TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w300,
+                    color: SariwaColors.notFreshText,
+                  ),
+                ),
+              ],
             ),
           ),
-          const Divider(height: 24, thickness: 1, color: Color(0xFFFCA5A5)),
-
-          Row(
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Delete SariwaBa Account',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF7F1D1D),
-                      ),
-                    ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Delete your account and all saved scans. This cannot be undone.',
-                      style: TextStyle(
-                        fontFamily: 'Geist',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        color: Color(0xFF991B1B),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            key: const Key('btn_delete_account'),
+            onPressed: _isDeletingAccount ? null : _confirmDeleteAccount,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SariwaColors.statusSpoiled,
+              foregroundColor: SariwaColors.cardSurfaceLight,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: const StadiumBorder(),
+            ),
+            child: Text(
+              _isDeletingAccount ? 'Deleting...' : 'Delete',
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-              const SizedBox(width: 14),
-              ElevatedButton.icon(
-                key: const Key('btn_delete_account'),
-                onPressed: _isDeletingAccount ? null : _confirmDeleteAccount,
-                icon: _isDeletingAccount
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(CupertinoIcons.trash_fill, size: 15),
-                label: Text(
-                  _isDeletingAccount ? 'Deleting...' : 'Delete Account',
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC2626),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

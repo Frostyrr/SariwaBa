@@ -1,97 +1,95 @@
-import 'dart:ui';
-import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 
 /// Features Section Widget
-/// Styled with an off-white background leaning toward our primary teal palette (0xFFF0F7F6),
-/// high-contrast slate typography, and elevated frosted glassmorphism cards.
+/// Crisp bordered surface cards on tinted marine workspace with zero stacked shadows.
 class FeaturesSection extends StatelessWidget {
   const FeaturesSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 768;
+
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF0F7F6), // Off-white leaning primary teal
-      padding: const EdgeInsets.symmetric(vertical: 84.0, horizontal: 24.0),
+      color: SariwaColors.colorWorkspace,
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 64.0 : 80.0,
+        horizontal: 24.0,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1140.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Eyebrow Badge (Frosted Pill)
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE2F3F0).withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.90),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Text(
-                        'PRECISION GRADING',
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.25,
-                          color: SariwaColors.brandPrimaryDark,
-                        ),
-                      ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: SariwaColors.colorPale,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: SariwaColors.colorLine),
+                  ),
+                  child: const Text(
+                    'PRECISION GRADING',
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.6,
+                      color: SariwaColors.brandPrimary,
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
-              // Section Heading (Deep Ocean Slate #0A2229)
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 1,
-                child: Text(
-                  'Engineered for Precision Grading',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 38,
-                    fontWeight: FontWeight.w500, // Medium
-                    letterSpacing: -0.25,
-                    color: const Color(0xFF0A2229),
+              Semantics(
+                header: true,
+                child: StaggeredReveal(
+                  revealOnScroll: true,
+                  staggerIndex: 1,
+                  child: Text(
+                    'Engineered for Precision Grading',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: isMobile ? 28 : 36,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.7,
+                      height: 1.15,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
-              // Subtitle
               StaggeredReveal(
                 revealOnScroll: true,
                 staggerIndex: 2,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
-                  child: Text(
-                    'Use image classification to record fish freshness predictions and review previous scans.',
+                  child: const Text(
+                    'Use anatomical image classification to record freshness predictions and audit inspection history across devices.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      letterSpacing: -0.25,
+                      letterSpacing: -0.15,
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
                       height: 1.5,
-                      color: const Color(0xFF475569),
+                      color: SariwaColors.inkSlateSecondary,
                     ),
                   ),
                 ),
@@ -99,63 +97,60 @@ class FeaturesSection extends StatelessWidget {
 
               const SizedBox(height: 48),
 
-              // 4 Feature Cards Grid
+              // 4 Feature Cards: 2x2 Grid on Desktop, Horizontal Snapped Carousel on Mobile
               LayoutBuilder(
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth >= 768;
 
+                  const items = [
+                    (
+                      icon: CupertinoIcons.eye,
+                      title: 'Anatomical ROI Classification',
+                      desc:
+                          'Upload a JPEG or PNG close-up up to 5 MB of a Tilapia eye or exposed gill to receive a Fresh or Not Fresh reading.',
+                    ),
+                    (
+                      icon: CupertinoIcons.waveform_path_ecg,
+                      title: 'Model Confidence Readout',
+                      desc:
+                          'Inspect calibrated prediction confidence alongside sensory indicators.',
+                    ),
+                    (
+                      icon: CupertinoIcons.cloud,
+                      title: 'Connected Cloud Inference',
+                      desc:
+                          'Capture on mobile or upload in browser while connected to the backend grading pipeline.',
+                    ),
+                    (
+                      icon: CupertinoIcons.doc_text_search,
+                      title: 'Synced Inspection History',
+                      desc:
+                          'Archive scan records, filter by anatomical region, and export CSV reports when signed in with Google.',
+                    ),
+                  ];
+
+                  if (!isDesktop) {
+                    return _MobileFeatureCarousel(items: items);
+                  }
+
+                  final cardWidth = (constraints.maxWidth - 24) / 2;
                   return Wrap(
                     spacing: 24,
                     runSpacing: 24,
                     children: [
-                      SizedBox(
-                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: StaggeredReveal(
-                          revealOnScroll: true,
-                          staggerIndex: 1,
-                          child: _buildFeatureCard(
-                            icon: Icons.remove_red_eye_outlined,
-                            title: 'Image Classification',
-                            desc: 'Upload a JPEG or PNG image up to 5 MB to receive a Fresh or Not Fresh prediction.',
+                      for (var i = 0; i < items.length; i++)
+                        SizedBox(
+                          width: cardWidth,
+                          child: StaggeredReveal(
+                            revealOnScroll: true,
+                            staggerIndex: i + 1,
+                            child: _FeatureCard(
+                              icon: items[i].icon,
+                              title: items[i].title,
+                              desc: items[i].desc,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: StaggeredReveal(
-                          revealOnScroll: true,
-                          staggerIndex: 2,
-                          child: _buildFeatureCard(
-                            icon: Icons.bloodtype_outlined,
-                            title: 'Model Confidence',
-                            desc: 'See the visual freshness estimate and model score for each accepted photo.',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: StaggeredReveal(
-                          revealOnScroll: true,
-                          staggerIndex: 3,
-                          child: _buildFeatureCard(
-                            icon: Icons.offline_bolt_outlined,
-                            title: 'Connected Scanning',
-                            desc: 'Capture or select an image on your device. A connection to the backend is required to run the model.',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: isDesktop ? (constraints.maxWidth - 24) / 2 : constraints.maxWidth,
-                        child: StaggeredReveal(
-                          revealOnScroll: true,
-                          staggerIndex: 4,
-                          child: _buildFeatureCard(
-                            icon: Icons.history_edu_outlined,
-                            title: 'Saved Inspection History',
-                            desc: 'Automatically backs up your fish freshness scan results when you sign in with your Google account.',
-                          ),
-                        ),
-                      ),
                     ],
                   );
                 },
@@ -166,98 +161,153 @@ class FeaturesSection extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildFeatureCard({
-    required IconData icon,
-    required String title,
-    required String desc,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0F172A),
-            blurRadius: 18,
-            offset: Offset(0, 4),
-            spreadRadius: -2,
-          ),
-          BoxShadow(
-            color: Color(0x060F172A),
-            blurRadius: 32,
-            offset: Offset(0, 10),
-            spreadRadius: -4,
-          ),
-          BoxShadow(
-            color: Color(0x0814B8A6),
-            blurRadius: 24,
-            offset: Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.76),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.88),
-                width: 1.2,
-              ),
-            ),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE6F6F4).withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFCCEAE6).withValues(alpha: 0.8),
-                    width: 1.0,
-                  ),
+class _MobileFeatureCarousel extends StatefulWidget {
+  final List<({IconData icon, String title, String desc})> items;
+
+  const _MobileFeatureCarousel({required this.items});
+
+  @override
+  State<_MobileFeatureCarousel> createState() => _MobileFeatureCarouselState();
+}
+
+class _MobileFeatureCarouselState extends State<_MobileFeatureCarousel> {
+  final PageController _controller = PageController(viewportFraction: 0.86);
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 224,
+          child: PageView.builder(
+            controller: _controller,
+            itemCount: widget.items.length,
+            onPageChanged: (index) => setState(() => _currentPage = index),
+            itemBuilder: (context, index) {
+              final item = widget.items[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: _FeatureCard(
+                  icon: item.icon,
+                  title: item.title,
+                  desc: item.desc,
                 ),
-                child: Icon(
-                  icon,
-                  color: SariwaColors.brandPrimary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 18.5,
-                  fontWeight: FontWeight.w500, // Medium
-                  letterSpacing: -0.25,
-                  color: Color(0xFF0A2229),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                desc,
-                style: const TextStyle(
-                  letterSpacing: -0.25,
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                  height: 1.55,
-                  color: Color(0xFF475569),
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(widget.items.length, (i) {
+            final isActive = i == _currentPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: isActive ? 20 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: isActive
+                    ? SariwaColors.brandPrimary
+                    : SariwaColors.colorLine,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeatureCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
+
+  const _FeatureCard({
+    required this.icon,
+    required this.title,
+    required this.desc,
+  });
+
+  @override
+  State<_FeatureCard> createState() => _FeatureCardState();
+}
+
+class _FeatureCardState extends State<_FeatureCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: SariwaColors.cardSurfaceLight,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _hovered
+                ? SariwaColors.brandPrimary.withValues(alpha: 0.45)
+                : SariwaColors.colorLine,
+            width: 1.0,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: SariwaColors.colorPale,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                widget.icon,
+                color: SariwaColors.brandPrimary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.title,
+              style: const TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.3,
+                color: SariwaColors.textPrimaryDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.desc,
+              style: const TextStyle(
+                letterSpacing: -0.1,
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                height: 1.5,
+                color: SariwaColors.inkSlateSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

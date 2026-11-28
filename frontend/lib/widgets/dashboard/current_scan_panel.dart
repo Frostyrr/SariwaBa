@@ -84,10 +84,10 @@ class CurrentScanPanel extends StatelessWidget {
         children: [
           if (state.isFindingEyes) ...[
             _buildDetectingEyesBanner(),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
           ] else if (state.alreadyCloseUpEye || state.alreadyCloseUpGill) ...[
             _buildCloseUpDetectedBanner(isGill: state.alreadyCloseUpGill),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
           ],
           _buildReadyToCheckCard(context),
         ],
@@ -95,7 +95,7 @@ class CurrentScanPanel extends StatelessWidget {
     }
 
     return FrostedGlassCard(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       borderRadius: 24,
       blurSigma: 6,
       child: AnimatedSwitcher(
@@ -127,7 +127,7 @@ class CurrentScanPanel extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 CupertinoIcons.square_stack_3d_up,
@@ -135,25 +135,25 @@ class CurrentScanPanel extends StatelessWidget {
                 color: SariwaColors.brandPrimary,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 state.isBatchRunning
                     ? 'Checking batch (${state.batchScans.length})…'
                     : 'Batch Results (${state.batchScans.length})',
                 style: const TextStyle(
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         for (final (index, item) in state.batchScans.indexed) ...[
           _buildBatchItemCard(index, item),
-          if (index < state.batchScans.length - 1) const SizedBox(height: 10),
+          if (index < state.batchScans.length - 1) const SizedBox(height: 12),
         ],
       ],
     );
@@ -170,9 +170,9 @@ class CurrentScanPanel extends StatelessWidget {
     final String statusLabel;
 
     if (isComplete) {
-      pillBg = isFresh ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2);
-      pillText = isFresh ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
-      dotColor = isFresh ? const Color(0xFF16A34A) : const Color(0xFFDC2626);
+      pillBg = isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack;
+      pillText = isFresh ? SariwaColors.freshText : SariwaColors.notFreshText;
+      dotColor = isFresh ? SariwaColors.statusFresh : SariwaColors.statusSpoiled;
       statusLabel = result.label;
     } else if (item.status == BatchScanStatus.checking) {
       pillBg = SariwaColors.brandPrimary.withValues(alpha: 0.10);
@@ -180,22 +180,22 @@ class CurrentScanPanel extends StatelessWidget {
       dotColor = SariwaColors.brandPrimary;
       statusLabel = 'Checking…';
     } else if (item.status == BatchScanStatus.queued) {
-      pillBg = const Color(0xFFF1F5F9);
-      pillText = const Color(0xFF64748B);
-      dotColor = const Color(0xFF94A3B8);
+      pillBg = SariwaColors.surfaceSlateWash;
+      pillText = SariwaColors.inkSlateMuted;
+      dotColor = SariwaColors.inkSlateSubtle;
       statusLabel = 'Waiting';
     } else {
-      pillBg = const Color(0xFFFEF3C7);
+      pillBg = SariwaColors.warningBg;
       pillText = const Color(0xFFB45309);
-      dotColor = const Color(0xFFD97706);
+      dotColor = SariwaColors.warningText;
       statusLabel = item.status == BatchScanStatus.rejected
           ? 'Rejected'
           : 'Needs review';
     }
 
     return Material(
-      color: Colors.white.withValues(alpha: 0.85),
-      borderRadius: BorderRadius.circular(14),
+      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: state.isBatchRunning ||
                 state.isClassifying ||
@@ -205,35 +205,45 @@ class CurrentScanPanel extends StatelessWidget {
                 HapticFeedback.selectionClick();
                 controller.openBatchPhoto(index);
               },
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: SariwaColors.borderLightTeal),
           ),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 child: SizedBox(
                   width: 48,
                   height: 48,
                   child: FutureBuilder<Uint8List>(
                     future: item.photo.readAsBytes(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
+                      if (snapshot.hasError) {
+                        return Container(
+                          color: SariwaColors.notFreshIconBg,
+                          child: const Icon(
+                            CupertinoIcons.exclamationmark_triangle,
+                            size: 18,
+                            color: SariwaColors.notFreshText,
+                          ),
+                        );
+                      }
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Image.memory(
                           snapshot.data!,
                           fit: BoxFit.cover,
                         );
                       }
                       return Container(
-                        color: const Color(0xFFF1F5F9),
+                        color: SariwaColors.surfaceSlateWash,
                         child: const Icon(
                           CupertinoIcons.photo,
                           size: 18,
-                          color: Color(0xFF94A3B8),
+                          color: SariwaColors.inkSlateSubtle,
                         ),
                       );
                     },
@@ -250,8 +260,8 @@ class CurrentScanPanel extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: SariwaColors.textPrimaryDark,
                       ),
                     ),
@@ -263,19 +273,19 @@ class CurrentScanPanel extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 12,
                         color: SariwaColors.textSecondaryDark,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: pillBg,
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -288,12 +298,12 @@ class CurrentScanPanel extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     Text(
                       statusLabel,
                       style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         color: pillText,
                       ),
                     ),
@@ -314,7 +324,7 @@ class CurrentScanPanel extends StatelessWidget {
         Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(9),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(12),
@@ -325,13 +335,13 @@ class CurrentScanPanel extends StatelessWidget {
                 color: SariwaColors.brandPrimary,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             const Expanded(
               child: Text(
                 'Current Scan',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: SariwaColors.textPrimaryDark,
                 ),
@@ -339,33 +349,36 @@ class CurrentScanPanel extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         const Text(
-          'Upload or capture a Tilapia photo to inspect its freshness. Detected eyes and your prediction result will appear here.',
+          'Select a photo to preview the region and check freshness.',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 14,
+            fontWeight: FontWeight.w300,
             height: 1.45,
             color: SariwaColors.textSecondaryDark,
           ),
         ),
-        const SizedBox(height: 16),
-        _buildGuideStep(
-          '1',
-          'Close-up eye or gill',
-          'Ready to check immediately—no crop modal required.',
-        ),
-        const SizedBox(height: 10),
-        _buildGuideStep(
-          '2',
-          'Whole Tilapia or crowded tray',
-          'Eyes are detected automatically. Tap any numbered fish to preview its crop.',
-        ),
-        const SizedBox(height: 10),
-        _buildGuideStep(
-          '3',
-          'Model-aligned verdict',
-          'Displays Fresh or Not Fresh with the model confidence score.',
-        ),
+        if (isWide) ...[
+          const SizedBox(height: 16),
+          _buildGuideStep(
+            '1',
+            'Close-up eye or gill',
+            'Checks right away without manual cropping.',
+          ),
+          const SizedBox(height: 12),
+          _buildGuideStep(
+            '2',
+            'Whole fish or tray',
+            'Tap any detected eye to inspect it.',
+          ),
+          const SizedBox(height: 12),
+          _buildGuideStep(
+            '3',
+            'Instant reading',
+            'Shows Fresh or Not Fresh with a confidence score.',
+          ),
+        ],
       ],
     );
   }
@@ -385,13 +398,13 @@ class CurrentScanPanel extends StatelessWidget {
           child: Text(
             num,
             style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
               color: SariwaColors.brandPrimary,
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,8 +412,8 @@ class CurrentScanPanel extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
@@ -422,10 +435,10 @@ class CurrentScanPanel extends StatelessWidget {
 
   Widget _buildDetectingEyesBanner() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: SariwaColors.brandPrimary.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: SariwaColors.brandPrimary.withValues(alpha: 0.22),
         ),
@@ -433,13 +446,13 @@ class CurrentScanPanel extends StatelessWidget {
       child: const Row(
         children: [
           CupertinoActivityIndicator(radius: 8),
-          SizedBox(width: 10),
+          SizedBox(width: 12),
           Expanded(
             child: Text(
               'Detecting Tilapia eyes...',
               style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: SariwaColors.brandPrimary,
               ),
             ),
@@ -451,10 +464,10 @@ class CurrentScanPanel extends StatelessWidget {
 
   Widget _buildCloseUpDetectedBanner({bool isGill = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: SariwaColors.freshIconBg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: SariwaColors.freshBorder),
       ),
       child: Row(
@@ -471,8 +484,8 @@ class CurrentScanPanel extends StatelessWidget {
                   ? 'Close-up gill ready — tap Check freshness.'
                   : 'Close-up eye ready — tap Check freshness.',
               style: const TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: SariwaColors.freshText,
               ),
             ),
@@ -494,7 +507,7 @@ class CurrentScanPanel extends StatelessWidget {
               size: 16,
               color: SariwaColors.brandPrimary,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 proposals.length == 1
@@ -502,7 +515,7 @@ class CurrentScanPanel extends StatelessWidget {
                     : 'Detected Eyes (${proposals.length})',
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: SariwaColors.textPrimaryDark,
                 ),
               ),
@@ -519,7 +532,7 @@ class CurrentScanPanel extends StatelessWidget {
             color: SariwaColors.textSecondaryDark,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         if (isWide)
           LayoutBuilder(
             builder: (context, constraints) {
@@ -544,7 +557,7 @@ class CurrentScanPanel extends StatelessWidget {
               children: [
                 for (int i = 0; i < proposals.length; i++) ...[
                   SizedBox(width: 132, child: _buildEyeTile(i, proposals[i])),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                 ],
               ],
             ),
@@ -567,7 +580,7 @@ class CurrentScanPanel extends StatelessWidget {
           HapticFeedback.selectionClick();
           controller.selectEyeProposal(index);
         },
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.all(8),
@@ -575,18 +588,18 @@ class CurrentScanPanel extends StatelessWidget {
             color: isSelected
                 ? SariwaColors.brandPrimary.withValues(alpha: 0.09)
                 : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
                   ? SariwaColors.brandPrimary
-                  : const Color(0xFFCBD5E1),
+                  : SariwaColors.lineSlate,
               width: isSelected ? 2.0 : 1.0,
             ),
           ),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(8),
                 child: Image.memory(
                   proposal.bytes,
                   width: 44,
@@ -603,10 +616,10 @@ class CurrentScanPanel extends StatelessWidget {
                     Text(
                       'Eye #${index + 1}',
                       style: TextStyle(
-                        fontSize: 12.5,
+                        fontSize: 14,
                         fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                            ? FontWeight.w500
+                            : FontWeight.w500,
                         color: isSelected
                             ? SariwaColors.brandPrimary
                             : SariwaColors.textPrimaryDark,
@@ -618,7 +631,7 @@ class CurrentScanPanel extends StatelessWidget {
                           ? (checkedFresh ? 'Fresh ✓' : 'Not Fresh !')
                           : (isSelected ? 'Selected' : 'Tap to select'),
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: checkedFresh != null
                             ? (checkedFresh
@@ -667,10 +680,10 @@ class CurrentScanPanel extends StatelessWidget {
       children: [
         if (previewBytes != null)
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFA),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: SariwaColors.borderLightTeal),
             ),
             child: Row(
@@ -686,7 +699,7 @@ class CurrentScanPanel extends StatelessWidget {
                       : 'Hover or click to zoom preview',
                   onTapZoom: () => _openSelectedEyeZoom(context, previewBytes),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -697,11 +710,11 @@ class CurrentScanPanel extends StatelessWidget {
                             : 'Ready to inspect',
                         style: const TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: SariwaColors.textPrimaryDark,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
                         state.isClassifying
                             ? (state.processingStage ??
@@ -744,7 +757,7 @@ class CurrentScanPanel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: borderColor, width: 1.4),
       ),
       child: Column(
@@ -772,16 +785,16 @@ class CurrentScanPanel extends StatelessWidget {
                       result.label,
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w500,
                         color: primaryColor,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Model confidence: ${result.formattedConfidence}',
+                      'Confidence · ${result.formattedConfidence}',
                       style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
                         color: SariwaColors.textPrimaryDark,
                       ),
                     ),
@@ -790,9 +803,9 @@ class CurrentScanPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           ClipRRect(
-            borderRadius: BorderRadius.circular(99),
+            borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: result.confidence.clamp(0.0, 1.0),
               minHeight: 7,
@@ -801,24 +814,23 @@ class CurrentScanPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            result.speciesVerified
-                ? 'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.'
-                : 'Scope: ${result.species} only (species is not auto-verified). Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
-            style: const TextStyle(
-              fontSize: 11.5,
+          const Text(
+            'Visual freshness estimate — not a food-safety guarantee.',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
               height: 1.35,
               color: SariwaColors.textSecondaryDark,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: AppButton.primary(
                   label: 'Scan Another',
                   height: 44,
-                  borderRadius: 12,
+                  borderRadius: 999,
                   icon: const Icon(
                     CupertinoIcons.camera_viewfinder,
                     size: 16,
@@ -835,18 +847,16 @@ class CurrentScanPanel extends StatelessWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.textPrimaryDark,
-                  side: const BorderSide(color: Color(0xFFCBD5E1)),
+                  side: const BorderSide(color: SariwaColors.lineSlate),
                   minimumSize: const Size(0, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: const StadiumBorder(),
                 ),
                 child: const Text('Adjust crop'),
               ),
             ],
           ),
           if (onViewHistory != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
@@ -857,8 +867,8 @@ class CurrentScanPanel extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: SariwaColors.brandPrimary,
                   textStyle: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -880,7 +890,7 @@ class CurrentScanPanel extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: SariwaColors.notFreshIconBg,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: SariwaColors.notFreshBorder, width: 1.3),
       ),
       child: Column(
@@ -900,8 +910,8 @@ class CurrentScanPanel extends StatelessWidget {
                       ? 'Connection or Server Issue'
                       : ClassificationApiException.rejectionTitleForCode(code),
                   style: const TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.notFreshText,
                   ),
                 ),
@@ -912,12 +922,12 @@ class CurrentScanPanel extends StatelessWidget {
           Text(
             state.errorMessage ?? 'Unable to classify this photo.',
             style: const TextStyle(
-              fontSize: 12.5,
+              fontSize: 14,
               height: 1.4,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,

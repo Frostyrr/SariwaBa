@@ -46,13 +46,13 @@ class DashboardSidebar extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.035),
+            color: SariwaColors.inkSlate.withValues(alpha: 0.035),
             blurRadius: 18,
             offset: const Offset(4, 0),
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: const Color(0xFF14B8A6).withValues(alpha: 0.03),
+            color: SariwaColors.brandGlow.withValues(alpha: 0.03),
             blurRadius: 28,
             offset: const Offset(6, 0),
             spreadRadius: -4,
@@ -64,10 +64,10 @@ class DashboardSidebar extends StatelessWidget {
           filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.72),
+              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.72),
               border: Border(
                 right: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
                   width: 1.2,
                 ),
               ),
@@ -96,15 +96,15 @@ class DashboardSidebar extends StatelessWidget {
                     'WORKSPACE',
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.8,
-                      color: Color(0xFF94A3B8),
+                      color: SariwaColors.inkSlateSubtle,
                     ),
                   ),
                 )
               else
-                const Divider(height: 12, color: Color(0xFFE2E8F0)),
+                const Divider(height: 12, color: SariwaColors.surfaceSlateSubtle),
 
               const SizedBox(height: 4),
 
@@ -118,23 +118,17 @@ class DashboardSidebar extends StatelessWidget {
               const SizedBox(height: 4),
               _buildSidebarNavItem(
                 icon: CupertinoIcons.clock,
-                label: 'History',
+                label: 'History & Insights',
                 badgeCount: historyCount,
-                isActive: activeNav == 'History',
+                isActive: activeNav == 'History' ||
+                    activeNav == 'Analytics' ||
+                    activeNav == 'Summary',
                 isCollapsed: isCollapsed,
                 onTap: () => onNavSelected('History'),
               ),
-              const SizedBox(height: 4),
-              _buildSidebarNavItem(
-                icon: CupertinoIcons.chart_bar_square,
-                label: 'Analytics',
-                isActive: activeNav == 'Analytics' || activeNav == 'Summary',
-                isCollapsed: isCollapsed,
-                onTap: () => onNavSelected('Analytics'),
-              ),
 
               if (user?.isAdmin == true) ...[
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
                 if (!isCollapsed)
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -142,15 +136,15 @@ class DashboardSidebar extends StatelessWidget {
                       'ADMINISTRATION',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.w400,
                         letterSpacing: 0.8,
-                        color: Color(0xFF94A3B8),
+                        color: SariwaColors.inkSlateSubtle,
                       ),
                     ),
                   )
                 else
-                  const Divider(height: 12, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 12, color: SariwaColors.surfaceSlateSubtle),
                 const SizedBox(height: 4),
                 _buildSidebarNavItem(
                   icon: CupertinoIcons.shield_fill,
@@ -161,7 +155,7 @@ class DashboardSidebar extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // General section header or subtle divider
               if (!isCollapsed)
@@ -171,15 +165,15 @@ class DashboardSidebar extends StatelessWidget {
                     'GENERAL',
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w400,
                       letterSpacing: 0.8,
-                      color: Color(0xFF94A3B8),
+                      color: SariwaColors.inkSlateSubtle,
                     ),
                   ),
                 )
               else
-                const Divider(height: 12, color: Color(0xFFE2E8F0)),
+                const Divider(height: 12, color: SariwaColors.surfaceSlateSubtle),
 
               const SizedBox(height: 4),
 
@@ -204,8 +198,8 @@ class DashboardSidebar extends StatelessWidget {
               // Guest Evaluation Mode / Tilapia Tip Card
               _buildTipCard(),
 
-              const SizedBox(height: 14),
-              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+              const SizedBox(height: 16),
+              const Divider(height: 1, color: SariwaColors.surfaceSlateSubtle),
               const SizedBox(height: 12),
 
               // User Profile Footer with Popover Menu
@@ -251,7 +245,7 @@ class DashboardSidebar extends StatelessWidget {
             ),
           ),
           if (onToggleCollapse != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             IconButton(
               tooltip: 'Expand sidebar',
               padding: EdgeInsets.zero,
@@ -297,7 +291,7 @@ class DashboardSidebar extends StatelessWidget {
                       'SariwaBa',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
@@ -319,7 +313,7 @@ class DashboardSidebar extends StatelessWidget {
             icon: const Icon(
               CupertinoIcons.sidebar_left,
               size: 18,
-              color: Color(0xFF64748B),
+              color: SariwaColors.inkSlateMuted,
             ),
             onPressed: onToggleCollapse,
           ),
@@ -380,7 +374,7 @@ class DashboardSidebar extends StatelessWidget {
                           ? CupertinoIcons.person_crop_circle_badge_exclam
                           : CupertinoIcons.sparkles,
                       size: 20,
-                      color: const Color(0xFF5EEAD4),
+                      color: SariwaColors.brandLight,
                     ),
                   ],
                 ),
@@ -394,7 +388,7 @@ class DashboardSidebar extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
             color: Color(0x280A2229),
@@ -403,7 +397,7 @@ class DashboardSidebar extends StatelessWidget {
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Color(0x1814B8A6),
+            color: SariwaColors.brandGlowTint,
             blurRadius: 22,
             offset: Offset(0, 10),
             spreadRadius: -3,
@@ -411,7 +405,7 @@ class DashboardSidebar extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
             // Layer 1: Blurred Underwater Aquatic Backdrop (same as CTA)
@@ -439,7 +433,7 @@ class DashboardSidebar extends StatelessWidget {
                     color: const Color(0x28CCEAE6),
                     width: 1.2,
                   ),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
             ),
@@ -465,13 +459,13 @@ class DashboardSidebar extends StatelessWidget {
             ),
             // Layer 4: Foreground Content
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(7),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: const Color(0x2414B8A6),
                       shape: BoxShape.circle,
@@ -485,16 +479,16 @@ class DashboardSidebar extends StatelessWidget {
                           ? CupertinoIcons.person_crop_circle_badge_exclam
                           : CupertinoIcons.sparkles,
                       size: 16,
-                      color: const Color(0xFF5EEAD4),
+                      color: SariwaColors.brandLight,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Text(
                     isGuestUser
                         ? 'Guest Evaluation Mode'
                         : 'Quick Tilapia Tip',
                     style: const TextStyle(
-                      fontSize: 12.5,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500, // Medium
                       letterSpacing: AppTypography.defaultLetterSpacing,
                       color: Colors.white,
@@ -506,11 +500,11 @@ class DashboardSidebar extends StatelessWidget {
                         ? 'Sign in with Google to save your freshness scans to your history.'
                         : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
                     style: TextStyle(
-                      fontSize: 13.0,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                       height: 1.42,
                       letterSpacing: AppTypography.defaultLetterSpacing,
-                      color: Colors.white.withValues(alpha: 0.92),
+                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.92),
                     ),
                   ),
                   if (isGuestUser) ...[
@@ -528,14 +522,14 @@ class DashboardSidebar extends StatelessWidget {
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 letterSpacing: AppTypography.defaultLetterSpacing,
-                                color: Color(0xFF5EEAD4),
+                                color: SariwaColors.brandLight,
                               ),
                             ),
                             SizedBox(width: 4),
                             Icon(
                               CupertinoIcons.arrow_right,
                               size: 11,
-                              color: Color(0xFF5EEAD4),
+                              color: SariwaColors.brandLight,
                             ),
                           ],
                         ),
@@ -592,7 +586,7 @@ class DashboardSidebar extends StatelessWidget {
                       size: 20,
                       color: isActive
                           ? SariwaColors.brandPrimary
-                          : const Color(0xFF64748B),
+                          : SariwaColors.inkSlateMuted,
                     ),
                     if (badgeCount != null && badgeCount > 0)
                       Positioned(
@@ -622,7 +616,7 @@ class DashboardSidebar extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: isActive
                 ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
@@ -642,14 +636,14 @@ class DashboardSidebar extends StatelessWidget {
                 size: 18,
                 color: isActive
                     ? SariwaColors.brandPrimary
-                    : const Color(0xFF64748B),
+                    : SariwaColors.inkSlateMuted,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 13.5,
+                    fontSize: 14,
                     fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: isActive
@@ -667,12 +661,12 @@ class DashboardSidebar extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     badgeCount.toString(),
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: FontWeight.w400,
                       letterSpacing: AppTypography.defaultLetterSpacing,
                       color: SariwaColors.brandPrimary,

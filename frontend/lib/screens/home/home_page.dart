@@ -8,6 +8,7 @@ import 'sections/faq_section.dart';
 import 'sections/features_section.dart';
 import 'sections/how_it_works_section.dart';
 import 'sections/landing_section.dart';
+import '../../constants/theme/app_colors.dart';
 
 /// Unified Home Page
 /// Imports modular sections for Landing (100vh hero), Features (off-white leaning primary teal),
@@ -112,7 +113,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isGuest = authState.isGuest;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F7F6),
+      backgroundColor: SariwaColors.colorWorkspace,
       body: Stack(
         children: [
           // Scrollable Page Sections

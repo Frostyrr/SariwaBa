@@ -37,7 +37,7 @@ class DashboardNotificationBanner extends StatelessWidget {
       key: Key(
         isError ? 'error_notification_banner' : 'success_notification_banner',
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       borderRadius: 18,
       borderColor: color.withValues(alpha: 0.35),
       blurSigma: 16,
@@ -68,7 +68,7 @@ class DashboardNotificationBanner extends StatelessWidget {
                             : 'Request Error (${state.errorCode})',
                         style: TextStyle(
                           color: color,
-                          fontSize: 11.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
                         ),
@@ -79,7 +79,7 @@ class DashboardNotificationBanner extends StatelessWidget {
                       message,
                       style: const TextStyle(
                         color: SariwaColors.textPrimaryDark,
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w400,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                       ),
@@ -90,7 +90,7 @@ class DashboardNotificationBanner extends StatelessWidget {
             ],
           ),
           if (showRecoveryActions) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -106,11 +106,11 @@ class DashboardNotificationBanner extends StatelessWidget {
                     label: const Text('Edit Crop'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: SariwaColors.brandPrimary,
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                       backgroundColor: Colors.white,
                       visualDensity: VisualDensity.compact,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(99),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
                   ),
@@ -121,11 +121,11 @@ class DashboardNotificationBanner extends StatelessWidget {
                   label: const Text('Replace Image'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: SariwaColors.statusSpoiled,
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: const BorderSide(color: SariwaColors.surfaceSlateSubtle),
                     backgroundColor: Colors.white,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ),
@@ -141,7 +141,7 @@ class DashboardNotificationBanner extends StatelessWidget {
                       elevation: 0,
                       visualDensity: VisualDensity.compact,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(99),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
                   ),

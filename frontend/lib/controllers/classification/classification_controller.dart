@@ -1,9 +1,8 @@
 import '../auth/auth_controller.dart';
 import '../../services/storage/guest_history_cache.dart';
 
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -381,6 +380,18 @@ class ClassificationController extends StateNotifier<ClassificationState> {
         return true;
       }
       return false;
+    } on PlatformException catch (e) {
+      final isDenied = e.code.toLowerCase().contains('denied') ||
+          e.code.toLowerCase().contains('permission');
+      state = state.copyWith(
+        errorMessage: isDenied
+            ? 'Permission denied. Enable Camera or Photo access in device Settings.'
+            : 'Unable to select image. Please try another photo.',
+        errorCode: isDenied ? 'PERMISSION_DENIED' : 'INVALID_IMAGE',
+        isInputRejection: true,
+        clearSuccess: true,
+      );
+      return false;
     } catch (_) {
       state = state.copyWith(
         errorMessage: 'Unable to select image. Please try another photo.',
@@ -419,6 +430,15 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       } else if (mounted && photos.length > 1) {
         await processBatch(photos);
       }
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      final isDenied = e.code.toLowerCase().contains('denied') ||
+          e.code.toLowerCase().contains('permission');
+      state = state.copyWith(
+        errorMessage: isDenied
+            ? 'Photo permission denied. Enable Photo access in device Settings.'
+            : 'Could not open the photo picker.',
+      );
     } catch (_) {
       if (!mounted) return;
       state = state.copyWith(errorMessage: 'Could not open the photo picker.');

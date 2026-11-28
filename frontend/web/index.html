@@ -1,28 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="SariwaBa? See for yourself. A smarter way to assess fish freshness through AI.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#040D12">
+  <meta name="description" content="SariwaBa — Instant fish freshness inspection for eye and gill close-ups.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SariwaBa">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -32,18 +21,141 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>SariwaBa? — Fish Freshness Classification</title>
+  <title>SariwaBa — Fish Freshness</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #040D12;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #sariwa-boot {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(22, 128, 119, 0.26) 0%, rgba(8, 25, 34, 0.90) 52%, #040D12 100%);
+      transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #sariwa-boot.sariwa-boot--done {
+      opacity: 0;
+      transform: scale(1.03);
+      pointer-events: none;
+    }
+
+    .sariwa-boot__badge {
+      width: 80px;
+      height: 80px;
+      box-sizing: border-box;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow: 0 12px 28px rgba(2, 8, 12, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: sariwaPulse 2.2s ease-in-out infinite;
+    }
+
+    .sariwa-boot__badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .sariwa-boot__title {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.4px;
+      color: #FFFFFF;
+    }
+
+    .sariwa-boot__sub {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 300;
+      color: #B8DFDC;
+    }
+
+    .sariwa-boot__track {
+      margin-top: 20px;
+      width: 140px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sariwa-boot__bar {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 46%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #168077, #A5E6DF);
+      animation: sariwaSlide 1.35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes sariwaPulse {
+      0%, 100% { transform: scale(0.98); }
+      50% { transform: scale(1.02); }
+    }
+
+    @keyframes sariwaSlide {
+      0% { left: -46%; }
+      100% { left: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sariwa-boot__badge { animation: none; }
+      .sariwa-boot__bar { animation: none; left: 27%; }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="sariwa-boot" role="status" aria-live="polite" aria-label="Loading SariwaBa">
+    <div class="sariwa-boot__badge">
+      <img src="icons/Icon-192.png" alt="SariwaBa logo" />
+    </div>
+    <div class="sariwa-boot__title">SariwaBa</div>
+    <div class="sariwa-boot__sub">Loading workspace...</div>
+    <div class="sariwa-boot__track">
+      <div class="sariwa-boot__bar"></div>
+    </div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script>
+    (function () {
+      function dismissBootLoader() {
+        var el = document.getElementById('sariwa-boot');
+        if (!el || el.classList.contains('sariwa-boot--done')) return;
+        el.classList.add('sariwa-boot--done');
+        setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 360);
+      }
+      window.addEventListener('flutter-first-frame', dismissBootLoader, { once: true });
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

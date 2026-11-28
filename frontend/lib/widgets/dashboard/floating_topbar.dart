@@ -36,19 +36,19 @@ class FloatingTopbar extends StatelessWidget {
         final isCompact = constraints.maxWidth < 640;
 
         return ClipRRect(
-          borderRadius: BorderRadius.circular(9999),
+          borderRadius: BorderRadius.circular(999),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: isCompact ? 12 : 18,
-                vertical: 10,
+                vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.85),
-                borderRadius: BorderRadius.circular(9999),
+                color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(999),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.90),
+                  color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
                   width: 1.2,
                 ),
                 boxShadow: const [
@@ -91,7 +91,7 @@ class FloatingTopbar extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -100,7 +100,7 @@ class FloatingTopbar extends StatelessWidget {
                                 'SariwaBa',
                                 style: AppTypography.brandLogo.copyWith(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w500,
                                   color: SariwaColors.colorPrimary,
                                   letterSpacing: -0.25,
                                 ),
@@ -111,7 +111,7 @@ class FloatingTopbar extends StatelessWidget {
                                   style: TextStyle(
                                     letterSpacing: -0.25,
                                     fontFamily: AppTypography.fontFamily,
-                                    fontSize: 10.5,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     color: SariwaColors.colorMutedInk,
                                   ),
@@ -129,12 +129,12 @@ class FloatingTopbar extends StatelessWidget {
                   if (!isCompact) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                        horizontal: 12,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
                         color: SariwaColors.colorPale,
-                        borderRadius: BorderRadius.circular(9999),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(
                           color: SariwaColors.colorPrimary.withValues(alpha: 0.20),
                         ),
@@ -150,21 +150,21 @@ class FloatingTopbar extends StatelessWidget {
                               color: SariwaColors.statusFresh,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 8),
                           Text(
                             'PostgreSQL Active',
                             style: TextStyle(
                               letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               color: SariwaColors.colorPrimary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                   ],
 
                   // Notifications Pill Button with Badge
@@ -179,7 +179,7 @@ class FloatingTopbar extends StatelessWidget {
                           shape: BoxShape.circle,
                           color: Colors.white,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.90),
+                            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
                           ),
                           boxShadow: const [
                             BoxShadow(
@@ -205,7 +205,7 @@ class FloatingTopbar extends StatelessWidget {
                                 right: -2,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 4.5,
+                                    horizontal: 4,
                                     vertical: 1.5,
                                   ),
                                   constraints: const BoxConstraints(
@@ -214,7 +214,7 @@ class FloatingTopbar extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: SariwaColors.statusSpoiled,
-                                    borderRadius: BorderRadius.circular(9999),
+                                    borderRadius: BorderRadius.circular(999),
                                     boxShadow: const [
                                       BoxShadow(
                                         color: Color(0x33EF4444),
@@ -229,8 +229,8 @@ class FloatingTopbar extends StatelessWidget {
                                       style: const TextStyle(
                                         letterSpacing: -0.25,
                                         fontFamily: AppTypography.fontFamily,
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w800,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                         color: Colors.white,
                                         height: 1,
                                       ),
@@ -244,14 +244,14 @@ class FloatingTopbar extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
 
                   // User Profile Pill with Popup Menu
                   PopupMenuButton<String>(
                     tooltip: 'User menu',
                     offset: const Offset(0, 48),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
                       side: const BorderSide(color: SariwaColors.colorLine),
                     ),
                     color: Colors.white,
@@ -283,8 +283,8 @@ class FloatingTopbar extends StatelessWidget {
                               style: const TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                                 color: SariwaColors.colorInk,
                               ),
                             ),
@@ -293,7 +293,7 @@ class FloatingTopbar extends StatelessWidget {
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: SariwaColors.colorMutedInk,
                               ),
                             ),
@@ -310,13 +310,13 @@ class FloatingTopbar extends StatelessWidget {
                               size: 17,
                               color: SariwaColors.colorPrimary,
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: 12),
                             Text(
                               'PNS 67:2008 Protocol',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 13,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -331,13 +331,13 @@ class FloatingTopbar extends StatelessWidget {
                               size: 17,
                               color: SariwaColors.colorMutedInk,
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: 12),
                             Text(
                               'Mobile App & Models',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 13,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -352,13 +352,13 @@ class FloatingTopbar extends StatelessWidget {
                               size: 17,
                               color: SariwaColors.colorMutedInk,
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: 12),
                             Text(
                               'Public Home Page',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 13,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -374,14 +374,14 @@ class FloatingTopbar extends StatelessWidget {
                               size: 17,
                               color: SariwaColors.statusSpoiled,
                             ),
-                            SizedBox(width: 10),
+                            SizedBox(width: 12),
                             Text(
                               'Sign Out',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                                 color: SariwaColors.statusSpoiled,
                               ),
                             ),
@@ -392,15 +392,15 @@ class FloatingTopbar extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.only(
                         left: 4,
-                        right: 10,
+                        right: 12,
                         top: 4,
                         bottom: 4,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(9999),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.90),
+                          color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
                         ),
                         boxShadow: const [
                           BoxShadow(
@@ -426,8 +426,8 @@ class FloatingTopbar extends StatelessWidget {
                                 style: const TextStyle(
                                   letterSpacing: -0.25,
                                   fontFamily: AppTypography.fontFamily,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.white,
                                 ),
                               ),
@@ -439,8 +439,8 @@ class FloatingTopbar extends StatelessWidget {
                             style: const TextStyle(
                               letterSpacing: -0.25,
                               fontFamily: AppTypography.fontFamily,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                               color: SariwaColors.colorInk,
                             ),
                           ),

@@ -5,12 +5,8 @@ import '../../constants/theme/app_typography.dart';
 
 enum _AppButtonVariant { primary, secondary, outline, lightPill }
 
-/// Reusable AppButton Widget
-/// Styled for SariwaBa aquatic palette and squircle / capsule geometry:
-/// - [AppButton.primary]: Sariwa teal (#168077) with white text, crisp hover state & gentle elevation.
-/// - [AppButton.secondary]: Editorial light card button with subtle border.
-/// - [AppButton.outline]: Transparent container with light aqua border.
-/// - [AppButton.lightPill]: White/light capsule button with dark text.
+/// Accessible, keyboard-focusable AppButton built on Material + InkWell.
+/// Uses flat/crisp border and color transitions (150ms) with zero layout shift.
 class AppButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -22,7 +18,6 @@ class AppButton extends StatefulWidget {
   final double borderRadius;
   final _AppButtonVariant _variant;
 
-  /// Classic Primary Button
   const AppButton.primary({
     super.key,
     required this.label,
@@ -32,10 +27,9 @@ class AppButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.height = 48,
-    this.borderRadius = 16,
+    this.borderRadius = 999,
   }) : _variant = _AppButtonVariant.primary;
 
-  /// Backward compatible alias pointing to classic Primary Button
   const AppButton.primaryV2({
     super.key,
     required this.label,
@@ -45,7 +39,7 @@ class AppButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.height = 48,
-    this.borderRadius = 16,
+    this.borderRadius = 999,
   }) : _variant = _AppButtonVariant.primary;
 
   const AppButton.secondary({
@@ -57,7 +51,7 @@ class AppButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.height = 48,
-    this.borderRadius = 16,
+    this.borderRadius = 999,
   }) : _variant = _AppButtonVariant.secondary;
 
   const AppButton.outline({
@@ -69,7 +63,7 @@ class AppButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.height = 48,
-    this.borderRadius = 16,
+    this.borderRadius = 999,
   }) : _variant = _AppButtonVariant.outline;
 
   const AppButton.lightPill({
@@ -95,7 +89,7 @@ class _AppButtonState extends State<AppButton> {
   Widget build(BuildContext context) {
     Color backgroundColor;
     Color textColor;
-    Border? border;
+    BorderSide borderSide;
 
     switch (widget._variant) {
       case _AppButtonVariant.primary:
@@ -103,22 +97,22 @@ class _AppButtonState extends State<AppButton> {
             ? SariwaColors.brandPrimaryHover
             : SariwaColors.brandPrimary;
         textColor = Colors.white;
-        border = Border.all(
-          color: SariwaColors.brandGlow.withValues(alpha: 0.35),
+        borderSide = BorderSide(
+          color: SariwaColors.brandPrimaryDark.withValues(alpha: 0.4),
           width: 1.0,
         );
         break;
 
       case _AppButtonVariant.secondary:
         backgroundColor = _isHovered
-            ? const Color(0xFFF1F5F9)
-            : Colors.white;
-        textColor = const Color(0xFF0A2229);
-        border = Border.all(
+            ? SariwaColors.colorSurface
+            : SariwaColors.cardSurfaceLight;
+        textColor = SariwaColors.textPrimaryDark;
+        borderSide = BorderSide(
           color: _isHovered
-              ? const Color(0xFF94A3B8)
-              : const Color(0xFFE2E8F0),
-          width: 1.2,
+              ? SariwaColors.brandPrimary.withValues(alpha: 0.45)
+              : SariwaColors.colorLine,
+          width: 1.0,
         );
         break;
 
@@ -127,93 +121,103 @@ class _AppButtonState extends State<AppButton> {
             ? SariwaColors.surfaceGlass
             : Colors.transparent;
         textColor = SariwaColors.textPrimaryLight;
-        border = Border.all(
+        borderSide = BorderSide(
           color: _isHovered
               ? SariwaColors.brandLight
-              : SariwaColors.brandLight.withValues(alpha: 0.6),
-          width: 1.2,
+              : SariwaColors.brandLight.withValues(alpha: 0.55),
+          width: 1.0,
         );
         break;
 
       case _AppButtonVariant.lightPill:
-        backgroundColor = _isHovered ? const Color(0xFFE8F7F5) : Colors.white;
+        backgroundColor = _isHovered
+            ? SariwaColors.colorPale
+            : SariwaColors.cardSurfaceLight;
         textColor = SariwaColors.bgAbyssDark;
-        border = Border.all(color: SariwaColors.borderGlass, width: 1.0);
+        borderSide = const BorderSide(
+          color: SariwaColors.borderGlass,
+          width: 1.0,
+        );
         break;
     }
 
     final isInteractive = widget.onPressed != null && !widget.isLoading;
+    final radius = BorderRadius.circular(widget.borderRadius);
 
     return SelectionContainer.disabled(
-      child: MouseRegion(
-        cursor: isInteractive
-            ? SystemMouseCursors.click
-            : SystemMouseCursors.basic,
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTap: isInteractive ? widget.onPressed : null,
+      child: Semantics(
+        button: true,
+        enabled: isInteractive,
+        label: widget.label,
+        child: MouseRegion(
+          cursor: isInteractive
+              ? SystemMouseCursors.click
+              : SystemMouseCursors.basic,
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOutCubic,
             width: widget.width,
             height: widget.height,
             decoration: BoxDecoration(
               color: isInteractive
                   ? backgroundColor
                   : backgroundColor.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              border: border,
-              boxShadow:
-                  widget._variant == _AppButtonVariant.primary && isInteractive
-                      ? [
-                          BoxShadow(
-                            color: SariwaColors.brandPrimary.withValues(
-                              alpha: _isHovered ? 0.35 : 0.22,
-                            ),
-                            blurRadius: _isHovered ? 14 : 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ]
-                      : null,
+              borderRadius: radius,
+              border: Border.fromBorderSide(borderSide),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Center(
-              child: widget.isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color: textColor,
-                      ),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (widget.icon != null) ...[
-                          widget.icon!,
-                          const SizedBox(width: 8),
-                        ],
-                        Flexible(
-                          child: Text(
-                            widget.label,
-                            textAlign: TextAlign.center,
-                            style: AppTypography.buttonSecondary.copyWith(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: isInteractive ? widget.onPressed : null,
+                borderRadius: radius,
+                focusColor: SariwaColors.brandGlow.withValues(alpha: 0.18),
+                hoverColor: Colors.transparent,
+                splashColor: textColor.withValues(alpha: 0.10),
+                highlightColor: textColor.withValues(alpha: 0.05),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: widget.isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
                               color: textColor,
-                              fontWeight: FontWeight.w600,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (widget.icon != null) ...[
+                                widget.icon!,
+                                const SizedBox(width: 8),
+                              ],
+                              Flexible(
+                                child: Text(
+                                  widget.label,
+                                  textAlign: TextAlign.center,
+                                  style: AppTypography.buttonSecondary.copyWith(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (widget.trailing != null) ...[
+                                const SizedBox(width: 8),
+                                widget.trailing!,
+                              ],
+                            ],
                           ),
-                        ),
-                        if (widget.trailing != null) ...[
-                          const SizedBox(width: 8),
-                          widget.trailing!,
-                        ],
-                      ],
-                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

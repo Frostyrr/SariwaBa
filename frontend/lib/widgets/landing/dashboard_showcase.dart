@@ -38,58 +38,44 @@ class DashboardShowcase extends StatelessWidget {
         width: targetWidth,
         constraints: const BoxConstraints(maxWidth: 1080),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          color: SariwaColors.cardSurfaceLight,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: SariwaColors.colorLine,
+            width: 1.0,
+          ),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x0E0A2229),
-              blurRadius: 32,
-              offset: Offset(0, 16),
+              color: SariwaColors.shadowSubtle,
+              blurRadius: 24,
+              offset: Offset(0, 8),
               spreadRadius: -4,
-            ),
-            BoxShadow(
-              color: Color(0x080D9488),
-              blurRadius: 54,
-              offset: Offset(0, 26),
-              spreadRadius: -8,
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.90),
-                  width: 1.2,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Clean Browser / macOS Window Chrome Header
-                  _buildBrowserHeader(isMobile),
+          borderRadius: BorderRadius.circular(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Clean Browser / macOS Window Chrome Header
+              _buildBrowserHeader(isMobile),
 
-                  // Dashboard Workspace Body (Height constrained)
-                  SizedBox(
-                    height: targetHeight - 40.0,
-                    width: double.infinity,
-                    child: (screenshotAsset != null && screenshotAsset!.isNotEmpty)
-                        ? Image.asset(
-                            screenshotAsset!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildStaticDashboard(isMobile);
-                            },
-                          )
-                        : _buildStaticDashboard(isMobile),
-                  ),
-                ],
+              // Dashboard Workspace Body (Height constrained)
+              SizedBox(
+                height: targetHeight - 40.0,
+                width: double.infinity,
+                child: (screenshotAsset != null && screenshotAsset!.isNotEmpty)
+                    ? Image.asset(
+                        screenshotAsset!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildStaticDashboard(isMobile);
+                        },
+                      )
+                    : _buildStaticDashboard(isMobile),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -100,9 +86,9 @@ class DashboardShowcase extends StatelessWidget {
   Widget _buildBrowserHeader(bool isMobile) {
     return Container(
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC).withValues(alpha: 0.70),
+        color: SariwaColors.surfaceSlateTint.withValues(alpha: 0.70),
         border: const Border(
           bottom: BorderSide(
             color: Color(0x200D9488),
@@ -124,7 +110,7 @@ class DashboardShowcase extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 7),
+              const SizedBox(width: 8),
               Container(
                 width: 11,
                 height: 11,
@@ -133,7 +119,7 @@ class DashboardShowcase extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 7),
+              const SizedBox(width: 8),
               Container(
                 width: 11,
                 height: 11,
@@ -145,7 +131,7 @@ class DashboardShowcase extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
 
           // Browser URL / Console Title Pill
           Expanded(
@@ -153,10 +139,10 @@ class DashboardShowcase extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
+                  color: SariwaColors.cardSurfaceLight,
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: const Color(0xFFE2E8F0),
+                    color: SariwaColors.surfaceSlateSubtle,
                     width: 0.8,
                   ),
                 ),
@@ -166,9 +152,9 @@ class DashboardShowcase extends StatelessWidget {
                     const Icon(
                       Icons.lock_outline_rounded,
                       size: 11,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     Flexible(
                       child: Text(
                         isMobile
@@ -176,9 +162,9 @@ class DashboardShowcase extends StatelessWidget {
                             : 'sariwaba.com/dashboard — Seafood Quality Audit Console',
                         style: const TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 11.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF475569),
+                          color: SariwaColors.inkSlateSecondary,
                           letterSpacing: -0.2,
                         ),
                         maxLines: 1,
@@ -191,7 +177,7 @@ class DashboardShowcase extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
 
           // System Status Pill
           Row(
@@ -201,19 +187,19 @@ class DashboardShowcase extends StatelessWidget {
                 width: 7,
                 height: 7,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF10B981),
+                  color: SariwaColors.statusFresh,
                   shape: BoxShape.circle,
                 ),
               ),
               if (!isMobile) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 const Text(
                   'Model A • Online',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF0F766E),
+                    color: SariwaColors.brandPrimary,
                   ),
                 ),
               ],
@@ -231,7 +217,7 @@ class DashboardShowcase extends StatelessWidget {
     }
 
     return Container(
-      color: const Color(0xFFF8FAFC),
+      color: SariwaColors.surfaceSlateTint,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -254,12 +240,12 @@ class DashboardShowcase extends StatelessWidget {
   Widget _buildSidebar() {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         border: Border(
-          right: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+          right: BorderSide(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -276,9 +262,9 @@ class DashboardShowcase extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     color: SariwaColors.brandPrimary,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.waves, color: Colors.white, size: 14),
+                  child: const Icon(Icons.waves, color: SariwaColors.cardSurfaceLight, size: 14),
                 ),
               ),
               const SizedBox(width: 8),
@@ -287,10 +273,10 @@ class DashboardShowcase extends StatelessWidget {
                   'SariwaBa',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.3,
-                    color: Color(0xFF0A2229),
+                    color: SariwaColors.textPrimaryDark,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -299,16 +285,16 @@ class DashboardShowcase extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
 
           const Text(
             'WORKSPACE',
             style: TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0.8,
-              color: Color(0xFF94A3B8),
+              color: SariwaColors.inkSlateSubtle,
             ),
           ),
 
@@ -344,10 +330,10 @@ class DashboardShowcase extends StatelessWidget {
 
           // Evaluator User Card
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
+              color: SariwaColors.surfaceSlateWash,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
@@ -357,9 +343,9 @@ class DashboardShowcase extends StatelessWidget {
                   child: const Text(
                     'M',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: SariwaColors.cardSurfaceLight,
                       fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -373,16 +359,16 @@ class DashboardShowcase extends StatelessWidget {
                         'Marc (Lead)',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF0F172A),
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.inkSlate,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         'Verified Evaluator',
                         style: TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFF64748B),
+                          fontSize: 12,
+                          color: SariwaColors.inkSlateMuted,
                         ),
                       ),
                     ],
@@ -403,7 +389,7 @@ class DashboardShowcase extends StatelessWidget {
     String? badge,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: isActive ? const Color(0xFFE6F5F2) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
@@ -413,7 +399,7 @@ class DashboardShowcase extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: isActive ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+            color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -421,25 +407,25 @@ class DashboardShowcase extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 12.5,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                color: isActive ? SariwaColors.brandPrimary : const Color(0xFF334155),
+                fontSize: 14,
+                fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
+                color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateSecondary,
               ),
             ),
           ),
           if (badge != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: isActive ? SariwaColors.brandPrimary : const Color(0xFFE2E8F0),
-                borderRadius: BorderRadius.circular(10),
+                color: isActive ? SariwaColors.brandPrimary : SariwaColors.surfaceSlateSubtle,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 badge,
                 style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: isActive ? Colors.white : const Color(0xFF475569),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isActive ? SariwaColors.cardSurfaceLight : SariwaColors.inkSlateSecondary,
                 ),
               ),
             ),
@@ -451,31 +437,24 @@ class DashboardShowcase extends StatelessWidget {
   /// Main Dashboard Workspace (Atmospheric Banner + 2-Column Studio matching real UI)
   Widget _buildMainWorkspace() {
     return Padding(
-      padding: const EdgeInsets.all(14.0),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Atmospheric Banner
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF0A2229),
+                  SariwaColors.textPrimaryDark,
                   Color(0xFF0F4C4C),
-                  Color(0xFF168077),
+                  SariwaColors.brandPrimary,
                 ],
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x180A2229),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ],
+              )
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -488,17 +467,17 @@ class DashboardShowcase extends StatelessWidget {
                         'Freshness Inspection',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.cardSurfaceLight,
                         ),
                       ),
                       SizedBox(height: 1),
                       Text(
                         'Inspect close-up eyes, exposed gills, or whole Tilapia photos.',
                         style: TextStyle(
-                          fontSize: 10.5,
-                          color: Color(0xFFD1FAF4),
+                          fontSize: 12,
+                          color: SariwaColors.colorPale,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -513,18 +492,18 @@ class DashboardShowcase extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(99),
+                    color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.28),
+                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.28),
                     ),
                   ),
                   child: const Text(
                     'Example preview',
                     style: TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.cardSurfaceLight,
                     ),
                   ),
                 ),
@@ -560,16 +539,9 @@ class DashboardShowcase extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0F172A),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.borderLightTeal)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -578,7 +550,7 @@ class DashboardShowcase extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(5),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
@@ -594,19 +566,19 @@ class DashboardShowcase extends StatelessWidget {
                 child: Text(
                   'Freshness Scanner',
                   style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: SariwaColors.surfaceSlateSubtle),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -616,9 +588,9 @@ class DashboardShowcase extends StatelessWidget {
                     Text(
                       'Tilapia only',
                       style: TextStyle(
-                        fontSize: 9,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF334155),
+                        color: SariwaColors.inkSlateSecondary,
                       ),
                     ),
                   ],
@@ -670,16 +642,16 @@ class DashboardShowcase extends StatelessWidget {
                             decoration: const BoxDecoration(
                               color: SariwaColors.brandPrimary,
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
+                                topLeft: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
                               ),
                             ),
                             child: const Text(
                               '1',
                               style: TextStyle(
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: SariwaColors.cardSurfaceLight,
                               ),
                             ),
                           ),
@@ -694,7 +666,7 @@ class DashboardShowcase extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _buildMiniCircleOverlay(CupertinoIcons.crop),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 4),
                           _buildMiniCircleOverlay(CupertinoIcons.xmark),
                         ],
                       ),
@@ -726,22 +698,22 @@ class DashboardShowcase extends StatelessWidget {
                       bottom: 7,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2.5,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xCC0A1926),
-                          borderRadius: BorderRadius.circular(99),
+                          borderRadius: BorderRadius.circular(999),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.22),
+                            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.22),
                           ),
                         ),
                         child: const Text(
                           '1 / 3',
                           style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: SariwaColors.cardSurfaceLight,
                           ),
                         ),
                       ),
@@ -760,9 +732,9 @@ class DashboardShowcase extends StatelessWidget {
             child: Row(
               children: [
                 _buildMiniEyeThumb('#1', isSelected: true, checkedFresh: true),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 _buildMiniEyeThumb('#2', isSelected: false),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 _buildMiniEyeThumb('#3', isSelected: false),
               ],
             ),
@@ -774,11 +746,11 @@ class DashboardShowcase extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(2.5),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(9),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: SariwaColors.surfaceSlateSubtle),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -801,14 +773,14 @@ class DashboardShowcase extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: SariwaColors.cardSurfaceLight,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                  border: Border.all(color: SariwaColors.lineSlate),
                 ),
                 child: const Icon(
                   Icons.center_focus_strong_rounded,
@@ -825,35 +797,28 @@ class DashboardShowcase extends StatelessWidget {
           Container(
             height: 32,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
                   Color(0xFF0D5E57),
-                  Color(0xFF168077),
+                  SariwaColors.brandPrimary,
                   Color(0xFF249E92),
                 ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0D5E57).withValues(alpha: 0.22),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              )
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(CupertinoIcons.sparkles, size: 12, color: Colors.white),
-                SizedBox(width: 6),
+                Icon(CupertinoIcons.sparkles, size: 12, color: SariwaColors.cardSurfaceLight),
+                SizedBox(width: 8),
                 Text(
                   'Check freshness',
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.cardSurfaceLight,
                   ),
                 ),
               ],
@@ -871,9 +836,9 @@ class DashboardShowcase extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xB80A1926),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+        border: Border.all(color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.25)),
       ),
-      child: Icon(icon, size: 11, color: Colors.white),
+      child: Icon(icon, size: 11, color: SariwaColors.cardSurfaceLight),
     );
   }
 
@@ -888,12 +853,12 @@ class DashboardShowcase extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected
             ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
-            : Colors.white,
+            : SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isSelected
               ? SariwaColors.brandPrimary
-              : const Color(0xFFCBD5E1),
+              : SariwaColors.lineSlate,
           width: isSelected ? 1.6 : 1.0,
         ),
       ),
@@ -901,12 +866,12 @@ class DashboardShowcase extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(8),
             child: Image.asset(
               'assets/images/sample_tilapia2.jpg',
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
-                color: const Color(0xFFE2E8F0),
+                color: SariwaColors.surfaceSlateSubtle,
               ),
             ),
           ),
@@ -914,19 +879,19 @@ class DashboardShowcase extends StatelessWidget {
             left: 2,
             top: 2,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
                 color: isSelected
                     ? SariwaColors.brandPrimary
                     : const Color(0xCC0A1926),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: SariwaColors.cardSurfaceLight,
                 ),
               ),
             ),
@@ -954,8 +919,8 @@ class DashboardShowcase extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.transparent,
-        borderRadius: BorderRadius.circular(7),
+        color: isActive ? SariwaColors.cardSurfaceLight : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
         boxShadow: isActive
             ? const [
                 BoxShadow(
@@ -974,17 +939,17 @@ class DashboardShowcase extends StatelessWidget {
             size: 10.5,
             color: isActive
                 ? SariwaColors.brandPrimary
-                : const Color(0xFF64748B),
+                : SariwaColors.inkSlateMuted,
           ),
           const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
               color: isActive
                   ? SariwaColors.textPrimaryDark
-                  : const Color(0xFF64748B),
+                  : SariwaColors.inkSlateMuted,
             ),
           ),
         ],
@@ -994,18 +959,11 @@ class DashboardShowcase extends StatelessWidget {
 
   Widget _buildModernResultPanel() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SariwaColors.borderLightTeal),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A0F172A),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SariwaColors.borderLightTeal)
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1015,7 +973,7 @@ class DashboardShowcase extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: SariwaColors.freshIconBg,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: SariwaColors.freshBorder, width: 1.2),
             ),
             child: Column(
@@ -1033,11 +991,11 @@ class DashboardShowcase extends StatelessWidget {
                         errorBuilder: (_, _, _) => Container(
                           width: 40,
                           height: 40,
-                          color: const Color(0xFFDCFCE7),
+                          color: SariwaColors.freshTrack,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1046,7 +1004,7 @@ class DashboardShowcase extends StatelessWidget {
                             'Fresh',
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w500,
                               color: SariwaColors.statusFresh,
                             ),
                           ),
@@ -1054,8 +1012,8 @@ class DashboardShowcase extends StatelessWidget {
                           Text(
                             'Model confidence: 94.7%',
                             style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               color: SariwaColors.textPrimaryDark,
                             ),
                           ),
@@ -1066,37 +1024,37 @@ class DashboardShowcase extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                   child: const LinearProgressIndicator(
                     value: 0.947,
                     minHeight: 5.5,
-                    backgroundColor: Colors.white,
+                    backgroundColor: SariwaColors.cardSurfaceLight,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       SariwaColors.statusFresh,
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 const Text(
                   'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 12,
                     height: 1.35,
                     color: SariwaColors.textSecondaryDark,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: Container(
                         height: 30,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(9),
+                          borderRadius: BorderRadius.circular(8),
                           gradient: const LinearGradient(
                             colors: [
                               Color(0xFF0D5E57),
-                              Color(0xFF168077),
+                              SariwaColors.brandPrimary,
                               Color(0xFF249E92),
                             ],
                           ),
@@ -1105,29 +1063,29 @@ class DashboardShowcase extends StatelessWidget {
                           child: Text(
                             'Scan Another',
                             style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: SariwaColors.cardSurfaceLight,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     Container(
                       height: 30,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(9),
-                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                        color: SariwaColors.cardSurfaceLight,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: SariwaColors.lineSlate),
                       ),
                       child: const Center(
                         child: Text(
                           'Adjust crop',
                           style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: SariwaColors.textPrimaryDark,
                           ),
                         ),
@@ -1135,14 +1093,14 @@ class DashboardShowcase extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 const Align(
                   alignment: Alignment.centerRight,
                   child: Text(
                     'View scan history →',
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       color: SariwaColors.brandPrimary,
                     ),
                   ),
@@ -1153,10 +1111,10 @@ class DashboardShowcase extends StatelessWidget {
           const Spacer(),
           // Compact Batch Preview strip at bottom of right panel
           Container(
-            padding: const EdgeInsets.all(9),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFA),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: SariwaColors.borderLightTeal),
             ),
             child: const Row(
@@ -1166,12 +1124,12 @@ class DashboardShowcase extends StatelessWidget {
                   size: 14,
                   color: SariwaColors.brandPrimary,
                 ),
-                SizedBox(width: 7),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Auto-detects eyes on whole Tilapia & crowded trays.',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: SariwaColors.textSecondaryDark,
                     ),
                     maxLines: 2,
@@ -1193,11 +1151,11 @@ class DashboardShowcase extends StatelessWidget {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1206,14 +1164,14 @@ class DashboardShowcase extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 10.5,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF64748B),
+              color: SariwaColors.inkSlateMuted,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1222,7 +1180,7 @@ class DashboardShowcase extends StatelessWidget {
                   value,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.4,
                     color: color,
                   ),
@@ -1235,13 +1193,13 @@ class DashboardShowcase extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   trend,
                   style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: color,
                   ),
                   maxLines: 1,
@@ -1259,9 +1217,9 @@ class DashboardShowcase extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1273,26 +1231,26 @@ class DashboardShowcase extends StatelessWidget {
                   'Specimen #SB-2026-1108',
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F172A),
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.inkSlate,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(4),
+                  color: SariwaColors.freshTrack,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'Verified SARIWA',
                   style: TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF15803D),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.freshText,
                   ),
                 ),
               ),
@@ -1314,9 +1272,9 @@ class DashboardShowcase extends StatelessWidget {
                     fit: BoxFit.cover,
                     alignment: const Alignment(0.0, 0.15),
                     errorBuilder: (_, _, _) => Container(
-                      color: const Color(0xFFE2E8F0),
+                      color: SariwaColors.surfaceSlateSubtle,
                       child: const Center(
-                        child: Icon(Icons.image_outlined, color: Color(0xFF94A3B8)),
+                        child: Icon(Icons.image_outlined, color: SariwaColors.inkSlateSubtle),
                       ),
                     ),
                   ),
@@ -1329,8 +1287,8 @@ class DashboardShowcase extends StatelessWidget {
                           center: const Alignment(-0.15, -0.05),
                           radius: 0.90,
                           colors: [
-                            Colors.black.withValues(alpha: 0.05),
-                            Colors.black.withValues(alpha: 0.55),
+                            SariwaColors.inkSlate.withValues(alpha: 0.05),
+                            SariwaColors.inkSlate.withValues(alpha: 0.55),
                           ],
                         ),
                       ),
@@ -1363,19 +1321,19 @@ class DashboardShowcase extends StatelessWidget {
                         // Filename pill
                         Flexible(
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(999),
                             child: BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 2.5,
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
                                   color: const Color(0x991C1C1E),
-                                  borderRadius: BorderRadius.circular(99),
+                                  borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.20),
+                                    color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.20),
                                     width: 0.5,
                                   ),
                                 ),
@@ -1385,16 +1343,16 @@ class DashboardShowcase extends StatelessWidget {
                                     Icon(
                                       Icons.photo_outlined,
                                       size: 10.5,
-                                      color: Colors.white70,
+                                      color: SariwaColors.textSecondaryLight,
                                     ),
                                     SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
                                         'sample_tilapia2.jpg',
                                         style: TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: SariwaColors.cardSurfaceLight,
                                           letterSpacing: -0.2,
                                         ),
                                         maxLines: 1,
@@ -1407,26 +1365,20 @@ class DashboardShowcase extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         // Target ROI pill with glowing teal accent
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2.5,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: const Color(0xD00D9488),
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: const Color(0xFF5EEAD4),
+                              color: SariwaColors.brandLight,
                               width: 0.8,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF14B8A6).withValues(alpha: 0.45),
-                                blurRadius: 6,
-                              ),
-                            ],
+                            )
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1434,15 +1386,15 @@ class DashboardShowcase extends StatelessWidget {
                               Icon(
                                 Icons.crop_free_rounded,
                                 size: 10,
-                                color: Colors.white,
+                                color: SariwaColors.cardSurfaceLight,
                               ),
                               SizedBox(width: 3.5),
                               Text(
                                 'Target ROI: Eye',
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8.5,
-                                  fontWeight: FontWeight.w700,
+                                  color: SariwaColors.cardSurfaceLight,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -1458,12 +1410,12 @@ class DashboardShowcase extends StatelessWidget {
                     right: 8,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2.5,
+                        horizontal: 8,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.72),
-                        borderRadius: BorderRadius.circular(4),
+                        color: SariwaColors.inkSlate.withValues(alpha: 0.72),
+                        borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: const Color(0x602DD4BF),
                           width: 0.8,
@@ -1481,9 +1433,9 @@ class DashboardShowcase extends StatelessWidget {
                           Text(
                             'AI Conf: 94.7%',
                             style: TextStyle(
-                              color: Color(0xFF5EEAD4),
-                              fontSize: 8.5,
-                              fontWeight: FontWeight.w700,
+                              color: SariwaColors.brandLight,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: 0.2,
                             ),
                           ),
@@ -1509,35 +1461,35 @@ class DashboardShowcase extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE6F5F2),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: SariwaColors.brandPrimary, width: 1.0),
                     ),
                     child: const Text(
                       'Eye (Selected)',
                       style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         color: SariwaColors.brandPrimary,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+                      color: SariwaColors.surfaceSlateTint,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
                     ),
                     child: const Text(
                       'Gills',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ),
@@ -1546,14 +1498,14 @@ class DashboardShowcase extends StatelessWidget {
               const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF15803D)),
+                  Icon(Icons.check_circle_rounded, size: 13, color: SariwaColors.freshText),
                   SizedBox(width: 4),
                   Text(
                     '94.7% Confidence',
                     style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF15803D),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.freshText,
                     ),
                   ),
                 ],
@@ -1570,9 +1522,9 @@ class DashboardShowcase extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1584,26 +1536,26 @@ class DashboardShowcase extends StatelessWidget {
                   'Recent Audits',
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F172A),
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.inkSlate,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(4),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   '12 Scans',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF475569),
+                    color: SariwaColors.inkSlateSecondary,
                   ),
                 ),
               ),
@@ -1616,7 +1568,7 @@ class DashboardShowcase extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 4),
             decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9))),
+              border: Border(bottom: BorderSide(color: SariwaColors.surfaceSlateWash)),
             ),
             child: const Row(
               children: [
@@ -1624,7 +1576,7 @@ class DashboardShowcase extends StatelessWidget {
                   flex: 3,
                   child: Text(
                     'SPECIMEN ID',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1633,7 +1585,7 @@ class DashboardShowcase extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     'REGION',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1642,7 +1594,7 @@ class DashboardShowcase extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     'SCORE',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1651,7 +1603,7 @@ class DashboardShowcase extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Text(
                     'STATUS',
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
                   ),
                 ),
               ],
@@ -1679,9 +1631,9 @@ class DashboardShowcase extends StatelessWidget {
 
   Widget _buildAuditRow(String id, String region, String score, {required bool isFresh}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF8FAFC))),
+        border: Border(bottom: BorderSide(color: SariwaColors.surfaceSlateTint)),
       ),
       child: Row(
         children: [
@@ -1689,7 +1641,7 @@ class DashboardShowcase extends StatelessWidget {
             flex: 3,
             child: Text(
               id,
-              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlate),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1698,7 +1650,7 @@ class DashboardShowcase extends StatelessWidget {
             flex: 2,
             child: Text(
               region,
-              style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, color: SariwaColors.inkSlateMuted),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1707,7 +1659,7 @@ class DashboardShowcase extends StatelessWidget {
             flex: 2,
             child: Text(
               score,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFF334155)),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSecondary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1715,17 +1667,17 @@ class DashboardShowcase extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
               decoration: BoxDecoration(
-                color: isFresh ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(4),
+                color: isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 isFresh ? 'Fresh' : 'Not Fresh',
                 style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: isFresh ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
                 ),
               ),
             ),
@@ -1738,51 +1690,51 @@ class DashboardShowcase extends StatelessWidget {
   /// Clean, tailored responsive mobile dashboard presentation matching our iOS-style mobile UI
   Widget _buildMobileDashboard() {
     return Container(
-      color: const Color(0xFFF8FAFC),
+      color: SariwaColors.surfaceSlateTint,
       child: Column(
         children: [
           // Compact Mobile Top Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: SariwaColors.cardSurfaceLight,
               border: Border(
-                bottom: BorderSide(color: Color(0xFFE2E8F0)),
+                bottom: BorderSide(color: SariwaColors.surfaceSlateSubtle),
               ),
             ),
             child: const Row(
               children: [
-                Icon(CupertinoIcons.bars, size: 16, color: Color(0xFF0A2229)),
+                Icon(CupertinoIcons.bars, size: 16, color: SariwaColors.textPrimaryDark),
                 SizedBox(width: 8),
                 Text(
                   'Inspect',
                   style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0A2229),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.textPrimaryDark,
                   ),
                 ),
                 Spacer(),
                 Icon(
                   CupertinoIcons.question_circle,
                   size: 16,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ],
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               child: _buildModernScannerCard(),
             ),
           ),
           // iOS-style Bottom Navbar with center '+' button
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+              color: SariwaColors.cardSurfaceLight,
+              border: Border(top: BorderSide(color: SariwaColors.surfaceSlateSubtle)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1795,7 +1747,7 @@ class DashboardShowcase extends StatelessWidget {
                 const Icon(
                   CupertinoIcons.clock,
                   size: 18,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
                 Container(
                   width: 38,
@@ -1807,23 +1759,23 @@ class DashboardShowcase extends StatelessWidget {
                         SariwaColors.brandPrimary,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(11),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     CupertinoIcons.plus,
                     size: 16,
-                    color: Colors.white,
+                    color: SariwaColors.cardSurfaceLight,
                   ),
                 ),
                 const Icon(
                   CupertinoIcons.chart_bar,
                   size: 18,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
                 const Icon(
                   CupertinoIcons.gear,
                   size: 18,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ],
             ),

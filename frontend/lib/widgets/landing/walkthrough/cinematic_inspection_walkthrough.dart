@@ -242,10 +242,10 @@ class _CinematicInspectionWalkthroughState
           width: targetWidth,
           constraints: const BoxConstraints(maxWidth: 1060),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            color: SariwaColors.cardSurfaceLight,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: const Color(0xFFE2E8F0),
+              color: SariwaColors.surfaceSlateSubtle,
               width: 1.2,
             ),
             boxShadow: const [
@@ -264,7 +264,7 @@ class _CinematicInspectionWalkthroughState
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(17),
+            borderRadius: BorderRadius.circular(20),
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
@@ -310,12 +310,12 @@ class _CinematicInspectionWalkthroughState
 
     return Container(
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
-        color: Color(0xFFF8FAFC),
+        color: SariwaColors.surfaceSlateTint,
         border: Border(
           bottom: BorderSide(
-            color: Color(0xFFE2E8F0),
+            color: SariwaColors.surfaceSlateSubtle,
             width: 1.0,
           ),
         ),
@@ -327,14 +327,14 @@ class _CinematicInspectionWalkthroughState
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFFFF5F56), shape: BoxShape.circle)),
-              const SizedBox(width: 7),
+              const SizedBox(width: 8),
               Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFFFFBD2E), shape: BoxShape.circle)),
-              const SizedBox(width: 7),
+              const SizedBox(width: 8),
               Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
             ],
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
 
           // Window Title / Workspace Label
           Expanded(
@@ -344,9 +344,9 @@ class _CinematicInspectionWalkthroughState
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
-                  color: Color(0xFF475569),
+                  color: SariwaColors.inkSlateSecondary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -359,10 +359,10 @@ class _CinematicInspectionWalkthroughState
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE6F4EA),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFCEEAD6), width: 0.8),
                 ),
                 child: Row(
@@ -374,8 +374,8 @@ class _CinematicInspectionWalkthroughState
                       'Live Demo',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
                         color: Color(0xFF137333),
                       ),
@@ -383,7 +383,7 @@ class _CinematicInspectionWalkthroughState
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               IconButton(
                 iconSize: 16,
                 padding: EdgeInsets.zero,
@@ -392,7 +392,7 @@ class _CinematicInspectionWalkthroughState
                 onPressed: _togglePlayPause,
                 icon: Icon(
                   _isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline,
-                  color: const Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ),
               IconButton(
@@ -403,7 +403,7 @@ class _CinematicInspectionWalkthroughState
                 onPressed: _restart,
                 icon: const Icon(
                   Icons.replay_rounded,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ),
             ],
@@ -439,7 +439,7 @@ class _CinematicInspectionWalkthroughState
               // Shell Interior
               Positioned.fill(
                 child: Container(
-                  color: const Color(0xFFF8FAFC), // Authentic dashboard soft slate background
+                  color: SariwaColors.surfaceSlateTint, // Authentic dashboard soft slate background
                   child: isMobile
                       ? _buildMobileShell(t, activeTab)
                       : _buildDesktopShell(t, activeTab),
@@ -489,10 +489,10 @@ class _CinematicInspectionWalkthroughState
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+            color: SariwaColors.cardSurfaceLight,
+            border: Border(bottom: BorderSide(color: SariwaColors.surfaceSlateSubtle)),
           ),
           child: Row(
             children: [
@@ -502,7 +502,7 @@ class _CinematicInspectionWalkthroughState
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: SariwaColors.surfaceSlateWash,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -529,8 +529,8 @@ class _CinematicInspectionWalkthroughState
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: isActive ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
+          color: isActive ? SariwaColors.cardSurfaceLight : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
           boxShadow: isActive
               ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1))]
               : null,
@@ -540,10 +540,10 @@ class _CinematicInspectionWalkthroughState
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: AppTypography.fontFamily,
-            fontSize: 10.5,
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 12,
+            fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
             letterSpacing: -0.25,
-            color: isActive ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+            color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
           ),
         ),
       ),
@@ -554,12 +554,12 @@ class _CinematicInspectionWalkthroughState
   Widget _buildFaithfulSidebar(double t, int activeTab) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         border: Border(
-          right: BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+          right: BorderSide(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -578,8 +578,8 @@ class _CinematicInspectionWalkthroughState
                   'SariwaBa',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -592,15 +592,15 @@ class _CinematicInspectionWalkthroughState
           const SizedBox(height: 16),
 
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             child: Text(
               'WORKSPACE',
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: 0.8,
-                color: Color(0xFF94A3B8),
+                color: SariwaColors.inkSlateSubtle,
               ),
             ),
           ),
@@ -613,14 +613,14 @@ class _CinematicInspectionWalkthroughState
             label: 'Inspection',
             isActive: activeTab == 0,
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           _buildSidebarNavItem(
             icon: CupertinoIcons.clock,
             label: 'History',
             badgeCount: 12,
             isActive: activeTab == 1,
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           _buildSidebarNavItem(
             icon: CupertinoIcons.chart_bar_square,
             label: 'Analytics',
@@ -631,11 +631,11 @@ class _CinematicInspectionWalkthroughState
 
           // User Profile Card at bottom of sidebar
           Container(
-            padding: const EdgeInsets.all(7),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(9),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              color: SariwaColors.surfaceSlateTint,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle),
             ),
             child: Row(
               children: [
@@ -646,13 +646,13 @@ class _CinematicInspectionWalkthroughState
                     'M',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       color: SariwaColors.brandPrimary,
                     ),
                   ),
                 ),
-                const SizedBox(width: 7),
+                const SizedBox(width: 8),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,10 +662,10 @@ class _CinematicInspectionWalkthroughState
                         'Marc (Lead)',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
-                          color: Color(0xFF0F172A),
+                          color: SariwaColors.inkSlate,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -674,9 +674,9 @@ class _CinematicInspectionWalkthroughState
                         'Verified Evaluator',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 9,
+                          fontSize: 12,
                           letterSpacing: -0.25,
-                          color: Color(0xFF10B981),
+                          color: SariwaColors.statusFresh,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -698,7 +698,7 @@ class _CinematicInspectionWalkthroughState
     int? badgeCount,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6.5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: isActive
             ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
@@ -710,35 +710,35 @@ class _CinematicInspectionWalkthroughState
           Icon(
             icon,
             size: 15,
-            color: isActive ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+            color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 11.5,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
                 letterSpacing: -0.25,
-                color: isActive ? SariwaColors.brandPrimary : const Color(0xFF334155),
+                color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateSecondary,
               ),
             ),
           ),
           if (badgeCount != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                color: isActive ? SariwaColors.brandPrimary : const Color(0xFFE2E8F0),
+                color: isActive ? SariwaColors.brandPrimary : SariwaColors.surfaceSlateSubtle,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '$badgeCount',
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                  color: isActive ? Colors.white : const Color(0xFF475569),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isActive ? SariwaColors.cardSurfaceLight : SariwaColors.inkSlateSecondary,
                 ),
               ),
             ),
@@ -776,13 +776,13 @@ class _CinematicInspectionWalkthroughState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Welcome back, Evaluator',
+                      'Inspection Bench — Evaluator',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
-                        color: Color(0xFF0F172A),
+                        color: SariwaColors.inkSlate,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -792,9 +792,9 @@ class _CinematicInspectionWalkthroughState
                       'Real-time AI fish freshness monitoring and quality audits',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10,
+                        fontSize: 12,
                         letterSpacing: -0.25,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -803,25 +803,25 @@ class _CinematicInspectionWalkthroughState
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: SariwaColors.surfaceSlateSubtle),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(CupertinoIcons.calendar, size: 10, color: Color(0xFF64748B)),
+                    Icon(CupertinoIcons.calendar, size: 10, color: SariwaColors.inkSlateMuted),
                     SizedBox(width: 4),
                     Text(
                       'Daily • Today',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
-                        color: Color(0xFF475569),
+                        color: SariwaColors.inkSlateSecondary,
                       ),
                     ),
                   ],
@@ -830,22 +830,22 @@ class _CinematicInspectionWalkthroughState
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // 2. Row of 4 KPI Metric Cards across the top
           Row(
             children: [
-              _buildTopKpiCard('TOTAL SCANS', '12', '+4 today', const Color(0xFF0F172A)),
+              _buildTopKpiCard('TOTAL SCANS', '12', '+4 today', SariwaColors.inkSlate),
               const SizedBox(width: 8),
-              _buildTopKpiCard('FRESHNESS RATE', '91.7%', '11 fresh', const Color(0xFF15803D)),
+              _buildTopKpiCard('FRESHNESS RATE', '91.7%', '11 fresh', SariwaColors.freshText),
               const SizedBox(width: 8),
-              _buildTopKpiCard('NOT FRESH ALERTS', '1', 'Requires action', const Color(0xFFDC2626)),
+              _buildTopKpiCard('NOT FRESH ALERTS', '1', 'Requires action', SariwaColors.statusSpoiled),
               const SizedBox(width: 8),
               _buildTopKpiCard('AVG CONFIDENCE', '94.2%', 'High precision', SariwaColors.brandPrimary),
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // 3. Two-Column Core Layout: Live Inspection (flex 6) & Recent Audits (flex 5)
           Expanded(
@@ -859,7 +859,7 @@ class _CinematicInspectionWalkthroughState
                 ),
 
                 if (!isMobile) ...[
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   // Right Column: Recent Audits Snippet
                   Expanded(
                     flex: 5,
@@ -877,11 +877,11 @@ class _CinematicInspectionWalkthroughState
   Widget _buildTopKpiCard(String label, String value, String sub, Color valueColor) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          color: SariwaColors.cardSurfaceLight,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: SariwaColors.surfaceSlateSubtle),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,10 +891,10 @@ class _CinematicInspectionWalkthroughState
               label,
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 8.5,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
-                color: Color(0xFF94A3B8),
+                color: SariwaColors.inkSlateSubtle,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -904,8 +904,8 @@ class _CinematicInspectionWalkthroughState
               value,
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.25,
                 color: valueColor,
               ),
@@ -914,9 +914,9 @@ class _CinematicInspectionWalkthroughState
               sub,
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 8.5,
+                fontSize: 12,
                 letterSpacing: -0.25,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -941,11 +941,11 @@ class _CinematicInspectionWalkthroughState
     }
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -954,47 +954,47 @@ class _CinematicInspectionWalkthroughState
           Row(
             children: [
               const Icon(CupertinoIcons.viewfinder, size: 14, color: SariwaColors.brandPrimary),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               const Expanded(
                 child: Text(
                   'Live Freshness Inspection',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
-                    color: Color(0xFF0F172A),
+                    color: SariwaColors.inkSlate,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(6),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
                   'Tilapia',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
-                    color: Color(0xFF475569),
+                    color: SariwaColors.inkSlateSecondary,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           // Region Selector (Eye vs Gill)
           Container(
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: SariwaColors.surfaceSlateWash,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -1003,8 +1003,8 @@ class _CinematicInspectionWalkthroughState
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     decoration: BoxDecoration(
-                      color: isEyeSelected ? Colors.white : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
+                      color: isEyeSelected ? SariwaColors.cardSurfaceLight : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
                       boxShadow: isEyeSelected
                           ? const [BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1))]
                           : null,
@@ -1015,17 +1015,17 @@ class _CinematicInspectionWalkthroughState
                         Icon(
                           Icons.visibility_outlined,
                           size: 11,
-                          color: isEyeSelected ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+                          color: isEyeSelected ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Eye (Mata)',
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
-                            fontSize: 10,
-                            fontWeight: isEyeSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontSize: 12,
+                            fontWeight: isEyeSelected ? FontWeight.w500 : FontWeight.w500,
                             letterSpacing: -0.25,
-                            color: isEyeSelected ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+                            color: isEyeSelected ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
                           ),
                         ),
                       ],
@@ -1038,16 +1038,16 @@ class _CinematicInspectionWalkthroughState
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.grain, size: 11, color: Color(0xFF94A3B8)),
+                        Icon(Icons.grain, size: 11, color: SariwaColors.inkSlateSubtle),
                         SizedBox(width: 4),
                         Text(
                           'Gill (Hasang)',
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             letterSpacing: -0.25,
-                            color: Color(0xFF94A3B8),
+                            color: SariwaColors.inkSlateSubtle,
                           ),
                         ),
                       ],
@@ -1084,23 +1084,23 @@ class _CinematicInspectionWalkthroughState
                           height: 12,
                           child: CircularProgressIndicator(
                             strokeWidth: 1.8,
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                            valueColor: AlwaysStoppedAnimation(SariwaColors.cardSurfaceLight),
                           ),
                         )
-                      : const Icon(Icons.auto_awesome, size: 13, color: Colors.white),
+                      : const Icon(Icons.auto_awesome, size: 13, color: SariwaColors.cardSurfaceLight),
                   label: Text(
                     isScanning ? 'Analyzing Corneal Clarity...' : 'Validate & Classify Freshness',
                     style: const TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: -0.25,
-                      color: Colors.white,
+                      color: SariwaColors.cardSurfaceLight,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isScanning ? const Color(0xFF0F766E) : SariwaColors.brandPrimary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isScanning ? SariwaColors.brandPrimary : SariwaColors.brandPrimary,
+                    foregroundColor: SariwaColors.cardSurfaceLight,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -1124,10 +1124,10 @@ class _CinematicInspectionWalkthroughState
 
     return Container(
       decoration: BoxDecoration(
-        color: isHovered ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
+        color: isHovered ? SariwaColors.freshIconBg : SariwaColors.surfaceSlateTint,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isHovered ? SariwaColors.brandPrimary : const Color(0xFFE2E8F0),
+          color: isHovered ? SariwaColors.brandPrimary : SariwaColors.surfaceSlateSubtle,
           style: BorderStyle.solid,
         ),
       ),
@@ -1138,41 +1138,41 @@ class _CinematicInspectionWalkthroughState
             Icon(
               Icons.cloud_upload_outlined,
               size: 24,
-              color: isHovered ? SariwaColors.brandPrimaryDark : const Color(0xFF94A3B8),
+              color: isHovered ? SariwaColors.brandPrimaryDark : SariwaColors.inkSlateSubtle,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             const Text(
               'Drop Tilapia specimen photo here',
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.25,
-                color: Color(0xFF334155),
+                color: SariwaColors.inkSlateSecondary,
               ),
             ),
             const SizedBox(height: 8),
             Transform.scale(
               scale: isPressed ? 0.94 : 1.0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: isHovered ? SariwaColors.brandPrimaryDark : SariwaColors.brandPrimary,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.photo_library_outlined, size: 11, color: Colors.white),
+                    Icon(Icons.photo_library_outlined, size: 11, color: SariwaColors.cardSurfaceLight),
                     SizedBox(width: 4),
                     Text(
                       'Choose Image',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
-                        color: Colors.white,
+                        color: SariwaColors.cardSurfaceLight,
                       ),
                     ),
                   ],
@@ -1188,7 +1188,7 @@ class _CinematicInspectionWalkthroughState
   /// Modest (~140px max) fish image preview container with reticle & scanning laser
   Widget _buildModestFishPreview(double scanProgress, bool isScanning) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -1206,8 +1206,8 @@ class _CinematicInspectionWalkthroughState
                 center: const Alignment(-0.25, -0.1),
                 radius: 0.85,
                 colors: [
-                  Colors.black.withValues(alpha: 0.10),
-                  Colors.black.withValues(alpha: 0.60),
+                  SariwaColors.inkSlate.withValues(alpha: 0.10),
+                  SariwaColors.inkSlate.withValues(alpha: 0.60),
                 ],
               ),
             ),
@@ -1226,7 +1226,7 @@ class _CinematicInspectionWalkthroughState
                     painter: ScanningReticlePainter(
                       scanProgress: scanProgress,
                       isScanning: isScanning,
-                      primaryColor: const Color(0xFF14B8A6),
+                      primaryColor: SariwaColors.brandGlow,
                     ),
                   ),
                 ),
@@ -1234,19 +1234,19 @@ class _CinematicInspectionWalkthroughState
                   top: 4,
                   left: 4,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF14B8A6).withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(3),
+                      color: SariwaColors.brandGlow.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'ROI: OCULAR EYE',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 7.5,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: 0.4,
-                        color: Colors.white,
+                        color: SariwaColors.cardSurfaceLight,
                       ),
                     ),
                   ),
@@ -1260,25 +1260,25 @@ class _CinematicInspectionWalkthroughState
             top: 6,
             right: 6,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.65),
+                color: SariwaColors.inkSlate.withValues(alpha: 0.65),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                border: Border.all(color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.2)),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check_circle, size: 10, color: Color(0xFF34D399)),
-                  SizedBox(width: 3),
+                  SizedBox(width: 4),
                   Text(
                     'Specimen: Tilapia',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 8.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.25,
-                      color: Colors.white,
+                      color: SariwaColors.cardSurfaceLight,
                     ),
                   ),
                 ],
@@ -1293,11 +1293,11 @@ class _CinematicInspectionWalkthroughState
   /// Compact Classification Result Card
   Widget _buildFreshnessResultCard() {
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: const Color(0xFFBBF7D0), width: 1.0),
+        color: SariwaColors.freshIconBg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SariwaColors.freshBorder, width: 1.0),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1309,12 +1309,12 @@ class _CinematicInspectionWalkthroughState
                 width: 22,
                 height: 22,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFDCFCE7),
+                  color: SariwaColors.freshTrack,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle_rounded, color: Color(0xFF168077), size: 14),
+                child: const Icon(Icons.check_circle_rounded, color: SariwaColors.brandPrimary, size: 14),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               const Expanded(
                 child: Text.rich(
                   TextSpan(
@@ -1323,20 +1323,20 @@ class _CinematicInspectionWalkthroughState
                         text: 'Fresh ',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
-                          color: Color(0xFF15803D),
+                          color: SariwaColors.freshText,
                         ),
                       ),
                       TextSpan(
                         text: '•  Tilapia Eye',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
-                          color: Color(0xFF64748B),
+                          color: SariwaColors.inkSlateMuted,
                         ),
                       ),
                     ],
@@ -1346,48 +1346,48 @@ class _CinematicInspectionWalkthroughState
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                  color: SariwaColors.cardSurfaceLight,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: SariwaColors.freshBorder),
                 ),
                 child: const Text(
                   '94.7%',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
-                    color: Color(0xFF15803D),
+                    color: SariwaColors.freshText,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
           ClipRRect(
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(8),
             child: const LinearProgressIndicator(
               value: 0.947,
               minHeight: 4,
-              backgroundColor: Color(0xFFDCFCE7),
-              valueColor: AlwaysStoppedAnimation(Color(0xFF168077)),
+              backgroundColor: SariwaColors.freshTrack,
+              valueColor: AlwaysStoppedAnimation(SariwaColors.brandPrimary),
             ),
           ),
           const SizedBox(height: 4),
           const Row(
             children: [
-              Icon(Icons.info_outline_rounded, size: 9, color: Color(0xFF64748B)),
-              SizedBox(width: 3),
+              Icon(Icons.info_outline_rounded, size: 9, color: SariwaColors.inkSlateMuted),
+              SizedBox(width: 4),
               Expanded(
                 child: Text(
                   'Visual AI assessment only. Not a food safety guarantee.',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 8,
+                    fontSize: 12,
                     letterSpacing: -0.25,
-                    color: Color(0xFF64748B),
+                    color: SariwaColors.inkSlateMuted,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1403,11 +1403,11 @@ class _CinematicInspectionWalkthroughState
   /// Right Column: Recent Audits Snippet Card
   Widget _buildRecentAuditsCard() {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: SariwaColors.cardSurfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1415,17 +1415,17 @@ class _CinematicInspectionWalkthroughState
           // Header Row
           const Row(
             children: [
-              Icon(CupertinoIcons.clock, size: 14, color: Color(0xFF64748B)),
-              SizedBox(width: 6),
+              Icon(CupertinoIcons.clock, size: 14, color: SariwaColors.inkSlateMuted),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Recent Audits',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
-                    color: Color(0xFF0F172A),
+                    color: SariwaColors.inkSlate,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1434,8 +1434,8 @@ class _CinematicInspectionWalkthroughState
                 'View all (12)',
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
                   color: SariwaColors.brandPrimary,
                 ),
@@ -1464,13 +1464,13 @@ class _CinematicInspectionWalkthroughState
 
   Widget _buildAuditMiniRow(String id, String region, String conf, bool isFresh, String time, {bool isLatest = false}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: isLatest ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+        color: isLatest ? SariwaColors.freshIconBg : SariwaColors.surfaceSlateTint,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isLatest ? const Color(0xFFBBF7D0) : const Color(0xFFF1F5F9),
+          color: isLatest ? SariwaColors.freshBorder : SariwaColors.surfaceSlateWash,
         ),
       ),
       child: Row(
@@ -1484,19 +1484,19 @@ class _CinematicInspectionWalkthroughState
                   id,
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 10.5,
-                    fontWeight: isLatest ? FontWeight.w700 : FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: isLatest ? FontWeight.w500 : FontWeight.w500,
                     letterSpacing: -0.25,
-                    color: const Color(0xFF0F172A),
+                    color: SariwaColors.inkSlate,
                   ),
                 ),
                 Text(
                   '$region • $time',
                   style: const TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 8.5,
+                    fontSize: 12,
                     letterSpacing: -0.25,
-                    color: Color(0xFF64748B),
+                    color: SariwaColors.inkSlateMuted,
                   ),
                 ),
               ],
@@ -1506,20 +1506,20 @@ class _CinematicInspectionWalkthroughState
             conf,
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
               letterSpacing: -0.25,
-              color: Color(0xFF334155),
+              color: SariwaColors.inkSlateSecondary,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
             decoration: BoxDecoration(
-              color: isFresh ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
-              borderRadius: BorderRadius.circular(6),
+              color: isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isFresh ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
+                color: isFresh ? SariwaColors.freshBorder : SariwaColors.notFreshBorder,
                 width: 0.8,
               ),
             ),
@@ -1527,10 +1527,10 @@ class _CinematicInspectionWalkthroughState
               isFresh ? 'Fresh' : 'Not Fresh',
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.25,
-                color: isFresh ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                color: isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
               ),
             ),
           ),
@@ -1544,41 +1544,41 @@ class _CinematicInspectionWalkthroughState
   // ===========================================================================
   Widget _buildHistoryView(bool isMobile) {
     return Container(
-      color: Colors.white,
+      color: SariwaColors.cardSurfaceLight,
       padding: EdgeInsets.all(isMobile ? 10 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildWorkspaceHeader('Seafood Audit History', 'Traceability Log & Verification Records', isMobile: isMobile),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Filters Row
           Row(
             children: [
               _buildFilterBadge('All (12)', true),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _buildFilterBadge('Fresh (11)', false),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               _buildFilterBadge('Not Fresh (1)', false),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(7),
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(CupertinoIcons.search, size: 11, color: Color(0xFF64748B)),
+                    Icon(CupertinoIcons.search, size: 11, color: SariwaColors.inkSlateMuted),
                     SizedBox(width: 4),
                     Text(
                       'Search records...',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10,
+                        fontSize: 12,
                         letterSpacing: -0.25,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ],
@@ -1587,26 +1587,26 @@ class _CinematicInspectionWalkthroughState
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Table Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(6),
+              color: SariwaColors.surfaceSlateTint,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
               children: [
-                Expanded(flex: 3, child: Text('SPECIMEN ID', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8), letterSpacing: 0.4))),
-                Expanded(flex: 2, child: Text('REGION', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8), letterSpacing: 0.4))),
-                Expanded(flex: 2, child: Text('CONFIDENCE', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8), letterSpacing: 0.4))),
-                Expanded(flex: 2, child: Text('RESULT', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8), letterSpacing: 0.4))),
+                Expanded(flex: 3, child: Text('SPECIMEN ID', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle, letterSpacing: 0.4))),
+                Expanded(flex: 2, child: Text('REGION', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle, letterSpacing: 0.4))),
+                Expanded(flex: 2, child: Text('CONFIDENCE', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle, letterSpacing: 0.4))),
+                Expanded(flex: 2, child: Text('RESULT', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle, letterSpacing: 0.4))),
               ],
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(height: 4),
 
           // Audit Rows
           Expanded(
@@ -1628,22 +1628,22 @@ class _CinematicInspectionWalkthroughState
 
   Widget _buildFilterBadge(String label, bool isActive) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? SariwaColors.brandPrimary.withValues(alpha: 0.12) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
+        color: isActive ? SariwaColors.brandPrimary.withValues(alpha: 0.12) : SariwaColors.surfaceSlateWash,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isActive ? SariwaColors.brandPrimary.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
+          color: isActive ? SariwaColors.brandPrimary.withValues(alpha: 0.3) : SariwaColors.surfaceSlateSubtle,
         ),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontFamily: AppTypography.fontFamily,
-          fontSize: 10,
-          fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+          fontSize: 12,
+          fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
           letterSpacing: -0.25,
-          color: isActive ? SariwaColors.brandPrimary : const Color(0xFF64748B),
+          color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
         ),
       ),
     );
@@ -1652,12 +1652,12 @@ class _CinematicInspectionWalkthroughState
   Widget _buildHistoryRow(String scanId, String region, String conf, bool isFresh, {bool isHighlighted = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isHighlighted ? const Color(0xFFF0FDF4) : Colors.white,
-        borderRadius: BorderRadius.circular(7),
+        color: isHighlighted ? SariwaColors.freshIconBg : SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isHighlighted ? const Color(0xFFBBF7D0) : const Color(0xFFF1F5F9),
+          color: isHighlighted ? SariwaColors.freshBorder : SariwaColors.surfaceSlateWash,
         ),
       ),
       child: Row(
@@ -1668,10 +1668,10 @@ class _CinematicInspectionWalkthroughState
               scanId,
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 10.5,
-                fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: isHighlighted ? FontWeight.w500 : FontWeight.w500,
                 letterSpacing: -0.25,
-                color: const Color(0xFF0F172A),
+                color: SariwaColors.inkSlate,
               ),
             ),
           ),
@@ -1681,9 +1681,9 @@ class _CinematicInspectionWalkthroughState
               region,
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 10.5,
+                fontSize: 12,
                 letterSpacing: -0.25,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
             ),
           ),
@@ -1693,22 +1693,22 @@ class _CinematicInspectionWalkthroughState
               conf,
               style: const TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.25,
-                color: Color(0xFF334155),
+                color: SariwaColors.inkSlateSecondary,
               ),
             ),
           ),
           Expanded(
             flex: 2,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
               decoration: BoxDecoration(
-                color: isFresh ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(6),
+                color: isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isFresh ? const Color(0xFFBBF7D0) : const Color(0xFFFECACA),
+                  color: isFresh ? SariwaColors.freshBorder : SariwaColors.notFreshBorder,
                   width: 0.8,
                 ),
               ),
@@ -1717,10 +1717,10 @@ class _CinematicInspectionWalkthroughState
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
-                  color: isFresh ? const Color(0xFF15803D) : const Color(0xFFB91C1C),
+                  color: isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
                 ),
               ),
             ),
@@ -1735,20 +1735,20 @@ class _CinematicInspectionWalkthroughState
   // ===========================================================================
   Widget _buildAnalyticsView(bool isMobile) {
     return Container(
-      color: Colors.white,
+      color: SariwaColors.cardSurfaceLight,
       padding: EdgeInsets.all(isMobile ? 10 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildWorkspaceHeader('Freshness Analytics & Trends', 'Quality Aggregation & Model Performance', isMobile: isMobile),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // 3 KPI Metric Cards
           Row(
             children: [
-              _buildTopKpiCard('TOTAL AUDITS', '12', '+4 this week', const Color(0xFF0F172A)),
+              _buildTopKpiCard('TOTAL AUDITS', '12', '+4 this week', SariwaColors.inkSlate),
               const SizedBox(width: 8),
-              _buildTopKpiCard('FRESH RATE', '91.7%', '11 verified', const Color(0xFF15803D)),
+              _buildTopKpiCard('FRESH RATE', '91.7%', '11 verified', SariwaColors.freshText),
               const SizedBox(width: 8),
               _buildTopKpiCard('AVG CONF', '94.2%', 'High precision', SariwaColors.brandPrimary),
             ],
@@ -1758,11 +1758,11 @@ class _CinematicInspectionWalkthroughState
 
           // Quality Distribution Ratio Bar
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              color: SariwaColors.surfaceSlateTint,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1774,65 +1774,65 @@ class _CinematicInspectionWalkthroughState
                       'Quality Distribution Ratio',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
-                        color: Color(0xFF0F172A),
+                        color: SariwaColors.inkSlate,
                       ),
                     ),
                     Text(
                       '11 Fresh  •  1 Not Fresh',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 9.5,
+                        fontSize: 12,
                         letterSpacing: -0.25,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 7),
+                const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                   child: Row(
                     children: [
                       Expanded(
                         flex: 92,
-                        child: Container(height: 8, color: const Color(0xFF168077)),
+                        child: Container(height: 8, color: SariwaColors.brandPrimary),
                       ),
                       const SizedBox(width: 2),
                       Expanded(
                         flex: 8,
-                        child: Container(height: 8, color: const Color(0xFFDC2626)),
+                        child: Container(height: 8, color: SariwaColors.statusSpoiled),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 7),
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF168077), shape: BoxShape.circle)),
+                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: SariwaColors.brandPrimary, shape: BoxShape.circle)),
                     const SizedBox(width: 4),
-                    const Text('Fresh (91.7%)', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9.5, letterSpacing: -0.25, color: Color(0xFF475569))),
+                    const Text('Fresh (91.7%)', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, letterSpacing: -0.25, color: SariwaColors.inkSlateSecondary)),
                     const SizedBox(width: 12),
-                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFFDC2626), shape: BoxShape.circle)),
+                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: SariwaColors.statusSpoiled, shape: BoxShape.circle)),
                     const SizedBox(width: 4),
-                    const Text('Not Fresh (8.3%)', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 9.5, letterSpacing: -0.25, color: Color(0xFF475569))),
+                    const Text('Not Fresh (8.3%)', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, letterSpacing: -0.25, color: SariwaColors.inkSlateSecondary)),
                   ],
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Regional Breakdown
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: SariwaColors.cardSurfaceLight,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1840,15 +1840,15 @@ class _CinematicInspectionWalkthroughState
                 Row(
                   children: [
                     Icon(CupertinoIcons.viewfinder, size: 12, color: SariwaColors.brandPrimary),
-                    SizedBox(width: 5),
-                    Text('Cornea (Eye): 9 scans • 94.2% avg', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 10, letterSpacing: -0.25, color: Color(0xFF334155))),
+                    SizedBox(width: 4),
+                    Text('Cornea (Eye): 9 scans • 94.2% avg', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, letterSpacing: -0.25, color: SariwaColors.inkSlateSecondary)),
                   ],
                 ),
                 Row(
                   children: [
-                    Icon(CupertinoIcons.circle_grid_hex, size: 12, color: Color(0xFF0284C7)),
-                    SizedBox(width: 5),
-                    Text('Gill Arch: 3 scans • 91.0% avg', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 10, letterSpacing: -0.25, color: Color(0xFF334155))),
+                    Icon(CupertinoIcons.circle_grid_hex, size: 12, color: SariwaColors.infoText),
+                    SizedBox(width: 4),
+                    Text('Gill Arch: 3 scans • 91.0% avg', style: TextStyle(fontFamily: AppTypography.fontFamily, fontSize: 12, letterSpacing: -0.25, color: SariwaColors.inkSlateSecondary)),
                   ],
                 ),
               ],
@@ -1871,10 +1871,10 @@ class _CinematicInspectionWalkthroughState
                 title,
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
-                  color: Color(0xFF0F172A),
+                  color: SariwaColors.inkSlate,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1884,9 +1884,9 @@ class _CinematicInspectionWalkthroughState
                 subtitle,
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 10,
+                  fontSize: 12,
                   letterSpacing: -0.25,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1896,19 +1896,19 @@ class _CinematicInspectionWalkthroughState
         ),
         if (!isMobile)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
+              color: SariwaColors.surfaceSlateWash,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Text(
               'Tilapia • Model A',
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 9.5,
-                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 letterSpacing: -0.25,
-                color: Color(0xFF475569),
+                color: SariwaColors.inkSlateSecondary,
               ),
             ),
           ),

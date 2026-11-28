@@ -1,8 +1,9 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import '../../constants/theme/app_colors.dart';
 
-/// Reusable glassmorphic card container with Gaussian blur and subtle unclipped dual-layer drop shadows.
+/// Clean clinical surface card with crisp 1px border and single hairline shadow.
 class FrostedGlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -17,11 +18,11 @@ class FrostedGlassCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(24),
-    this.borderRadius = 24,
-    this.fillColor = const Color(0xEBFFFFFF),
-    this.borderColor = const Color(0xD9FFFFFF),
-    this.borderWidth = 1.2,
-    this.blurSigma = 24,
+    this.borderRadius = 12,
+    this.fillColor = SariwaColors.cardSurfaceLight,
+    this.borderColor = SariwaColors.colorLine,
+    this.borderWidth = 1.0,
+    this.blurSigma = 16,
     this.enableBlur = false,
   });
 
@@ -37,51 +38,29 @@ class FrostedGlassCard extends StatelessWidget {
           color: borderColor,
           width: borderWidth,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: SariwaColors.shadowHairline,
+            blurRadius: 12,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: child,
     );
 
-    return RepaintBoundary(
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
+    if (enableBlur && !kIsWeb) {
+      return RepaintBoundary(
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0A0F172A), // 4% subtle contact drop shadow
-              blurRadius: 18,
-              offset: Offset(0, 4),
-              spreadRadius: -2,
-            ),
-            BoxShadow(
-              color: Color(0x060F172A), // 2.5% soft ambient elevation
-              blurRadius: 36,
-              offset: Offset(0, 12),
-              spreadRadius: -4,
-            ),
-            BoxShadow(
-              color: Color(0x0814B8A6), // 3% ambient aquatic sheen
-              blurRadius: 28,
-              offset: Offset(0, 6),
-              spreadRadius: -4,
-            ),
-          ],
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+            child: content,
+          ),
         ),
-        child: (enableBlur && !kIsWeb)
-            ? RepaintBoundary(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(borderRadius),
-                  child: BackdropFilter(
-                    filter: ui.ImageFilter.blur(
-                      sigmaX: blurSigma,
-                      sigmaY: blurSigma,
-                    ),
-                    child: content,
-                  ),
-                ),
-              )
-            : content,
-      ),
-    );
+      );
+    }
+
+    return RepaintBoundary(child: content);
   }
 }

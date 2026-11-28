@@ -23,11 +23,15 @@ import '../../services/upload/web_drag_drop_service.dart';
 class ResponsiveImageUploadZone extends StatefulWidget {
   final ClassificationState state;
   final ClassificationController controller;
+  final bool showMobileCameraButton;
+  final Future<bool> Function(ImageSource source)? onRequestPermission;
 
   const ResponsiveImageUploadZone({
     super.key,
     required this.state,
     required this.controller,
+    this.showMobileCameraButton = true,
+    this.onRequestPermission,
   });
 
   @override
@@ -75,6 +79,26 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
     return constraints.maxWidth < 560;
   }
 
+  Future<void> _handleGalleryTap() async {
+    if (widget.state.isUploadingImage) return;
+    if (widget.onRequestPermission != null) {
+      final allowed =
+          await widget.onRequestPermission!(ImageSource.gallery);
+      if (!allowed || !mounted) return;
+    }
+    await widget.controller.pickBatch();
+  }
+
+  Future<void> _handleCameraTap() async {
+    if (widget.state.isUploadingImage) return;
+    if (widget.onRequestPermission != null) {
+      final allowed =
+          await widget.onRequestPermission!(ImageSource.camera);
+      if (!allowed || !mounted) return;
+    }
+    await widget.controller.pickImage(ImageSource.camera);
+  }
+
   @override
   Widget build(BuildContext context) {
     final disableAnimations =
@@ -117,7 +141,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         ? SariwaColors.brandPrimary.withValues(alpha: 0.08)
         : (_isHovered
             ? SariwaColors.brandPrimary.withValues(alpha: 0.04)
-            : Colors.white.withValues(alpha: 0.65));
+            : SariwaColors.cardSurfaceLight.withValues(alpha: 0.65));
 
     final Color borderColor = _isDragOver
         ? SariwaColors.brandPrimary
@@ -125,7 +149,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
             ? SariwaColors.brandPrimary.withValues(alpha: 0.50)
             : (_isFocused
                 ? SariwaColors.brandPrimary
-                : const Color(0xFFCBD5E1)));
+                : SariwaColors.lineSlate));
 
     final double strokeWidth = _isDragOver ? 2.0 : 1.5;
 
@@ -156,9 +180,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(
           onInvoke: (_) {
-            if (!widget.state.isUploadingImage) {
-              widget.controller.pickBatch();
-            }
+            _handleGalleryTap();
             return null;
           },
         ),
@@ -168,9 +190,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         enabled: !widget.state.isUploadingImage,
         label: semanticLabel,
         excludeSemantics: true,
-        onTap: widget.state.isUploadingImage
-            ? null
-            : () => widget.controller.pickBatch(),
+        onTap: widget.state.isUploadingImage ? null : _handleGalleryTap,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -189,9 +209,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
             child: InkWell(
               key: const Key('empty_upload_dropzone'),
               borderRadius: BorderRadius.circular(20),
-              onTap: widget.state.isUploadingImage
-                  ? null
-                  : () => widget.controller.pickBatch(),
+              onTap: widget.state.isUploadingImage ? null : _handleGalleryTap,
               child: CustomPaint(
                 painter: DashedBorderPainter(
                   color: borderColor,
@@ -223,14 +241,14 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                         decoration: BoxDecoration(
                           color: isHighlighted
                               ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
-                              : Colors.white.withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(16),
+                              : SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: isHighlighted
                                 ? SariwaColors.brandPrimary.withValues(
                                     alpha: 0.35,
                                   )
-                                : const Color(0xFFE2E8F0),
+                                : SariwaColors.surfaceSlateSubtle,
                             width: 1.2,
                           ),
                           boxShadow: [
@@ -239,7 +257,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                                   ? SariwaColors.brandPrimary.withValues(
                                       alpha: 0.18,
                                     )
-                                  : const Color(0x0A0F172A),
+                                  : SariwaColors.shadowSubtle,
                               blurRadius: isHighlighted ? 14 : 6,
                               offset: const Offset(0, 2),
                             ),
@@ -253,7 +271,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                             size: isMobile ? 22 : 24,
                             color: isHighlighted
                                 ? SariwaColors.brandPrimary
-                                : const Color(0xFF475569),
+                                : SariwaColors.inkSlateSecondary,
                           ),
                         ),
                       ),
@@ -271,7 +289,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
 
                       // Supporting Format and Constraint Metadata
                       Text(
@@ -281,7 +299,7 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                           fontSize: 12,
                           fontWeight: FontWeight.w300,
                           letterSpacing: -0.1,
-                          color: const Color(0xFF64748B),
+                          color: SariwaColors.inkSlateMuted,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -313,10 +331,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                 'Inspection Region:',
                 style: TextStyle(
                   fontFamily: TimberTypography.primarySansFamily,
-                  fontSize: 12.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.1,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ),
               _buildRegionSegmentedSelector(animDuration, isFullWidth: false),
@@ -330,15 +348,15 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
     );
   }
 
-  /// Mobile Layout: Full-width Take a Photo, then full-width Eye | Gill selector
+  /// Mobile Layout: Optional Take a Photo button + full-width Auto | Eye | Gill selector
   Widget _buildMobileControls(BuildContext context, Duration animDuration) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Full-width secondary Take a Photo button
-        _buildMobilePhotoButton(),
-
-        const SizedBox(height: 14),
+        if (widget.showMobileCameraButton) ...[
+          _buildMobilePhotoButton(),
+          const SizedBox(height: 16),
+        ],
 
         // Dedicated Inspection Region Section
         Column(
@@ -351,10 +369,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 letterSpacing: -0.1,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             _buildRegionSegmentedSelector(animDuration, isFullWidth: true),
           ],
         ),
@@ -412,9 +430,9 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
     return Container(
       padding: const EdgeInsets.all(3.5),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: SariwaColors.surfaceSlateWash,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1),
       ),
       child: isFullWidth
           ? Row(
@@ -458,21 +476,26 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         child: InkWell(
           key: key,
           onTap: onTap,
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: BorderRadius.circular(8),
           child: AnimatedContainer(
             duration: animDuration,
             curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7.5),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.white : Colors.transparent,
-              borderRadius: BorderRadius.circular(9),
+              color: isSelected
+                  ? SariwaColors.cardSurfaceLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
               border: isSelected
-                  ? Border.all(color: const Color(0xFFE2E8F0), width: 0.8)
+                  ? Border.all(
+                      color: SariwaColors.surfaceSlateSubtle,
+                      width: 0.8,
+                    )
                   : Border.all(color: Colors.transparent, width: 0.8),
               boxShadow: isSelected
                   ? const [
                       BoxShadow(
-                        color: Color(0x100F172A),
+                        color: SariwaColors.shadowSubtle,
                         blurRadius: 4,
                         offset: Offset(0, 1.5),
                       ),
@@ -485,24 +508,26 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
               children: [
                 Icon(
                   icon,
-                  size: 15,
+                  size: 14,
                   color: isSelected
                       ? SariwaColors.brandPrimary
-                      : const Color(0xFF64748B),
+                      : SariwaColors.inkSlateMuted,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 Flexible(
                   child: Text(
                     label,
+                    maxLines: 1,
+                    softWrap: false,
                     style: TextStyle(
                       fontFamily: TimberTypography.primarySansFamily,
-                      fontSize: 12.5,
+                      fontSize: 12,
                       fontWeight:
                           isSelected ? FontWeight.w500 : FontWeight.w400,
                       letterSpacing: -0.1,
                       color: isSelected
                           ? SariwaColors.textPrimaryDark
-                          : const Color(0xFF64748B),
+                          : SariwaColors.inkSlateMuted,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -519,27 +544,23 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
   Widget _buildDesktopCameraButton(Duration animDuration) {
     return OutlinedButton.icon(
       key: const Key('use_camera_button'),
-      onPressed: widget.state.isUploadingImage
-          ? null
-          : () => widget.controller.pickImage(ImageSource.camera),
+      onPressed: widget.state.isUploadingImage ? null : _handleCameraTap,
       icon: const Icon(
         CupertinoIcons.camera,
         size: 15,
-        color: Color(0xFF334155),
+        color: SariwaColors.inkSlateSecondary,
       ),
       label: const Text('Use Camera'),
       style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0xFF334155),
-        side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
-        backgroundColor: Colors.white.withValues(alpha: 0.90),
+        foregroundColor: SariwaColors.inkSlateSecondary,
+        side: const BorderSide(color: SariwaColors.lineSlate, width: 1.2),
+        backgroundColor: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: const StadiumBorder(),
         textStyle: const TextStyle(
           fontFamily: TimberTypography.primarySansFamily,
-          fontSize: 12.5,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: -0.1,
         ),
@@ -551,12 +572,10 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
   Widget _buildMobilePhotoButton() {
     return SizedBox(
       width: double.infinity,
-      height: 46,
+      height: 48,
       child: OutlinedButton.icon(
         key: const Key('use_camera_button'),
-        onPressed: widget.state.isUploadingImage
-            ? null
-            : () => widget.controller.pickImage(ImageSource.camera),
+        onPressed: widget.state.isUploadingImage ? null : _handleCameraTap,
         icon: const Icon(
           CupertinoIcons.camera_fill,
           size: 16,
@@ -565,15 +584,15 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
         label: const Text('Take a Photo'),
         style: OutlinedButton.styleFrom(
           foregroundColor: SariwaColors.textPrimaryDark,
-          side: const BorderSide(color: Color(0xFFCBD5E1), width: 1.2),
-          backgroundColor: Colors.white.withValues(alpha: 0.90),
+          side: const BorderSide(color: SariwaColors.lineSlate, width: 1.2),
+          backgroundColor: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: const TextStyle(
             fontFamily: TimberTypography.primarySansFamily,
-            fontSize: 13.5,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
             letterSpacing: -0.1,
           ),

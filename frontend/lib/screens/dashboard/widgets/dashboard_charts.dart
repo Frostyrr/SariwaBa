@@ -55,7 +55,7 @@ class DashboardUserAvatar extends StatelessWidget {
             fontFamily: 'Geist',
             color: Colors.white,
             fontSize: size * 0.42,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -163,7 +163,7 @@ class NotchedKpiCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: effectiveCompact ? 20 : 24,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: SariwaColors.textPrimaryDark,
                       letterSpacing: -0.25,
                     ),
@@ -184,7 +184,7 @@ class NotchedKpiCard extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: effectiveCompact ? 11 : 11.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                           color: trendColor,
                         ),

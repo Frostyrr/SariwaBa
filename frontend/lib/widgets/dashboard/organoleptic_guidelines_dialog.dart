@@ -1,12 +1,12 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../common/sariwa_scrollbar.dart';
 
-/// Modal dialog (desktop) / draggable bottom sheet (mobile) providing the official
-/// Philippine National Standard (PNS/BAFPS 67:2008) Organoleptic Sensory Inspection Protocol.
+/// Concise, plain-English Freshness Guide sheet/dialog without regulatory jargon.
 class OrganolepticGuidelinesDialog extends StatelessWidget {
   final bool asBottomSheet;
 
@@ -23,9 +23,9 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
         isScrollControlled: true,
         useSafeArea: true,
         showDragHandle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: SariwaColors.cardSurfaceLight,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         builder: (context) => const OrganolepticGuidelinesDialog(
           asBottomSheet: true,
@@ -34,7 +34,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
     }
     return showDialog<void>(
       context: context,
-      barrierColor: const Color(0x660A2229),
+      barrierColor: SariwaColors.bgAbyssDark.withValues(alpha: 0.45),
       builder: (context) => const OrganolepticGuidelinesDialog(),
     );
   }
@@ -43,244 +43,193 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = ClipRRect(
       borderRadius: asBottomSheet
-          ? const BorderRadius.vertical(top: Radius.circular(24))
-          : BorderRadius.circular(24),
-      child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          ? const BorderRadius.vertical(top: Radius.circular(20))
+          : BorderRadius.circular(20),
+      child: ColoredBox(
+        color: SariwaColors.cardSurfaceLight,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                asBottomSheet ? 4 : 20,
+                16,
+                16,
+              ),
+              decoration: const BoxDecoration(
+                color: SariwaColors.cardSurfaceLight,
+                border: Border(
+                  bottom: BorderSide(color: SariwaColors.colorLine, width: 1),
+                ),
+              ),
+              child: Row(
                 children: [
-                  // Dialog Header
                   Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: SariwaColors.colorPrimary,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: SariwaColors.colorPale,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
+                    child: const Icon(
+                      CupertinoIcons.checkmark_shield,
+                      color: SariwaColors.brandPrimary,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.25),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.verified_user_outlined,
-                            color: Colors.white,
-                            size: 24,
+                        Text(
+                          'Freshness Guide',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.4,
+                            color: SariwaColors.textPrimaryDark,
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'QUALITY INSPECTION GUIDE',
-                                style: TextStyle(
-                                  fontFamily: AppTypography.fontFamily,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.25,
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              const Text(
-                                'PNS/BAFPS 67:2008 Freshness Standards',
-                                style: TextStyle(
-                                  letterSpacing: -0.25,
-                                  fontFamily: AppTypography.fontFamily,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close_rounded,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                            ),
+                        SizedBox(height: 4),
+                        Text(
+                          'What to check in person alongside your scan.',
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                            color: SariwaColors.colorMutedInk,
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Content Body
-                  Flexible(
-                    child: SariwaScrollbar(
-                      builder: (context, controller) => SingleChildScrollView(
-                        controller: controller,
-                        padding: const EdgeInsets.all(22),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Use these visual and sensory guidelines based on Philippine National Standards (PNS/BAFPS 67:2008) to evaluate Tilapia freshness alongside your AI scans. Compare your catch against the indicators below:',
-                            style: TextStyle(
-                              letterSpacing: -0.25,
-                              fontFamily: AppTypography.fontFamily,
-                              fontSize: 13,
-                              height: 1.45,
-                              color: SariwaColors.colorMutedInk,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-
-                          _buildGuidelineCard(
-                            badge: 'CRITERION 1',
-                            title: 'Eyes & Cornea (Mata)',
-                            freshDesc:
-                                'Clear, transparent, and bulging outward (convex). Shiny black pupils with bright reflections.',
-                            spoiledDesc:
-                                'Cloudy, sunken, or milky cornea. Dull, discolored grey, or bloodshot pupils.',
-                            icon: Icons.remove_red_eye_outlined,
-                          ),
-                          const SizedBox(height: 12),
-
-                          _buildGuidelineCard(
-                            badge: 'CRITERION 2',
-                            title: 'Gills & Mucus (Hasang)',
-                            freshDesc:
-                                'Bright crimson to deep red color with clear mucus and a clean, sea-fresh scent.',
-                            spoiledDesc:
-                                'Dull brown, faded grey, or yellowish with sticky slime and a sour, foul odor.',
-                            icon: Icons.water_drop_outlined,
-                          ),
-                          const SizedBox(height: 12),
-
-                          _buildGuidelineCard(
-                            badge: 'CRITERION 3',
-                            title: 'Scales & Skin (Kaliskis)',
-                            freshDesc:
-                                'Firmly attached scales with a bright, iridescent sheen. Skin is moist, intact, and smooth.',
-                            spoiledDesc:
-                                'Loose scales that easily rub or peel off. Dull skin covered in cloudy, sticky slime.',
-                            icon: Icons.blur_linear_outlined,
-                          ),
-                          const SizedBox(height: 12),
-
-                          _buildGuidelineCard(
-                            badge: 'CRITERION 4',
-                            title: 'Flesh Firmness & Smell (Laman at Amoy)',
-                            freshDesc:
-                                'Firm, elastic flesh that springs back instantly when pressed. Mild, clean fresh scent.',
-                            spoiledDesc:
-                                'Soft, flabby, or dented flesh where impressions linger. Strong sour, ammonia, or rotten odor.',
-                            icon: Icons.touch_app_outlined,
-                          ),
-                        ],
-                      ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: 'Close',
+                    constraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
                     ),
-                    ),
-                  ),
-
-                  // Dialog Footer
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 14,
-                    ),
-                    decoration: const BoxDecoration(
-                      color: SariwaColors.colorSurface,
-                      border: Border(
-                        top: BorderSide(
-                          color: SariwaColors.colorLine,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'BFAR PNS 67:2008 Compliance',
-                            style: TextStyle(
-                              letterSpacing: -0.25,
-                              fontFamily: AppTypography.fontFamily,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: SariwaColors.colorMutedInk,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: SariwaColors.colorPrimary,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Understood'),
-                        ),
-                      ],
+                    icon: const Icon(
+                      CupertinoIcons.xmark,
+                      color: SariwaColors.inkSlateSecondary,
+                      size: 16,
                     ),
                   ),
                 ],
               ),
-            );
+            ),
+            Flexible(
+              child: ColoredBox(
+                color: SariwaColors.colorSurface,
+                child: SariwaScrollbar(
+                  builder: (context, controller) => SingleChildScrollView(
+                    controller: controller,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildGuidelineCard(
+                          title: 'Eyes',
+                          freshDesc: 'Clear, bright, and slightly rounded.',
+                          spoiledDesc: 'Cloudy, sunken, or dull grey.',
+                          icon: CupertinoIcons.eye,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildGuidelineCard(
+                          title: 'Gills',
+                          freshDesc: 'Bright red and clean.',
+                          spoiledDesc: 'Faded brown or grey with thick slime.',
+                          icon: CupertinoIcons.drop,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildGuidelineCard(
+                          title: 'Skin & Scales',
+                          freshDesc: 'Shiny scales that stay firm.',
+                          spoiledDesc: 'Dull skin with loose scales.',
+                          icon: CupertinoIcons.sparkles,
+                        ),
+                        const SizedBox(height: 12),
+                        _buildGuidelineCard(
+                          title: 'Firmness & Smell',
+                          freshDesc:
+                              'Springs back when pressed; clean, mild smell.',
+                          spoiledDesc: 'Finger dents stay; sour or sharp odor.',
+                          icon: CupertinoIcons.hand_draw,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: const BoxDecoration(
+                color: SariwaColors.cardSurfaceLight,
+                border: Border(
+                  top: BorderSide(color: SariwaColors.colorLine, width: 1),
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: SariwaColors.brandPrimary,
+                    foregroundColor: SariwaColors.cardSurfaceLight,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: const StadiumBorder(),
+                    textStyle: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  child: const Text('Done'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
 
     if (asBottomSheet) {
       return ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.86,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: content,
       );
     }
 
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+      filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
       child: Dialog(
         backgroundColor: Colors.transparent,
+        elevation: 0,
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
+          constraints: const BoxConstraints(maxWidth: 600),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.9),
-                width: 1.5,
-              ),
+              color: SariwaColors.cardSurfaceLight,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SariwaColors.colorLine, width: 1),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x180A2229),
-                  blurRadius: 36,
-                  offset: Offset(0, 16),
+                  color: SariwaColors.shadowSubtle,
+                  blurRadius: 24,
+                  offset: Offset(0, 12),
                 ),
               ],
             ),
@@ -292,17 +241,16 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
   }
 
   Widget _buildGuidelineCard({
-    required String badge,
     required String title,
     required String freshDesc,
     required String spoiledDesc,
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SariwaColors.colorWorkspace,
-        borderRadius: BorderRadius.circular(16),
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: SariwaColors.colorLine),
       ),
       child: Column(
@@ -310,166 +258,120 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: SariwaColors.colorPrimary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 16, color: SariwaColors.colorPrimary),
-              ),
+              Icon(icon, size: 18, color: SariwaColors.brandPrimary),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w700,
-                    color: SariwaColors.colorInk,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: SariwaColors.colorLine),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: SariwaColors.colorPrimary,
-                  ),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.2,
+                  color: SariwaColors.textPrimaryDark,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          _buildTierRow(
-            label: 'Fresh (Sariwa):',
-            description: freshDesc,
-            color: SariwaColors.statusFresh,
-            bgColor: SariwaColors.freshIconBg,
-          ),
-          const SizedBox(height: 6),
-          _buildTierRow(
-            label: 'Not Fresh (Hindi Sariwa):',
-            description: spoiledDesc,
-            color: SariwaColors.notFreshPrimary,
-            bgColor: SariwaColors.notFreshIconBg,
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isSideBySide = constraints.maxWidth >= 440;
+              final freshBox = _buildComparisonColumn(
+                label: 'Fresh',
+                description: freshDesc,
+                accentColor: SariwaColors.freshText,
+                dotColor: SariwaColors.statusFresh,
+                bgColor: SariwaColors.freshIconBg,
+                borderColor: SariwaColors.freshBorder,
+              );
+              final spoiledBox = _buildComparisonColumn(
+                label: 'Not Fresh',
+                description: spoiledDesc,
+                accentColor: SariwaColors.notFreshText,
+                dotColor: SariwaColors.statusSpoiled,
+                bgColor: SariwaColors.notFreshIconBg,
+                borderColor: SariwaColors.notFreshBorder,
+              );
+
+              if (isSideBySide) {
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: freshBox),
+                      const SizedBox(width: 12),
+                      Expanded(child: spoiledBox),
+                    ],
+                  ),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  freshBox,
+                  const SizedBox(height: 8),
+                  spoiledBox,
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTierRow({
+  Widget _buildComparisonColumn({
     required String label,
     required String description,
-    required Color color,
+    required Color accentColor,
+    required Color dotColor,
     required Color bgColor,
+    required Color borderColor,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.20)),
+        color: bgColor.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 360;
-          if (isNarrow) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      margin: const EdgeInsets.only(right: 6),
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          letterSpacing: -0.25,
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: color,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 11.5,
-                    height: 1.35,
-                    color: SariwaColors.colorInk,
-                  ),
-                ),
-              ],
-            );
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               Container(
                 width: 8,
                 height: 8,
-                margin: const EdgeInsets.only(top: 4, right: 8),
                 decoration: BoxDecoration(
-                  color: color,
+                  color: dotColor,
                   shape: BoxShape.circle,
                 ),
               ),
-              SizedBox(
-                width: 145,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  description,
-                  style: const TextStyle(
-                    letterSpacing: -0.25,
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 11.5,
-                    height: 1.35,
-                    color: SariwaColors.colorInk,
-                  ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: accentColor,
                 ),
               ),
             ],
-          );
-        },
+          ),
+          const SizedBox(height: 4),
+          Text(
+            description,
+            style: const TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w300,
+              height: 1.4,
+              color: SariwaColors.colorInk,
+            ),
+          ),
+        ],
       ),
     );
   }

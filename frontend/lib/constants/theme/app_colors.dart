@@ -60,6 +60,48 @@ class SariwaColors {
   static const Color notFreshTrackDark = Color(0x26DC2626);   // Muted track
   static const Color notFreshCardBgDark = Color(0xFF1E293B);  // Dark slate card surface
 
+  // Dark Mode Fresh & Moderate Semantic Tokens
+  static const Color freshIconBgDark = Color(0x3310B981);
+  static const Color freshBorderDark = Color(0x6610B981);
+  static const Color moderateIconBgDark = Color(0x33F59E0B);
+  static const Color moderateBorderDark = Color(0x66F59E0B);
+
+  // Tinted Neutral / Slate Tokens (replaces raw Colors.grey & Tailwind slate hexes)
+  static const Color inkSlate = Color(0xFF0F172A);
+  static const Color inkSlateSecondary = Color(0xFF475569);
+  static const Color inkSlateMuted = Color(0xFF64748B);
+  static const Color inkSlateSubtle = Color(0xFF94A3B8);
+  static const Color lineSlate = Color(0xFFCBD5E1);
+  static const Color surfaceSlateSubtle = Color(0xFFE2E8F0);
+  static const Color surfaceSlateWash = Color(0xFFF1F5F9);
+  static const Color surfaceSlateTint = Color(0xFFF8FAFC);
+
+  // Info / Secondary Semantic Surface Tokens (replaces off-brand AI purples)
+  static const Color infoBg = Color(0xFFE0F2FE);
+  static const Color infoText = Color(0xFF0369A1);
+  static const Color infoBorder = Color(0xFFBAE6FD);
+  static const Color shadowSubtle = Color(0x0A0F172A);
+  static const Color shadowHairline = Color(0x060F172A);
+  static const Color brandGlowTint = Color(0x1814B8A6);
+
+  // iOS 26 Liquid Glass & Deep Obsidian Stage Tokens
+  static const Color bgObsidian = Color(0xFF040D12);
+  static const Color bgObsidianElevated = Color(0xFF081922);
+  static const Color liquidGlassSurface = Color(0x1FFFFFFF);
+  static const Color liquidGlassStrong = Color(0x2EFFFFFF);
+  static const Color liquidGlassDark = Color(0xB8071720);
+  static const Color liquidGlassSpecular = Color(0x3DFFFFFF);
+  static const Color liquidGlassHairline = Color(0x22FFFFFF);
+  static const Color liquidGlassShadow = Color(0x5202080C);
+
+  // Timber Ink Palette (centralized here so typography has zero raw hex literals)
+  static const Color timberInkPrimary = Color(0xFF18221D);
+  static const Color timberInkSecondary = Color(0xFF66736B);
+  static const Color timberInkTertiary = Color(0xFF88968D);
+  static const Color timberInkBorder = Color(0xFFDDE3DE);
+  static const Color timberDarkInkPrimary = Color(0xFFF2F5F3);
+  static const Color timberDarkInkSecondary = Color(0xFF9EB0A5);
+
   // Timber Design System 2.0 Semantic Tokens (Mapped to SariwaBa Palette)
   static const Color colorPrimary = brandPrimary;               // #168077
   static const Color colorPrimaryHover = brandPrimaryHover;     // #126B63

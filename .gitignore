@@ -1,4 +1,5 @@
 .agent/
+.agents/
 .env
 *.env
 *.sqlite3

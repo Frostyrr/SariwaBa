@@ -8,7 +8,6 @@ import '../../../controllers/admin/admin_controller.dart';
 import '../../../controllers/auth/auth_controller.dart';
 import '../../../models/admin/admin_user_model.dart';
 import '../../../widgets/common/sariwa_scrollbar.dart';
-import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
 
 class AdminPageSection extends ConsumerStatefulWidget {
@@ -56,7 +55,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(adminState.errorMessage!),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: SariwaColors.statusSpoiled,
           ),
         );
         adminCtrl.clearMessages();
@@ -68,7 +67,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(adminState.successMessage!),
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: SariwaColors.statusFresh,
           ),
         );
         adminCtrl.clearMessages();
@@ -78,9 +77,11 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     return SingleChildScrollView(
       controller: widget.scrollController,
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(
-        horizontal: widget.isDesktop ? 36 : 18,
-        vertical: widget.isDesktop ? 28 : 20,
+      padding: EdgeInsets.fromLTRB(
+        widget.isDesktop ? 36 : 16,
+        widget.isDesktop ? 28 : 16,
+        widget.isDesktop ? 36 : 16,
+        widget.isDesktop ? 28 : 104,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -125,105 +126,97 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
   }
 
   // ---------------------------------------------------------------------------
-  // Top Banner
+  // Top Clinical Console Header
   // ---------------------------------------------------------------------------
   Widget _buildAtmosphericBanner(AdminState state, AdminController ctrl) {
-    return DashboardAtmosphericBanner(
-      content: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.20),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.35),
-                          width: 1,
-                        ),
-                      ),
-                      child: const Text(
-                        'RBAC ADMINISTRATION',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.8,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: const Color(0xFF10B981).withValues(alpha: 0.50),
-                          width: 1,
-                        ),
-                      ),
-                      child: const Text(
-                        'STRICT APPEND-ONLY',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.8,
-                          color: Color(0xFFD1FAE5),
-                        ),
-                      ),
-                    ),
-                  ],
+    return Container(
+      padding: EdgeInsets.all(widget.isDesktop ? 24 : 20),
+      decoration: BoxDecoration(
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SariwaColors.colorLine),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 600;
+          final headerInfo = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Admin',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: widget.isDesktop ? 28 : 20,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: -0.5,
+                  height: 1.15,
+                  color: SariwaColors.inkSlate,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Admin Console & Telemetry',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.02,
-                    color: Colors.white,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Users, scan activity, and system status.',
+                style: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  height: 1.4,
+                  color: SariwaColors.inkSlateMuted,
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'System oversight, user directory access, classification telemetry, security audits, and ML engine health.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xFFD1FAF4),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
+              ),
+            ],
+          );
+
+          final refreshButton = OutlinedButton.icon(
+            onPressed: state.isLoading ? null : () => ctrl.loadDashboard(),
             icon: state.isLoading
                 ? const SizedBox(
-                    width: 18,
-                    height: 18,
+                    width: 14,
+                    height: 14,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+                      strokeWidth: 1.8,
+                      color: SariwaColors.brandPrimary,
                     ),
                   )
-                : const Icon(CupertinoIcons.arrow_clockwise, color: Colors.white, size: 20),
-            tooltip: 'Refresh Telemetry',
-            onPressed: () => ctrl.loadDashboard(),
-          ),
-        ],
+                : const Icon(
+                    CupertinoIcons.arrow_clockwise,
+                    size: 14,
+                    color: SariwaColors.inkSlateSecondary,
+                  ),
+            label: Text(state.isLoading ? 'Syncing' : 'Refresh'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: SariwaColors.inkSlate,
+              backgroundColor: SariwaColors.colorSurface,
+              side: const BorderSide(color: SariwaColors.colorLine),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          );
+
+          if (isWide) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: headerInfo),
+                const SizedBox(width: 16),
+                refreshButton,
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              headerInfo,
+              const SizedBox(height: 16),
+              refreshButton,
+            ],
+          );
+        },
       ),
     );
   }
@@ -244,52 +237,51 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
 
         final items = [
           _buildBentoKpiCard(
-            eyebrow: 'INSPECTORS',
+            eyebrow: 'USERS',
             value: totals?.totalInspectors.toString() ?? '—',
             subtitle: '${totals?.activeInspectorsToday ?? 0} active today',
             icon: CupertinoIcons.person_2_fill,
-            iconColor: const Color(0xFF0284C7),
+            iconColor: SariwaColors.infoText,
           ),
           _buildBentoKpiCard(
-            eyebrow: 'GLOBAL INFERENCES',
+            eyebrow: 'TOTAL SCANS',
             value: totals?.totalScans.toString() ?? '—',
-            subtitle: '${totals?.scansToday ?? 0} in last 24h',
+            subtitle: '${totals?.scansToday ?? 0} today',
             icon: CupertinoIcons.viewfinder_circle_fill,
-            iconColor: const Color(0xFF0D9488),
+            iconColor: SariwaColors.brandPrimary,
           ),
           _buildBentoKpiCard(
-            eyebrow: 'FRESHNESS COMPLIANCE',
-            value: '${dist?.freshnessRate.toStringAsFixed(1) ?? '—'}%',
-            subtitle: '${dist?.freshCount ?? 0} Fresh · ${dist?.notFreshCount ?? 0} Not Fresh',
+            eyebrow: 'FRESH RATE',
+            value: '${dist?.freshnessRate.toStringAsFixed(0) ?? '—'}%',
+            subtitle:
+                '${dist?.freshCount ?? 0} Fresh · ${dist?.notFreshCount ?? 0} Not Fresh',
             icon: CupertinoIcons.checkmark_seal_fill,
-            iconColor: const Color(0xFF10B981),
+            iconColor: SariwaColors.statusFresh,
           ),
           _buildBentoKpiCard(
-            eyebrow: 'INFERENCE LATENCY',
+            eyebrow: 'AVG. SPEED',
             value: '${latency?.averageLatencyMs.toStringAsFixed(0) ?? '—'} ms',
-            subtitle: 'p95: ${latency?.p95LatencyMs.toStringAsFixed(0) ?? '—'} ms',
+            subtitle: 'Response time',
             icon: CupertinoIcons.speedometer,
-            iconColor: const Color(0xFFF59E0B),
+            iconColor: SariwaColors.statusModerate,
           ),
           _buildBentoKpiCard(
-            eyebrow: 'SYSTEM HEALTH',
-            value: health?.database.isHealthy == true ? 'HEALTHY' : 'READY',
-            subtitle: 'DB: ${health?.database.latencyMs.toStringAsFixed(1) ?? '1.2'}ms · ML Ready',
+            eyebrow: 'STATUS',
+            value: health?.database.isHealthy == true ? 'Online' : 'Ready',
+            subtitle: 'Database & scanner',
             icon: CupertinoIcons.heart_fill,
-            iconColor: const Color(0xFF14B8A6),
+            iconColor: SariwaColors.brandGlow,
           ),
         ];
 
         if (isWide) {
           return Row(
-            children: items
-                .map((card) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: card,
-                      ),
-                    ))
-                .toList(),
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                Expanded(child: items[i]),
+                if (i < items.length - 1) const SizedBox(width: 12),
+              ],
+            ],
           );
         } else if (isMedium) {
           return Wrap(
@@ -306,7 +298,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           return Column(
             children: items
                 .map((card) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: 12),
                       child: card,
                     ))
                 .toList(),
@@ -324,85 +316,79 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     required Color iconColor,
   }) {
     return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        color: SariwaColors.cardSurfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SariwaColors.colorLine),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x080F172A),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-            spreadRadius: -2,
+            color: SariwaColors.shadowHairline,
+            blurRadius: 12,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.75),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.85),
-                width: 1.2,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        eyebrow,
-                        style: const TextStyle(
-                          fontFamily: 'Geist',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.8,
-                          color: Color(0xFF64748B),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(icon, size: 16, color: iconColor),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  value,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  eyebrow,
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.03,
-                    color: Color(0xFF0F172A),
-                    fontFeatures: [ui.FontFeature.tabularFigures()],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w300,
-                    color: Color(0xFF64748B),
-                    fontFeatures: [ui.FontFeature.tabularFigures()],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.6,
+                    color: SariwaColors.inkSlateMuted,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 14, color: iconColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 28,
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.8,
+              height: 1.05,
+              color: SariwaColors.inkSlate,
+              fontFeatures: [ui.FontFeature.tabularFigures()],
             ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 12,
+              fontWeight: FontWeight.w300,
+              color: SariwaColors.inkSlateMuted,
+              fontFeatures: [ui.FontFeature.tabularFigures()],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
@@ -413,12 +399,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
   Widget _buildSegmentedTabSwitcher(AdminState state, AdminController ctrl) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.80),
-          width: 1.2,
-        ),
+        color: SariwaColors.colorSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SariwaColors.colorLine),
       ),
       padding: const EdgeInsets.all(4),
       child: SariwaScrollbar(
@@ -426,42 +409,45 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         builder: (context, controller) => SingleChildScrollView(
           controller: controller,
           scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _buildTabPill(
-              label: 'Inspectors & Access',
-              icon: CupertinoIcons.person_2_fill,
-              isActive: state.activeTab == AdminTab.inspectors,
-              onTap: () => ctrl.setTab(AdminTab.inspectors),
-            ),
-            _buildTabPill(
-              label: 'Classification Telemetry',
-              icon: CupertinoIcons.waveform_path_ecg,
-              isActive: state.activeTab == AdminTab.telemetry,
-              onTap: () => ctrl.setTab(AdminTab.telemetry),
-            ),
-            _buildTabPill(
-              label: 'Security & Audits',
-              icon: CupertinoIcons.shield_fill,
-              isActive: state.activeTab == AdminTab.security,
-              badgeCount: state.security?.metrics.suspiciousPatternDetected == true ? 1 : null,
-              onTap: () => ctrl.setTab(AdminTab.security),
-            ),
-            _buildTabPill(
-              label: 'System Health',
-              icon: CupertinoIcons.heart_fill,
-              isActive: state.activeTab == AdminTab.health,
-              onTap: () => ctrl.setTab(AdminTab.health),
-            ),
-            _buildTabPill(
-              label: 'Global Scan Trail',
-              icon: CupertinoIcons.doc_text_search,
-              isActive: state.activeTab == AdminTab.audits,
-              onTap: () => ctrl.setTab(AdminTab.audits),
-            ),
-          ],
+          child: Row(
+            children: [
+              _buildTabPill(
+                label: 'Users',
+                icon: CupertinoIcons.person_2,
+                isActive: state.activeTab == AdminTab.inspectors,
+                onTap: () => ctrl.setTab(AdminTab.inspectors),
+              ),
+              _buildTabPill(
+                label: 'Activity',
+                icon: CupertinoIcons.waveform_path_ecg,
+                isActive: state.activeTab == AdminTab.telemetry,
+                onTap: () => ctrl.setTab(AdminTab.telemetry),
+              ),
+              _buildTabPill(
+                label: 'Security',
+                icon: CupertinoIcons.shield,
+                isActive: state.activeTab == AdminTab.security,
+                badgeCount:
+                    state.security?.metrics.suspiciousPatternDetected == true
+                        ? 1
+                        : null,
+                onTap: () => ctrl.setTab(AdminTab.security),
+              ),
+              _buildTabPill(
+                label: 'System',
+                icon: CupertinoIcons.heart,
+                isActive: state.activeTab == AdminTab.health,
+                onTap: () => ctrl.setTab(AdminTab.health),
+              ),
+              _buildTabPill(
+                label: 'Scan Log',
+                icon: CupertinoIcons.doc_text_search,
+                isActive: state.activeTab == AdminTab.audits,
+                onTap: () => ctrl.setTab(AdminTab.audits),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -473,69 +459,72 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     int? badgeCount,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        margin: const EdgeInsets.only(right: 4),
-        decoration: BoxDecoration(
-          color: isActive
-              ? Colors.white
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 14,
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
               color: isActive
-                  ? const Color(0xFF0D9488)
-                  : const Color(0xFF64748B),
+                  ? SariwaColors.cardSurfaceLight
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: isActive
+                  ? Border.all(color: SariwaColors.colorLine)
+                  : Border.all(color: Colors.transparent),
             ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Geist',
-                fontSize: 12.5,
-                fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-                color: isActive
-                    ? const Color(0xFF0F172A)
-                    : const Color(0xFF64748B),
-              ),
-            ),
-            if (badgeCount != null) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444),
-                  borderRadius: BorderRadius.circular(10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
+                  color: isActive
+                      ? SariwaColors.brandPrimary
+                      : SariwaColors.inkSlateMuted,
                 ),
-                child: const Text(
-                  'ALERT',
+                const SizedBox(width: 8),
+                Text(
+                  label,
                   style: TextStyle(
-                    fontSize: 8.5,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    fontFamily: 'Geist',
+                    fontSize: 14,
+                    fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
+                    color: isActive
+                        ? SariwaColors.inkSlate
+                        : SariwaColors.inkSlateMuted,
                   ),
                 ),
-              ),
-            ],
-          ],
+                if (badgeCount != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: SariwaColors.dangerBg,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: SariwaColors.dangerBorder),
+                    ),
+                    child: const Text(
+                      'ALERT',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: SariwaColors.dangerText,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -576,37 +565,40 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       children: [
         // Search & Filter Bar
         FrostedGlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Icon(
                 CupertinoIcons.search,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _userSearchCtrl,
                   textAlignVertical: TextAlignVertical.center,
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF0F172A),
+                    color: SariwaColors.inkSlate,
                   ),
-                  cursorColor: const Color(0xFF0F766E),
+                  cursorColor: SariwaColors.brandPrimary,
                   onChanged: (val) => ctrl.searchUsers(val),
                   decoration: const InputDecoration(
                     hintText: 'Search by inspector name, email, or username...',
                     hintStyle: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w300,
-                      color: Color(0xFF94A3B8),
+                      color: SariwaColors.inkSlateSubtle,
                     ),
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: false,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -615,7 +607,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
               if (_userSearchCtrl.text.isNotEmpty)
                 IconButton(
                   icon: const Icon(CupertinoIcons.clear_circled, size: 15),
-                  color: const Color(0xFF94A3B8),
+                  color: SariwaColors.inkSlateSubtle,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                   onPressed: () {
@@ -656,7 +648,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -666,22 +658,22 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         fontFamily: 'Geist',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF0F172A),
+                        color: SariwaColors.inkSlate,
                       ),
                     ),
                     const Text(
                       'Protected against self-demotion & self-suspension',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+              const Divider(height: 1, color: SariwaColors.surfaceSlateSubtle),
 
               if (state.users.isEmpty)
                 const Padding(
@@ -691,9 +683,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       'No matching inspectors found.',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF94A3B8),
+                        color: SariwaColors.inkSlateSubtle,
                       ),
                     ),
                   ),
@@ -703,7 +695,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: state.users.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  separatorBuilder: (context, index) => const Divider(height: 1, color: SariwaColors.surfaceSlateWash),
                   itemBuilder: (context, index) {
                     final user = state.users[index];
                     final isSelf = currentUser?.id != null && user.id.toString() == currentUser.id.toString();
@@ -713,15 +705,15 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       leading: CircleAvatar(
                         radius: 18,
                         backgroundColor: user.isAdmin
-                            ? const Color(0xFF0D9488).withValues(alpha: 0.15)
-                            : const Color(0xFF64748B).withValues(alpha: 0.15),
+                            ? SariwaColors.brandPrimary.withValues(alpha: 0.15)
+                            : SariwaColors.inkSlateMuted.withValues(alpha: 0.15),
                         child: Text(
                           user.initials,
                           style: TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: user.isAdmin ? const Color(0xFF0D9488) : const Color(0xFF475569),
+                            color: user.isAdmin ? SariwaColors.brandPrimary : SariwaColors.inkSlateSecondary,
                           ),
                         ),
                       ),
@@ -732,27 +724,27 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                               user.displayName,
                               style: const TextStyle(
                                 fontFamily: 'Geist',
-                                fontSize: 13.5,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Color(0xFF0F172A),
+                                color: SariwaColors.inkSlate,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (isSelf) ...[
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0284C7).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(4),
+                                color: SariwaColors.infoText.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
                                 'YOU',
                                 style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF0284C7),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: SariwaColors.infoText,
                                 ),
                               ),
                             ),
@@ -768,7 +760,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                                 fontFamily: 'Geist',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w300,
-                                color: Color(0xFF64748B),
+                                color: SariwaColors.inkSlateMuted,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -778,9 +770,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                             '· ${user.scanCount} scans',
                             style: const TextStyle(
                               fontFamily: 'Geist',
-                              fontSize: 11.5,
+                              fontSize: 12,
                               fontWeight: FontWeight.w300,
-                              color: Color(0xFF94A3B8),
+                              color: SariwaColors.inkSlateSubtle,
                               fontFeatures: [ui.FontFeature.tabularFigures()],
                             ),
                           ),
@@ -812,16 +804,16 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
   Widget _buildRoleBadge(String role) {
     final isAdmin = role.toLowerCase() == 'admin';
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isAdmin
-            ? const Color(0xFF0D9488).withValues(alpha: 0.12)
-            : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(6),
+            ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+            : SariwaColors.surfaceSlateWash,
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isAdmin
-              ? const Color(0xFF0D9488).withValues(alpha: 0.25)
-              : const Color(0xFFE2E8F0),
+              ? SariwaColors.brandPrimary.withValues(alpha: 0.25)
+              : SariwaColors.surfaceSlateSubtle,
           width: 1,
         ),
       ),
@@ -829,10 +821,10 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         isAdmin ? 'ADMIN' : 'INSPECTOR',
         style: TextStyle(
           fontFamily: 'Geist',
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.4,
-          color: isAdmin ? const Color(0xFF0D9488) : const Color(0xFF64748B),
+          color: isAdmin ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
         ),
       ),
     );
@@ -840,21 +832,21 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
 
   Widget _buildSuspensionBadge(bool isSuspended) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isSuspended
-            ? const Color(0xFFEF4444).withValues(alpha: 0.12)
-            : const Color(0xFF10B981).withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(6),
+            ? SariwaColors.statusSpoiled.withValues(alpha: 0.12)
+            : SariwaColors.statusFresh.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         isSuspended ? 'SUSPENDED' : 'ACTIVE',
         style: TextStyle(
           fontFamily: 'Geist',
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.4,
-          color: isSuspended ? const Color(0xFFDC2626) : const Color(0xFF059669),
+          color: isSuspended ? SariwaColors.statusSpoiled : SariwaColors.freshText,
         ),
       ),
     );
@@ -866,14 +858,14 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     AdminController ctrl,
   ) {
     return PopupMenuButton<String>(
-      icon: const Icon(CupertinoIcons.ellipsis_vertical, size: 16, color: Color(0xFF64748B)),
+      icon: const Icon(CupertinoIcons.ellipsis_vertical, size: 16, color: SariwaColors.inkSlateMuted),
       tooltip: isSelf ? 'Protected Self Account' : 'Manage Inspector',
       elevation: 12,
-      shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.12),
+      shadowColor: SariwaColors.inkSlate.withValues(alpha: 0.12),
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       offset: const Offset(0, 36),
       onSelected: (action) {
@@ -903,22 +895,22 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             PopupMenuItem(
               value: 'self_notice',
               height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0F766E).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
+                      color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       CupertinoIcons.shield_fill,
                       size: 15,
-                      color: Color(0xFF0F766E),
+                      color: SariwaColors.brandPrimary,
                     ),
                   ),
-                  const SizedBox(width: 9),
+                  const SizedBox(width: 12),
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -928,18 +920,18 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                           'Your Account (Admin)',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF0F172A),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: SariwaColors.inkSlate,
                           ),
                         ),
                         Text(
                           'Self-demotion & suspension protected',
                           style: TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 10.5,
+                            fontSize: 12,
                             fontWeight: FontWeight.w400,
-                            color: Color(0xFF64748B),
+                            color: SariwaColors.inkSlateMuted,
                           ),
                         ),
                       ],
@@ -952,38 +944,38 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             PopupMenuItem(
               value: 'self_notice',
               height: 38,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
                   const Icon(
                     CupertinoIcons.lock_fill,
                     size: 14,
-                    color: Color(0xFF64748B),
+                    color: SariwaColors.inkSlateMuted,
                   ),
-                  const SizedBox(width: 9),
+                  const SizedBox(width: 12),
                   const Text(
                     'Demote to Inspector',
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 12.5,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                     ),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(4),
+                      color: SariwaColors.surfaceSlateWash,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'Locked',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 9.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ),
@@ -993,38 +985,38 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             PopupMenuItem(
               value: 'self_notice',
               height: 38,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
                   const Icon(
                     CupertinoIcons.lock_fill,
                     size: 14,
-                    color: Color(0xFF64748B),
+                    color: SariwaColors.inkSlateMuted,
                   ),
-                  const SizedBox(width: 9),
+                  const SizedBox(width: 12),
                   const Text(
                     'Suspend Account',
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 12.5,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                     ),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(4),
+                      color: SariwaColors.surfaceSlateWash,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'Locked',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 9.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF64748B),
+                        color: SariwaColors.inkSlateMuted,
                       ),
                     ),
                   ),
@@ -1038,22 +1030,22 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           PopupMenuItem(
             value: 'toggle_role',
             height: 42,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Icon(
                   user.isAdmin ? CupertinoIcons.person_badge_minus : CupertinoIcons.shield_fill,
                   size: 16,
-                  color: user.isAdmin ? const Color(0xFF475569) : const Color(0xFF0F766E),
+                  color: user.isAdmin ? SariwaColors.inkSlateSecondary : SariwaColors.brandPrimary,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Text(
                   user.isAdmin ? 'Demote to Inspector' : 'Promote to Admin',
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: user.isAdmin ? const Color(0xFF1E293B) : const Color(0xFF0F766E),
+                    color: user.isAdmin ? SariwaColors.notFreshCardBgDark : SariwaColors.brandPrimary,
                   ),
                 ),
               ],
@@ -1063,22 +1055,22 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           PopupMenuItem(
             value: 'toggle_suspension',
             height: 42,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Icon(
                   user.isSuspended ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.slash_circle_fill,
                   size: 16,
-                  color: user.isSuspended ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                  color: user.isSuspended ? SariwaColors.statusFresh : SariwaColors.statusSpoiled,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Text(
                   user.isSuspended ? 'Reactivate Account' : 'Suspend Account',
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: user.isSuspended ? const Color(0xFF16A34A) : const Color(0xFFDC2626),
+                    color: user.isSuspended ? SariwaColors.statusFresh : SariwaColors.statusSpoiled,
                   ),
                 ),
               ],
@@ -1109,7 +1101,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           'Are you sure you want to change ${user.displayName}\'s role to $newRole?',
           style: const TextStyle(
             fontFamily: 'Geist',
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -1120,7 +1112,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0D9488),
+              backgroundColor: SariwaColors.brandPrimary,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
@@ -1156,7 +1148,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
               : 'Reactivating will restore authentication and inspection capabilities for ${user.displayName}.',
           style: const TextStyle(
             fontFamily: 'Geist',
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -1167,7 +1159,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: suspend ? const Color(0xFFEF4444) : const Color(0xFF10B981),
+              backgroundColor: suspend ? SariwaColors.statusSpoiled : SariwaColors.statusFresh,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
@@ -1195,7 +1187,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       children: [
         // Fresh vs Not Fresh Distribution Card
         FrostedGlassCard(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1203,9 +1195,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                 'Diagnostic Freshness Distribution',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF0F172A),
+                  color: SariwaColors.inkSlate,
                 ),
               ),
               const SizedBox(height: 4),
@@ -1213,12 +1205,12 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                 'Distribution ratio across all neural network predictions.',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 12.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w300,
-                  color: Color(0xFF64748B),
+                  color: SariwaColors.inkSlateMuted,
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
               // Distribution Progress Bar
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -1228,61 +1220,65 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                     children: [
                       Expanded(
                         flex: (dist?.freshCount ?? 1).clamp(1, 100000),
-                        child: Container(color: const Color(0xFF10B981)),
+                        child: Container(color: SariwaColors.statusFresh),
                       ),
                       Expanded(
                         flex: (dist?.notFreshCount ?? 1).clamp(1, 100000),
-                        child: Container(color: const Color(0xFFF43F5E)),
+                        child: Container(color: SariwaColors.statusSpoiled),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 10,
-                        height: 10,
+                        width: 8,
+                        height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF10B981),
+                          color: SariwaColors.statusFresh,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Text(
                         'Fresh: ${dist?.freshCount ?? 0} (${dist?.freshnessRate.toStringAsFixed(1) ?? 0}%)',
                         style: const TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          fontWeight: FontWeight.w400,
+                          color: SariwaColors.inkSlate,
                           fontFeatures: [ui.FontFeature.tabularFigures()],
                         ),
                       ),
                     ],
                   ),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 10,
-                        height: 10,
+                        width: 8,
+                        height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFFF43F5E),
+                          color: SariwaColors.statusSpoiled,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Text(
                         'Not Fresh: ${dist?.notFreshCount ?? 0}',
                         style: const TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          fontWeight: FontWeight.w400,
+                          color: SariwaColors.inkSlate,
                           fontFeatures: [ui.FontFeature.tabularFigures()],
                         ),
                       ),
@@ -1294,7 +1290,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       fontFamily: 'Geist',
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                       fontFeatures: [ui.FontFeature.tabularFigures()],
                     ),
                   ),
@@ -1311,7 +1307,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 720;
             final rejCard = FrostedGlassCard(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1322,24 +1318,24 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         'Unsupported Image Rejections',
                         style: TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          color: SariwaColors.inkSlate,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
+                          color: SariwaColors.statusModerate.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${rej?.rejectionRate.toStringAsFixed(1) ?? '0.0'}% rate',
                           style: const TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFFD97706),
+                            color: SariwaColors.warningText,
                             fontFeatures: [ui.FontFeature.tabularFigures()],
                           ),
                         ),
@@ -1353,7 +1349,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       fontFamily: 'Geist',
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                       fontFeatures: [ui.FontFeature.tabularFigures()],
                     ),
                   ),
@@ -1368,7 +1364,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             );
 
             final latencyCard = FrostedGlassCard(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1376,9 +1372,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                     'Inference Latency & Confidence',
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF0F172A),
+                      color: SariwaColors.inkSlate,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1388,14 +1384,14 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       fontFamily: 'Geist',
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
-                      color: Color(0xFF64748B),
+                      color: SariwaColors.inkSlateMuted,
                     ),
                   ),
                   const SizedBox(height: 16),
                   _buildMetricTile('Average Latency', '${latency?.averageLatencyMs.toStringAsFixed(1) ?? '—'} ms'),
                   _buildMetricTile('Median Latency', '${latency?.medianLatencyMs.toStringAsFixed(1) ?? '—'} ms'),
                   _buildMetricTile('95th Percentile (p95)', '${latency?.p95LatencyMs.toStringAsFixed(1) ?? '—'} ms'),
-                  const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 20, color: SariwaColors.surfaceSlateSubtle),
                   _buildMetricTile('Overall Avg Confidence', '${((conf?.averageConfidence ?? 0) * 100).toStringAsFixed(1)}%'),
                   _buildMetricTile('Fresh Avg Confidence', '${((conf?.freshAvgConfidence ?? 0) * 100).toStringAsFixed(1)}%'),
                   _buildMetricTile('Not Fresh Avg Confidence', '${((conf?.notFreshAvgConfidence ?? 0) * 100).toStringAsFixed(1)}%'),
@@ -1440,7 +1436,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                 fontFamily: 'Geist',
                 fontSize: 12,
                 fontWeight: FontWeight.w300,
-                color: Color(0xFF334155),
+                color: SariwaColors.inkSlateSecondary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -1451,7 +1447,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
               fontFamily: 'Geist',
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF0F172A),
+              color: SariwaColors.inkSlate,
               fontFeatures: [ui.FontFeature.tabularFigures()],
             ),
           ),
@@ -1470,18 +1466,18 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             label,
             style: const TextStyle(
               fontFamily: 'Geist',
-              fontSize: 12.5,
+              fontSize: 14,
               fontWeight: FontWeight.w300,
-              color: Color(0xFF475569),
+              color: SariwaColors.inkSlateSecondary,
             ),
           ),
           Text(
             value,
             style: const TextStyle(
               fontFamily: 'Geist',
-              fontSize: 12.5,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF0F172A),
+              color: SariwaColors.inkSlate,
               fontFeatures: [ui.FontFeature.tabularFigures()],
             ),
           ),
@@ -1506,13 +1502,13 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFFCA5A5), width: 1.2),
+              color: SariwaColors.notFreshIconBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: SariwaColors.notFreshBorder, width: 1.2),
             ),
             child: Row(
               children: [
-                const Icon(CupertinoIcons.exclamationmark_triangle_fill, color: Color(0xFFDC2626), size: 22),
+                const Icon(CupertinoIcons.exclamationmark_triangle_fill, color: SariwaColors.statusSpoiled, size: 22),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -1522,9 +1518,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         'Suspicious Authentication Patterns Detected',
                         style: TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 13.5,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF991B1B),
+                          color: SariwaColors.notFreshText,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -1534,7 +1530,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                           fontFamily: 'Geist',
                           fontSize: 12,
                           fontWeight: FontWeight.w300,
-                          color: Color(0xFFB91C1C),
+                          color: SariwaColors.notFreshText,
                         ),
                       ),
                     ],
@@ -1546,40 +1542,83 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         else
           Container(
             margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFBBF7D0), width: 1.2),
+              color: SariwaColors.freshIconBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: SariwaColors.freshBorder, width: 1),
             ),
             child: const Row(
               children: [
-                Icon(CupertinoIcons.checkmark_shield_fill, color: Color(0xFF16A34A), size: 20),
-                SizedBox(width: 10),
-                Text(
-                  'No suspicious login anomalies detected. Authentication surface is stable.',
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF166534),
+                Icon(
+                  CupertinoIcons.checkmark_shield_fill,
+                  color: SariwaColors.statusFresh,
+                  size: 18,
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'No suspicious login anomalies detected. Authentication surface is stable.',
+                    style: TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: SariwaColors.freshText,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-        // Security Metrics Bento
+        // Security Metrics Bento (responsive for mobile & desktop)
         FrostedGlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Row(
-            children: [
-              Expanded(child: _buildSecurityStat('Total Logins', metrics?.totalAttempts.toString() ?? '0')),
-              Expanded(child: _buildSecurityStat('Successful', metrics?.successfulAttempts.toString() ?? '0', color: const Color(0xFF16A34A))),
-              Expanded(child: _buildSecurityStat('Failed (Total)', metrics?.failedAttempts.toString() ?? '0', color: const Color(0xFFDC2626))),
-              Expanded(child: _buildSecurityStat('Failed (24h)', metrics?.failedLast24h.toString() ?? '0', color: const Color(0xFFD97706))),
-              Expanded(child: _buildSecurityStat('Failure Rate', '${metrics?.failureRate.toStringAsFixed(1) ?? '0.0'}%')),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stats = [
+                _buildSecurityStat(
+                  'Total Logins',
+                  metrics?.totalAttempts.toString() ?? '0',
+                ),
+                _buildSecurityStat(
+                  'Successful',
+                  metrics?.successfulAttempts.toString() ?? '0',
+                  color: SariwaColors.statusFresh,
+                ),
+                _buildSecurityStat(
+                  'Failed (Total)',
+                  metrics?.failedAttempts.toString() ?? '0',
+                  color: SariwaColors.statusSpoiled,
+                ),
+                _buildSecurityStat(
+                  'Failed (24h)',
+                  metrics?.failedLast24h.toString() ?? '0',
+                  color: SariwaColors.warningText,
+                ),
+                _buildSecurityStat(
+                  'Failure Rate',
+                  '${metrics?.failureRate.toStringAsFixed(1) ?? '0.0'}%',
+                ),
+              ];
+              if (constraints.maxWidth >= 680) {
+                return Row(
+                  children: stats.map((s) => Expanded(child: s)).toList(),
+                );
+              }
+              return Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: stats
+                    .map(
+                      (s) => SizedBox(
+                        width: (constraints.maxWidth - 16) / 2,
+                        child: s,
+                      ),
+                    )
+                    .toList(),
+              );
+            },
           ),
         ),
 
@@ -1592,7 +1631,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1602,28 +1641,28 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         fontFamily: 'Geist',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF0F172A),
+                        color: SariwaColors.inkSlate,
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(6),
+                        color: SariwaColors.infoText.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
                         'ZERO CREDENTIAL PERSISTENCE',
                         style: TextStyle(
-                          fontSize: 9.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF0284C7),
+                          color: SariwaColors.infoText,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+              const Divider(height: 1, color: SariwaColors.surfaceSlateSubtle),
 
               if (sec?.recentLogs.isEmpty ?? true)
                 const Padding(
@@ -1633,9 +1672,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       'No login audit events recorded yet.',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF94A3B8),
+                        color: SariwaColors.inkSlateSubtle,
                       ),
                     ),
                   ),
@@ -1645,14 +1684,14 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: sec!.recentLogs.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  separatorBuilder: (context, index) => const Divider(height: 1, color: SariwaColors.surfaceSlateWash),
                   itemBuilder: (context, index) {
                     final log = sec.recentLogs[index];
                     final isSuccess = log.isSuccess;
                     final isSuspended = log.isSuspendedBlocked;
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       child: Row(
                         children: [
                           Icon(
@@ -1663,8 +1702,10 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                                     : CupertinoIcons.exclamationmark_circle),
                             size: 16,
                             color: isSuccess
-                                ? const Color(0xFF10B981)
-                                : (isSuspended ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444)),
+                                ? SariwaColors.statusFresh
+                                : (isSuspended
+                                    ? SariwaColors.statusModerate
+                                    : SariwaColors.statusSpoiled),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -1675,19 +1716,19 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                                   log.email.isNotEmpty ? log.email : 'Anonymous',
                                   style: const TextStyle(
                                     fontFamily: 'Geist',
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xFF0F172A),
+                                    color: SariwaColors.inkSlate,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 4),
                                 Text(
                                   'IP: ${log.ipAddress ?? '127.0.0.1'} · ${log.failureReason.isNotEmpty ? log.failureReason : 'Google OAuth Verify'}',
                                   style: const TextStyle(
                                     fontFamily: 'Geist',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w300,
-                                    color: Color(0xFF64748B),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: SariwaColors.inkSlateMuted,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -1696,24 +1737,26 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: isSuccess
-                                  ? const Color(0xFF10B981).withValues(alpha: 0.12)
+                                  ? SariwaColors.successBg
                                   : (isSuspended
-                                      ? const Color(0xFF8B5CF6).withValues(alpha: 0.12)
-                                      : const Color(0xFFEF4444).withValues(alpha: 0.12)),
-                              borderRadius: BorderRadius.circular(6),
+                                      ? SariwaColors.warningBg
+                                      : SariwaColors.dangerBg),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               log.status,
                               style: TextStyle(
                                 fontFamily: 'Geist',
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 color: isSuccess
-                                    ? const Color(0xFF059669)
-                                    : (isSuspended ? const Color(0xFF7C3AED) : const Color(0xFFDC2626)),
+                                    ? SariwaColors.successText
+                                    : (isSuspended
+                                        ? SariwaColors.warningText
+                                        : SariwaColors.dangerText),
                               ),
                             ),
                           ),
@@ -1722,9 +1765,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                             _formatDate(log.createdAt),
                             style: const TextStyle(
                               fontFamily: 'Geist',
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w300,
-                              color: Color(0xFF94A3B8),
+                              color: SariwaColors.inkSlateSubtle,
                               fontFeatures: [ui.FontFeature.tabularFigures()],
                             ),
                           ),
@@ -1747,21 +1790,21 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
           value,
           style: TextStyle(
             fontFamily: 'Geist',
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            letterSpacing: -0.02,
-            color: color ?? const Color(0xFF0F172A),
+            fontSize: 24,
+            fontWeight: FontWeight.w400,
+            letterSpacing: -0.5,
+            color: color ?? SariwaColors.inkSlate,
             fontFeatures: const [ui.FontFeature.tabularFigures()],
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           label,
           style: const TextStyle(
             fontFamily: 'Geist',
-            fontSize: 11.5,
+            fontSize: 12,
             fontWeight: FontWeight.w300,
-            color: Color(0xFF64748B),
+            color: SariwaColors.inkSlateMuted,
           ),
         ),
       ],
@@ -1782,7 +1825,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       children: [
         // Database & Infrastructure Card
         FrostedGlassCard(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1793,7 +1836,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                     children: [
                       Icon(
                         db?.isHealthy == true ? CupertinoIcons.check_mark_circled_solid : CupertinoIcons.exclamationmark_triangle_fill,
-                        color: db?.isHealthy == true ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        color: db?.isHealthy == true ? SariwaColors.statusFresh : SariwaColors.statusSpoiled,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
@@ -1801,32 +1844,32 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         'Database Engine Health',
                         style: TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          color: SariwaColors.inkSlate,
                         ),
                       ),
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: (db?.isHealthy == true ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      color: (db?.isHealthy == true ? SariwaColors.statusFresh : SariwaColors.statusSpoiled).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       db?.status ?? 'UNKNOWN',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: db?.isHealthy == true ? const Color(0xFF059669) : const Color(0xFFDC2626),
+                        color: db?.isHealthy == true ? SariwaColors.freshText : SariwaColors.statusSpoiled,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               _buildMetricTile('Vendor / Driver', db?.vendor.toUpperCase() ?? 'SQLITE'),
               _buildMetricTile('Connection Ping Latency', '${db?.latencyMs.toStringAsFixed(2) ?? '0.0'} ms'),
               _buildMetricTile('Connection Pool Status', 'Active & Connected'),
@@ -1838,7 +1881,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
 
         // ML Engine Card
         FrostedGlassCard(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1847,38 +1890,38 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                 children: [
                   const Row(
                     children: [
-                      Icon(CupertinoIcons.circle_grid_hex_fill, color: Color(0xFF0D9488), size: 18),
+                      Icon(CupertinoIcons.circle_grid_hex_fill, color: SariwaColors.brandPrimary, size: 18),
                       SizedBox(width: 8),
                       Text(
                         'Machine Learning Model Bundle',
                         style: TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF0F172A),
+                          color: SariwaColors.inkSlate,
                         ),
                       ),
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0D9488).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      color: SariwaColors.brandPrimary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       ml?.status ?? 'READY',
                       style: const TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF0D9488),
+                        color: SariwaColors.brandPrimary,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               _buildMetricTile('Neural Architecture', ml?.architecture ?? 'MobileNetV3-Small'),
               _buildMetricTile('Checkpoint Checksum', ml?.checkpointName ?? 'sariwaba_mobilenetv3_best.pth'),
               _buildMetricTile('Hardware Device', ml?.device.toUpperCase() ?? 'CPU'),
@@ -1893,7 +1936,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
 
         // API Throughput Summary
         FrostedGlassCard(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1901,12 +1944,12 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                 'API Request Volume & Error Distribution',
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF0F172A),
+                  color: SariwaColors.inkSlate,
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               _buildMetricTile('Total Tracked Telemetry Calls', api?.totalRequestsTracked.toString() ?? '0'),
               _buildMetricTile('HTTP 2xx (Success)', api?.successCount.toString() ?? '0'),
               _buildMetricTile('HTTP 4xx (Client / Validation Rejections)', api?.clientErrorCount.toString() ?? '0'),
@@ -1927,40 +1970,40 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       children: [
         // Filter bar
         FrostedGlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Icon(
                 CupertinoIcons.search,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _auditSearchCtrl,
                   textAlignVertical: TextAlignVertical.center,
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF0F172A),
+                    color: SariwaColors.inkSlate,
                   ),
-                  cursorColor: const Color(0xFF0F766E),
+                  cursorColor: SariwaColors.brandPrimary,
                   onChanged: (val) => ctrl.filterAudits(search: val),
                   decoration: InputDecoration(
                     hintText: 'Search audits by inspector email or name...',
                     hintStyle: const TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w300,
-                      color: Color(0xFF94A3B8),
+                      color: SariwaColors.inkSlateSubtle,
                     ),
                     suffixIcon: _auditSearchCtrl.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(CupertinoIcons.clear_circled, size: 15),
-                            color: const Color(0xFF94A3B8),
+                            color: SariwaColors.inkSlateSubtle,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                             onPressed: () {
@@ -1970,12 +2013,15 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                           )
                         : null,
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: false,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               _buildFilterDropdown(
                 value: state.auditRegionFilter != null
                     ? (state.auditRegionFilter == 'eye'
@@ -2018,7 +2064,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -2028,22 +2074,22 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         fontFamily: 'Geist',
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF0F172A),
+                        color: SariwaColors.inkSlate,
                       ),
                     ),
                     const Text(
                       'Append-Only · Deletion Protected',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF0D9488),
+                        color: SariwaColors.brandPrimary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, color: Color(0xFFE2E8F0)),
+              const Divider(height: 1, color: SariwaColors.surfaceSlateSubtle),
 
               if (state.audits.isEmpty)
                 const Padding(
@@ -2053,9 +2099,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                       'No classification audits match the criteria.',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w300,
-                        color: Color(0xFF94A3B8),
+                        color: SariwaColors.inkSlateSubtle,
                       ),
                     ),
                   ),
@@ -2065,7 +2111,7 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: state.audits.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  separatorBuilder: (context, index) => const Divider(height: 1, color: SariwaColors.surfaceSlateWash),
                   itemBuilder: (context, index) {
                     final audit = state.audits[index];
                     final isFresh = audit.isFresh;
@@ -2077,14 +2123,18 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         height: 36,
                         decoration: BoxDecoration(
                           color: isFresh
-                              ? const Color(0xFF10B981).withValues(alpha: 0.12)
-                              : const Color(0xFFF43F5E).withValues(alpha: 0.12),
+                              ? SariwaColors.freshIconBg
+                              : SariwaColors.notFreshIconBg,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          isFresh ? CupertinoIcons.checkmark_seal_fill : CupertinoIcons.xmark_seal_fill,
+                          isFresh
+                              ? CupertinoIcons.checkmark_seal_fill
+                              : CupertinoIcons.xmark_seal_fill,
                           size: 18,
-                          color: isFresh ? const Color(0xFF10B981) : const Color(0xFFF43F5E),
+                          color: isFresh
+                              ? SariwaColors.statusFresh
+                              : SariwaColors.statusSpoiled,
                         ),
                       ),
                       title: Row(
@@ -2093,26 +2143,26 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                             'Scan #${audit.scanId}',
                             style: const TextStyle(
                               fontFamily: 'Geist',
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF0F172A),
+                              color: SariwaColors.inkSlate,
                               fontFeatures: [ui.FontFeature.tabularFigures()],
                             ),
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1.5),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(4),
+                              color: SariwaColors.surfaceSlateWash,
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               audit.regionType.toUpperCase(),
                               style: const TextStyle(
                                 fontFamily: 'Geist',
-                                fontSize: 9.5,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Color(0xFF475569),
+                                color: SariwaColors.inkSlateSecondary,
                               ),
                             ),
                           ),
@@ -2122,30 +2172,37 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                         'Inspector: ${audit.inspector.name} (${audit.inspector.email})',
                         style: const TextStyle(
                           fontFamily: 'Geist',
-                          fontSize: 11.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w300,
-                          color: Color(0xFF64748B),
+                          color: SariwaColors.inkSlateMuted,
                         ),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: isFresh
-                                  ? const Color(0xFF10B981).withValues(alpha: 0.12)
-                                  : const Color(0xFFF43F5E).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(6),
+                                  ? SariwaColors.freshIconBg
+                                  : SariwaColors.notFreshIconBg,
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '${audit.label} · ${(audit.confidence * 100).toStringAsFixed(1)}%',
                               style: TextStyle(
                                 fontFamily: 'Geist',
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: isFresh ? const Color(0xFF059669) : const Color(0xFFE11D48),
-                                fontFeatures: const [ui.FontFeature.tabularFigures()],
+                                color: isFresh
+                                    ? SariwaColors.freshText
+                                    : SariwaColors.notFreshText,
+                                fontFeatures: const [
+                                  ui.FontFeature.tabularFigures(),
+                                ],
                               ),
                             ),
                           ),
@@ -2154,9 +2211,9 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
                             _formatDate(audit.createdAt),
                             style: const TextStyle(
                               fontFamily: 'Geist',
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w300,
-                              color: Color(0xFF94A3B8),
+                              color: SariwaColors.inkSlateSubtle,
                               fontFeatures: [ui.FontFeature.tabularFigures()],
                             ),
                           ),
@@ -2184,11 +2241,11 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
     return PopupMenuButton<String>(
       tooltip: 'Filter options',
       elevation: 12,
-      shadowColor: const Color(0xFF0F172A).withValues(alpha: 0.12),
+      shadowColor: SariwaColors.inkSlate.withValues(alpha: 0.12),
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.0),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
       ),
       offset: const Offset(0, 36),
       onSelected: onChanged,
@@ -2197,24 +2254,24 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
         return PopupMenuItem<String>(
           value: i,
           height: 38,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               Icon(
                 isSelected ? CupertinoIcons.checkmark_alt : null,
                 size: 14,
-                color: isSelected ? const Color(0xFF0F766E) : Colors.transparent,
+                color: isSelected ? SariwaColors.brandPrimary : Colors.transparent,
               ),
               const SizedBox(width: 8),
               Text(
                 i,
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                   color: isSelected
-                      ? const Color(0xFF0F766E)
-                      : const Color(0xFF1E293B),
+                      ? SariwaColors.brandPrimary
+                      : SariwaColors.notFreshCardBgDark,
                 ),
               ),
             ],
@@ -2224,17 +2281,17 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(10),
+            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFE2E8F0),
+              color: SariwaColors.surfaceSlateSubtle,
               width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+                color: SariwaColors.inkSlate.withValues(alpha: 0.03),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -2244,23 +2301,23 @@ class _AdminPageSectionState extends ConsumerState<AdminPageSection> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 12, color: const Color(0xFF64748B)),
-                const SizedBox(width: 6),
+                Icon(icon, size: 12, color: SariwaColors.inkSlateMuted),
+                const SizedBox(width: 8),
               ],
               Text(
                 value,
                 style: const TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 12.5,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF334155),
+                  color: SariwaColors.inkSlateSecondary,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               const Icon(
                 CupertinoIcons.chevron_down,
                 size: 11,
-                color: Color(0xFF64748B),
+                color: SariwaColors.inkSlateMuted,
               ),
             ],
           ),

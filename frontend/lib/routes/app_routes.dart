@@ -8,6 +8,7 @@ import '../pages/dashboard/dashboard_page.dart';
 import '../screens/auth/auth_page.dart';
 import '../screens/downloads/downloads_page.dart';
 import '../screens/home/home_page.dart';
+import '../widgets/common/sariwa_startup_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authNotifier = ValueNotifier<AuthState>(
@@ -35,15 +36,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.splash,
         pageBuilder: (context, state) => AppRoutes._buildTransitionPage(
           key: state.pageKey,
-          child: const Scaffold(
+          child: const SariwaStartupScreen(
             key: ValueKey('splash_loading'),
-            backgroundColor: Color(0xFF060B12),
-            body: Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white70,
-              ),
-            ),
           ),
         ),
       ),

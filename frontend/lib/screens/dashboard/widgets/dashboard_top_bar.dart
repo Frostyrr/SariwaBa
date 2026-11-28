@@ -93,7 +93,7 @@ class DashboardTopBar extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
                   color: SariwaColors.textPrimaryDark,
                 ),
@@ -240,7 +240,7 @@ class DashboardTopBar extends StatelessWidget {
                             letterSpacing: -0.25,
                             fontSize: 13,
                             color: SariwaColors.statusSpoiled,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -264,7 +264,7 @@ class DashboardTopBar extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                           color: SariwaColors.textPrimaryDark,
                         ),
@@ -302,7 +302,7 @@ class DashboardTopBar extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             letterSpacing: -0.25,
                             color: SariwaColors.textPrimaryDark,
                           ),
@@ -358,7 +358,7 @@ class DashboardGreetingHeader extends StatelessWidget {
                   style: AppTypography.displayLarge.copyWith(
                     color: SariwaColors.textPrimaryDark,
                     fontSize: 24,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
                   ),
                 ),
@@ -402,7 +402,7 @@ class DashboardGreetingHeader extends StatelessWidget {
                                   fontFamily: 'Geist',
                                   fontSize: 12.5,
                                   fontWeight: selectedTimeframe == period
-                                      ? FontWeight.w600
+                                      ? FontWeight.w500
                                       : FontWeight.w400,
                                   letterSpacing: -0.25,
                                   color: selectedTimeframe == period
@@ -546,7 +546,7 @@ class DashboardGreetingHeader extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),

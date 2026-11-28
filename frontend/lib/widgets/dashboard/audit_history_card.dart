@@ -64,7 +64,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(9),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: SariwaColors.brandPrimary.withValues(
                           alpha: 0.10,
@@ -85,7 +85,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           const Text(
                             'Audit History',
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500, // Medium
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: SariwaColors.textPrimaryDark,
@@ -134,14 +134,14 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                         foregroundColor: SariwaColors.brandPrimary,
                         visualDensity: VisualDensity.compact,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                          horizontal: 12,
+                          vertical: 8,
                         ),
                         textStyle: const TextStyle(
                           fontFamily: 'Geist',
                           fontWeight: FontWeight.w400,
                           letterSpacing: AppTypography.defaultLetterSpacing,
-                          fontSize: 13,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -161,10 +161,10 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.50),
-              borderRadius: BorderRadius.circular(13),
+              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.50),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.75),
+                color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.75),
                 width: 1.0,
               ),
             ),
@@ -185,12 +185,12 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                       curve: Curves.easeOutCubic,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.white.withValues(alpha: 0.90) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
+                        color: isSelected ? SariwaColors.cardSurfaceLight.withValues(alpha: 0.90) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+                                  color: SariwaColors.inkSlate.withValues(alpha: 0.06),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -203,7 +203,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: isSelected
-                                ? FontWeight.w700
+                                ? FontWeight.w500
                                 : FontWeight.w500,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: isSelected
@@ -223,10 +223,10 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
             const SizedBox(height: 12),
             Container(
               key: const Key('history_bulk_action_bar'),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               decoration: BoxDecoration(
                 color: SariwaColors.brandPrimary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: SariwaColors.brandPrimary.withValues(alpha: 0.22),
                   width: 1,
@@ -242,7 +242,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                     '${_selectedScanIds.length} of ${filtered.length} selected',
                     style: const TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 12.5,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                       color: SariwaColors.textPrimaryDark,
                       letterSpacing: AppTypography.defaultLetterSpacing,
@@ -312,19 +312,19 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           foregroundColor: Colors.white,
                           disabledBackgroundColor: SariwaColors.statusSpoiled
                               .withValues(alpha: 0.35),
-                          disabledForegroundColor: Colors.white70,
+                          disabledForegroundColor: SariwaColors.textSecondaryLight,
                           elevation: 0,
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                            horizontal: 12,
+                            vertical: 8,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(99),
+                            borderRadius: BorderRadius.circular(999),
                           ),
                           textStyle: const TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 11.5,
+                            fontSize: 12,
                             fontWeight: FontWeight.w400,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                           ),
@@ -367,7 +367,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                       },
                     ),
                     if (filtered.length > widget.maxDisplayItems || widget.onViewMore != null) ...[
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
@@ -376,7 +376,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           child: Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
-                              vertical: 11,
+                              vertical: 12,
                               horizontal: 16,
                             ),
                             decoration: BoxDecoration(
@@ -394,13 +394,13 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                                   'View more',
                                   style: TextStyle(
                                     fontFamily: 'Geist',
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                     letterSpacing: AppTypography.defaultLetterSpacing,
                                     color: SariwaColors.brandPrimary,
                                   ),
                                 ),
-                                SizedBox(width: 6),
+                                SizedBox(width: 8),
                                 Icon(
                                   CupertinoIcons.arrow_right,
                                   size: 14,
@@ -449,11 +449,11 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
     return Container(
       key: const Key('empty_history_state'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: SariwaColors.surfaceSlateTint,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
+        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 0.8),
       ),
       child: Column(
         children: [
@@ -466,17 +466,17 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
               color: SariwaColors.textMutedDark,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Text(
             emptyTitle,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textPrimaryDark,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             emptySubtitle,
             style: const TextStyle(
@@ -526,17 +526,17 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
         decoration: BoxDecoration(
           color: isSelected
               ? SariwaColors.brandPrimary.withValues(alpha: 0.08)
-              : Colors.white.withValues(alpha: 0.70),
-          borderRadius: BorderRadius.circular(18),
+              : SariwaColors.cardSurfaceLight.withValues(alpha: 0.70),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
                 ? SariwaColors.brandPrimary
-                : Colors.white.withValues(alpha: 0.85),
+                : SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
             width: isSelected ? 1.6 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.03),
+              color: SariwaColors.inkSlate.withValues(alpha: 0.03),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
@@ -572,7 +572,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                     border: Border.all(
                       color: isSelected
                           ? SariwaColors.brandPrimary
-                          : const Color(0xFFCBD5E1),
+                          : SariwaColors.lineSlate,
                       width: 1.8,
                     ),
                   ),
@@ -616,7 +616,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                       ),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -647,13 +647,13 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(99),
+                                  color: SariwaColors.surfaceSlateWash,
+                                  borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
                                   'Selected region: ${scan.regionDisplayName!}',
                                   style: const TextStyle(
-                                    fontSize: 10.5,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w400,
                                     letterSpacing:
                                         AppTypography.defaultLetterSpacing,
@@ -675,7 +675,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                           icon: isDeleting
                               ? const CupertinoActivityIndicator(radius: 8)
                               : const Icon(CupertinoIcons.trash, size: 16),
-                          color: const Color(0xFF94A3B8),
+                          color: SariwaColors.inkSlateSubtle,
                           tooltip: 'Delete scan',
                           onPressed: isDeleting
                               ? null
@@ -689,17 +689,17 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                   ),
                   const SizedBox(height: 8),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(999),
                     child: LinearProgressIndicator(
                       value: scan.confidence.clamp(0.0, 1.0),
                       minHeight: 6,
-                      backgroundColor: const Color(0xFFF1F5F9),
+                      backgroundColor: SariwaColors.surfaceSlateWash,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         scan.statusColor,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -709,7 +709,7 @@ class _AuditHistoryCardState extends State<AuditHistoryCard> {
                               ? '${scan.createdAt!.month}/${scan.createdAt!.day}/${scan.createdAt!.year} at ${scan.createdAt!.hour}:${scan.createdAt!.minute.toString().padLeft(2, '0')}'
                               : 'Audit Scan #${scan.scanId ?? ''}',
                           style: const TextStyle(
-                            fontSize: 11.5,
+                            fontSize: 12,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textSecondaryDark,
                           ),

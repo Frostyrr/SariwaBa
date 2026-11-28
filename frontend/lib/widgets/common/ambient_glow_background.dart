@@ -30,7 +30,7 @@ class AmbientGlowBackground extends StatelessWidget {
     this.useBlurredAsset = false,
     this.blurSigma = 0.0,
     this.enableSeamlessTransition = true,
-    this.nextSectionColor = const Color(0xFFF0F7F6),
+    this.nextSectionColor = SariwaColors.colorWorkspace,
     this.useLightAtmospheric = false,
   });
 
@@ -92,7 +92,7 @@ class AmbientGlowBackground extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Color(0x1814B8A6), // Soft seafoam
+                    SariwaColors.brandGlowTint, // Soft seafoam
                     Color(0x0A2DD4BF),
                     Color(0x002DD4BF),
                   ],
@@ -230,7 +230,7 @@ class _CoastalWaveFormsPainter extends CustomPainter {
       ..strokeWidth = 1.6;
 
     // Organic Wave Form 1: Top-Left coastal curve
-    strokePaint.color = const Color(0xFF14B8A6).withValues(alpha: 0.045);
+    strokePaint.color = SariwaColors.brandGlow.withValues(alpha: 0.045);
     final path1 = Path()
       ..moveTo(w * -0.05, h * 0.12)
       ..cubicTo(w * 0.15, h * 0.05, w * 0.28, h * 0.22, w * 0.45, h * 0.14)
@@ -238,7 +238,7 @@ class _CoastalWaveFormsPainter extends CustomPainter {
     canvas.drawPath(path1, strokePaint);
 
     // Organic Wave Form 2: Upper-Right contour
-    strokePaint.color = const Color(0xFF0D9488).withValues(alpha: 0.035);
+    strokePaint.color = SariwaColors.brandPrimary.withValues(alpha: 0.035);
     final path2 = Path()
       ..moveTo(w * 0.35, h * 0.0)
       ..cubicTo(w * 0.52, h * 0.16, w * 0.75, h * 0.04, w * 1.05, h * 0.20);
@@ -283,7 +283,7 @@ class _WaterCausticsPainter extends CustomPainter {
     final urWarmPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.4
-      ..color = const Color(0xFFFEF3C7).withValues(alpha: 0.045)
+      ..color = SariwaColors.warningBg.withValues(alpha: 0.045)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6.0);
 
     final urWarmPath = Path()
@@ -296,7 +296,7 @@ class _WaterCausticsPainter extends CustomPainter {
     final causticPaintLL = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2
-      ..color = const Color(0xFF10B981).withValues(alpha: 0.055)
+      ..color = SariwaColors.statusFresh.withValues(alpha: 0.055)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12.0);
 
     final llPath = Path()
@@ -321,7 +321,7 @@ class _HeroGridPatternPainter extends CustomPainter {
     for (double x = spacing; x < size.width; x += spacing) {
       for (double y = 24.0; y < maxFadeY; y += spacing) {
         final fade = (1.0 - (y / maxFadeY)).clamp(0.0, 1.0);
-        dotPaint.color = const Color(0xFF0F766E).withValues(alpha: 0.035 * fade);
+        dotPaint.color = SariwaColors.brandPrimary.withValues(alpha: 0.035 * fade);
         canvas.drawCircle(Offset(x, y), 1.0, dotPaint);
       }
     }

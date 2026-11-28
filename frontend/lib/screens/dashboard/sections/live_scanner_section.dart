@@ -88,7 +88,7 @@ class LiveScannerSection extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -270,7 +270,7 @@ class LiveScannerSection extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Geist',
               fontSize: 14.5,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               letterSpacing: -0.25,
               color: SariwaColors.textPrimaryDark,
             ),
@@ -346,7 +346,7 @@ class LiveScannerSection extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: -0.25,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -405,7 +405,7 @@ class LiveScannerSection extends StatelessWidget {
                         style: const TextStyle(
                           letterSpacing: -0.25,
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: SariwaColors.textPrimaryDark,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -427,7 +427,7 @@ class LiveScannerSection extends StatelessWidget {
                     letterSpacing: -0.25,
                     color: SariwaColors.statusSpoiled,
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -491,7 +491,7 @@ class LiveScannerSection extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
                         color: SariwaColors.statusFresh,
                       ),

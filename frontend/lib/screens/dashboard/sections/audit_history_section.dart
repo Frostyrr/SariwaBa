@@ -90,7 +90,7 @@ class AuditHistorySection extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -153,7 +153,7 @@ class AuditHistorySection extends StatelessWidget {
                 labelStyle: TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 11.5,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                   letterSpacing: -0.25,
                   color: isSelected
                       ? Colors.white
@@ -221,7 +221,7 @@ class AuditHistorySection extends StatelessWidget {
                                   style: TextStyle(
                                     fontFamily: 'Geist',
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                     letterSpacing: -0.25,
                                     color: SariwaColors.brandPrimary,
                                   ),
@@ -274,7 +274,7 @@ class AuditHistorySection extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Geist',
               fontSize: 14.5,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               letterSpacing: -0.25,
               color: SariwaColors.textPrimaryDark,
             ),
@@ -366,7 +366,7 @@ class AuditHistorySection extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Geist',
                         fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
                         color: scan.statusColor,
                       ),
@@ -386,7 +386,7 @@ class AuditHistorySection extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Geist',
                           fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: -0.25,
                           color: scan.statusColor,
                         ),
@@ -409,7 +409,7 @@ class AuditHistorySection extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'Geist',
                             fontSize: 9.5,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             letterSpacing: -0.25,
                             color: SariwaColors.statusModerate,
                           ),
@@ -466,7 +466,7 @@ class AuditHistorySection extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'Geist',
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.25,
             color: SariwaColors.textPrimaryDark,
           ),

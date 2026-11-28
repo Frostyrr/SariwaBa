@@ -220,7 +220,7 @@ class DashboardSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: -0.25,
                       color: Colors.white,
                     ),
@@ -254,7 +254,7 @@ class DashboardSidebar extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -294,7 +294,7 @@ class DashboardSidebar extends StatelessWidget {
                             style: const TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -363,7 +363,7 @@ class DashboardSidebar extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Geist',
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: -0.25,
                               color: SariwaColors.textPrimaryDark,
                             ),
@@ -456,7 +456,7 @@ class DashboardSidebar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 13,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
                       letterSpacing: -0.25,
                       color: isActive
                           ? SariwaColors.textPrimaryDark

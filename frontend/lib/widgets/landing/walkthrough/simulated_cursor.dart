@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../../../constants/theme/app_colors.dart';
 
 /// Simulated Mouse Cursor for Programmatic Product Demonstrations
 /// Renders an authentic, vector-drawn macOS/Figma style cursor pointer
@@ -39,7 +40,7 @@ class SimulatedCursor extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFF14B8A6).withValues(alpha: 0.8),
+                    color: SariwaColors.brandGlow.withValues(alpha: 0.8),
                     width: 2.0 * (1.0 - clickProgress) + 0.5,
                   ),
                 ),
@@ -66,9 +67,9 @@ class SimulatedCursor extends StatelessWidget {
       height: 28,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: isClicking ? 0.6 : 0.35),
+        color: SariwaColors.cardSurfaceLight.withValues(alpha: isClicking ? 0.6 : 0.35),
         border: Border.all(
-          color: const Color(0xFF14B8A6),
+          color: SariwaColors.brandGlow,
           width: 2.0,
         ),
         boxShadow: [
@@ -110,7 +111,7 @@ class _CursorPointerPainter extends CustomPainter {
 
     // Outer dark stroke for contrast on bright surfaces
     final borderPaint = Paint()
-      ..color = const Color(0xFF0F172A)
+      ..color = SariwaColors.inkSlate
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8
       ..strokeJoin = StrokeJoin.round;

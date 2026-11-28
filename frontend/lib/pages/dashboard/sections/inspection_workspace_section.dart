@@ -1,20 +1,18 @@
-import 'dart:ui' as ui;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/staggered_reveal.dart';
-import '../../../widgets/dashboard/audit_history_card.dart';
 import '../../../widgets/dashboard/current_scan_panel.dart';
 import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
-import '../../../widgets/dashboard/dashboard_notification_banner.dart';
 import '../../../widgets/dashboard/scanner_workstation_card.dart';
 
 /// Main Inspection Workstation section:
-/// - Wide: Left column (Scanner + Audit History), Right column (Current-Scan Panel: Detected Eyes + Result)
-/// - Narrow: Scanner -> Current-Scan Panel -> Audit History
+/// - Wide: Left column (Scanner), Right column (Current-Scan Panel: Detected Eyes + Result)
+/// - Narrow: Scanner -> Current-Scan Panel
 class InspectionWorkspaceSection extends StatelessWidget {
   final dynamic user;
   final bool isGuestUser;
@@ -28,6 +26,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
   final VoidCallback? onViewMore;
   final VoidCallback? onViewAnalytics;
   final ScrollController? scrollController;
+  final Future<bool> Function(ImageSource source)? onRequestPermission;
 
   const InspectionWorkspaceSection({
     super.key,
@@ -43,13 +42,13 @@ class InspectionWorkspaceSection extends StatelessWidget {
     this.onViewMore,
     this.onViewAnalytics,
     this.scrollController,
+    this.onRequestPermission,
   });
 
   @override
   Widget build(BuildContext context) {
     final totalScans = classState.history.length;
     final freshScans = classState.history.where((s) => s.isFresh).length;
-    final notFreshScans = totalScans - freshScans;
 
     return RefreshIndicator.adaptive(
       color: SariwaColors.brandPrimary,
@@ -62,9 +61,11 @@ class InspectionWorkspaceSection extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: EdgeInsets.symmetric(
-          horizontal: isDesktop ? 36 : 16,
-          vertical: isDesktop ? 22 : 16,
+        padding: EdgeInsets.fromLTRB(
+          isDesktop ? 36 : 16,
+          isDesktop ? 24 : 12,
+          isDesktop ? 36 : 16,
+          isDesktop ? 24 : 104,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -77,7 +78,16 @@ class InspectionWorkspaceSection extends StatelessWidget {
                     staggerIndex: 0,
                     child: _buildDashboardHeader(context),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
+                ] else ...[
+                  StaggeredReveal(
+                    staggerIndex: 0,
+                    child: _buildCompactAtmosphericHeader(
+                      totalScans: totalScans,
+                      freshScans: freshScans,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -96,6 +106,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                                 controller: classController,
                                 isCropModalOpen: isModalEffectivelyOpen,
                                 onOpenCropModal: onOpenCropModal,
+                                onRequestPermission: onRequestPermission,
                               ),
                             ),
                           ),
@@ -128,6 +139,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                             controller: classController,
                             isCropModalOpen: isModalEffectivelyOpen,
                             onOpenCropModal: onOpenCropModal,
+                            onRequestPermission: onRequestPermission,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -158,118 +170,106 @@ class InspectionWorkspaceSection extends StatelessWidget {
   Widget _buildCompactAtmosphericHeader({
     required int totalScans,
     required int freshScans,
-    required int notFreshScans,
   }) {
+    final freshPct =
+        totalScans > 0 ? ((freshScans / totalScans) * 100).round() : 0;
+    final historyTap = onViewMore ?? onViewAnalytics;
+
     return DashboardAtmosphericBanner(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      borderRadius: 20,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       content: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                const Text(
                   'Freshness Inspection',
                   style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
-                    color: Colors.white,
+                    fontFamily: 'Geist',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.3,
+                    color: SariwaColors.cardSurfaceLight,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
-                  'Inspect close-up eyes, exposed gills, or whole Tilapia photos.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
-                    color: Color(0xFFD1FAF4),
+                  totalScans > 0
+                      ? '$totalScans ${totalScans == 1 ? 'scan' : 'scans'} · $freshPct% fresh'
+                      : 'Snap or upload an eye or gill photo.',
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    height: 1.35,
+                    color: SariwaColors.colorPale,
                   ),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          MouseRegion(
-            cursor: onViewAnalytics != null
-                ? SystemMouseCursors.click
-                : SystemMouseCursors.basic,
-            child: GestureDetector(
-              onTap: onViewAnalytics,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.28),
-                    width: 1,
+          if (historyTap != null) ...[
+            const SizedBox(width: 12),
+            Semantics(
+              button: true,
+              label: 'View History and Insights',
+              child: Material(
+                color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                  side: BorderSide(
+                    color:
+                        SariwaColors.cardSurfaceLight.withValues(alpha: 0.25),
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$totalScans scans',
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                child: InkWell(
+                  onTap: historyTap,
+                  borderRadius: BorderRadius.circular(999),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'History',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          CupertinoIcons.chevron_right,
+                          size: 12,
+                          color: SariwaColors.brandLight,
+                        ),
+                      ],
                     ),
-                    const Text(
-                      '  ·  ',
-                      style: TextStyle(color: Color(0x99FFFFFF)),
-                    ),
-                    Text(
-                      '$freshScans Fresh',
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF6EE7B7),
-                      ),
-                    ),
-                    const Text(
-                      '  ·  ',
-                      style: TextStyle(color: Color(0x99FFFFFF)),
-                    ),
-                    Text(
-                      '$notFreshScans Not Fresh',
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFFCA5A5),
-                      ),
-                    ),
-                    if (onViewAnalytics != null) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        CupertinoIcons.chevron_right,
-                        size: 13,
-                        color: Color(0xFFD1FAF4),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildDashboardHeader(BuildContext context) {
-    final name = (user != null && user.displayName != null && user.displayName.toString().isNotEmpty)
+    final name = (user != null &&
+            user.displayName != null &&
+            user.displayName.toString().isNotEmpty)
         ? user.displayName.toString().split(' ').first
-        : (isGuestUser ? 'Guest Evaluator' : 'Inspector');
+        : (isGuestUser ? 'Guest' : 'Inspector');
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -282,14 +282,14 @@ class InspectionWorkspaceSection extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 3.5,
+                    horizontal: 12,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE6F6F4),
-                    borderRadius: BorderRadius.circular(99),
+                    color: SariwaColors.colorPale,
+                    borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: const Color(0xFFBBE5DF),
+                      color: SariwaColors.brandLight,
                       width: 1.0,
                     ),
                   ),
@@ -304,16 +304,14 @@ class InspectionWorkspaceSection extends StatelessWidget {
                           color: SariwaColors.brandPrimary,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Text(
-                        isGuestUser
-                            ? 'Guest Evaluation Mode'
-                            : 'Account Synced',
+                        isGuestUser ? 'Guest Mode' : 'Synced',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           letterSpacing: AppTypography.defaultLetterSpacing,
-                          color: Color(0xFF0F766E),
+                          color: SariwaColors.brandPrimary,
                         ),
                       ),
                     ],
@@ -321,104 +319,89 @@ class InspectionWorkspaceSection extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
-              'Welcome back, $name!',
+              'Welcome, $name',
               style: AppTypography.displayLarge.copyWith(
-                color: Colors.white,
-                fontSize: isCompact ? 23 : 28,
-                fontWeight: FontWeight.w500, // Medium
+                color: SariwaColors.cardSurfaceLight,
+                fontSize: isCompact ? 20 : 28,
+                fontWeight: FontWeight.w500,
                 letterSpacing: AppTypography.defaultLetterSpacing,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Upload a Tilapia photo, frame the eye or exposed gill, and check its freshness in seconds.',
+              'Snap or upload an eye, gill, or whole fish photo.',
               style: AppTypography.bodyMedium.copyWith(
-                color: const Color(0xFFD1FAF4),
-                fontSize: 13.5,
+                color: SariwaColors.brandLight,
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
                 letterSpacing: AppTypography.defaultLetterSpacing,
               ),
             ),
           ],
         );
 
-        final actionsRow = Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            _buildCircularHeaderIconButton(
-              icon: CupertinoIcons.question,
-              tooltip:
-                  'Eye is selected by default. Hover over an uploaded photo for framing guidance.',
-              isDark: true,
-              onTap: () {},
-            ),
-            if (isGuestUser)
-              OutlinedButton.icon(
+        final actionButton = isGuestUser
+            ? OutlinedButton.icon(
                 onPressed: onConnectGoogle,
                 icon: const Icon(
                   CupertinoIcons.person_badge_plus,
                   size: 15,
                   color: SariwaColors.brandPrimary,
                 ),
-                label: const Text('Connect with Google'),
+                label: const Text('Sign In'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.brandPrimary,
                   side: const BorderSide(
-                    color: Color(0xFFBBE5DF),
+                    color: SariwaColors.brandLight,
                     width: 1.0,
                   ),
-                  backgroundColor: const Color(0xFFE6F6F4),
+                  backgroundColor: SariwaColors.colorPale,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(99),
-                  ),
+                  shape: const StadiumBorder(),
                 ),
               )
-            else
-              OutlinedButton.icon(
+            : OutlinedButton.icon(
                 onPressed: () => classController.loadHistory(),
                 icon: const Icon(
                   CupertinoIcons.refresh,
                   size: 14,
                   color: SariwaColors.brandPrimary,
                 ),
-                label: const Text('Sync History'),
+                label: const Text('Refresh'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: SariwaColors.brandPrimary,
-                  side: const BorderSide(color: Color(0xFFBBE5DF), width: 1.0),
-                  backgroundColor: const Color(0xFFE6F6F4),
+                  side: const BorderSide(
+                    color: SariwaColors.brandLight,
+                    width: 1.0,
+                  ),
+                  backgroundColor: SariwaColors.colorPale,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(99),
-                  ),
+                  shape: const StadiumBorder(),
                 ),
-              ),
-          ],
-        );
+              );
 
         final Widget innerContent;
         if (isCompact) {
           innerContent = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [headerInfo, const SizedBox(height: 12), actionsRow],
+            children: [headerInfo, const SizedBox(height: 12), actionButton],
           );
         } else {
           innerContent = Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(child: headerInfo),
               const SizedBox(width: 16),
-              actionsRow,
+              actionButton,
             ],
           );
         }
@@ -434,61 +417,10 @@ class InspectionWorkspaceSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCircularHeaderIconButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onTap,
-    bool isDark = false,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-          child: Material(
-            color: isDark ? const Color(0x24FFFFFF) : Colors.white,
-            child: InkWell(
-              onTap: onTap,
-              customBorder: const CircleBorder(),
-              splashColor: const Color(0x2014B8A6),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark
-                        ? const Color(0x33CCEAE6)
-                        : const Color(0xFFE2E8F0),
-                    width: 1.0,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : const [
-                          BoxShadow(
-                            color: Color(0x0A0F172A),
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                ),
-                child: Icon(
-                  icon,
-                  size: 16,
-                  color: isDark ? Colors.white : const Color(0xFF475569),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSimpleFooter() {
     return Center(
       child: Text(
-        '© ${DateTime.now().year} SariwaBa — Fish Freshness Classification. All rights reserved.',
+        '© ${DateTime.now().year} SariwaBa',
         style: const TextStyle(
           fontSize: 12,
           letterSpacing: AppTypography.defaultLetterSpacing,

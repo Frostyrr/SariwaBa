@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../../../constants/theme/app_colors.dart';
 
 /// Painter for the AI Inspection Reticle & Holographic Scanning Beam
 class ScanningReticlePainter extends CustomPainter {
@@ -9,7 +10,7 @@ class ScanningReticlePainter extends CustomPainter {
   ScanningReticlePainter({
     required this.scanProgress,
     this.isScanning = false,
-    this.primaryColor = const Color(0xFF14B8A6),
+    this.primaryColor = SariwaColors.brandGlow,
   });
 
   @override
@@ -43,7 +44,7 @@ class ScanningReticlePainter extends CustomPainter {
 
     // Subtle 3x3 Rule of Thirds Guide Grid
     final gridPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.22)
+      ..color = SariwaColors.cardSurfaceLight.withValues(alpha: 0.22)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.8;
 

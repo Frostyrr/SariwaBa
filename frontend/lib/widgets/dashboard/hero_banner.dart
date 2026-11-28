@@ -33,9 +33,9 @@ class HeroBanner extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: SariwaColors.colorPrimary,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.20),
+          color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.20),
           width: 1.2,
         ),
         gradient: LinearGradient(
@@ -43,7 +43,7 @@ class HeroBanner extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             SariwaColors.colorPrimary,
-            Color.lerp(SariwaColors.colorPrimary, const Color(0xFF0A2229), 0.25)!,
+            Color.lerp(SariwaColors.colorPrimary, SariwaColors.textPrimaryDark, 0.25)!,
           ],
         ),
         boxShadow: const [
@@ -73,34 +73,34 @@ class HeroBanner extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 3.5,
+                      horizontal: 12,
+                      vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(9999),
+                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(999),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.22),
+                        color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.22),
                       ),
                     ),
                     child: Text(
                       'WORKSPACE CONTEXT • SEAFOOD QUALITY OPERATIONS',
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: -0.25,
-                        color: Colors.white.withValues(alpha: 0.90),
+                        color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.90),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   const Text(
                     'Dashboard Overview',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: -0.25,
                       color: Colors.white,
                     ),
@@ -113,9 +113,9 @@ class HeroBanner extends StatelessWidget {
                       style: TextStyle(
                         letterSpacing: -0.25,
                         fontFamily: AppTypography.fontFamily,
-                        fontSize: 13,
+                        fontSize: 14,
                         height: 1.4,
-                        color: Colors.white.withValues(alpha: 0.78),
+                        color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.78),
                       ),
                     ),
                   ),
@@ -133,14 +133,14 @@ class HeroBanner extends StatelessWidget {
                       onTap: onSync,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 9,
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(9999),
+                          color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.25),
+                            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.25),
                           ),
                         ),
                         child: Row(
@@ -148,7 +148,7 @@ class HeroBanner extends StatelessWidget {
                           children: [
                             isSyncing
                                 ? const SizedBox(
-                                    width: 14,
+                                    width: 16,
                                     height: 14,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
@@ -160,14 +160,14 @@ class HeroBanner extends StatelessWidget {
                                     size: 15,
                                     color: Colors.white,
                                   ),
-                            const SizedBox(width: 7),
+                            const SizedBox(width: 8),
                             const Text(
                               'Sync status',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
                             ),
@@ -184,14 +184,14 @@ class HeroBanner extends StatelessWidget {
                       onTap: () => OrganolepticGuidelinesDialog.show(context),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 9,
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(9999),
+                          color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(999),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.25),
+                            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.25),
                           ),
                         ),
                         child: const Row(
@@ -202,14 +202,14 @@ class HeroBanner extends StatelessWidget {
                               size: 15,
                               color: Colors.white,
                             ),
-                            SizedBox(width: 7),
+                            SizedBox(width: 8),
                             Text(
                               'PNS 67 Guide',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),
                             ),
@@ -227,11 +227,11 @@ class HeroBanner extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 9,
+                          vertical: 12,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(9999),
+                          borderRadius: BorderRadius.circular(999),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0x1F0A2229),
@@ -248,14 +248,14 @@ class HeroBanner extends StatelessWidget {
                               size: 15,
                               color: SariwaColors.colorPrimary,
                             ),
-                            SizedBox(width: 7),
+                            SizedBox(width: 8),
                             Text(
                               'Inspect catch',
                               style: TextStyle(
                                 letterSpacing: -0.25,
                                 fontFamily: AppTypography.fontFamily,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w500,
                                 color: SariwaColors.colorPrimary,
                               ),
                             ),
@@ -319,7 +319,7 @@ class HeroBanner extends StatelessWidget {
                   value: notFreshCount.toString(),
                   subtitle: 'Spoilage alerts',
                   icon: Icons.gpp_bad_outlined,
-                  accentColor: const Color(0xFFFCA5A5),
+                  accentColor: SariwaColors.notFreshBorder,
                 ),
                 _buildKpiCard(
                   title: 'AI Precision',
@@ -378,12 +378,12 @@ class HeroBanner extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.10),
+            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.18),
+              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.18),
               width: 1,
             ),
           ),
@@ -399,9 +399,9 @@ class HeroBanner extends StatelessWidget {
                     height: 28,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.14),
+                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.14),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.20),
+                        color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.20),
                       ),
                     ),
                     child: Center(
@@ -411,7 +411,7 @@ class HeroBanner extends StatelessWidget {
                   const Icon(
                     Icons.arrow_outward_rounded,
                     size: 13,
-                    color: Colors.white54,
+                    color: SariwaColors.textSecondaryLight,
                   ),
                 ],
               ),
@@ -420,8 +420,8 @@ class HeroBanner extends StatelessWidget {
                 value,
                 style: const TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: -0.25,
                   color: Colors.white,
                 ),
@@ -432,9 +432,9 @@ class HeroBanner extends StatelessWidget {
                 style: TextStyle(
                   letterSpacing: -0.25,
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.88),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.88),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -444,8 +444,8 @@ class HeroBanner extends StatelessWidget {
                 style: TextStyle(
                   letterSpacing: -0.25,
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 10.5,
-                  color: Colors.white.withValues(alpha: 0.65),
+                  fontSize: 12,
+                  color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.65),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

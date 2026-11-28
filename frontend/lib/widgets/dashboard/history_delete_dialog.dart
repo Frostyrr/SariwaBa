@@ -18,7 +18,7 @@ class HistoryDeleteDialog {
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: Row(
             children: [
@@ -26,7 +26,7 @@ class HistoryDeleteDialog {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: SariwaColors.statusSpoiled.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   CupertinoIcons.trash,
@@ -34,13 +34,13 @@ class HistoryDeleteDialog {
                   size: 18,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               const Expanded(
                 child: Text(
                   'Delete Scan Record?',
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                     letterSpacing: AppTypography.defaultLetterSpacing,
@@ -53,7 +53,7 @@ class HistoryDeleteDialog {
             'Are you sure you want to permanently delete Scan #$scanId from your history?',
             style: const TextStyle(
               fontFamily: 'Geist',
-              fontSize: 13.5,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
               color: SariwaColors.textSecondaryDark,
               letterSpacing: AppTypography.defaultLetterSpacing,
@@ -83,11 +83,11 @@ class HistoryDeleteDialog {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
+                  horizontal: 16,
+                  vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
               onPressed: () => Navigator.pop(dialogCtx, true),
@@ -120,7 +120,7 @@ class HistoryDeleteDialog {
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(20),
           ),
           title: Row(
             children: [
@@ -128,7 +128,7 @@ class HistoryDeleteDialog {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: SariwaColors.statusSpoiled.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   CupertinoIcons.trash,
@@ -136,7 +136,7 @@ class HistoryDeleteDialog {
                   size: 18,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   count == 1
@@ -144,7 +144,7 @@ class HistoryDeleteDialog {
                       : 'Delete $count Scan Records?',
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: SariwaColors.textPrimaryDark,
                     letterSpacing: AppTypography.defaultLetterSpacing,
@@ -159,7 +159,7 @@ class HistoryDeleteDialog {
                 : 'Are you sure you want to permanently delete $count selected scans from your history?',
             style: const TextStyle(
               fontFamily: 'Geist',
-              fontSize: 13.5,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
               color: SariwaColors.textSecondaryDark,
               letterSpacing: AppTypography.defaultLetterSpacing,
@@ -189,11 +189,11 @@ class HistoryDeleteDialog {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
+                  horizontal: 16,
+                  vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
               onPressed: () => Navigator.pop(dialogCtx, true),

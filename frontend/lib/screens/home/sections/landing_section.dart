@@ -1,3 +1,4 @@
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -10,9 +11,6 @@ import '../../../widgets/common/staggered_reveal.dart';
 import '../../../widgets/landing/dashboard_showcase.dart';
 
 /// Coastal Light-Mode Hero / Landing Section
-/// Features a warm ivory and soft seafoam atmospheric background,
-/// deep forest-green typography, centered editorial hierarchy,
-/// and a prominent static showcase of the actual SariwaBa? dashboard.
 class LandingSection extends StatelessWidget {
   final VoidCallback onHome;
   final VoidCallback onFeatures;
@@ -48,13 +46,13 @@ class LandingSection extends StatelessWidget {
       showTopRightGlow: true,
       showBottomGlow: false,
       useLightAtmospheric: true,
-      nextSectionColor: const Color(0xFFF0F7F6),
+      nextSectionColor: SariwaColors.colorWorkspace,
       child: Column(
         children: [
-          // Top spacer compensating for sticky 72px WebNavbar
+          // Top spacer compensating for sticky 56px + 20px padding WebNavbar
           const SizedBox(height: 80),
 
-          // Guest Evaluation Mode Banner (if guest mode active)
+          // Guest Evaluation Mode Banner
           if (isGuest)
             Center(
               child: ConstrainedBox(
@@ -64,22 +62,15 @@ class LandingSection extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 14,
+                      vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      color: SariwaColors.cardSurfaceLight,
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFFCCEAE6),
-                        width: 1.2,
+                        color: SariwaColors.colorLine,
+                        width: 1.0,
                       ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x0A0A2229),
-                          blurRadius: 16,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: LayoutBuilder(
                       builder: (context, c) {
@@ -91,7 +82,7 @@ class LandingSection extends StatelessWidget {
                               const Row(
                                 children: [
                                   Icon(
-                                    Icons.info_outline_rounded,
+                                    CupertinoIcons.info_circle,
                                     color: SariwaColors.brandPrimary,
                                     size: 18,
                                   ),
@@ -100,25 +91,25 @@ class LandingSection extends StatelessWidget {
                                     child: Text(
                                       'Guest Evaluation Mode',
                                       style: TextStyle(
-                                        letterSpacing: -0.25,
+                                        letterSpacing: -0.2,
                                         fontFamily: AppTypography.fontFamily,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF0A2229),
+                                        color: SariwaColors.textPrimaryDark,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
                               const Text(
-                                'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
+                                'Scan history is temporary. Connect with Google to archive seafood quality audits.',
                                 style: TextStyle(
-                                  letterSpacing: -0.25,
+                                  letterSpacing: -0.1,
                                   fontFamily: AppTypography.fontFamily,
-                                  fontSize: 12.5,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w300,
-                                  color: Color(0xFF64748B),
+                                  color: SariwaColors.inkSlateMuted,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -127,7 +118,7 @@ class LandingSection extends StatelessWidget {
                                   key: const Key('guest_open_scanner_button'),
                                   onPressed: onDashboard,
                                   icon: const Icon(
-                                    Icons.camera_alt_outlined,
+                                    CupertinoIcons.camera_viewfinder,
                                     size: 16,
                                   ),
                                   label: const Text('Open Live Scanner'),
@@ -136,10 +127,12 @@ class LandingSection extends StatelessWidget {
                                     side: const BorderSide(
                                       color: SariwaColors.brandPrimary,
                                     ),
-                                    minimumSize:
-                                        const Size(double.infinity, 38),
+                                    minimumSize: const Size(
+                                      double.infinity,
+                                      44,
+                                    ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(19),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 ),
@@ -149,12 +142,12 @@ class LandingSection extends StatelessWidget {
                                 label: 'Connect with Google',
                                 icon: SvgPicture.asset(
                                   'assets/icons/google.svg',
-                                  width: 15,
-                                  height: 15,
+                                  width: 16,
+                                  height: 16,
                                 ),
-                                height: 38,
+                                height: 44,
                                 width: double.infinity,
-                                borderRadius: 19,
+                                borderRadius: 12,
                                 onPressed: onConnectGoogle,
                               ),
                             ],
@@ -164,11 +157,11 @@ class LandingSection extends StatelessWidget {
                         return Row(
                           children: [
                             const Icon(
-                              Icons.info_outline_rounded,
+                              CupertinoIcons.info_circle,
                               color: SariwaColors.brandPrimary,
                               size: 20,
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             const Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,21 +169,22 @@ class LandingSection extends StatelessWidget {
                                   Text(
                                     'Guest Evaluation Mode',
                                     style: TextStyle(
-                                      letterSpacing: -0.25,
+                                      letterSpacing: -0.2,
                                       fontFamily: AppTypography.fontFamily,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Color(0xFF0A2229),
+                                      fontWeight: FontWeight.w500,
+                                      color: SariwaColors.textPrimaryDark,
                                     ),
                                   ),
                                   SizedBox(height: 2),
                                   Text(
-                                    'Scan history is temporary. Connect with Google to permanently archive seafood quality audits.',
+                                    'Scan history is temporary. Connect with Google to archive seafood quality audits.',
                                     style: TextStyle(
-                                      letterSpacing: -0.25,
+                                      letterSpacing: -0.1,
                                       fontFamily: AppTypography.fontFamily,
-                                      fontSize: 12.5,
-                                      color: Color(0xFF64748B),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w300,
+                                      color: SariwaColors.inkSlateMuted,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -199,12 +193,12 @@ class LandingSection extends StatelessWidget {
                               ),
                             ),
                             if (onDashboard != null) ...[
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 12),
                               OutlinedButton.icon(
                                 key: const Key('guest_open_scanner_button'),
                                 onPressed: onDashboard,
                                 icon: const Icon(
-                                  Icons.camera_alt_outlined,
+                                  CupertinoIcons.camera_viewfinder,
                                   size: 16,
                                 ),
                                 label: const Text('Open Live Scanner'),
@@ -213,24 +207,24 @@ class LandingSection extends StatelessWidget {
                                   side: const BorderSide(
                                     color: SariwaColors.brandPrimary,
                                   ),
-                                  minimumSize: const Size(160, 38),
+                                  minimumSize: const Size(160, 40),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(19),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
                               ),
                             ],
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             AppButton.primary(
                               label: 'Connect with Google',
                               icon: SvgPicture.asset(
                                 'assets/icons/google.svg',
-                                width: 15,
-                                height: 15,
+                                width: 16,
+                                height: 16,
                               ),
-                              height: 38,
+                              height: 40,
                               width: 200,
-                              borderRadius: 19,
+                              borderRadius: 12,
                               onPressed: onConnectGoogle,
                             ),
                           ],
@@ -242,7 +236,7 @@ class LandingSection extends StatelessWidget {
               ),
             ),
 
-          // Centered Coastal Hero Content
+          // Centered Editorial Hero Content
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1140.0),
@@ -254,43 +248,71 @@ class LandingSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Deep Forest-Green Headline
                     StaggeredReveal(
                       staggerIndex: 0,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 820),
-                        child: Text(
-                          'A clearer perspective on fish freshness.',
-                          textAlign: TextAlign.center,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: SariwaColors.colorPale,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: SariwaColors.colorLine),
+                        ),
+                        child: const Text(
+                          'TILAPIA FRESHNESS INTELLIGENCE',
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
-                            fontSize: isDesktop ? 54 : 36,
-                            fontWeight: FontWeight.w500, // Medium
-                            letterSpacing: -0.25,
-                            height: 1.14,
-                            color: const Color(0xFF0A2B24), // Deep forest-green
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.6,
+                            color: SariwaColors.brandPrimary,
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    // Concise Supporting Copy
+                    Semantics(
+                      header: true,
+                      child: StaggeredReveal(
+                        staggerIndex: 1,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 820),
+                          child: Text(
+                            'A clearer perspective on fish freshness.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: isDesktop ? 48 : 36,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: isDesktop ? -1.2 : -0.8,
+                              height: 1.12,
+                              color: SariwaColors.textPrimaryDark,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
                     StaggeredReveal(
-                      staggerIndex: 1,
+                      staggerIndex: 2,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 680),
-                        child: Text(
-                          'Assess fish freshness through image-based machine learning, with results designed to support more informed decisions.',
+                        constraints: const BoxConstraints(maxWidth: 640),
+                        child: const Text(
+                          'Assess Tilapia eye and gill freshness through image-based machine learning, designed to support consistent quality decisions.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
-                            fontSize: isDesktop ? 17.5 : 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.w300,
-                            height: 1.55,
-                            letterSpacing: -0.25,
-                            color: const Color(0xFF334E48), // Muted coastal forest-slate
+                            height: 1.5,
+                            letterSpacing: -0.15,
+                            color: SariwaColors.inkSlateSecondary,
                           ),
                         ),
                       ),
@@ -300,64 +322,170 @@ class LandingSection extends StatelessWidget {
 
                     // Primary & Secondary Action CTAs
                     StaggeredReveal(
-                      staggerIndex: 2,
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Center(
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 16,
-                            runSpacing: 12,
-                            children: [
-                              // Primary CTA: Start assessing (Preserving established primary button styling)
-                              AppButton.primary(
-                                label: 'Start assessing',
-                                icon: const Icon(
-                                  Icons.arrow_forward_rounded,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                width: isDesktop ? 180 : null,
-                                height: 48,
-                                borderRadius: 24,
-                                onPressed: onDashboard ?? onDownloads,
-                              ),
-
-                              // Secondary CTA: Explore how it works
-                              AppButton.secondary(
-                                label: 'Explore how it works',
-                                width: isDesktop ? 190 : null,
-                                height: 48,
-                                borderRadius: 24,
-                                onPressed: onHowItWorks,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 52),
-
-                    // Middle Centerpiece: Static Showcase of the Actual SariwaBa? Dashboard
-                    StaggeredReveal(
                       staggerIndex: 3,
-                      slideOffset: const Offset(0, 32),
-                      child: DashboardShowcase(
-                        width: isDesktop
-                            ? (screenWidth * 0.82).clamp(840.0, 1080.0)
-                            : screenWidth - 32,
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          AppButton.primary(
+                            label: 'Start assessing',
+                            trailing: const Icon(
+                              CupertinoIcons.arrow_right,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            width: isDesktop ? 184 : null,
+                            height: 48,
+                            borderRadius: 999,
+                            onPressed: onDashboard ?? onDownloads,
+                          ),
+                          AppButton.secondary(
+                            label: 'Explore how it works',
+                            width: isDesktop ? 196 : null,
+                            height: 48,
+                            borderRadius: 999,
+                            onPressed: onHowItWorks,
+                          ),
+                        ],
                       ),
                     ),
 
-                    const SizedBox(height: 64),
+                    const SizedBox(height: 40),
+
+                    // Desktop: Full Dashboard Showcase | Mobile: Native-scale Scan Preview Card
+                    StaggeredReveal(
+                      staggerIndex: 4,
+                      slideOffset: const Offset(0, 24),
+                      child: isDesktop
+                          ? DashboardShowcase(
+                              width: (screenWidth * 0.82).clamp(840.0, 1080.0),
+                            )
+                          : _buildMobileAppPreviewCard(),
+                    ),
+
+                    const SizedBox(height: 48),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Native-scale mobile preview card replacing the shrunken desktop window on < 880px.
+  Widget _buildMobileAppPreviewCard() {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 400),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: SariwaColors.cardSurfaceLight,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: SariwaColors.colorLine),
+          boxShadow: const [
+            BoxShadow(
+              color: SariwaColors.shadowSubtle,
+              blurRadius: 20,
+              offset: Offset(0, 8),
+              spreadRadius: -4,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: SariwaColors.freshIconBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: SariwaColors.freshBorder),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.checkmark_seal_fill,
+                    color: SariwaColors.statusFresh,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Fresh (Sariwa)',
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.freshText,
+                        ),
+                      ),
+                      Text(
+                        'Tilapia · Eye Close-Up',
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                          color: SariwaColors.inkSlateMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: SariwaColors.colorPale,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    '94.2%',
+                    style: TextStyle(
+                      fontFamily: 'Geist Mono',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.brandPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: const LinearProgressIndicator(
+                value: 0.942,
+                minHeight: 8,
+                backgroundColor: SariwaColors.freshTrack,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  SariwaColors.statusFresh,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Clear convex cornea with bright pupil reflection. Consistent with freshly harvested Tilapia.',
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                height: 1.45,
+                color: SariwaColors.inkSlateSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

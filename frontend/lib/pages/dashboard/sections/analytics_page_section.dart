@@ -89,7 +89,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                           Text(
                             'Freshness Insights',
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: 28,
                               fontWeight: FontWeight.w500, // Medium
                               letterSpacing: AppTypography.defaultLetterSpacing,
                               color: Colors.white,
@@ -101,7 +101,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                             style: TextStyle(
                               fontSize: 14,
                               letterSpacing: AppTypography.defaultLetterSpacing,
-                              color: Color(0xFFD1FAF4),
+                              color: SariwaColors.colorPale,
                             ),
                           ),
                         ],
@@ -129,10 +129,10 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                       icon: const Icon(CupertinoIcons.arrow_down_doc, size: 16),
                       label: const Text('Export CSV'),
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.18),
+                        backgroundColor: SariwaColors.cardSurfaceLight.withValues(alpha: 0.18),
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.white.withValues(alpha: 0.08),
-                        disabledForegroundColor: Colors.white54,
+                        disabledBackgroundColor: SariwaColors.cardSurfaceLight.withValues(alpha: 0.08),
+                        disabledForegroundColor: SariwaColors.textSecondaryLight,
                       ),
                     ),
                   ],
@@ -155,13 +155,13 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                       onSelected: (_) => setState(() => _regionFilter = entry.$1),
                     ),
                   const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                     child: SizedBox(
-                      height: 22,
+                      height: 24,
                       child: VerticalDivider(
                         width: 1,
                         thickness: 1.2,
-                        color: Color(0xFFCBD5E1),
+                        color: SariwaColors.lineSlate,
                       ),
                     ),
                   ),
@@ -194,8 +194,8 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                         const Text(
                           'Freshness Ratio Distribution',
                           style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textPrimaryDark,
                           ),
@@ -204,17 +204,17 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                         Text(
                           '$freshCount fresh tilapia vs $notFreshCount not fresh tilapia identified',
                           style: const TextStyle(
-                            fontSize: 12.5,
+                            fontSize: 14,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textSecondaryDark,
                           ),
                         ),
                         const SizedBox(height: 16),
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(99),
+                          borderRadius: BorderRadius.circular(999),
                           child: Container(
                             height: 14,
-                            color: const Color(0xFFE2E8F0),
+                            color: SariwaColors.surfaceSlateSubtle,
                             child: total == 0
                                 ? null
                                 : Row(
@@ -223,7 +223,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                         Expanded(
                                           flex: freshCount,
                                           child: Container(
-                                            color: const Color(0xFF16A34A),
+                                            color: SariwaColors.statusFresh,
                                           ),
                                         ),
                                       if (notFreshCount > 0)
@@ -242,7 +242,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                           children: [
                             _buildDistributionLegend(
                               label: 'Fresh: $freshPct%',
-                              color: const Color(0xFF16A34A),
+                              color: SariwaColors.statusFresh,
                             ),
                             const SizedBox(width: 16),
                             _buildDistributionLegend(
@@ -256,7 +256,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: AppTypography.defaultLetterSpacing,
-                                color: Color(0xFF64748B),
+                                color: SariwaColors.inkSlateMuted,
                               ),
                             ),
                           ],
@@ -269,7 +269,7 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                     children: [
                       Expanded(
                         child: FrostedGlassCard(
-                          padding: const EdgeInsets.all(18),
+                          padding: const EdgeInsets.all(16),
                           borderRadius: 20,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,8 +287,8 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                       'Eye Inspections',
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
                                         color: SariwaColors.textPrimaryDark,
@@ -297,12 +297,12 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               Text(
                                 '$eyeCount scans',
                                 style: const TextStyle(
-                                  fontSize: 21,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
@@ -323,10 +323,10 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: FrostedGlassCard(
-                          padding: const EdgeInsets.all(18),
+                          padding: const EdgeInsets.all(16),
                           borderRadius: 20,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,8 +335,8 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                 children: [
                                   Icon(
                                     CupertinoIcons.waveform_path,
-                                    size: 17,
-                                    color: Color(0xFF8B5CF6),
+                                    size: 16,
+                                    color: SariwaColors.brandPrimary,
                                   ),
                                   SizedBox(width: 8),
                                   Expanded(
@@ -344,8 +344,8 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                       'Gill Inspections',
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
                                         letterSpacing:
                                             AppTypography.defaultLetterSpacing,
                                         color: SariwaColors.textPrimaryDark,
@@ -354,12 +354,12 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               Text(
                                 '$gillCount scans',
                                 style: const TextStyle(
-                                  fontSize: 21,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing:
                                       AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
@@ -425,14 +425,14 @@ class _AnalyticsPageSectionState extends State<AnalyticsPageSection> {
           height: 8,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Text(
           label,
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,
             letterSpacing: AppTypography.defaultLetterSpacing,
-            color: Color(0xFF334155),
+            color: SariwaColors.inkSlateSecondary,
           ),
         ),
       ],

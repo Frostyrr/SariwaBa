@@ -63,28 +63,23 @@ class _FloatingDockState extends State<FloatingDock> {
         });
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(9999),
+        borderRadius: BorderRadius.circular(999),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.78),
-              borderRadius: BorderRadius.circular(9999),
+              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.92),
-                width: 1.2,
+                color: SariwaColors.colorLine,
+                width: 1.0,
               ),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x1F0A2229),
-                  blurRadius: 36,
-                  offset: Offset(0, 14),
-                ),
-                BoxShadow(
-                  color: Color(0x0A0A2229),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
+                  color: SariwaColors.shadowSubtle,
+                  blurRadius: 16,
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
@@ -106,7 +101,7 @@ class _FloatingDockState extends State<FloatingDock> {
                 ...List.generate(widget.items.length, (index) {
                   final item = widget.items[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: _buildMagnifiedItem(index, item),
                   );
                 }),
@@ -142,8 +137,8 @@ class _FloatingDockState extends State<FloatingDock> {
       textStyle: const TextStyle(
         letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
-        fontSize: 11.5,
-        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         color: Colors.white,
       ),
       child: MouseRegion(
@@ -153,16 +148,9 @@ class _FloatingDockState extends State<FloatingDock> {
           child: Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: SariwaColors.colorPrimary,
-              boxShadow: [
-                BoxShadow(
-                  color: SariwaColors.colorPrimary.withValues(alpha: 0.35),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: const Center(
               child: Icon(
@@ -190,8 +178,8 @@ class _FloatingDockState extends State<FloatingDock> {
       textStyle: const TextStyle(
         letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
-        fontSize: 11.5,
-        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         color: Colors.white,
       ),
       child: MouseRegion(
@@ -277,8 +265,8 @@ class _FloatingDockState extends State<FloatingDock> {
       textStyle: const TextStyle(
         letterSpacing: -0.25,
         fontFamily: AppTypography.fontFamily,
-        fontSize: 11.5,
-        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         color: Colors.white,
       ),
       child: MouseRegion(
@@ -304,7 +292,7 @@ class _FloatingDockState extends State<FloatingDock> {
                     border: isSelected
                         ? null
                         : Border.all(
-                            color: Colors.white.withValues(alpha: 0.8),
+                            color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.8),
                             width: 1,
                           ),
                     boxShadow: isSelected
@@ -342,7 +330,7 @@ class _FloatingDockState extends State<FloatingDock> {
                       ),
                       decoration: BoxDecoration(
                         color: item.badgeColor ?? SariwaColors.statusModerate,
-                        borderRadius: BorderRadius.circular(9999),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(color: Colors.white, width: 1),
                       ),
                       child: Center(
@@ -351,8 +339,8 @@ class _FloatingDockState extends State<FloatingDock> {
                           style: const TextStyle(
                             letterSpacing: -0.25,
                             fontFamily: AppTypography.fontFamily,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                             height: 1,
                           ),

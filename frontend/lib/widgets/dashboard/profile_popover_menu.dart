@@ -145,7 +145,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
             child: InkWell(
               key: _buttonKey,
               onTap: _togglePopover,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.all(4),
@@ -175,22 +175,22 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
       child: InkWell(
         key: _buttonKey,
         onTap: _togglePopover,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: _isOpen
                 ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
                 : _isButtonHovered
-                    ? Colors.white.withValues(alpha: 0.6)
+                    ? SariwaColors.cardSurfaceLight.withValues(alpha: 0.6)
                     : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isOpen
                   ? SariwaColors.brandPrimary.withValues(alpha: 0.3)
                   : _isButtonHovered
-                      ? const Color(0xFFE2E8F0)
+                      ? SariwaColors.surfaceSlateSubtle
                       : Colors.transparent,
               width: 1.0,
             ),
@@ -198,7 +198,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
           child: Row(
             children: [
               UserAvatar(user: widget.user, radius: 17),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
                       displayName,
                       style: const TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textPrimaryDark,
@@ -219,7 +219,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
                       email,
                       style: const TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w300,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: SariwaColors.textSecondaryDark,
@@ -235,7 +235,7 @@ class _ProfilePopoverButtonState extends State<ProfilePopoverButton> {
                     ? CupertinoIcons.chevron_down
                     : CupertinoIcons.chevron_up,
                 size: 14,
-                color: const Color(0xFF94A3B8),
+                color: SariwaColors.inkSlateSubtle,
               ),
             ],
           ),
@@ -274,20 +274,20 @@ class _ProfilePopoverCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: SariwaColors.surfaceSlateSubtle,
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.08),
+              color: SariwaColors.inkSlate.withValues(alpha: 0.08),
               blurRadius: 24,
               offset: const Offset(0, 10),
               spreadRadius: -2,
             ),
             BoxShadow(
-              color: const Color(0xFF14B8A6).withValues(alpha: 0.04),
+              color: SariwaColors.brandGlow.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 4),
               spreadRadius: -2,
@@ -295,7 +295,7 @@ class _ProfilePopoverCard extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
             filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: SariwaScrollbar(
@@ -308,7 +308,7 @@ class _ProfilePopoverCard extends StatelessWidget {
                 children: [
                   // Profile Header
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -319,8 +319,8 @@ class _ProfilePopoverCard extends StatelessWidget {
                                 displayName,
                                 style: const TextStyle(
                                   fontFamily: 'Geist',
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing: AppTypography.defaultLetterSpacing,
                                   color: SariwaColors.textPrimaryDark,
                                 ),
@@ -329,16 +329,16 @@ class _ProfilePopoverCard extends StatelessWidget {
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
+                                horizontal: 8,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: isAdmin
-                                    ? const Color(0xFF8B5CF6).withValues(alpha: 0.12)
+                                    ? SariwaColors.colorPale
                                     : isGuestUser
-                                        ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
-                                        : const Color(0xFF10B981).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
+                                        ? SariwaColors.warningBg
+                                        : SariwaColors.successBg,
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 isAdmin
@@ -348,13 +348,13 @@ class _ProfilePopoverCard extends StatelessWidget {
                                         : 'Inspector',
                                 style: TextStyle(
                                   fontFamily: 'Geist',
-                                  fontSize: 10.5,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: isAdmin
-                                      ? const Color(0xFF7C3AED)
+                                      ? SariwaColors.brandPrimary
                                       : isGuestUser
-                                          ? const Color(0xFFD97706)
-                                          : const Color(0xFF059669),
+                                          ? SariwaColors.warningText
+                                          : SariwaColors.successText,
                                 ),
                               ),
                             ),
@@ -365,7 +365,7 @@ class _ProfilePopoverCard extends StatelessWidget {
                           email,
                           style: const TextStyle(
                             fontFamily: 'Geist',
-                            fontSize: 11.5,
+                            fontSize: 12,
                             fontWeight: FontWeight.w300,
                             letterSpacing: AppTypography.defaultLetterSpacing,
                             color: SariwaColors.textSecondaryDark,
@@ -376,7 +376,7 @@ class _ProfilePopoverCard extends StatelessWidget {
                     ),
                   ),
 
-                  const Divider(height: 12, thickness: 1, color: Color(0xFFF1F5F9)),
+                  const Divider(height: 12, thickness: 1, color: SariwaColors.surfaceSlateWash),
 
                   // Menu Option 1: Account Settings
                   _PopoverMenuItem(
@@ -402,7 +402,7 @@ class _ProfilePopoverCard extends StatelessWidget {
                     onTap: () => onNavSelected('Help'),
                   ),
 
-                  const Divider(height: 12, thickness: 1, color: Color(0xFFF1F5F9)),
+                  const Divider(height: 12, thickness: 1, color: SariwaColors.surfaceSlateWash),
 
                   // Menu Option 4: Log Out / Sign In
                   if (isGuestUser)
@@ -420,9 +420,9 @@ class _ProfilePopoverCard extends StatelessWidget {
                       key: const Key('popover_log_out'),
                       icon: CupertinoIcons.square_arrow_right,
                       title: 'Log Out',
-                      iconColor: const Color(0xFFDC2626),
-                      textColor: const Color(0xFFDC2626),
-                      hoverColor: const Color(0xFFFEF2F2),
+                      iconColor: SariwaColors.statusSpoiled,
+                      textColor: SariwaColors.statusSpoiled,
+                      hoverColor: SariwaColors.notFreshIconBg,
                       onTap: onSignOut,
                     ),
                 ],
@@ -465,7 +465,7 @@ class _PopoverMenuItemState extends State<_PopoverMenuItem> {
   @override
   Widget build(BuildContext context) {
     final effectiveHover = _isHovered || _isFocused;
-    final defaultHover = const Color(0xFFF8FAFC);
+    final defaultHover = SariwaColors.surfaceSlateTint;
     final bg = effectiveHover ? (widget.hoverColor ?? defaultHover) : Colors.transparent;
 
     return FocusableActionDetector(
@@ -477,21 +477,21 @@ class _PopoverMenuItemState extends State<_PopoverMenuItem> {
           onTap: widget.onTap,
           child: Container(
             color: bg,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 Icon(
                   widget.icon,
                   size: 16,
-                  color: widget.iconColor ?? const Color(0xFF64748B),
+                  color: widget.iconColor ?? SariwaColors.inkSlateMuted,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     widget.title,
                     style: TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                       letterSpacing: AppTypography.defaultLetterSpacing,
                       color: widget.textColor ?? SariwaColors.textPrimaryDark,

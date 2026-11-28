@@ -39,8 +39,9 @@ class AppTypography {
 
   static TextStyle get headlineLarge => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: FontWeight.w500,
+        height: 1.2,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
@@ -49,6 +50,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.w500,
+        height: 1.3,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
@@ -57,6 +59,7 @@ class AppTypography {
         fontFamily: fontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w500,
+        height: 1.35,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
@@ -65,7 +68,7 @@ class AppTypography {
   static TextStyle get bodyLarge => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 16,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         height: 1.5,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
@@ -74,7 +77,7 @@ class AppTypography {
   static TextStyle get bodyMedium => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 14,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         height: 1.45,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
@@ -82,8 +85,8 @@ class AppTypography {
 
   static TextStyle get heroSubtitle => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 15.5,
-        fontWeight: FontWeight.w300,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
         height: 1.5,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
@@ -92,8 +95,9 @@ class AppTypography {
   // Auth Headings
   static TextStyle get authTitle => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: FontWeight.w500,
+        height: 1.2,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
@@ -101,24 +105,25 @@ class AppTypography {
   static TextStyle get authSubtitle => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 14,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
       );
 
-  // Buttons (Geist SemiBold)
+  // Buttons (Geist)
   static TextStyle get buttonPrimary => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: Colors.white,
       );
 
   static TextStyle get buttonSecondary => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 14.5,
-        fontWeight: FontWeight.w400,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
@@ -126,7 +131,7 @@ class AppTypography {
   // Nav Links
   static TextStyle get navLink => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 13.5,
+        fontSize: 14,
         fontWeight: FontWeight.w400,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textSecondaryLight,
@@ -134,8 +139,8 @@ class AppTypography {
 
   static TextStyle get navLinkActive => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 13.5,
-        fontWeight: FontWeight.w400,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.brandLight,
       );
@@ -144,14 +149,14 @@ class AppTypography {
   static TextStyle get caption => const TextStyle(
         fontFamily: fontFamily,
         fontSize: 12,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textMutedLight,
       );
 
   static TextStyle get labelMedium => const TextStyle(
         fontFamily: fontFamily,
-        fontSize: 13.5,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
@@ -160,15 +165,15 @@ class AppTypography {
   // Brand Logo / Mascot Wordmark (Fredoka retained for the friendly brand curved identity)
   static TextStyle get brandLogo => GoogleFonts.fredoka(
         fontSize: 20,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.textPrimaryLight,
       );
 
   // Monospace (Metrics & AI Confidence)
   static TextStyle get monoMetric => GoogleFonts.jetBrainsMono(
-        fontSize: 13,
-        fontWeight: FontWeight.w400,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         letterSpacing: defaultLetterSpacing,
         color: SariwaColors.brandLight,
       );

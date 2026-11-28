@@ -32,10 +32,10 @@ class ClassificationResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardBgColor,
         border: Border.all(color: borderColor, width: 1.0),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x060F172A),
+            color: SariwaColors.shadowHairline,
             blurRadius: 16,
             offset: Offset(0, 4),
           ),
@@ -61,7 +61,7 @@ class ClassificationResultCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,8 +79,8 @@ class ClassificationResultCard extends StatelessWidget {
                       result.label,
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                         letterSpacing: AppTypography.defaultLetterSpacing,
                         color: textColor,
                       ),
@@ -108,8 +108,8 @@ class ClassificationResultCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -120,8 +120,8 @@ class ClassificationResultCard extends StatelessWidget {
                 result.formattedConfidence,
                 style: TextStyle(
                   fontFamily: 'Geist',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: AppTypography.defaultLetterSpacing,
                   color: primaryColor,
                 ),
@@ -130,7 +130,7 @@ class ClassificationResultCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(99),
+            borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: result.confidence.clamp(0.0, 1.0),
               minHeight: 7,
@@ -144,7 +144,7 @@ class ClassificationResultCard extends StatelessWidget {
           const Text(
             ClassificationResult.confidenceExplanation,
             style: TextStyle(
-              fontSize: 11.5,
+              fontSize: 12,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textSecondaryDark,
             ),
@@ -154,9 +154,9 @@ class ClassificationResultCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: SariwaColors.surfaceSlateTint,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +165,7 @@ class ClassificationResultCard extends StatelessWidget {
                   'What This Means',
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textPrimaryDark,
                   ),
@@ -178,7 +178,7 @@ class ClassificationResultCard extends StatelessWidget {
                           : 'Clear signs of spoilage. It is safer not to consume this fish.')
                       : 'Moderate certainty — consider scanning the ${(result.regionType ?? '').toLowerCase() == 'eye' ? 'gill' : 'eye'} as well to double-check.',
                   style: const TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 12,
                     height: 1.35,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textSecondaryDark,
@@ -190,7 +190,7 @@ class ClassificationResultCard extends StatelessWidget {
                       ? 'Tip: Fresh gills look bright red or pink; spoiled gills look dull brown or slimy.'
                       : 'Tip: Fresh eyes look clear and slightly rounded; spoiled eyes look cloudy or sunken.',
                   style: const TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 12,
                     height: 1.35,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: SariwaColors.textSecondaryDark,
@@ -203,7 +203,7 @@ class ClassificationResultCard extends StatelessWidget {
           const Text(
             ClassificationResult.defaultDisclaimer,
             style: TextStyle(
-              fontSize: 11.5,
+              fontSize: 12,
               letterSpacing: AppTypography.defaultLetterSpacing,
               color: SariwaColors.textSecondaryDark,
             ),
