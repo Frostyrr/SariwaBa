@@ -68,39 +68,11 @@ class HowItWorksSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  StaggeredReveal(
-                    revealOnScroll: true,
-                    staggerIndex: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SariwaColors.colorPale,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: SariwaColors.colorLine),
-                      ),
-                      child: const Text(
-                        'HOW IT WORKS',
-                        style: TextStyle(
-                          fontFamily: TimberTypography.primarySansFamily,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.6,
-                          color: SariwaColors.brandPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
                   Semantics(
                     header: true,
                     child: StaggeredReveal(
                       revealOnScroll: true,
-                      staggerIndex: 1,
+                      staggerIndex: 0,
                       child: Text(
                         'Four Simple Steps to Check Freshness',
                         textAlign: TextAlign.center,
@@ -120,7 +92,7 @@ class HowItWorksSection extends StatelessWidget {
 
                   StaggeredReveal(
                     revealOnScroll: true,
-                    staggerIndex: 2,
+                    staggerIndex: 1,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 560),
                       child: const Text(

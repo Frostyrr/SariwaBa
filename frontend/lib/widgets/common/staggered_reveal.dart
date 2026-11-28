@@ -112,6 +112,12 @@ class _StaggeredRevealState extends State<StaggeredReveal>
 
   @override
   Widget build(BuildContext context) {
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (disableAnimations) {
+      return widget.child;
+    }
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {

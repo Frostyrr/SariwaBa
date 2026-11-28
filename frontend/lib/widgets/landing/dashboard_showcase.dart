@@ -1,11 +1,9 @@
-import 'dart:ui';
 import 'package:cupertino_ui/cupertino_ui.dart';
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
-import 'walkthrough/scanning_reticle_painter.dart';
+import '../dashboard/dashboard_atmospheric_banner.dart';
 
 /// Static Dashboard Showcase Widget
 /// Displays a high-fidelity static presentation of the actual existing SariwaBa? dashboard
@@ -133,7 +131,7 @@ class DashboardShowcase extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // Browser URL / Console Title Pill
+          // Browser URL Pill
           Expanded(
             child: Center(
               child: Container(
@@ -146,21 +144,19 @@ class DashboardShowcase extends StatelessWidget {
                     width: 0.8,
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.lock_outline_rounded,
                       size: 11,
                       color: SariwaColors.inkSlateMuted,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        isMobile
-                            ? 'sariwaba.com/dashboard'
-                            : 'sariwaba.com/dashboard — Seafood Quality Audit Console',
-                        style: const TextStyle(
+                        'sariwaba.com/dashboard',
+                        style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -177,40 +173,13 @@ class DashboardShowcase extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: 16),
-
-          // System Status Pill
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  color: SariwaColors.statusFresh,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              if (!isMobile) ...[
-                const SizedBox(width: 8),
-                const Text(
-                  'Model A • Online',
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.brandPrimary,
-                  ),
-                ),
-              ],
-            ],
-          ),
+          const SizedBox(width: 60),
         ],
       ),
     );
   }
 
-  /// Static, pixel-faithful rendering of our actual existing SariwaBa? dashboard
+  /// Static, pixel-faithful rendering of our actual existing SariwaBa dashboard
   Widget _buildStaticDashboard(bool isMobile) {
     if (isMobile) {
       return _buildMobileDashboard();
@@ -221,9 +190,9 @@ class DashboardShowcase extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Sidebar (190px)
+          // Sidebar (196px)
           SizedBox(
-            width: 190,
+            width: 196,
             child: _buildSidebar(),
           ),
 
@@ -245,26 +214,33 @@ class DashboardShowcase extends StatelessWidget {
           right: BorderSide(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Brand Lockup
           Row(
             children: [
-              Image.asset(
-                'assets/images/SariwaBa logo.png',
-                width: 24,
-                height: 24,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => Container(
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  'assets/images/SariwaBa logo.png',
                   width: 24,
                   height: 24,
-                  decoration: BoxDecoration(
-                    color: SariwaColors.brandPrimary,
-                    borderRadius: BorderRadius.circular(8),
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: SariwaColors.brandPrimary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.waves,
+                      color: SariwaColors.cardSurfaceLight,
+                      size: 14,
+                    ),
                   ),
-                  child: const Icon(Icons.waves, color: SariwaColors.cardSurfaceLight, size: 14),
                 ),
               ),
               const SizedBox(width: 8),
@@ -273,7 +249,7 @@ class DashboardShowcase extends StatelessWidget {
                   'SariwaBa',
                   style: TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -0.3,
                     color: SariwaColors.textPrimaryDark,
@@ -285,22 +261,24 @@ class DashboardShowcase extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          const Text(
-            'WORKSPACE',
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.8,
-              color: SariwaColors.inkSlateSubtle,
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              'WORKSPACE',
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.8,
+                color: SariwaColors.inkSlateSubtle,
+              ),
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
-          // Nav Items
           _buildNavItem(
             icon: CupertinoIcons.viewfinder,
             label: 'Inspection',
@@ -308,43 +286,63 @@ class DashboardShowcase extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           _buildNavItem(
-            icon: Icons.history_rounded,
-            label: 'Audit History',
+            icon: CupertinoIcons.clock,
+            label: 'History & Insights',
             isActive: false,
             badge: '12',
           ),
-          const SizedBox(height: 4),
+
+          const SizedBox(height: 16),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              'GENERAL',
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.8,
+                color: SariwaColors.inkSlateSubtle,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
           _buildNavItem(
-            icon: Icons.insights_rounded,
-            label: 'Analytics',
+            icon: CupertinoIcons.question_circle,
+            label: 'Help & Guide',
             isActive: false,
           ),
           const SizedBox(height: 4),
           _buildNavItem(
-            icon: Icons.fact_check_outlined,
-            label: 'Grade Standards',
+            icon: CupertinoIcons.device_phone_portrait,
+            label: 'Get Mobile App',
             isActive: false,
           ),
 
           const Spacer(),
+          const Divider(height: 1, color: SariwaColors.surfaceSlateSubtle),
+          const SizedBox(height: 10),
 
-          // Evaluator User Card
+          // User Profile Footer
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: SariwaColors.surfaceSlateWash,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 14,
+                const CircleAvatar(
+                  radius: 13,
                   backgroundColor: SariwaColors.brandPrimary,
-                  child: const Text(
-                    'M',
+                  child: Text(
+                    'I',
                     style: TextStyle(
                       color: SariwaColors.cardSurfaceLight,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -356,7 +354,7 @@ class DashboardShowcase extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Marc (Lead)',
+                        'Inspector',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -365,9 +363,9 @@ class DashboardShowcase extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'Verified Evaluator',
+                        'Synced account',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: SariwaColors.inkSlateMuted,
                         ),
                       ),
@@ -389,7 +387,7 @@ class DashboardShowcase extends StatelessWidget {
     String? badge,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: isActive ? const Color(0xFFE6F5F2) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
@@ -398,7 +396,7 @@ class DashboardShowcase extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 16,
+            size: 15,
             color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted,
           ),
           const SizedBox(width: 8),
@@ -407,23 +405,25 @@ class DashboardShowcase extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 14,
-                fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 color: isActive ? SariwaColors.brandPrimary : SariwaColors.inkSlateSecondary,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (badge != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: isActive ? SariwaColors.brandPrimary : SariwaColors.surfaceSlateSubtle,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
                 badge,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
                   color: isActive ? SariwaColors.cardSurfaceLight : SariwaColors.inkSlateSecondary,
                 ),
@@ -434,50 +434,73 @@ class DashboardShowcase extends StatelessWidget {
     );
   }
 
-  /// Main Dashboard Workspace (Atmospheric Banner + 2-Column Studio matching real UI)
+  /// Main Dashboard Workspace matching InspectionWorkspaceSection
   Widget _buildMainWorkspace() {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Atmospheric Banner
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  SariwaColors.textPrimaryDark,
-                  Color(0xFF0F4C4C),
-                  SariwaColors.brandPrimary,
-                ],
-              )
-            ),
-            child: Row(
+          // Atmospheric Banner matching real DashboardAtmosphericBanner (backgroundBlurred.jpg)
+          DashboardAtmosphericBanner(
+            borderRadius: 16,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            content: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Freshness Inspection',
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: SariwaColors.colorPale,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: SariwaColors.brandLight),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.circle,
+                              size: 6,
+                              color: SariwaColors.brandPrimary,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Synced',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: SariwaColors.brandPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Welcome back',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 14,
+                          fontSize: 18,
                           fontWeight: FontWeight.w500,
+                          letterSpacing: -0.3,
                           color: SariwaColors.cardSurfaceLight,
                         ),
                       ),
-                      SizedBox(height: 1),
-                      Text(
-                        'Inspect close-up eyes, exposed gills, or whole Tilapia photos.',
+                      const SizedBox(height: 2),
+                      const Text(
+                        'Snap or upload an eye, gill, or whole fish photo.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: SariwaColors.colorPale,
+                          fontWeight: FontWeight.w300,
+                          color: SariwaColors.brandLight,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -485,26 +508,35 @@ class DashboardShowcase extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: 12,
+                    vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.16),
+                    color: SariwaColors.colorPale,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.28),
-                    ),
+                    border: Border.all(color: SariwaColors.brandLight),
                   ),
-                  child: const Text(
-                    'Example preview',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: SariwaColors.cardSurfaceLight,
-                    ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.refresh,
+                        size: 12,
+                        color: SariwaColors.brandPrimary,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Refresh',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.brandPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -513,18 +545,18 @@ class DashboardShowcase extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Two-Column Studio (Left: Freshness Scanner + Eye Filmstrip, Right: Current Scan Result)
+          // Two-Column Studio (7:5 ratio matching InspectionWorkspaceSection)
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  flex: 58,
+                  flex: 7,
                   child: _buildModernScannerCard(),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  flex: 42,
+                  flex: 5,
                   child: _buildModernResultPanel(),
                 ),
               ],
@@ -537,70 +569,127 @@ class DashboardShowcase extends StatelessWidget {
 
   Widget _buildModernScannerCard() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.borderLightTeal)
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: SariwaColors.borderLightTeal),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
+          // Header matching ScannerWorkstationCard (no "Tilapia only" pill)
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   CupertinoIcons.viewfinder,
-                  size: 13,
+                  size: 14,
                   color: SariwaColors.brandPrimary,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               const Expanded(
-                child: Text(
-                  'Freshness Scanner',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.textPrimaryDark,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: SariwaColors.surfaceSlateWash,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: SariwaColors.surfaceSlateSubtle),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.circle, size: 5, color: SariwaColors.brandPrimary),
-                    SizedBox(width: 4),
                     Text(
-                      'Tilapia only',
+                      'Freshness Scanner',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: SariwaColors.inkSlateSecondary,
+                        color: SariwaColors.textPrimaryDark,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Eye, gill, or whole fish photo.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w300,
+                        color: SariwaColors.textSecondaryDark,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          // Dark image frame with numbered eye marker, Crop + X, and < 1/3 > carousel
+          // Slim action header row ABOVE image canvas (matches real ScannerWorkstationCard)
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.photo,
+                size: 12,
+                color: SariwaColors.textSecondaryDark,
+              ),
+              const SizedBox(width: 6),
+              const Expanded(
+                child: Text(
+                  'tilapia_sample.jpg',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: SariwaColors.surfaceSlateWash,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: SariwaColors.lineSlate),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      CupertinoIcons.crop,
+                      size: 10,
+                      color: SariwaColors.textPrimaryDark,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Crop',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: SariwaColors.textPrimaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: SariwaColors.surfaceSlateWash,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: SariwaColors.lineSlate),
+                ),
+                child: const Icon(
+                  CupertinoIcons.xmark,
+                  size: 10,
+                  color: SariwaColors.textSecondaryDark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Dark image frame with numbered eye marker #1
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -620,15 +709,15 @@ class DashboardShowcase extends StatelessWidget {
                     // Numbered Eye Marker #1
                     Positioned(
                       left: 56,
-                      top: 38,
-                      width: 56,
-                      height: 56,
+                      top: 32,
+                      width: 52,
+                      height: 52,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: SariwaColors.brandGlow,
-                            width: 2.2,
+                            width: 2.0,
                           ),
                           color: SariwaColors.brandGlow.withValues(alpha: 0.16),
                         ),
@@ -642,33 +731,20 @@ class DashboardShowcase extends StatelessWidget {
                             decoration: const BoxDecoration(
                               color: SariwaColors.brandPrimary,
                               borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                bottomRight: Radius.circular(8),
+                                topLeft: Radius.circular(6),
+                                bottomRight: Radius.circular(6),
                               ),
                             ),
                             child: const Text(
                               '1',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w500,
                                 color: SariwaColors.cardSurfaceLight,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    // Top-right Crop + Close overlay
-                    Positioned(
-                      top: 7,
-                      right: 7,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildMiniCircleOverlay(CupertinoIcons.crop),
-                          const SizedBox(width: 4),
-                          _buildMiniCircleOverlay(CupertinoIcons.xmark),
-                        ],
                       ),
                     ),
                     // Carousel < > arrows
@@ -699,7 +775,7 @@ class DashboardShowcase extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 4,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xCC0A1926),
@@ -711,7 +787,7 @@ class DashboardShowcase extends StatelessWidget {
                         child: const Text(
                           '1 / 3',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.w500,
                             color: SariwaColors.cardSurfaceLight,
                           ),
@@ -728,7 +804,7 @@ class DashboardShowcase extends StatelessWidget {
 
           // Eye Thumbnail Filmstrip (#1 selected + Fresh check, #2, #3)
           SizedBox(
-            height: 40,
+            height: 36,
             child: Row(
               children: [
                 _buildMiniEyeThumb('#1', isSelected: true, checkedFresh: true),
@@ -742,14 +818,14 @@ class DashboardShowcase extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Soft Pill Region Switcher (Auto | Eye | Gill) + Detect Eyes icon
+          // Region Switcher (Auto | Eye | Gill) + Pill Check freshness CTA
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   color: SariwaColors.surfaceSlateWash,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(999),
                   border: Border.all(color: SariwaColors.surfaceSlateSubtle),
                 ),
                 child: Row(
@@ -774,55 +850,35 @@ class DashboardShowcase extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: SariwaColors.cardSurfaceLight,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: SariwaColors.lineSlate),
-                ),
-                child: const Icon(
-                  Icons.center_focus_strong_rounded,
-                  size: 13,
-                  color: SariwaColors.brandPrimary,
+              Expanded(
+                child: Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: SariwaColors.brandPrimary,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        CupertinoIcons.sparkles,
+                        size: 12,
+                        color: SariwaColors.cardSurfaceLight,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Check freshness',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.cardSurfaceLight,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Aquatic-Gradient Check Freshness Button
-          Container(
-            height: 32,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF0D5E57),
-                  SariwaColors.brandPrimary,
-                  Color(0xFF249E92),
-                ],
-              )
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(CupertinoIcons.sparkles, size: 12, color: SariwaColors.cardSurfaceLight),
-                SizedBox(width: 8),
-                Text(
-                  'Check freshness',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.cardSurfaceLight,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -920,7 +976,7 @@ class DashboardShowcase extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isActive ? SariwaColors.cardSurfaceLight : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(999),
         boxShadow: isActive
             ? const [
                 BoxShadow(
@@ -936,7 +992,7 @@ class DashboardShowcase extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 10.5,
+            size: 10,
             color: isActive
                 ? SariwaColors.brandPrimary
                 : SariwaColors.inkSlateMuted,
@@ -945,8 +1001,8 @@ class DashboardShowcase extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.w500 : FontWeight.w500,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: isActive
                   ? SariwaColors.textPrimaryDark
                   : SariwaColors.inkSlateMuted,
@@ -959,21 +1015,21 @@ class DashboardShowcase extends StatelessWidget {
 
   Widget _buildModernResultPanel() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.borderLightTeal)
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: SariwaColors.borderLightTeal),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Freshness Result Card
+          // Freshness Result Card matching CurrentScanPanel._buildResultCard
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: SariwaColors.freshIconBg,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: SariwaColors.freshBorder, width: 1.2),
             ),
             child: Column(
@@ -982,20 +1038,20 @@ class DashboardShowcase extends StatelessWidget {
                 Row(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                       child: Image.asset(
                         'assets/images/sample_tilapia2.jpg',
-                        width: 40,
-                        height: 40,
+                        width: 42,
+                        height: 42,
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) => Container(
-                          width: 40,
-                          height: 40,
+                          width: 42,
+                          height: 42,
                           color: SariwaColors.freshTrack,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1003,17 +1059,17 @@ class DashboardShowcase extends StatelessWidget {
                           Text(
                             'Fresh',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 17,
                               fontWeight: FontWeight.w500,
                               color: SariwaColors.statusFresh,
                             ),
                           ),
-                          SizedBox(height: 1),
+                          SizedBox(height: 2),
                           Text(
-                            'Model confidence: 94.7%',
+                            'Confidence · 94.7%',
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               color: SariwaColors.textPrimaryDark,
                             ),
                           ),
@@ -1022,12 +1078,12 @@ class DashboardShowcase extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(999),
                   child: const LinearProgressIndicator(
                     value: 0.947,
-                    minHeight: 5.5,
+                    minHeight: 6,
                     backgroundColor: SariwaColors.cardSurfaceLight,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       SariwaColors.statusFresh,
@@ -1036,9 +1092,10 @@ class DashboardShowcase extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
+                  'Visual freshness estimate — not a food-safety guarantee.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w300,
                     height: 1.35,
                     color: SariwaColors.textSecondaryDark,
                   ),
@@ -1050,41 +1107,44 @@ class DashboardShowcase extends StatelessWidget {
                       child: Container(
                         height: 30,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF0D5E57),
-                              SariwaColors.brandPrimary,
-                              Color(0xFF249E92),
-                            ],
-                          ),
+                          color: SariwaColors.brandPrimary,
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        child: const Center(
-                          child: Text(
-                            'Scan Another',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              CupertinoIcons.camera_viewfinder,
+                              size: 12,
                               color: SariwaColors.cardSurfaceLight,
                             ),
-                          ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Scan Another',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: SariwaColors.cardSurfaceLight,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       height: 30,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
                         color: SariwaColors.cardSurfaceLight,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(color: SariwaColors.lineSlate),
                       ),
                       child: const Center(
                         child: Text(
                           'Adjust crop',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: SariwaColors.textPrimaryDark,
                           ),
@@ -1093,593 +1153,78 @@ class DashboardShowcase extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 const Align(
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    'View scan history →',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: SariwaColors.brandPrimary,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.clock,
+                        size: 12,
+                        color: SariwaColors.brandPrimary,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'View scan history →',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: SariwaColors.brandPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
           const Spacer(),
-          // Compact Batch Preview strip at bottom of right panel
+          // Detected Eyes summary matching CurrentScanPanel
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFA),
+              color: SariwaColors.surfaceSlateWash,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: SariwaColors.borderLightTeal),
+              border: Border.all(color: SariwaColors.surfaceSlateSubtle),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(
-                  CupertinoIcons.checkmark_shield_fill,
-                  size: 14,
+                const Icon(
+                  CupertinoIcons.eye_fill,
+                  size: 13,
                   color: SariwaColors.brandPrimary,
                 ),
-                SizedBox(width: 8),
-                Expanded(
+                const SizedBox(width: 8),
+                const Expanded(
                   child: Text(
-                    'Auto-detects eyes on whole Tilapia & crowded trays.',
+                    'Detected Eyes (3)',
                     style: TextStyle(
-                      fontSize: 12,
-                      color: SariwaColors.textSecondaryDark,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: SariwaColors.textPrimaryDark,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildKpiCard({
-    required String title,
-    required String value,
-    required String trend,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: SariwaColors.inkSlateMuted,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.4,
-                    color: color,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  trend,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: color,
+                  decoration: BoxDecoration(
+                    color: SariwaColors.freshTrack,
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Left Specimen Inspection Card with Tilapia specimen preview
-  Widget _buildInspectionCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Specimen #SB-2026-1108',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.inkSlate,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: SariwaColors.freshTrack,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Verified SARIWA',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.freshText,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Specimen Image Preview with authentic dashboard inspection overlay
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Layer 1: Actual specimen image
-                  Image.asset(
-                    'assets/images/sample_tilapia2.jpg',
-                    fit: BoxFit.cover,
-                    alignment: const Alignment(0.0, 0.15),
-                    errorBuilder: (_, _, _) => Container(
-                      color: SariwaColors.surfaceSlateSubtle,
-                      child: const Center(
-                        child: Icon(Icons.image_outlined, color: SariwaColors.inkSlateSubtle),
-                      ),
-                    ),
-                  ),
-
-                  // Layer 2: Subtle radial vignette for optical inspection chamber depth
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          center: const Alignment(-0.15, -0.05),
-                          radius: 0.90,
-                          colors: [
-                            SariwaColors.inkSlate.withValues(alpha: 0.05),
-                            SariwaColors.inkSlate.withValues(alpha: 0.55),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Layer 3: Scanning Reticle & Corner Brackets framing the target ROI
-                  Positioned(
-                    left: 24,
-                    top: 14,
-                    width: 104,
-                    height: 104,
-                    child: CustomPaint(
-                      painter: ScanningReticlePainter(
-                        scanProgress: 0.70,
-                        isScanning: true,
-                        primaryColor: const Color(0xFF2DD4BF),
-                      ),
-                    ),
-                  ),
-
-                  // Layer 4: Top Floating Frosted-Glass HUD Bar
-                  Positioned(
-                    top: 7,
-                    left: 8,
-                    right: 8,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Filename pill
-                        Flexible(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(999),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0x991C1C1E),
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(
-                                    color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.20),
-                                    width: 0.5,
-                                  ),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.photo_outlined,
-                                      size: 10.5,
-                                      color: SariwaColors.textSecondaryLight,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        'sample_tilapia2.jpg',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: SariwaColors.cardSurfaceLight,
-                                          letterSpacing: -0.2,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Target ROI pill with glowing teal accent
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xD00D9488),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: SariwaColors.brandLight,
-                              width: 0.8,
-                            )
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.crop_free_rounded,
-                                size: 10,
-                                color: SariwaColors.cardSurfaceLight,
-                              ),
-                              SizedBox(width: 3.5),
-                              Text(
-                                'Target ROI: Eye',
-                                style: TextStyle(
-                                  color: SariwaColors.cardSurfaceLight,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Layer 5: Bottom live confidence & calibrated inference badge
-                  Positioned(
-                    bottom: 7,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SariwaColors.inkSlate.withValues(alpha: 0.72),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: const Color(0x602DD4BF),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline_rounded,
-                            size: 10,
-                            color: Color(0xFF34D399),
-                          ),
-                          SizedBox(width: 3.5),
-                          Text(
-                            'AI Conf: 94.7%',
-                            style: TextStyle(
-                              color: SariwaColors.brandLight,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Region Selector and Model Confidence Score
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE6F5F2),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: SariwaColors.brandPrimary, width: 1.0),
-                    ),
-                    child: const Text(
-                      'Eye (Selected)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: SariwaColors.brandPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: SariwaColors.surfaceSlateTint,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
-                    ),
-                    child: const Text(
-                      'Gills',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: SariwaColors.inkSlateMuted,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.check_circle_rounded, size: 13, color: SariwaColors.freshText),
-                  SizedBox(width: 4),
-                  Text(
-                    '94.7% Confidence',
+                  child: const Text(
+                    'Eye #1 selected',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       fontWeight: FontWeight.w500,
                       color: SariwaColors.freshText,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Right Audit Log Table matching AuditHistorySection
-  Widget _buildAuditLogCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.surfaceSlateSubtle, width: 1.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Recent Audits',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.inkSlate,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: SariwaColors.surfaceSlateWash,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  '12 Scans',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.inkSlateSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-
-          // Table Header
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: SariwaColors.surfaceSlateWash)),
-            ),
-            child: const Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'SPECIMEN ID',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'REGION',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'SCORE',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'STATUS',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSubtle),
-                  ),
                 ),
               ],
-            ),
-          ),
-
-          const SizedBox(height: 4),
-
-          // Audit Rows
-          Expanded(
-            child: ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildAuditRow('#SB-2026-1108', 'Tilapia Eye', '94.7%', isFresh: true),
-                _buildAuditRow('#SB-2026-1107', 'Tilapia Gill', '91.2%', isFresh: false),
-                _buildAuditRow('#SB-2026-1106', 'Tilapia Eye', '96.0%', isFresh: true),
-                _buildAuditRow('#SB-2026-1105', 'Tilapia Eye', '93.5%', isFresh: true),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAuditRow(String id, String region, String score, {required bool isFresh}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: SariwaColors.surfaceSlateTint)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              id,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlate),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              region,
-              style: const TextStyle(fontSize: 12, color: SariwaColors.inkSlateMuted),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              score,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: SariwaColors.inkSlateSecondary),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: isFresh ? SariwaColors.freshTrack : SariwaColors.notFreshTrack,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                isFresh ? 'Fresh' : 'Not Fresh',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isFresh ? SariwaColors.freshText : SariwaColors.notFreshText,
-                ),
-              ),
             ),
           ),
         ],

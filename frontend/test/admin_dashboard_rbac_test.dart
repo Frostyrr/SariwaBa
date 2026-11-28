@@ -64,8 +64,7 @@ void main() {
       // Workspace items should be present
       expect(find.text('WORKSPACE'), findsOneWidget);
       expect(find.text('Inspection'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
-      expect(find.text('Analytics'), findsOneWidget);
+      expect(find.text('History & Insights'), findsOneWidget);
 
       // Administration item must NOT be present
       expect(find.text('ADMINISTRATION'), findsNothing);
@@ -128,9 +127,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Inspection'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
-      expect(find.text('Analytics'), findsOneWidget);
+      expect(find.text('Inspect'), findsOneWidget);
       expect(find.text('Admin'), findsNothing);
     });
 
@@ -159,9 +156,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Inspection'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
-      expect(find.text('Analytics'), findsOneWidget);
       expect(find.text('Admin'), findsOneWidget);
     });
   });
@@ -356,17 +350,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Top banner checks
-      expect(find.text('Admin Console & Telemetry'), findsOneWidget);
-      expect(find.text('RBAC ADMINISTRATION'), findsOneWidget);
-      expect(find.text('STRICT APPEND-ONLY'), findsOneWidget);
+      expect(find.text('Admin'), findsOneWidget);
+      expect(find.text('Users, scan activity, and system status.'), findsOneWidget);
 
       // Bento KPI checks
-      expect(find.text('INSPECTORS'), findsOneWidget);
+      expect(find.text('USERS'), findsOneWidget);
       expect(find.text('8'), findsOneWidget);
-      expect(find.text('GLOBAL INFERENCES'), findsOneWidget);
+      expect(find.text('TOTAL SCANS'), findsOneWidget);
       expect(find.text('142'), findsOneWidget);
-      expect(find.text('FRESHNESS COMPLIANCE'), findsOneWidget);
-      expect(find.text('77.5%'), findsOneWidget);
+      expect(find.text('FRESH RATE'), findsOneWidget);
+      expect(find.text('78%'), findsOneWidget);
 
       // Inspectors tab content
       expect(find.text('Registered Inspectors (3)'), findsOneWidget);
@@ -375,9 +368,9 @@ void main() {
       expect(find.text('SUSPENDED'), findsOneWidget);
       expect(find.text('ACTIVE'), findsNWidgets(2));
 
-      // Switch to Classification Telemetry tab
-      await tester.ensureVisible(find.text('Classification Telemetry'));
-      await tester.tap(find.text('Classification Telemetry'));
+      // Switch to Activity tab
+      await tester.ensureVisible(find.text('Activity'));
+      await tester.tap(find.text('Activity'));
       await tester.pumpAndSettle();
 
       expect(find.text('Diagnostic Freshness Distribution'), findsOneWidget);
@@ -385,9 +378,9 @@ void main() {
       expect(find.text('Inference Latency & Confidence'), findsOneWidget);
       expect(find.text('11.3% rate'), findsOneWidget);
 
-      // Switch to Security & Audits tab
-      await tester.ensureVisible(find.text('Security & Audits'));
-      await tester.tap(find.text('Security & Audits'));
+      // Switch to Security tab
+      await tester.ensureVisible(find.text('Security'));
+      await tester.tap(find.text('Security'));
       await tester.pumpAndSettle();
 
       expect(find.text('Suspicious Authentication Patterns Detected'), findsOneWidget);
@@ -396,18 +389,18 @@ void main() {
       expect(find.text('admin@sariwaba.ph'), findsOneWidget);
       expect(find.text('badactor@sariwaba.ph'), findsOneWidget);
 
-      // Switch to System Health tab
-      await tester.ensureVisible(find.text('System Health'));
-      await tester.tap(find.text('System Health'));
+      // Switch to System tab
+      await tester.ensureVisible(find.text('System'));
+      await tester.tap(find.text('System'));
       await tester.pumpAndSettle();
 
       expect(find.text('Database Engine Health'), findsOneWidget);
       expect(find.text('Machine Learning Model Bundle'), findsOneWidget);
       expect(find.text('MobileNetV3-Small'), findsOneWidget);
 
-      // Switch to Global Scan Trail tab
-      await tester.ensureVisible(find.text('Global Scan Trail'));
-      await tester.tap(find.text('Global Scan Trail'));
+      // Switch to Scan Log tab
+      await tester.ensureVisible(find.text('Scan Log'));
+      await tester.tap(find.text('Scan Log'));
       await tester.pumpAndSettle();
 
       expect(find.text('Global Inspection Logs (2)'), findsOneWidget);

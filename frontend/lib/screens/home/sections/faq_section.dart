@@ -57,7 +57,12 @@ class _FaqSectionState extends State<FaqSection> {
 
         return Container(
           width: double.infinity,
-          color: SariwaColors.colorWorkspace,
+          decoration: const BoxDecoration(
+            color: SariwaColors.cardSurfaceLight,
+            border: Border(
+              top: BorderSide(color: SariwaColors.colorLineSubtle),
+            ),
+          ),
           padding: EdgeInsets.symmetric(
             vertical: isMobile ? 64.0 : 80.0,
             horizontal: isMobile ? 16.0 : 24.0,
@@ -68,39 +73,11 @@ class _FaqSectionState extends State<FaqSection> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  StaggeredReveal(
-                    revealOnScroll: true,
-                    staggerIndex: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SariwaColors.colorPale,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: SariwaColors.colorLine),
-                      ),
-                      child: const Text(
-                        'FREQUENTLY ASKED QUESTIONS',
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.6,
-                          color: SariwaColors.brandPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
                   Semantics(
                     header: true,
                     child: StaggeredReveal(
                       revealOnScroll: true,
-                      staggerIndex: 1,
+                      staggerIndex: 0,
                       child: Text(
                         'Common Questions',
                         textAlign: TextAlign.center,
@@ -120,7 +97,7 @@ class _FaqSectionState extends State<FaqSection> {
 
                   StaggeredReveal(
                     revealOnScroll: true,
-                    staggerIndex: 2,
+                    staggerIndex: 1,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 620),
                       child: const Text(
@@ -342,28 +319,6 @@ class _FaqSectionState extends State<FaqSection> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: SariwaColors.surfaceGlass,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: SariwaColors.borderGlass),
-                  ),
-                  child: const Text(
-                    'START CHECKING TODAY',
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.6,
-                      color: SariwaColors.brandLight,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 const Text(
                   'Ready to inspect fish freshness with confidence?',
                   textAlign: TextAlign.center,

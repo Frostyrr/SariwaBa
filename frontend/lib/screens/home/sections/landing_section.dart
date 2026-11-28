@@ -248,37 +248,10 @@ class LandingSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    StaggeredReveal(
-                      staggerIndex: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: SariwaColors.colorPale,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: SariwaColors.colorLine),
-                        ),
-                        child: const Text(
-                          'TILAPIA FRESHNESS INTELLIGENCE',
-                          style: TextStyle(
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.6,
-                            color: SariwaColors.brandPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
                     Semantics(
                       header: true,
                       child: StaggeredReveal(
-                        staggerIndex: 1,
+                        staggerIndex: 0,
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 820),
                           child: Text(
@@ -300,11 +273,11 @@ class LandingSection extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     StaggeredReveal(
-                      staggerIndex: 2,
+                      staggerIndex: 1,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 640),
+                        constraints: const BoxConstraints(maxWidth: 560),
                         child: const Text(
-                          'Assess Tilapia eye and gill freshness through image-based machine learning, designed to support consistent quality decisions.',
+                          'Check Tilapia freshness from a close-up eye or gill photo, on web or mobile.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: AppTypography.fontFamily,
@@ -322,7 +295,7 @@ class LandingSection extends StatelessWidget {
 
                     // Primary & Secondary Action CTAs
                     StaggeredReveal(
-                      staggerIndex: 3,
+                      staggerIndex: 2,
                       child: Wrap(
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
@@ -356,7 +329,7 @@ class LandingSection extends StatelessWidget {
 
                     // Desktop: Full Dashboard Showcase | Mobile: Native-scale Scan Preview Card
                     StaggeredReveal(
-                      staggerIndex: 4,
+                      staggerIndex: 3,
                       slideOffset: const Offset(0, 24),
                       child: isDesktop
                           ? DashboardShowcase(
@@ -376,16 +349,16 @@ class LandingSection extends StatelessWidget {
     );
   }
 
-  /// Native-scale mobile preview card replacing the shrunken desktop window on < 880px.
+  /// Native-scale mobile preview card aligned with the real CurrentScanPanel.
   Widget _buildMobileAppPreviewCard() {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: SariwaColors.cardSurfaceLight,
+          color: SariwaColors.freshIconBg,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: SariwaColors.colorLine),
+          border: Border.all(color: SariwaColors.freshBorder, width: 1.2),
           boxShadow: const [
             BoxShadow(
               color: SariwaColors.shadowSubtle,
@@ -400,18 +373,18 @@ class LandingSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: SariwaColors.freshIconBg,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: SariwaColors.freshBorder),
-                  ),
-                  child: const Icon(
-                    CupertinoIcons.checkmark_seal_fill,
-                    color: SariwaColors.statusFresh,
-                    size: 20,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/images/sample_tilapia2.jpg',
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      width: 48,
+                      height: 48,
+                      color: SariwaColors.freshTrack,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -420,43 +393,24 @@ class LandingSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fresh (Sariwa)',
+                        'Fresh',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: FontWeight.w500,
-                          color: SariwaColors.freshText,
+                          color: SariwaColors.statusFresh,
                         ),
                       ),
                       Text(
-                        'Tilapia · Eye Close-Up',
+                        'Confidence · 94.7%',
                         style: TextStyle(
                           fontFamily: AppTypography.fontFamily,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
-                          color: SariwaColors.inkSlateMuted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: SariwaColors.textPrimaryDark,
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: SariwaColors.colorPale,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    '94.2%',
-                    style: TextStyle(
-                      fontFamily: 'Geist Mono',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: SariwaColors.brandPrimary,
-                    ),
                   ),
                 ),
               ],
@@ -465,9 +419,9 @@ class LandingSection extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(999),
               child: const LinearProgressIndicator(
-                value: 0.942,
+                value: 0.947,
                 minHeight: 8,
-                backgroundColor: SariwaColors.freshTrack,
+                backgroundColor: SariwaColors.cardSurfaceLight,
                 valueColor: AlwaysStoppedAnimation<Color>(
                   SariwaColors.statusFresh,
                 ),
@@ -475,12 +429,12 @@ class LandingSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Clear convex cornea with bright pupil reflection. Consistent with freshly harvested Tilapia.',
+              'Visual freshness estimate — not a food-safety guarantee.',
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w300,
-                height: 1.45,
+                height: 1.4,
                 color: SariwaColors.inkSlateSecondary,
               ),
             ),

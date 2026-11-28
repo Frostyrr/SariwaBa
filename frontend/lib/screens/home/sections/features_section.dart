@@ -14,7 +14,12 @@ class FeaturesSection extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: SariwaColors.colorWorkspace,
+      decoration: const BoxDecoration(
+        color: SariwaColors.cardSurfaceLight,
+        border: Border.symmetric(
+          horizontal: BorderSide(color: SariwaColors.colorLineSubtle),
+        ),
+      ),
       padding: EdgeInsets.symmetric(
         vertical: isMobile ? 64.0 : 80.0,
         horizontal: 24.0,
@@ -25,41 +30,13 @@ class FeaturesSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              StaggeredReveal(
-                revealOnScroll: true,
-                staggerIndex: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: SariwaColors.colorPale,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: SariwaColors.colorLine),
-                  ),
-                  child: const Text(
-                    'PRECISION GRADING',
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.6,
-                      color: SariwaColors.brandPrimary,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
               Semantics(
                 header: true,
                 child: StaggeredReveal(
                   revealOnScroll: true,
-                  staggerIndex: 1,
+                  staggerIndex: 0,
                   child: Text(
-                    'Engineered for Precision Grading',
+                    'Built for fast, reliable checks',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
@@ -77,11 +54,11 @@ class FeaturesSection extends StatelessWidget {
 
               StaggeredReveal(
                 revealOnScroll: true,
-                staggerIndex: 2,
+                staggerIndex: 1,
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
+                  constraints: const BoxConstraints(maxWidth: 600),
                   child: const Text(
-                    'Use anatomical image classification to record freshness predictions and audit inspection history across devices.',
+                    'Check fish freshness in seconds and keep your scan records organized across devices.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       letterSpacing: -0.15,
@@ -105,27 +82,27 @@ class FeaturesSection extends StatelessWidget {
                   const items = [
                     (
                       icon: CupertinoIcons.eye,
-                      title: 'Anatomical ROI Classification',
+                      title: 'Eye & Gill Scanner',
                       desc:
-                          'Upload a JPEG or PNG close-up up to 5 MB of a Tilapia eye or exposed gill to receive a Fresh or Not Fresh reading.',
+                          'Upload or snap a close-up photo of a Tilapia eye, exposed gill, or whole fish for an instant freshness reading.',
                     ),
                     (
-                      icon: CupertinoIcons.waveform_path_ecg,
-                      title: 'Model Confidence Readout',
+                      icon: CupertinoIcons.checkmark_seal,
+                      title: 'Clear Confidence Score',
                       desc:
-                          'Inspect calibrated prediction confidence alongside sensory indicators.',
+                          'See a straightforward Fresh or Not Fresh result paired with visual confidence.',
                     ),
                     (
-                      icon: CupertinoIcons.cloud,
-                      title: 'Connected Cloud Inference',
+                      icon: CupertinoIcons.device_phone_portrait,
+                      title: 'Web & Mobile Ready',
                       desc:
-                          'Capture on mobile or upload in browser while connected to the backend grading pipeline.',
+                          'Inspect directly in your browser or use the Android app for quick market and field checks.',
                     ),
                     (
-                      icon: CupertinoIcons.doc_text_search,
-                      title: 'Synced Inspection History',
+                      icon: CupertinoIcons.clock,
+                      title: 'Synced History & CSV',
                       desc:
-                          'Archive scan records, filter by anatomical region, and export CSV reports when signed in with Google.',
+                          'Review past scans, filter by eye or gill, and export CSV records when signed in with Google.',
                     ),
                   ];
 

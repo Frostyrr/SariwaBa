@@ -23,6 +23,7 @@ class MockGuestCache extends Fake implements GuestHistoryCache {
 
 class MockImagePicker extends Fake implements ImagePicker {
   ImageSource? lastSource;
+  bool multiImageCalled = false;
   XFile? mockFileToReturn;
 
   @override
@@ -36,6 +37,18 @@ class MockImagePicker extends Fake implements ImagePicker {
   }) async {
     lastSource = source;
     return mockFileToReturn;
+  }
+
+  @override
+  Future<List<XFile>> pickMultiImage({
+    double? maxWidth,
+    double? maxHeight,
+    int? imageQuality,
+    int? limit,
+    bool requestFullMetadata = true,
+  }) async {
+    multiImageCalled = true;
+    return mockFileToReturn == null ? [] : [mockFileToReturn!];
   }
 }
 
@@ -110,10 +123,10 @@ void main() {
         // Eye selected by default
         expect(controller.state.selectedRegion, AnatomicalRegion.auto);
 
-        // 3. Click anywhere in upload zone opens gallery picker
+        // 3. Click anywhere in upload zone opens batch gallery picker
         await tester.tap(find.byKey(const Key('empty_upload_dropzone')));
         await tester.pumpAndSettle();
-        expect(mockPicker.lastSource, ImageSource.gallery);
+        expect(mockPicker.multiImageCalled, isTrue);
 
         // 4. Click Use Camera opens camera picker
         await tester.tap(find.byKey(const Key('use_camera_button')));
@@ -156,10 +169,10 @@ void main() {
         expect(find.text('Take a Photo'), findsOneWidget);
         expect(find.text('Inspection Region'), findsOneWidget);
 
-        // Tap mobile dropzone opens gallery
+        // Tap mobile dropzone opens batch gallery
         await tester.tap(find.byKey(const Key('empty_upload_dropzone')));
         await tester.pumpAndSettle();
-        expect(mockPicker.lastSource, ImageSource.gallery);
+        expect(mockPicker.multiImageCalled, isTrue);
 
         // Tap mobile Take a Photo button opens camera
         await tester.tap(find.byKey(const Key('use_camera_button')));
@@ -228,16 +241,16 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pumpAndSettle();
 
-        mockPicker.lastSource = null;
+        mockPicker.multiImageCalled = false;
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         await tester.pumpAndSettle();
-        expect(mockPicker.lastSource, ImageSource.gallery);
+        expect(mockPicker.multiImageCalled, isTrue);
 
         // Send Space key
-        mockPicker.lastSource = null;
+        mockPicker.multiImageCalled = false;
         await tester.sendKeyEvent(LogicalKeyboardKey.space);
         await tester.pumpAndSettle();
-        expect(mockPicker.lastSource, ImageSource.gallery);
+        expect(mockPicker.multiImageCalled, isTrue);
       },
     );
 

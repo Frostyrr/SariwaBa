@@ -187,7 +187,7 @@ void main() {
     expect(find.text('Log in'), findsOneWidget);
 
     expect(find.text('A clearer perspective on fish freshness.'), findsOneWidget);
-    expect(find.text('Assess fish freshness through image-based machine learning, with results designed to support more informed decisions.'), findsOneWidget);
+    expect(find.text('Assess Tilapia eye and gill freshness through image-based machine learning, designed to support consistent quality decisions.'), findsOneWidget);
     expect(find.text('Download App'), findsAtLeast(2));
 
     await tester.tap(find.descendant(of: find.byType(WebNavbar), matching: find.text('Download App')));
@@ -242,8 +242,8 @@ void main() {
     await tester.tap(find.text('Continue as Guest'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Guest Evaluation Mode'), findsOneWidget);
-    expect(find.text('Connect with Google'), findsOneWidget);
+    expect(find.text('Freshness Inspection'), findsOneWidget);
+    expect(find.text('Inspect'), findsOneWidget);
   });
 
   testWidgets(
@@ -281,9 +281,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome back, Juan!'), findsOneWidget);
+    expect(find.text('Welcome, Juan'), findsOneWidget);
     expect(find.text('Freshness Inspection'), findsOneWidget);
-    expect(find.text('Audit History'), findsOneWidget);
+    expect(find.text('History & Insights'), findsOneWidget);
     expect(find.text('Log in'), findsNothing);
     expect(find.text('Juan Dela Cruz'), findsOneWidget);
   });

@@ -155,13 +155,13 @@ class WebFooter extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Copyright 2026 SariwaBa. All rights reserved.',
+                              '© 2026 SariwaBa',
                               style: AppTypography.caption.copyWith(
                                 color: SariwaColors.textMutedLight,
                               ),
                             ),
                             Text(
-                              'Standardized AI Fish Freshness Grading',
+                              'Tilapia freshness checks for web and mobile',
                               style: AppTypography.caption.copyWith(
                                 color: SariwaColors.brandLight,
                               ),
@@ -172,7 +172,7 @@ class WebFooter extends StatelessWidget {
                         Column(
                           children: [
                             Text(
-                              'Standardized AI Fish Freshness Grading',
+                              'Tilapia freshness checks for web and mobile',
                               style: AppTypography.caption.copyWith(
                                 color: SariwaColors.brandLight,
                               ),
@@ -180,7 +180,7 @@ class WebFooter extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Copyright 2026 SariwaBa. All rights reserved.',
+                              '© 2026 SariwaBa',
                               style: AppTypography.caption.copyWith(
                                 color: SariwaColors.textMutedLight,
                               ),

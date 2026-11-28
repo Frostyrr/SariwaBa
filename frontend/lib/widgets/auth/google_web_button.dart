@@ -8,7 +8,7 @@ Widget buildGoogleWebButton() {
       return Center(
         child: SizedBox(
           width: width,
-          height: 44,
+          height: 40,
           child: google_web.renderButton(
             configuration: google_web.GSIButtonConfiguration(
               theme: google_web.GSIButtonTheme.outline,

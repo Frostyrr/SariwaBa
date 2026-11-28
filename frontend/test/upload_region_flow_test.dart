@@ -73,26 +73,23 @@ void main() {
             classificationControllerProvider.notifier,
           );
           expect(controller.canFindEyes, isTrue);
+          if (mode == AnatomicalRegion.gill) {
+            controller.selectRegion(AnatomicalRegion.gill);
+            await tester.pump();
+          }
           controller.setSelectedImage(
             bytes: kValidPngBytes,
             filename: 'gill.png',
           );
-          await tester.pumpAndSettle();
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 300));
 
-          expect(service.eyeRequests, 0);
+          expect(
+            service.eyeRequests,
+            mode == AnatomicalRegion.gill ? 0 : 1,
+          );
           expect(service.classifyCallCount, 0);
           expect(find.byKey(const Key('roi_cropper_modal')), findsNothing);
-          if (mode == AnatomicalRegion.gill) {
-            final gill = find.widgetWithText(
-              SegmentedButton<AnatomicalRegion>,
-              'Gill',
-            );
-            await tester.ensureVisible(gill);
-            await tester.tap(
-              find.descendant(of: gill, matching: find.text('Gill')),
-            );
-            await tester.pumpAndSettle();
-          }
           expect(
             container.read(classificationControllerProvider).selectedRegion,
             mode,
@@ -102,9 +99,13 @@ void main() {
           );
           await tester.ensureVisible(classify);
           await tester.tap(classify);
-          await tester.pumpAndSettle();
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 300));
 
-          expect(service.eyeRequests, 0);
+          expect(
+            service.eyeRequests,
+            mode == AnatomicalRegion.gill ? 0 : 1,
+          );
           expect(service.classifyCallCount, 1);
           expect(service.lastSubmittedRegionType, mode.apiValue);
           expect(service.lastSubmittedBytes, kValidPngBytes);

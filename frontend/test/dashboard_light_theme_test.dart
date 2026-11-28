@@ -15,13 +15,13 @@ void main() {
     ));
     await tester.enterText(find.byType(TextField), 'Inspector');
     final editable = tester.widget<EditableText>(find.byType(EditableText));
-    expect(editable.style.color, const Color(0xFF0F172A));
+    expect(editable.style.color, const Color(0xFF0A2229));
     await tester.tap(find.byType(PopupMenuButton<String>));
     await tester.pumpAndSettle();
     final context = tester.element(find.text('View details'));
     expect(Theme.of(context).brightness, Brightness.light);
-    expect(Theme.of(context).popupMenuTheme.color, const Color(0xFAFFFFFF));
-    expect(Theme.of(context).popupMenuTheme.textStyle!.color, const Color(0xFF0F172A));
+    expect(Theme.of(context).popupMenuTheme.color, const Color(0xFFFFFFFF));
+    expect(Theme.of(context).popupMenuTheme.textStyle!.color, const Color(0xFF0A2229));
     expect(tester.takeException(), isNull);
   });
 }

@@ -245,9 +245,9 @@ void main() {
       );
 
       // Verify header & disclaimer
-      expect(find.text('How SariwaBa? Works'), findsOneWidget);
+      expect(find.text('How to Scan'), findsOneWidget);
       expect(
-        find.text('Before you use your result'),
+        find.text(WorkflowStepsData.preliminaryDisclaimer),
         findsOneWidget,
       );
 
