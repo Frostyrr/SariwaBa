@@ -109,59 +109,58 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width);
 
     return FrostedGlassCard(
-      padding: EdgeInsets.all(isMobileScreen ? 16 : 24),
-      borderRadius: 20,
+      padding: EdgeInsets.all(isMobileScreen ? 14 : 24),
+      borderRadius: isMobileScreen ? 24 : 16,
       blurSigma: 6,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: SariwaColors.brandPrimary.withValues(
-                    alpha: 0.10,
+          if (!isMobileScreen) ...[
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  child: const Icon(
+                    CupertinoIcons.viewfinder,
+                    size: 18,
+                    color: Color(0xFF111111),
+                  ),
                 ),
-                child: const Icon(
-                  CupertinoIcons.viewfinder,
-                  size: 20,
-                  color: SariwaColors.brandPrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Freshness Scanner',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textPrimaryDark,
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Freshness Scanner',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.16,
+                          color: Color(0xFF111111),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Eye, gill, or whole fish photo.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                        height: 1.3,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textSecondaryDark,
+                      SizedBox(height: 2),
+                      Text(
+                        'Eye, gill, or whole fish photo.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                          color: Color(0xFF737373),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 220),
             switchInCurve: Curves.easeOutCubic,
@@ -193,7 +192,11 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   )
                 : KeyedSubtree(
                     key: const ValueKey('scanner_workspace'),
-                    child: _buildInlineImageWorkspace(state, controller),
+                    child: _buildInlineImageWorkspace(
+                      state,
+                      controller,
+                      isMobileScreen: isMobileScreen,
+                    ),
                   ),
           ),
         ],
@@ -203,82 +206,93 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
 
   Widget _buildInlineImageWorkspace(
     ClassificationState state,
-    ClassificationController controller,
-  ) {
+    ClassificationController controller, {
+    required bool isMobileScreen,
+  }) {
     final bytes = state.selectedImageBytes!;
     final canUseEyeFinder = state.selectedRegion != AnatomicalRegion.gill;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Slim action header row ABOVE image canvas so Crop & Close never overlap bounding boxes
-        Row(
-          children: [
-            const Icon(
-              CupertinoIcons.photo,
-              size: 14,
-              color: SariwaColors.textSecondaryDark,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                state.selectedImageName ?? 'Tilapia specimen',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: SariwaColors.textSecondaryDark,
+        if (!isMobileScreen) ...[
+          // Desktop action row above image canvas
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.photo,
+                size: 14,
+                color: SariwaColors.textSecondaryDark,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  state.selectedImageName ?? 'Tilapia specimen',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: SariwaColors.textSecondaryDark,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            _buildToolbarIconButton(
-              key: const Key('scanner_adjust_crop_button'),
-              tooltip: 'Adjust crop',
-              icon: CupertinoIcons.crop,
-              onTap: state.isClassifying
-                  ? null
-                  : () {
-                      controller.editCrop();
-                      widget.onOpenCropModal();
-                    },
-            ),
-            const SizedBox(width: 8),
-            _buildToolbarIconButton(
-              tooltip: 'Remove photo',
-              icon: CupertinoIcons.xmark,
-              iconColor: SariwaColors.textSecondaryDark,
-              onTap: state.isClassifying ? null : controller.clearSelection,
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        // Original image preview with letterboxing-aware numbered eye markers
+              const SizedBox(width: 8),
+              _buildToolbarIconButton(
+                key: const Key('scanner_adjust_crop_button'),
+                tooltip: 'Adjust crop',
+                icon: CupertinoIcons.crop,
+                onTap: state.isClassifying
+                    ? null
+                    : () {
+                        controller.editCrop();
+                        widget.onOpenCropModal();
+                      },
+              ),
+              const SizedBox(width: 8),
+              _buildToolbarIconButton(
+                tooltip: 'Remove photo',
+                icon: CupertinoIcons.xmark,
+                iconColor: SariwaColors.textSecondaryDark,
+                onTap: state.isClassifying ? null : controller.clearSelection,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+        // Edge-to-edge full-bleed viewport on mobile (BoxFit.cover); contained on desktop
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            height: 320,
+            height: isMobileScreen ? 290 : 320,
             width: double.infinity,
-            color: const Color(0xFF0A1926),
+            color: isMobileScreen
+                ? const Color(0xFF111111)
+                : const Color(0xFF0A1926),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final containerSize = Size(
                   constraints.maxWidth,
                   constraints.maxHeight,
                 );
-                final displayedRect = _computeContainedImageRect(
-                  containerSize,
-                  _decodedImage,
-                  state.sourceImageSize,
-                );
+                final displayedRect = isMobileScreen
+                    ? _computeCoveredImageRect(
+                        containerSize,
+                        _decodedImage,
+                        state.sourceImageSize,
+                      )
+                    : _computeContainedImageRect(
+                        containerSize,
+                        _decodedImage,
+                        state.sourceImageSize,
+                      );
 
                 return Stack(
                   fit: StackFit.expand,
                   children: [
                     Image.memory(
                       bytes,
-                      fit: BoxFit.contain,
+                      fit: isMobileScreen ? BoxFit.cover : BoxFit.contain,
                       width: containerSize.width,
                       height: containerSize.height,
                     ),
@@ -304,6 +318,35 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                             }
                           },
                         ),
+                    if (isMobileScreen)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildOverlayPillButton(
+                              key: const Key('scanner_adjust_crop_button'),
+                              tooltip: 'Adjust crop',
+                              icon: CupertinoIcons.crop,
+                              onTap: state.isClassifying
+                                  ? null
+                                  : () {
+                                      controller.editCrop();
+                                      widget.onOpenCropModal();
+                                    },
+                            ),
+                            const SizedBox(width: 8),
+                            _buildOverlayPillButton(
+                              tooltip: 'Remove photo',
+                              icon: CupertinoIcons.xmark,
+                              onTap: state.isClassifying
+                                  ? null
+                                  : controller.clearSelection,
+                            ),
+                          ],
+                        ),
+                      ),
                     if (state.eyeProposals.length > 1) ...[
                       // Previous Eye Arrow (<)
                       Positioned(
@@ -427,19 +470,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
             ),
           )
         else
-          AppButton.primary(
+          FilledButton(
             key: const Key('current_scan_check_freshness_button'),
-            label: state.isClassifying
-                ? (state.processingStage ?? 'Checking...')
-                : 'Check freshness',
-            isLoading: state.isClassifying,
-            height: 48,
-            borderRadius: 999,
-            icon: const Icon(
-              CupertinoIcons.sparkles,
-              size: 17,
-              color: Colors.white,
-            ),
             onPressed: state.isClassifying
                 ? null
                 : () async {
@@ -449,6 +481,47 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                     }
                     await controller.classify();
                   },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF111111),
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: const Color(0xFF404040),
+              disabledForegroundColor: Colors.white70,
+              elevation: 0,
+              minimumSize: const Size(double.infinity, 48),
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (state.isClassifying)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                else
+                  const Icon(
+                    CupertinoIcons.sparkles,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                const SizedBox(width: 8),
+                Text(
+                  state.isClassifying
+                      ? (state.processingStage ?? 'Checking...')
+                      : 'Check freshness',
+                ),
+              ],
+            ),
           ),
       ],
     );
@@ -498,8 +571,8 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                   icon,
                   size: 14,
                   color: isSelected
-                      ? SariwaColors.brandPrimary
-                      : SariwaColors.inkSlateMuted,
+                      ? const Color(0xFF111111)
+                      : const Color(0xFF737373),
                 ),
                 const SizedBox(width: 4),
                 Flexible(
@@ -512,10 +585,10 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
                       fontFamily: 'Geist',
                       fontSize: 12,
                       fontWeight:
-                          isSelected ? FontWeight.w500 : FontWeight.w400,
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected
-                          ? SariwaColors.textPrimaryDark
-                          : SariwaColors.inkSlateMuted,
+                          ? const Color(0xFF111111)
+                          : const Color(0xFF737373),
                     ),
                   ),
                 ),
@@ -821,6 +894,79 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         },
       ),
     );
+  }
+
+  Widget _buildOverlayPillButton({
+    Key? key,
+    required String tooltip,
+    required IconData icon,
+    required VoidCallback? onTap,
+  }) {
+    final enabled = onTap != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: tooltip,
+      child: Tooltip(
+        message: tooltip,
+        child: Material(
+          color: Colors.black.withValues(alpha: enabled ? 0.55 : 0.30),
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            key: key,
+            onTap: onTap == null
+                ? null
+                : () {
+                    HapticFeedback.selectionClick();
+                    onTap();
+                  },
+            borderRadius: BorderRadius.circular(999),
+            child: SizedBox(
+              width: 36,
+              height: 36,
+              child: Icon(
+                icon,
+                size: 16,
+                color: enabled ? Colors.white : Colors.white54,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Rect _computeCoveredImageRect(
+    Size containerSize,
+    ui.Image? image,
+    Size? fallbackSize,
+  ) {
+    final double imgWidth;
+    final double imgHeight;
+    if (image != null && image.width > 0 && image.height > 0) {
+      imgWidth = image.width.toDouble();
+      imgHeight = image.height.toDouble();
+    } else if (fallbackSize != null &&
+        fallbackSize.width > 0 &&
+        fallbackSize.height > 0) {
+      imgWidth = fallbackSize.width;
+      imgHeight = fallbackSize.height;
+    } else {
+      return Offset.zero & containerSize;
+    }
+    final imageAspect = imgWidth / imgHeight;
+    final containerAspect = containerSize.width / containerSize.height;
+    if (imageAspect > containerAspect) {
+      final height = containerSize.height;
+      final width = height * imageAspect;
+      final dx = (containerSize.width - width) / 2;
+      return Rect.fromLTWH(dx, 0, width, height);
+    } else {
+      final width = containerSize.width;
+      final height = width / imageAspect;
+      final dy = (containerSize.height - height) / 2;
+      return Rect.fromLTWH(0, dy, width, height);
+    }
   }
 
   Rect _computeContainedImageRect(

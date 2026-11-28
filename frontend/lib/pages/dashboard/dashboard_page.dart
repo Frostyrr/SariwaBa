@@ -334,12 +334,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   ],
                 ),
                 behavior: SnackBarBehavior.floating,
-                backgroundColor: SariwaColors.textPrimaryDark,
+                backgroundColor: const Color(0xFF111111),
+                elevation: 8,
                 duration: const Duration(seconds: 3),
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                width: AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width)
+                    ? null
+                    : 360,
+                margin: AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width)
+                    ? const EdgeInsets.fromLTRB(24, 0, 24, 24)
+                    : null,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
                 ),
+                shape: const StadiumBorder(),
               ),
             );
           ref.read(classificationControllerProvider.notifier).clearNotification();
@@ -380,7 +388,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             letterSpacing: AppTypography.defaultLetterSpacing,
           ),
           child: Scaffold(
-            backgroundColor: SariwaColors.surfaceSlateTint,
+            backgroundColor: const Color(0xFFF5F5F7),
             extendBody: isMobileViewport,
             bottomNavigationBar: isMobileViewport
                 ? _buildMobileBottomNav(
@@ -442,6 +450,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       onOpenCropModal: _showRoiCropperModal,
                       onViewMore: () => _navigateTo('History'),
                       onViewAnalytics: () => _navigateTo('History'),
+                      onOpenSettings: () => _navigateTo('Settings'),
                       scrollController: controller,
                       onRequestPermission: (isNativeMobileDevice || isMobile)
                           ? _checkMobileMediaPermission
@@ -1040,7 +1049,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }) {
       final isSelected = activeIndex == index;
       final color =
-          isSelected ? SariwaColors.brandPrimary : SariwaColors.inkSlateMuted;
+          isSelected ? const Color(0xFF111111) : const Color(0xFF737373);
 
       return Expanded(
         child: Semantics(
@@ -1123,7 +1132,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     width: tabWidth,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                      color: SariwaColors.colorPale.withValues(alpha: 0.92),
+                      color: const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -1189,22 +1198,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         child: Container(
           width: 56,
           height: 56,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.28),
+                color: Color(0x28000000),
                 blurRadius: 16,
-                offset: const Offset(0, 6),
+                offset: Offset(0, 6),
                 spreadRadius: -2,
               ),
             ],
           ),
           child: Material(
-            color: SariwaColors.brandPrimary,
+            color: const Color(0xFF111111),
             shape: CircleBorder(
               side: BorderSide(
-                color: SariwaColors.brandLight.withValues(alpha: 0.30),
+                color: Colors.white.withValues(alpha: 0.14),
                 width: 1.0,
               ),
             ),

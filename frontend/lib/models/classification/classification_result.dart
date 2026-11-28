@@ -67,6 +67,7 @@ class ClassificationResult {
   final String disclaimer;
   final bool saved;
   final String? imageUrl;
+  final String? thumbnailBase64;
   final DateTime? createdAt;
   final String? modelVersion;
   final bool? regionVerified;
@@ -88,6 +89,7 @@ class ClassificationResult {
     this.disclaimer = defaultDisclaimer,
     this.saved = false,
     this.imageUrl,
+    this.thumbnailBase64,
     this.createdAt,
     this.modelVersion,
     this.regionVerified,
@@ -116,6 +118,7 @@ class ClassificationResult {
       disclaimer: (json['disclaimer'] as String?) ?? defaultDisclaimer,
       saved: json['saved'] as bool? ?? false,
       imageUrl: (json['image_url'] ?? json['image']) as String?,
+      thumbnailBase64: json['thumbnail_base64'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'].toString())
           : null,
@@ -139,11 +142,36 @@ class ClassificationResult {
       'disclaimer': disclaimer,
       'saved': saved,
       'image_url': imageUrl,
+      if (thumbnailBase64 != null) 'thumbnail_base64': thumbnailBase64,
       'created_at': createdAt?.toIso8601String(),
       if (modelVersion != null) 'model_version': modelVersion,
       if (regionVerified != null) 'region_verified': regionVerified,
       if (validatorVersion != null) 'validator_version': validatorVersion,
     };
+  }
+
+  ClassificationResult copyWith({
+    int? scanId,
+    String? imageUrl,
+    String? thumbnailBase64,
+    DateTime? createdAt,
+  }) {
+    return ClassificationResult(
+      scanId: scanId ?? this.scanId,
+      label: label,
+      confidence: confidence,
+      regionType: regionType,
+      species: species,
+      disclaimer: disclaimer,
+      saved: saved,
+      imageUrl: imageUrl ?? this.imageUrl,
+      thumbnailBase64: thumbnailBase64 ?? this.thumbnailBase64,
+      createdAt: createdAt ?? this.createdAt,
+      modelVersion: modelVersion,
+      regionVerified: regionVerified,
+      speciesVerified: speciesVerified,
+      validatorVersion: validatorVersion,
+    );
   }
 
   /// Parsed anatomical region if present in the response/history record.

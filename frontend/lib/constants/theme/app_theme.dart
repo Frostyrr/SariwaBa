@@ -174,6 +174,7 @@ class AppTheme {
           : SariwaColors.colorWorkspace,
       canvasColor: colorScheme.surface,
       textTheme: textTheme,
+      primaryTextTheme: textTheme,
       extensions: [isDark ? SariwaTokens.dark : SariwaTokens.light],
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -208,6 +209,58 @@ class AppTheme {
           ),
           shape: const StadiumBorder(),
           textStyle: textTheme.labelLarge,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: isDark
+            ? SariwaColors.bgLagoonMid
+            : colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(colorScheme.surface),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isDark
+                    ? SariwaColors.borderGlass
+                    : Colors.black.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+        ),
+      ),
+      menuButtonTheme: MenuButtonThemeData(
+        style: ButtonStyle(
+          textStyle: WidgetStatePropertyAll(
+            textTheme.bodyMedium?.copyWith(
+              fontFamily: AppTypography.fontFamily,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: textTheme.bodyMedium?.copyWith(
+          fontFamily: AppTypography.fontFamily,
+          color: colorScheme.onSurface,
         ),
       ),
       cardTheme: CardThemeData(

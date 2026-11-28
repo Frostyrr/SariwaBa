@@ -3,15 +3,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import '../../../controllers/classification/classification_controller.dart';
 import '../../../models/classification/classification_result.dart';
-import '../../../constants/config/app_config.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../utils/csv_export.dart';
 import '../../../widgets/dashboard/frosted_glass_card.dart';
-import '../../../widgets/dashboard/dashboard_atmospheric_banner.dart';
 import '../../../widgets/dashboard/history_delete_dialog.dart';
 import '../../../widgets/dashboard/inspection_details_modal.dart';
 import '../../../widgets/dashboard/kpi_metrics_row.dart';
+import '../../../widgets/dashboard/scan_thumbnail.dart';
 
 /// Dedicated Inspection History management view with Gmail-style instant checkmarks,
 /// batch selection toolbar, and full pagination.
@@ -165,7 +164,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           widget.isDesktop ? 36 : 16,
           widget.isDesktop ? 28 : 16,
           widget.isDesktop ? 36 : 16,
-          widget.isDesktop ? 28 : 104,
+          widget.isDesktop ? 28 : 112,
         ),
       child: Center(
         child: ConstrainedBox(
@@ -173,99 +172,76 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Section header with Show/Hide Stats pill toggle
-              DashboardAtmosphericBanner(
-                borderRadius: 20,
-                padding: EdgeInsets.symmetric(
-                  horizontal: widget.isDesktop ? 24 : 20,
-                  vertical: 20,
-                ),
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'History',
-                            style: TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: -0.3,
-                              color: SariwaColors.cardSurfaceLight,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Past scans and CSV export.',
-                            style: TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                              height: 1.35,
-                              color: SariwaColors.colorPale,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Semantics(
-                      button: true,
-                      toggled: _showKpiSummary,
-                      label: _showKpiSummary ? 'Hide stats' : 'Show stats',
-                      child: Material(
-                        color: SariwaColors.cardSurfaceLight
-                            .withValues(alpha: 0.14),
-                        shape: StadiumBorder(
-                          side: BorderSide(
-                            color: SariwaColors.cardSurfaceLight
-                                .withValues(alpha: 0.25),
+              // Monochrome typography-first header with crisp white Hide/Show Stats pill
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'History & Insights',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: widget.isDesktop ? 28 : 22,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: widget.isDesktop ? -0.7 : -0.55,
+                            color: const Color(0xFF111111),
                           ),
                         ),
-                        child: InkWell(
-                          key: const Key('toggle_history_kpis_button'),
-                          onTap: _toggleKpiSummary,
-                          customBorder: const StadiumBorder(),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _showKpiSummary
-                                      ? CupertinoIcons.eye_slash
-                                      : CupertinoIcons.chart_bar,
-                                  size: 14,
-                                  color: SariwaColors.brandLight,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _showKpiSummary ? 'Hide Stats' : 'Stats',
-                                  style: const TextStyle(
-                                    fontFamily: 'Geist',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: SariwaColors.cardSurfaceLight,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Past scans, trends, and CSV export.',
+                          style: TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            height: 1.4,
+                            color: Color(0xFF737373),
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Semantics(
+                    button: true,
+                    toggled: _showKpiSummary,
+                    label: _showKpiSummary ? 'Hide stats' : 'Show stats',
+                    child: OutlinedButton.icon(
+                      key: const Key('toggle_history_kpis_button'),
+                      onPressed: _toggleKpiSummary,
+                      icon: Icon(
+                        _showKpiSummary
+                            ? CupertinoIcons.eye_slash
+                            : CupertinoIcons.chart_bar,
+                        size: 14,
+                        color: const Color(0xFF111111),
+                      ),
+                      label: Text(_showKpiSummary ? 'Hide Stats' : 'Show Stats'),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF111111),
+                        side: const BorderSide(color: Color(0x1A171717)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        shape: const StadiumBorder(),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Geist',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
 
               // Collapsible KPI Metrics Strip
@@ -480,152 +456,50 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
 
     final regionDropdown = _buildLabeledFilterControl(
       label: 'Inspection region',
-      child: Container(
-        height: 42,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: SariwaColors.cardSurfaceLight,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: SariwaColors.colorLine,
-            width: 1.0,
-          ),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _regionFilter,
-            isExpanded: true,
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 20,
-              color: SariwaColors.inkSlateMuted,
-            ),
-            style: const TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: -0.2,
-              color: SariwaColors.inkSlate,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            dropdownColor: Colors.white,
-            elevation: 3,
-            items: const [
-              DropdownMenuItem(value: 'All', child: Text('All regions')),
-              DropdownMenuItem(value: 'Eye', child: Text('Eye (Mata)')),
-              DropdownMenuItem(value: 'Gill', child: Text('Gill (Hasang)')),
-            ],
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  _regionFilter = val;
-                  _currentPage = 1;
-                });
-              }
-            },
-          ),
-        ),
+      child: _buildMenuAnchorFilter(
+        value: _regionFilter,
+        options: const [
+          ('All', 'All regions'),
+          ('Eye', 'Eye (Mata)'),
+          ('Gill', 'Gill (Hasang)'),
+        ],
+        onSelected: (val) => setState(() {
+          _regionFilter = val;
+          _currentPage = 1;
+        }),
       ),
     );
 
     final statusDropdown = _buildLabeledFilterControl(
       label: 'Freshness status',
-      child: Container(
-        height: 42,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: SariwaColors.cardSurfaceLight,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: SariwaColors.colorLine,
-            width: 1.0,
-          ),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _historyFilter,
-            isExpanded: true,
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 20,
-              color: SariwaColors.inkSlateMuted,
-            ),
-            style: const TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: -0.2,
-              color: SariwaColors.inkSlate,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            dropdownColor: Colors.white,
-            elevation: 3,
-            items: const [
-              DropdownMenuItem(value: 'All', child: Text('All statuses')),
-              DropdownMenuItem(value: 'Fresh', child: Text('Fresh only')),
-              DropdownMenuItem(value: 'Not Fresh', child: Text('Not Fresh only')),
-            ],
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  _historyFilter = val;
-                  _currentPage = 1;
-                });
-              }
-            },
-          ),
-        ),
+      child: _buildMenuAnchorFilter(
+        value: _historyFilter,
+        options: const [
+          ('All', 'All statuses'),
+          ('Fresh', 'Fresh only'),
+          ('Not Fresh', 'Not Fresh only'),
+        ],
+        onSelected: (val) => setState(() {
+          _historyFilter = val;
+          _currentPage = 1;
+        }),
       ),
     );
 
     final sortDropdown = _buildLabeledFilterControl(
       label: 'Sort by',
-      child: Container(
-        height: 42,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: SariwaColors.cardSurfaceLight,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: SariwaColors.colorLine,
-            width: 1.0,
-          ),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _sortOrder,
-            isExpanded: true,
-            icon: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 20,
-              color: SariwaColors.inkSlateMuted,
-            ),
-            style: const TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: -0.2,
-              color: SariwaColors.inkSlate,
-            ),
-            borderRadius: BorderRadius.circular(12),
-            dropdownColor: Colors.white,
-            elevation: 3,
-            items: const [
-              DropdownMenuItem(value: 'Newest', child: Text('Newest first')),
-              DropdownMenuItem(value: 'Oldest', child: Text('Oldest first')),
-              DropdownMenuItem(value: 'Highest', child: Text('Highest confidence')),
-              DropdownMenuItem(value: 'Lowest', child: Text('Lowest confidence')),
-            ],
-            onChanged: (val) {
-              if (val != null) {
-                setState(() {
-                  _sortOrder = val;
-                  _currentPage = 1;
-                });
-              }
-            },
-          ),
-        ),
+      child: _buildMenuAnchorFilter(
+        value: _sortOrder,
+        options: const [
+          ('Newest', 'Newest first'),
+          ('Oldest', 'Oldest first'),
+          ('Highest', 'Highest confidence'),
+          ('Lowest', 'Lowest confidence'),
+        ],
+        onSelected: (val) => setState(() {
+          _sortOrder = val;
+          _currentPage = 1;
+        }),
       ),
     );
 
@@ -817,6 +691,136 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           sizeCurve: Curves.easeOutCubic,
         ),
       ],
+    );
+  }
+
+  Widget _buildMenuAnchorFilter({
+    required String value,
+    required List<(String, String)> options,
+    required ValueChanged<String> onSelected,
+  }) {
+    final currentLabel = options
+        .firstWhere((o) => o.$1 == value, orElse: () => options.first)
+        .$2;
+
+    return MenuAnchor(
+      alignmentOffset: const Offset(0, 6),
+      style: MenuStyle(
+        backgroundColor: const WidgetStatePropertyAll(Colors.white),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        elevation: const WidgetStatePropertyAll(6),
+        shadowColor: WidgetStatePropertyAll(
+          Colors.black.withValues(alpha: 0.10),
+        ),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(vertical: 6, horizontal: 6),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.08)),
+          ),
+        ),
+      ),
+      menuChildren: options.map((opt) {
+        final isSelected = opt.$1 == value;
+        return MenuItemButton(
+          onPressed: () => onSelected(opt.$1),
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (isSelected) return const Color(0xFFF5F5F7);
+              if (states.contains(WidgetState.hovered)) {
+                return Colors.black.withValues(alpha: 0.03);
+              }
+              return Colors.transparent;
+            }),
+            foregroundColor: const WidgetStatePropertyAll(Color(0xFF111111)),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+            minimumSize: const WidgetStatePropertyAll(Size(168, 38)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: Text(
+                  opt.$2,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color: const Color(0xFF111111),
+                  ),
+                ),
+              ),
+              if (isSelected) ...[
+                const SizedBox(width: 10),
+                const Icon(
+                  CupertinoIcons.checkmark,
+                  size: 14,
+                  color: Color(0xFF111111),
+                ),
+              ],
+            ],
+          ),
+        );
+      }).toList(),
+      builder: (context, controller, _) {
+        return InkWell(
+          onTap: () {
+            if (controller.isOpen) {
+              controller.close();
+            } else {
+              controller.open();
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: controller.isOpen
+                    ? Colors.black.withValues(alpha: 0.22)
+                    : Colors.black.withValues(alpha: 0.09),
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    currentLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: -0.2,
+                      color: Color(0xFF111111),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  controller.isOpen
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: const Color(0xFF737373),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1619,7 +1623,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
           ),
           confirmDismiss: (_) async {
             HapticFeedback.mediumImpact();
-            _confirmDelete(scanId);
+            _confirmDelete(scanId, scan: scan);
             return false;
           },
           child: row,
@@ -1629,43 +1633,11 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
   }
 
   Widget _buildScanCropThumbnail(ClassificationResult scan) {
-    final rawUrl = scan.imageUrl?.trim();
-    final resolvedUrl = (rawUrl == null || rawUrl.isEmpty)
-        ? null
-        : (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
-            ? rawUrl
-            : '${AppConfig.apiBaseUrl}${rawUrl.startsWith('/') ? '' : '/'}$rawUrl');
-
-    final ringColor =
-        scan.isFresh ? SariwaColors.statusFresh : SariwaColors.statusSpoiled;
-
-    return Container(
-      width: 36,
-      height: 36,
-      padding: const EdgeInsets.all(1.5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ringColor.withValues(alpha: 0.75), width: 1.5),
-        color: Colors.white,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: resolvedUrl != null
-            ? Image.network(
-                resolvedUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const Icon(
-                  CupertinoIcons.eye,
-                  size: 15,
-                  color: SariwaColors.inkSlateSubtle,
-                ),
-              )
-            : const Icon(
-                CupertinoIcons.eye,
-                size: 15,
-                color: SariwaColors.inkSlateSubtle,
-              ),
-      ),
+    return ScanThumbnail(
+      scan: scan,
+      size: 36,
+      borderRadius: 8,
+      iconSize: 15,
     );
   }
 
@@ -1729,7 +1701,7 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
         if (action == 'view') {
           InspectionDetailsModal.show(context, scan);
         } else if (action == 'delete' && scanId != null) {
-          _confirmDelete(scanId);
+          _confirmDelete(scanId, scan: scan);
         }
       },
       itemBuilder: (ctx) => [
@@ -1826,10 +1798,11 @@ class _HistoryPageSectionState extends State<HistoryPageSection> {
     );
   }
 
-  void _confirmDelete(int scanId) async {
+  void _confirmDelete(int scanId, {ClassificationResult? scan}) async {
     final confirmed = await HistoryDeleteDialog.showSingle(
       context: context,
       scanId: scanId,
+      scan: scan,
     );
     if (confirmed == true) {
       setState(() {

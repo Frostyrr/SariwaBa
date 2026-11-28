@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:ui' as ui;
+
 import '../auth/auth_controller.dart';
 import '../../services/storage/guest_history_cache.dart';
 
@@ -515,10 +518,12 @@ class ClassificationController extends StateNotifier<ClassificationState> {
             regionType: effectiveRegion.apiValue,
           );
           if (!mounted) return;
-          final history = await _historyWithResult(result);
+          final enrichedResult = await _attachThumbnailIfNeeded(result, bytes);
+          if (!mounted) return;
+          final history = await _historyWithResult(enrichedResult);
           if (!mounted) return;
           state = state.copyWith(history: history);
-          _updateBatchItem(i, BatchScanStatus.complete, result: result);
+          _updateBatchItem(i, BatchScanStatus.complete, result: enrichedResult);
         } on ClassificationApiException catch (e) {
           if (!mounted) return;
           final effectiveRegion = state.selectedRegion ?? AnatomicalRegion.auto;
@@ -545,13 +550,18 @@ class ClassificationController extends StateNotifier<ClassificationState> {
                   regionType: 'eye',
                 );
                 if (!mounted) return;
-                final history = await _historyWithResult(eyeResultClass);
+                final enrichedEyeResult = await _attachThumbnailIfNeeded(
+                  eyeResultClass,
+                  eyeResult.proposals.first.bytes,
+                );
+                if (!mounted) return;
+                final history = await _historyWithResult(enrichedEyeResult);
                 if (!mounted) return;
                 state = state.copyWith(history: history);
                 _updateBatchItem(
                   i,
                   BatchScanStatus.complete,
-                  result: eyeResultClass,
+                  result: enrichedEyeResult,
                 );
                 continue;
               }
@@ -634,6 +644,40 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       result: result,
     );
     state = state.copyWith(batchScans: List.unmodifiable(items));
+  }
+
+  Future<ClassificationResult> _attachThumbnailIfNeeded(
+    ClassificationResult result,
+    Uint8List sourceBytes,
+  ) async {
+    if (result.thumbnailBase64 != null && result.thumbnailBase64!.isNotEmpty) {
+      return result;
+    }
+    final encoded = await _encodeThumbnailBase64(sourceBytes);
+    if (encoded == null) return result;
+    return result.copyWith(thumbnailBase64: encoded);
+  }
+
+  /// Downscales scanned image bytes to a lightweight PNG thumbnail (<= 144px)
+  /// so Guest and offline/local history rows display real thumbnails without
+  /// bloating local storage.
+  Future<String?> _encodeThumbnailBase64(Uint8List sourceBytes) async {
+    if (sourceBytes.isEmpty) return null;
+    ui.Codec? codec;
+    ui.Image? image;
+    try {
+      codec = await ui.instantiateImageCodec(sourceBytes, targetWidth: 144);
+      final frame = await codec.getNextFrame();
+      image = frame.image;
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return null;
+      return base64Encode(byteData.buffer.asUint8List());
+    } catch (_) {
+      return null;
+    } finally {
+      image?.dispose();
+      codec?.dispose();
+    }
   }
 
   Future<List<ClassificationResult>> _historyWithResult(
@@ -1185,29 +1229,40 @@ class ClassificationController extends StateNotifier<ClassificationState> {
       // Ignore stale response if image, region, or crop changed while in flight
       if (!mounted || requestId != _activeRequestId) return;
 
-      final updatedHistory = await _historyWithResult(result);
+      final enrichedResult = await _attachThumbnailIfNeeded(
+        result,
+        bytesToSubmit,
+      );
+      if (!mounted || requestId != _activeRequestId) return;
+
+      final updatedHistory = await _historyWithResult(enrichedResult);
       if (!mounted || requestId != _activeRequestId) return;
       final batchIndex = _reviewedBatchIndex;
       if (batchIndex != null) {
-        _updateBatchItem(batchIndex, BatchScanStatus.complete, result: result);
+        _updateBatchItem(
+          batchIndex,
+          BatchScanStatus.complete,
+          result: enrichedResult,
+        );
       }
 
       final updatedEyeFreshness = Map<int, bool>.from(
         state.eyeProposalFreshness,
       );
       if (state.selectedEyeProposalIndex != null) {
-        updatedEyeFreshness[state.selectedEyeProposalIndex!] = result.isFresh;
+        updatedEyeFreshness[state.selectedEyeProposalIndex!] =
+            enrichedResult.isFresh;
       }
 
       state = state.copyWith(
         isClassifying: false,
         clearProcessingStage: true,
-        latestResult: result,
+        latestResult: enrichedResult,
         history: updatedHistory,
         eyeProposalFreshness: updatedEyeFreshness,
         successMessage: !isAuthenticated
             ? 'Analysis complete. Saved on this device only (latest 10 guest scans).'
-            : result.saved
+            : enrichedResult.saved
             ? 'Analysis complete. Result saved to your classification history.'
             : 'Analysis complete. Result was not saved to your account.',
       );

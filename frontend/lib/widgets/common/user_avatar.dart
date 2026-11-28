@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../models/auth/user_model.dart';
-import '../../constants/theme/app_colors.dart';
 
 /// Displays the Google profile photo with initials while loading or on failure.
 class UserAvatar extends StatelessWidget {
@@ -15,15 +14,15 @@ class UserAvatar extends StatelessWidget {
     final url = user?.profilePicture?.trim();
     final name = user?.displayName.trim() ?? '';
     final fallback = ColoredBox(
-      color: SariwaColors.colorPale,
+      color: const Color(0xFFF5F5F7),
       child: Center(
         child: Text(
           name.isEmpty ? 'G' : name.characters.first.toUpperCase(),
           style: TextStyle(
             fontFamily: 'Geist',
             fontSize: radius * .8,
-            fontWeight: FontWeight.w500,
-            color: SariwaColors.brandPrimary,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF111111),
           ),
         ),
       ),

@@ -1,33 +1,30 @@
 import 'dart:ui' as ui;
 
-import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../constants/content/workflow_steps_data.dart';
-import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
-import '../../../widgets/common/staggered_reveal.dart';
+import '../../../widgets/common/blur_fade.dart';
 
 class _WorkflowStepData {
   final String stepNumber;
-  final String stepTag;
   final String title;
   final String description;
-  final String metaRecord;
   final IconData icon;
 
   const _WorkflowStepData({
     required this.stepNumber,
-    required this.stepTag,
     required this.title,
     required this.description,
-    required this.metaRecord,
     required this.icon,
   });
 }
 
-/// Vertical Left-Rail "How It Works" Section (Bantai-inspired, lean copy)
-/// Continuous left-rail step spine (`01`–`04`) paired with full-width daylight cards.
+/// Monochrome-first 4-Column "How It Works" Section
+/// - Desktop (`>= 1024px`): 4-column horizontal grid (gap 20)
+/// - Tablet (`>= 640px`): 2x2 grid
+/// - Mobile (`< 640px`): clean vertical stack
+/// Single clean step badge (`01`–`04`), icon, title, and concise description.
 class HowItWorksSection extends StatelessWidget {
   final VoidCallback? onDownload;
   final VoidCallback? onTryInspection;
@@ -38,15 +35,20 @@ class HowItWorksSection extends StatelessWidget {
     this.onTryInspection,
   });
 
+  static const Color _canvasColor = Color(0xFFF5F5F7);
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF737373);
+  static const Color _hairline = Color(0x0D171717);
+  static const Color _badgeBg = Color(0xFFF5F5F5);
+  static const Color _badgeText = Color(0xFF404040);
+
   static final List<_WorkflowStepData> _steps = WorkflowStepsData.steps
       .take(4)
       .map(
         (s) => _WorkflowStepData(
           stepNumber: s.stepNumber,
-          stepTag: s.stepTag,
           title: s.title,
           description: s.summary,
-          metaRecord: s.metaRecord,
           icon: s.icon,
         ),
       )
@@ -56,96 +58,66 @@ class HowItWorksSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 768;
+        final maxW = constraints.maxWidth;
+        final isMobile = maxW < 640;
+        final isDesktop = maxW >= 1024;
 
         return Container(
           width: double.infinity,
-          color: SariwaColors.colorWorkspace,
+          color: _canvasColor,
           padding: EdgeInsets.symmetric(
             vertical: isMobile ? 56.0 : 80.0,
-            horizontal: isMobile ? 20.0 : 24.0,
+            horizontal: 24.0,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 880.0),
+              constraints: const BoxConstraints(maxWidth: 1200.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Semantics(
-                    header: true,
-                    child: StaggeredReveal(
-                      revealOnScroll: true,
-                      staggerIndex: 0,
-                      child: Text(
-                        'Four Simple Steps to Check Freshness',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: isMobile ? 28.0 : 36.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.7,
-                          height: 1.15,
-                          color: SariwaColors.textPrimaryDark,
+                  BlurFade(
+                    triggerOnVisible: true,
+                    delay: Duration.zero,
+                    child: Column(
+                      children: [
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            'Four Simple Steps to Check Freshness',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: isMobile ? 28.0 : 36.0,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: isMobile ? -0.7 : -0.9,
+                              height: 1.15,
+                              color: _inkPrimary,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  StaggeredReveal(
-                    revealOnScroll: true,
-                    staggerIndex: 1,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 520),
-                      child: const Text(
-                        'Snap a close-up eye or gill photo and get an instant freshness reading.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                          height: 1.5,
-                          letterSpacing: -0.15,
-                          color: SariwaColors.inkSlateSecondary,
+                        const SizedBox(height: 12),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 520),
+                          child: const Text(
+                            'Snap a close-up eye or gill photo and get an instant freshness reading.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              height: 1.6,
+                              color: _inkMuted,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                   SizedBox(height: isMobile ? 32 : 48),
 
-                  // Vertical Left-Rail Stepper (`01`..`04`)
-                  Column(
-                    children: List.generate(_steps.length, (index) {
-                      final step = _steps[index];
-                      return IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _LeftRailNode(
-                              stepNumber: step.stepNumber,
-                              isFirst: index == 0,
-                              isLast: index == _steps.length - 1,
-                              isMobile: isMobile,
-                            ),
-                            SizedBox(width: isMobile ? 16 : 24),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: index == _steps.length - 1 ? 0 : 20,
-                                ),
-                                child: StaggeredReveal(
-                                  revealOnScroll: true,
-                                  staggerIndex: index,
-                                  child: _VerticalStepCard(
-                                    step: step,
-                                    isMobile: isMobile,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                  _buildResponsiveGrid(
+                    isDesktop: isDesktop,
+                    isMobile: isMobile,
                   ),
                 ],
               ),
@@ -155,136 +127,114 @@ class HowItWorksSection extends StatelessWidget {
       },
     );
   }
-}
 
-class _LeftRailNode extends StatelessWidget {
-  final String stepNumber;
-  final bool isFirst;
-  final bool isLast;
-  final bool isMobile;
+  Widget _buildResponsiveGrid({
+    required bool isDesktop,
+    required bool isMobile,
+  }) {
+    const gap = 20.0;
 
-  const _LeftRailNode({
-    required this.stepNumber,
-    required this.isFirst,
-    required this.isLast,
-    required this.isMobile,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final badgeSize = isMobile ? 40.0 : 48.0;
-
-    return SizedBox(
-      width: badgeSize,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _RailLinePainter(
-                isFirst: isFirst,
-                isLast: isLast,
-                badgeCenterY: badgeSize / 2,
-                color: SariwaColors.colorLine,
+    if (isDesktop) {
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < _steps.length; i++) ...[
+              Expanded(
+                child: BlurFade(
+                  triggerOnVisible: true,
+                  delay: Duration(milliseconds: 60 * i),
+                  child: _StepGridCard(step: _steps[i]),
+                ),
               ),
-            ),
-          ),
-          Container(
-            width: badgeSize,
-            height: badgeSize,
-            decoration: BoxDecoration(
-              color: SariwaColors.cardSurfaceLight,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: SariwaColors.colorLine),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              if (i < _steps.length - 1) const SizedBox(width: gap),
+            ],
+          ],
+        ),
+      );
+    }
+
+    if (!isMobile) {
+      return Column(
+        children: [
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  stepNumber,
-                  style: const TextStyle(
-                    fontFamily: 'Geist Mono',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    fontFeatures: [ui.FontFeature.tabularFigures()],
-                    color: SariwaColors.brandPrimary,
+                Expanded(
+                  child: BlurFade(
+                    triggerOnVisible: true,
+                    delay: Duration.zero,
+                    child: _StepGridCard(step: _steps[0]),
                   ),
                 ),
-                if (!isMobile)
-                  const Text(
-                    'STEP',
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      height: 1.0,
-                      color: SariwaColors.inkSlateMuted,
-                    ),
+                const SizedBox(width: gap),
+                Expanded(
+                  child: BlurFade(
+                    triggerOnVisible: true,
+                    delay: const Duration(milliseconds: 60),
+                    child: _StepGridCard(step: _steps[1]),
                   ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: gap),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: BlurFade(
+                    triggerOnVisible: true,
+                    delay: const Duration(milliseconds: 120),
+                    child: _StepGridCard(step: _steps[2]),
+                  ),
+                ),
+                const SizedBox(width: gap),
+                Expanded(
+                  child: BlurFade(
+                    triggerOnVisible: true,
+                    delay: const Duration(milliseconds: 180),
+                    child: _StepGridCard(step: _steps[3]),
+                  ),
+                ),
               ],
             ),
           ),
         ],
-      ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < _steps.length; i++) ...[
+          BlurFade(
+            triggerOnVisible: true,
+            delay: Duration(milliseconds: 60 * i),
+            child: _StepGridCard(step: _steps[i]),
+          ),
+          if (i < _steps.length - 1) const SizedBox(height: gap),
+        ],
+      ],
     );
   }
 }
 
-class _RailLinePainter extends CustomPainter {
-  final bool isFirst;
-  final bool isLast;
-  final double badgeCenterY;
-  final Color color;
-
-  const _RailLinePainter({
-    required this.isFirst,
-    required this.isLast,
-    required this.badgeCenterY,
-    required this.color,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-
-    final cx = size.width / 2;
-    final startY = isFirst ? badgeCenterY : 0.0;
-    final endY = isLast ? badgeCenterY : size.height;
-
-    if (endY > startY) {
-      canvas.drawLine(Offset(cx, startY), Offset(cx, endY), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RailLinePainter oldDelegate) {
-    return oldDelegate.isFirst != isFirst ||
-        oldDelegate.isLast != isLast ||
-        oldDelegate.badgeCenterY != badgeCenterY ||
-        oldDelegate.color != color;
-  }
-}
-
-class _VerticalStepCard extends StatelessWidget {
+class _StepGridCard extends StatelessWidget {
   final _WorkflowStepData step;
-  final bool isMobile;
 
-  const _VerticalStepCard({
-    required this.step,
-    required this.isMobile,
-  });
+  const _StepGridCard({required this.step});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(isMobile ? 20 : 24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.colorLine),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: HowItWorksSection._hairline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,40 +242,51 @@ class _VerticalStepCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                step.stepTag,
-                style: const TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: SariwaColors.brandPrimary,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: HowItWorksSection._badgeBg,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  step.stepNumber,
+                  style: const TextStyle(
+                    fontFamily: 'Geist Mono',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    fontFeatures: [ui.FontFeature.tabularFigures()],
+                    color: HowItWorksSection._badgeText,
+                  ),
                 ),
               ),
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: SariwaColors.colorPale,
+                  color: HowItWorksSection._badgeBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   step.icon,
                   size: 16,
-                  color: SariwaColors.brandPrimary,
+                  color: HowItWorksSection._inkPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Text(
             step.title,
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              letterSpacing: -0.3,
-              height: 1.25,
-              color: SariwaColors.textPrimaryDark,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.16,
+              height: 1.3,
+              color: HowItWorksSection._inkPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -334,19 +295,9 @@ class _VerticalStepCard extends StatelessWidget {
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
               fontSize: 14,
-              fontWeight: FontWeight.w300,
-              height: 1.5,
-              color: SariwaColors.inkSlateSecondary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            step.metaRecord,
-            style: const TextStyle(
-              fontFamily: 'Geist Mono',
-              fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: SariwaColors.inkSlateMuted,
+              height: 1.55,
+              color: HowItWorksSection._inkMuted,
             ),
           ),
         ],

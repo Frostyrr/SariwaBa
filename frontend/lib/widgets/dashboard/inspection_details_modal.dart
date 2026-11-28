@@ -1,15 +1,23 @@
 import 'dart:ui' as ui;
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
+
 import '../../constants/config/app_breakpoints.dart';
-import '../../models/classification/classification_result.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import '../../models/classification/classification_result.dart';
+import 'scan_thumbnail.dart';
 
-/// Clean, compact scan details modal/sheet without scientific Latin or standards jargon.
+/// Clean, compact scan details modal/sheet styled in the monochrome + surgical teal system.
 class InspectionDetailsModal {
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF737373);
+  static const Color _divider = Color(0xFFE5E5E7);
+
   static String formatDateTime(DateTime? dt) {
     if (dt == null) return 'Recent scan';
+    final local = dt.toLocal();
     const monthNames = [
       'Jan',
       'Feb',
@@ -24,12 +32,14 @@ class InspectionDetailsModal {
       'Nov',
       'Dec',
     ];
-    final m = monthNames[dt.month - 1];
-    final d = dt.day;
-    final y = dt.year;
-    final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    final min = dt.minute.toString().padLeft(2, '0');
+    final m = monthNames[local.month - 1];
+    final d = local.day;
+    final y = local.year;
+    final hour = local.hour > 12
+        ? local.hour - 12
+        : (local.hour == 0 ? 12 : local.hour);
+    final ampm = local.hour >= 12 ? 'PM' : 'AM';
+    final min = local.minute.toString().padLeft(2, '0');
     return '$m $d, $y · $hour:$min $ampm';
   }
 
@@ -40,6 +50,8 @@ class InspectionDetailsModal {
         (scanId != null && scanId > 0) ? 'Scan #$scanId' : 'Scan Details';
     final regionLabel =
         (scan.regionType ?? 'Eye').toLowerCase() == 'gill' ? 'Gill' : 'Eye';
+    final verdictColor =
+        scan.isFresh ? SariwaColors.brandPrimary : const Color(0xFFDC2626);
 
     Widget buildBody(BuildContext ctx) {
       return Column(
@@ -52,88 +64,98 @@ class InspectionDetailsModal {
               Text(
                 headerTitle,
                 style: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
                   fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                  color: SariwaColors.textPrimaryDark,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
+                  color: _inkPrimary,
                 ),
               ),
               IconButton(
                 icon: const Icon(CupertinoIcons.xmark, size: 16),
+                color: _inkMuted,
                 constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                 padding: EdgeInsets.zero,
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: scan.isFresh
-                  ? SariwaColors.freshIconBg
-                  : SariwaColors.notFreshIconBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: scan.isFresh
-                    ? SariwaColors.freshBorder
-                    : SariwaColors.notFreshBorder,
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              ScanThumbnail(
+                scan: scan,
+                size: 56,
+                borderRadius: 10,
+                iconSize: 22,
               ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  scan.isFresh
-                      ? CupertinoIcons.checkmark_seal_fill
-                      : CupertinoIcons.exclamationmark_triangle_fill,
-                  color: scan.isFresh
-                      ? SariwaColors.statusFresh
-                      : SariwaColors.notFreshPrimary,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Column(
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      scan.label,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: scan.isFresh
-                            ? SariwaColors.freshText
-                            : SariwaColors.notFreshText,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          scan.isFresh
+                              ? CupertinoIcons.checkmark_seal_fill
+                              : CupertinoIcons.exclamationmark_triangle_fill,
+                          color: verdictColor,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          scan.label,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.2,
+                            color: verdictColor,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Confidence · ${(scan.confidence * 100).round()}%',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        letterSpacing: AppTypography.defaultLetterSpacing,
-                        color: SariwaColors.textSecondaryDark,
+                        color: _inkMuted,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
+          const Divider(height: 1, color: _divider),
+          const SizedBox(height: 12),
           _buildModalDetailRow('Region', regionLabel),
-          const Divider(height: 16, color: SariwaColors.colorLineSubtle),
+          const Divider(height: 16, color: _divider),
           _buildModalDetailRow('Date', formatDateTime(scan.createdAt)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton(
               onPressed: () => Navigator.of(ctx).pop(),
               style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
                 shape: const StadiumBorder(),
-                side: const BorderSide(color: SariwaColors.colorLine),
-                foregroundColor: SariwaColors.textPrimaryDark,
+                side: BorderSide(color: Colors.black.withValues(alpha: 0.12)),
+                foregroundColor: _inkPrimary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                textStyle: const TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               child: const Text('Done'),
             ),
@@ -148,7 +170,8 @@ class InspectionDetailsModal {
         isScrollControlled: true,
         useSafeArea: true,
         showDragHandle: true,
-        backgroundColor: SariwaColors.cardSurfaceLight,
+        barrierColor: Colors.black.withValues(alpha: 0.35),
+        backgroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
@@ -162,26 +185,29 @@ class InspectionDetailsModal {
 
     showDialog<void>(
       context: context,
-      barrierColor: SariwaColors.liquidGlassShadow,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       builder: (ctx) {
         return BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          filter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
           child: Dialog(
             backgroundColor: Colors.transparent,
+            elevation: 0,
             insetPadding: const EdgeInsets.all(20),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
+              constraints: const BoxConstraints(maxWidth: 420),
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: SariwaColors.cardSurfaceLight,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: SariwaColors.colorLine),
-                  boxShadow: const [
+                  border: Border.all(
+                    color: Colors.black.withValues(alpha: 0.08),
+                  ),
+                  boxShadow: [
                     BoxShadow(
-                      color: SariwaColors.shadowSubtle,
+                      color: Colors.black.withValues(alpha: 0.10),
                       blurRadius: 24,
-                      offset: Offset(0, 12),
+                      offset: const Offset(0, 12),
                     ),
                   ],
                 ),
@@ -203,19 +229,19 @@ class InspectionDetailsModal {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 14,
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 13,
               fontWeight: FontWeight.w400,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              color: SariwaColors.inkSlateMuted,
+              color: _inkMuted,
             ),
           ),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 14,
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              color: SariwaColors.textPrimaryDark,
+              color: _inkPrimary,
             ),
           ),
         ],

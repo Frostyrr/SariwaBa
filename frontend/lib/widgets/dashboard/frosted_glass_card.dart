@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import '../../constants/theme/app_colors.dart';
 
 /// Clean clinical surface card with crisp 1px border and single hairline shadow.
 class FrostedGlassCard extends StatelessWidget {
@@ -18,9 +17,9 @@ class FrostedGlassCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(24),
-    this.borderRadius = 12,
-    this.fillColor = SariwaColors.cardSurfaceLight,
-    this.borderColor = SariwaColors.colorLine,
+    this.borderRadius = 16,
+    this.fillColor = Colors.white,
+    this.borderColor = const Color(0x14171717),
     this.borderWidth = 1.0,
     this.blurSigma = 16,
     this.enableBlur = false,
@@ -38,13 +37,6 @@ class FrostedGlassCard extends StatelessWidget {
           color: borderColor,
           width: borderWidth,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: SariwaColors.shadowHairline,
-            blurRadius: 12,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: child,
     );

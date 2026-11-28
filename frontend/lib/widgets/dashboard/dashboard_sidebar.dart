@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import '../../constants/theme/app_colors.dart';
@@ -43,42 +42,22 @@ class DashboardSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: SariwaColors.inkSlate.withValues(alpha: 0.035),
-            blurRadius: 18,
-            offset: const Offset(4, 0),
-            spreadRadius: -2,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          right: BorderSide(
+            color: Color(0x14171717),
+            width: 1.0,
           ),
-          BoxShadow(
-            color: SariwaColors.brandGlow.withValues(alpha: 0.03),
-            blurRadius: 28,
-            offset: const Offset(6, 0),
-            spreadRadius: -4,
-          ),
-        ],
+        ),
       ),
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.72),
-              border: Border(
-                right: BorderSide(
-                  color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.85),
-                  width: 1.2,
-                ),
-              ),
-            ),
-          padding: EdgeInsets.fromLTRB(
-            isCollapsed ? 12 : 18,
-            20,
-            isCollapsed ? 12 : 18,
-            18,
-          ),
-          child: Column(
+      padding: EdgeInsets.fromLTRB(
+        isCollapsed ? 12 : 18,
+        20,
+        isCollapsed ? 12 : 18,
+        18,
+      ),
+      child: Column(
             crossAxisAlignment: isCollapsed
                 ? CrossAxisAlignment.center
                 : CrossAxisAlignment.start,
@@ -213,9 +192,6 @@ class DashboardSidebar extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    ),
     );
   }
 
@@ -321,7 +297,7 @@ class DashboardSidebar extends StatelessWidget {
     );
   }
 
-  /// Guest Mode or Tip card
+  /// Quiet neutral Guest Mode / Tip card (zero legacy dark-teal block)
   Widget _buildTipCard() {
     if (isCollapsed) {
       return Tooltip(
@@ -329,55 +305,24 @@ class DashboardSidebar extends StatelessWidget {
             ? 'Guest Evaluation Mode • Connect with Google'
             : 'Quick Tilapia Tip',
         preferBelow: false,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: isGuestUser ? onConnectGoogle : onOpenGuidelines,
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0x33CCEAE6),
-                    width: 1.0,
-                  ),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        'assets/images/backgroundBlurred.jpg',
-                        fit: BoxFit.cover,
-                        alignment: Alignment.center,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
-                              const Color(0xFF0D2F38).withValues(alpha: 0.84),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      isGuestUser
-                          ? CupertinoIcons.person_crop_circle_badge_exclam
-                          : CupertinoIcons.sparkles,
-                      size: 20,
-                      color: SariwaColors.brandLight,
-                    ),
-                  ],
-                ),
+        child: Material(
+          color: const Color(0xCCF5F5F5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0x0D171717)),
+          ),
+          child: InkWell(
+            onTap: isGuestUser ? onConnectGoogle : onOpenGuidelines,
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Icon(
+                isGuestUser
+                    ? CupertinoIcons.person_crop_circle_badge_exclam
+                    : CupertinoIcons.sparkles,
+                size: 18,
+                color: const Color(0xFF111111),
               ),
             ),
           ),
@@ -387,160 +332,80 @@ class DashboardSidebar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x280A2229),
-            blurRadius: 18,
-            offset: Offset(0, 8),
-            spreadRadius: -2,
-          ),
-          BoxShadow(
-            color: SariwaColors.brandGlowTint,
-            blurRadius: 22,
-            offset: Offset(0, 10),
-            spreadRadius: -3,
-          ),
-        ],
+        color: const Color(0xCCF5F5F5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0x0D171717), width: 1.0),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            // Layer 1: Blurred Underwater Aquatic Backdrop (same as CTA)
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/backgroundBlurred.jpg',
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isGuestUser
+                    ? CupertinoIcons.person_crop_circle_badge_exclam
+                    : CupertinoIcons.sparkles,
+                size: 16,
+                color: const Color(0xFF111111),
               ),
-            ),
-            // Layer 2: Deep Abyss Gradient Overlay (ensures high contrast & legibility)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.88),
-                      const Color(0xFF0D2F38).withValues(alpha: 0.82),
-                      SariwaColors.bgAbyssDark.withValues(alpha: 0.92),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: const Color(0x28CCEAE6),
-                    width: 1.2,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-            ),
-            // Layer 3: Ambient Radial Glow Flare
-            Positioned(
-              top: -30,
-              right: -25,
-              child: Container(
-                width: 110,
-                height: 110,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x3514B8A6),
-                      Color(0x0E2DD4BF),
-                      Color(0x002DD4BF),
-                    ],
-                    stops: [0.0, 0.55, 1.0],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isGuestUser ? 'Guest Evaluation Mode' : 'Quick Tilapia Tip',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.1,
+                    color: Color(0xFF111111),
                   ),
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            isGuestUser
+                ? 'Sign in with Google to sync and archive your scan history.'
+                : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              height: 1.45,
+              color: Color(0xFF737373),
             ),
-            // Layer 4: Foreground Content
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0x2414B8A6),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0x402DD4BF),
-                        width: 1.0,
+          ),
+          if (isGuestUser) ...[
+            const SizedBox(height: 12),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: onConnectGoogle,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Connect with Google',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF111111),
                       ),
                     ),
-                    child: Icon(
-                      isGuestUser
-                          ? CupertinoIcons.person_crop_circle_badge_exclam
-                          : CupertinoIcons.sparkles,
-                      size: 16,
-                      color: SariwaColors.brandLight,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    isGuestUser
-                        ? 'Guest Evaluation Mode'
-                        : 'Quick Tilapia Tip',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500, // Medium
-                      letterSpacing: AppTypography.defaultLetterSpacing,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isGuestUser
-                        ? 'Sign in with Google to save your freshness scans to your history.'
-                        : 'Clear, well-lit close-ups of the eye or exposed gill give the best results.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      height: 1.42,
-                      letterSpacing: AppTypography.defaultLetterSpacing,
-                      color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.92),
-                    ),
-                  ),
-                  if (isGuestUser) ...[
-                    const SizedBox(height: 12),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: onConnectGoogle,
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Connect with Google',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: AppTypography.defaultLetterSpacing,
-                                color: SariwaColors.brandLight,
-                              ),
-                            ),
-                            SizedBox(width: 4),
-                            Icon(
-                              CupertinoIcons.arrow_right,
-                              size: 11,
-                              color: SariwaColors.brandLight,
-                            ),
-                          ],
-                        ),
-                      ),
+                    SizedBox(width: 4),
+                    Icon(
+                      CupertinoIcons.arrow_right,
+                      size: 12,
+                      color: Color(0xFF111111),
                     ),
                   ],
-                ],
+                ),
               ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -568,15 +433,9 @@ class DashboardSidebar extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: isActive
-                      ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+                      ? const Color(0xFFF5F5F5)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
-                  border: isActive
-                      ? Border.all(
-                          color: SariwaColors.brandPrimary.withValues(alpha: 0.25),
-                          width: 1.2,
-                        )
-                      : null,
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -585,8 +444,8 @@ class DashboardSidebar extends StatelessWidget {
                       icon,
                       size: 20,
                       color: isActive
-                          ? SariwaColors.brandPrimary
-                          : SariwaColors.inkSlateMuted,
+                          ? const Color(0xFF111111)
+                          : const Color(0xFF737373),
                     ),
                     if (badgeCount != null && badgeCount > 0)
                       Positioned(
@@ -597,7 +456,7 @@ class DashboardSidebar extends StatelessWidget {
                           height: 7,
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: SariwaColors.brandPrimary,
+                            color: Color(0xFF111111),
                           ),
                         ),
                       ),
@@ -616,18 +475,12 @@ class DashboardSidebar extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
           decoration: BoxDecoration(
             color: isActive
-                ? SariwaColors.brandPrimary.withValues(alpha: 0.12)
+                ? const Color(0xFFF5F5F5)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: isActive
-                ? Border.all(
-                    color: SariwaColors.brandPrimary.withValues(alpha: 0.22),
-                    width: 1.0,
-                  )
-                : null,
           ),
           child: Row(
             children: [
@@ -635,8 +488,8 @@ class DashboardSidebar extends StatelessWidget {
                 icon,
                 size: 18,
                 color: isActive
-                    ? SariwaColors.brandPrimary
-                    : SariwaColors.inkSlateMuted,
+                    ? const Color(0xFF111111)
+                    : const Color(0xFF737373),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -644,11 +497,11 @@ class DashboardSidebar extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
+                    fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
                     letterSpacing: AppTypography.defaultLetterSpacing,
                     color: isActive
-                        ? SariwaColors.brandPrimary
-                        : SariwaColors.textPrimaryDark,
+                        ? const Color(0xFF111111)
+                        : const Color(0xFF525252),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -660,16 +513,16 @@ class DashboardSidebar extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: SariwaColors.brandPrimary.withValues(alpha: 0.12),
+                    color: const Color(0xFFE5E5E5),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     badgeCount.toString(),
                     style: const TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: AppTypography.defaultLetterSpacing,
-                      color: SariwaColors.brandPrimary,
+                      color: Color(0xFF404040),
                     ),
                   ),
                 ),

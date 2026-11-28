@@ -8,7 +8,6 @@ import '../../controllers/classification/classification_controller.dart';
 import '../../models/classification/classification_result.dart';
 import '../../services/classification/classification_service.dart';
 import '../classification/eye_zoom_modal.dart';
-import '../common/app_button.dart';
 import 'frosted_glass_card.dart';
 
 /// Current-scan right column (wide) / stacked panel (narrow) containing:
@@ -96,7 +95,7 @@ class CurrentScanPanel extends StatelessWidget {
 
     return FrostedGlassCard(
       padding: const EdgeInsets.all(24),
-      borderRadius: 24,
+      borderRadius: 16,
       blurSigma: 6,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
@@ -742,24 +741,12 @@ class CurrentScanPanel extends StatelessWidget {
   Widget _buildResultCard(BuildContext context, ClassificationResult result) {
     final isFresh = result.isFresh;
     final primaryColor = isFresh
-        ? SariwaColors.statusFresh
+        ? SariwaColors.brandPrimary
         : SariwaColors.notFreshPrimary;
-    final bgColor = isFresh
-        ? SariwaColors.freshIconBg
-        : SariwaColors.notFreshIconBg;
-    final borderColor = isFresh
-        ? SariwaColors.freshBorder
-        : SariwaColors.notFreshBorder;
     final cropBytes = state.confirmedImageBytes ?? state.selectedImageBytes;
 
     return Container(
       key: const Key('classification_result_view'),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor, width: 1.4),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -785,7 +772,8 @@ class CurrentScanPanel extends StatelessWidget {
                       result.label,
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.25,
                         color: primaryColor,
                       ),
                     ),
@@ -795,7 +783,7 @@ class CurrentScanPanel extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: SariwaColors.textPrimaryDark,
+                        color: Color(0xFF111111),
                       ),
                     ),
                   ],
@@ -809,7 +797,7 @@ class CurrentScanPanel extends StatelessWidget {
             child: LinearProgressIndicator(
               value: result.confidence.clamp(0.0, 1.0),
               minHeight: 7,
-              backgroundColor: Colors.white,
+              backgroundColor: const Color(0xFFE5E5E7),
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
             ),
           ),
@@ -827,16 +815,26 @@ class CurrentScanPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: AppButton.primary(
-                  label: 'Scan Another',
-                  height: 44,
-                  borderRadius: 999,
+                child: FilledButton.icon(
+                  onPressed: controller.clearSelection,
                   icon: const Icon(
                     CupertinoIcons.camera_viewfinder,
                     size: 16,
                     color: Colors.white,
                   ),
-                  onPressed: controller.clearSelection,
+                  label: const Text('Scan Another'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF111111),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    minimumSize: const Size(0, 44),
+                    shape: const StadiumBorder(),
+                    textStyle: const TextStyle(
+                      fontFamily: 'Geist',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -846,8 +844,9 @@ class CurrentScanPanel extends StatelessWidget {
                   onAdjustCrop();
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: SariwaColors.textPrimaryDark,
-                  side: const BorderSide(color: SariwaColors.lineSlate),
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF111111),
+                  side: const BorderSide(color: Color(0x1A171717)),
                   minimumSize: const Size(0, 44),
                   shape: const StadiumBorder(),
                 ),
@@ -855,23 +854,36 @@ class CurrentScanPanel extends StatelessWidget {
               ),
             ],
           ),
-          if (onViewHistory != null) ...[
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                key: const Key('result_view_history_button'),
-                onPressed: onViewHistory,
-                icon: const Icon(CupertinoIcons.clock, size: 15),
-                label: const Text('View scan history →'),
-                style: TextButton.styleFrom(
-                  foregroundColor: SariwaColors.brandPrimary,
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+          if (state.eyeProposals.length > 1) ...[
+            const SizedBox(height: 10),
+            Builder(
+              builder: (context) {
+                final total = state.eyeProposals.length;
+                final currentIdx = state.selectedEyeProposalIndex ?? 0;
+                final nextIdx = (currentIdx + 1) % total;
+                return SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    key: const Key('result_next_eye_button'),
+                    onPressed: () => controller.selectEyeProposal(nextIdx),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF111111),
+                      side: BorderSide(
+                        color: Colors.black.withValues(alpha: 0.10),
+                      ),
+                      minimumSize: const Size(0, 42),
+                      shape: const StadiumBorder(),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    child: Text('Next Eye (${nextIdx + 1}/$total) →'),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ],
         ],

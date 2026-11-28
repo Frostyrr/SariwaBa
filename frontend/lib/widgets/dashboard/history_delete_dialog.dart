@@ -1,108 +1,72 @@
 import 'dart:ui' as ui;
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import '../../constants/theme/app_colors.dart';
-import '../../constants/theme/app_typography.dart';
 
-/// High-contrast delete confirmation dialogs with frosted blur background.
+import '../../constants/theme/app_typography.dart';
+import '../../models/classification/classification_result.dart';
+
+/// Monochrome delete confirmation dialogs with human-readable copy and
+/// constrained max-width (`400px`).
 class HistoryDeleteDialog {
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkSecondary = Color(0xFF525252);
+  static const Color _destructiveRed = Color(0xFFDC2626);
+
+  static String _formatShortDateTime(DateTime? dt) {
+    if (dt == null) return '';
+    final local = dt.toLocal();
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final m = months[local.month - 1];
+    final d = local.day;
+    final hour = local.hour > 12
+        ? local.hour - 12
+        : (local.hour == 0 ? 12 : local.hour);
+    final ampm = local.hour >= 12 ? 'PM' : 'AM';
+    final min = local.minute.toString().padLeft(2, '0');
+    return '$m $d, $hour:$min $ampm';
+  }
+
+  static String _singleDeleteCopy(int scanId, ClassificationResult? scan) {
+    if (scan != null) {
+      final region =
+          (scan.regionType ?? 'Eye').toLowerCase() == 'gill' ? 'Gill' : 'Eye';
+      final when = _formatShortDateTime(scan.createdAt);
+      if (when.isNotEmpty) {
+        return 'Are you sure you want to permanently delete this $region scan from $when?';
+      }
+      return 'Are you sure you want to permanently delete this $region scan from your history?';
+    }
+    if (scanId > 0) {
+      return 'Are you sure you want to permanently delete Scan #$scanId from your history?';
+    }
+    return 'Are you sure you want to permanently delete this scan from your history?';
+  }
+
   static Future<bool?> showSingle({
     required BuildContext context,
     required int scanId,
+    ClassificationResult? scan,
   }) {
-    return showDialog<bool>(
+    return _showConstrainedDialog(
       context: context,
-      builder: (dialogCtx) => BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: SariwaColors.statusSpoiled.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  CupertinoIcons.trash,
-                  color: SariwaColors.statusSpoiled,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Delete Scan Record?',
-                  style: TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.textPrimaryDark,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to permanently delete Scan #$scanId from your history?',
-            style: const TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: SariwaColors.textSecondaryDark,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              height: 1.45,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogCtx, false),
-              style: TextButton.styleFrom(
-                foregroundColor: SariwaColors.textSecondaryDark,
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontWeight: FontWeight.w400,
-                  color: SariwaColors.textSecondaryDark,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              key: const Key('confirm_delete_button'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SariwaColors.statusSpoiled,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              onPressed: () => Navigator.pop(dialogCtx, true),
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      title: 'Delete Scan Record?',
+      body: _singleDeleteCopy(scanId, scan),
+      confirmLabel: 'Delete',
+      confirmButtonKey: const Key('confirm_delete_button'),
     );
   }
 
@@ -112,101 +76,152 @@ class HistoryDeleteDialog {
   }) {
     if (scanIds.isEmpty) return Future.value(false);
     final count = scanIds.length;
+    final singleId = scanIds.first;
+    final body = count == 1
+        ? _singleDeleteCopy(singleId, null)
+        : 'Are you sure you want to permanently delete $count selected scans from your history?';
+
+    return _showConstrainedDialog(
+      context: context,
+      title: count == 1 ? 'Delete Scan Record?' : 'Delete $count Scan Records?',
+      body: body,
+      confirmLabel: count == 1 ? 'Delete' : 'Delete ($count)',
+      confirmButtonKey: const Key('confirm_bulk_delete_button'),
+    );
+  }
+
+  static Future<bool?> _showConstrainedDialog({
+    required BuildContext context,
+    required String title,
+    required String body,
+    required String confirmLabel,
+    required Key confirmButtonKey,
+  }) {
     return showDialog<bool>(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       builder: (dialogCtx) => BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
           ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: SariwaColors.statusSpoiled.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  CupertinoIcons.trash,
-                  color: SariwaColors.statusSpoiled,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  count == 1
-                      ? 'Delete Scan Record?'
-                      : 'Delete $count Scan Records?',
-                  style: const TextStyle(
-                    fontFamily: 'Geist',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.textPrimaryDark,
-                    letterSpacing: AppTypography.defaultLetterSpacing,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          content: Text(
-            count == 1
-                ? 'Are you sure you want to permanently delete Scan #${scanIds.first} from your history?'
-                : 'Are you sure you want to permanently delete $count selected scans from your history?',
-            style: const TextStyle(
-              fontFamily: 'Geist',
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: SariwaColors.textSecondaryDark,
-              letterSpacing: AppTypography.defaultLetterSpacing,
-              height: 1.45,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: _destructiveRed.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.trash,
+                          color: _destructiveRed,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _inkPrimary,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    body,
+                    style: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: _inkSecondary,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => Navigator.pop(dialogCtx, false),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: _inkPrimary,
+                          side: BorderSide(
+                            color: Colors.black.withValues(alpha: 0.12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 11,
+                          ),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        key: confirmButtonKey,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _destructiveRed,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 11,
+                          ),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(dialogCtx, true),
+                        child: Text(confirmLabel),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogCtx, false),
-              style: TextButton.styleFrom(
-                foregroundColor: SariwaColors.textSecondaryDark,
-              ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  fontFamily: 'Geist',
-                  fontWeight: FontWeight.w400,
-                  color: SariwaColors.textSecondaryDark,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              key: const Key('confirm_bulk_delete_button'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: SariwaColors.statusSpoiled,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              onPressed: () => Navigator.pop(dialogCtx, true),
-              child: Text(
-                count == 1 ? 'Delete' : 'Delete ($count)',
-                style: const TextStyle(
-                  fontFamily: 'Geist',
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: AppTypography.defaultLetterSpacing,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

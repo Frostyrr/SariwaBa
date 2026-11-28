@@ -99,6 +99,22 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
     await widget.controller.pickImage(ImageSource.camera);
   }
 
+  Future<void> _handleTrySamplePhoto() async {
+    if (widget.state.isUploadingImage) return;
+    HapticFeedback.selectionClick();
+    try {
+      final byteData =
+          await rootBundle.load('assets/images/sample_tilapia2.jpg');
+      if (!mounted) return;
+      widget.controller.setSelectedImage(
+        bytes: byteData.buffer.asUint8List(),
+        filename: 'sample_tilapia.jpg',
+      );
+    } catch (_) {
+      // Ignore if sample asset unavailable in test environment
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final disableAnimations =
@@ -124,6 +140,32 @@ class _ResponsiveImageUploadZoneState extends State<ResponsiveImageUploadZone> {
               _buildMobileControls(context, animDuration)
             else
               _buildDesktopFooterRow(context, animDuration),
+
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.center,
+              child: TextButton(
+                onPressed: widget.state.isUploadingImage
+                    ? null
+                    : _handleTrySamplePhoto,
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF737373),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  minimumSize: const Size(0, 32),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textStyle: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+                child: const Text('Try a sample photo'),
+              ),
+            ),
           ],
         );
       },

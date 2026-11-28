@@ -5,22 +5,25 @@ import '../../../constants/content/faq_data.dart';
 import '../../../constants/theme/app_colors.dart';
 import '../../../constants/theme/app_typography.dart';
 import '../../../widgets/common/app_button.dart';
+import '../../../widgets/common/blur_fade.dart';
 import '../../../widgets/common/staggered_reveal.dart';
 
 class FaqItem {
   final String question;
   final String answer;
+  final bool isResultsGuide;
 
   const FaqItem({
     required this.question,
     required this.answer,
+    this.isResultsGuide = false,
   });
 }
 
-/// Editorial FAQ & Reading Results Section
-/// - Hairline-divided Fresh vs. Not Fresh quick guide on pure #FFFFFF (zero nested boxes)
-/// - Crisp hairline-separated FAQ rows (eliminating card-stacking fatigue)
-/// - Final atmospheric CTA banner
+/// Monochrome-first FAQ Section
+/// - Single unified FAQ Accordion (`max-w-3xl mx-auto`) in a pure white rounded-3xl card,
+///   including "How do I read the freshness results?" with the 2-column Fresh vs. Not Fresh comparison
+/// - Existing Final CTA Banner below (untouched)
 class FaqSection extends StatefulWidget {
   final VoidCallback onDownload;
   final VoidCallback? onTryInspection;
@@ -38,9 +41,23 @@ class FaqSection extends StatefulWidget {
 class _FaqSectionState extends State<FaqSection> {
   final Set<int> _expandedIndices = {};
 
-  static final List<FaqItem> _faqList = FaqData.homepageFaqs
-      .map((item) => FaqItem(question: item.question, answer: item.answer))
-      .toList();
+  static const Color _canvasColor = Color(0xFFF5F5F7);
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF737373);
+  static const Color _hairline = Color(0x0D171717);
+  static const Color _dividerColor = Color(0x12171717);
+  static const Color _pillBg = Color(0xFFF5F5F5);
+  static const Color _pillText = Color(0xFF404040);
+
+  static final List<FaqItem> _faqList = [
+    const FaqItem(
+      question: 'How do I read the freshness results?',
+      answer: '',
+      isResultsGuide: true,
+    ),
+    ...FaqData.homepageFaqs
+        .map((item) => FaqItem(question: item.question, answer: item.answer)),
+  ];
 
   void _toggleIndex(int index) {
     setState(() {
@@ -60,87 +77,105 @@ class _FaqSectionState extends State<FaqSection> {
 
         return Container(
           width: double.infinity,
-          decoration: const BoxDecoration(
-            color: SariwaColors.cardSurfaceLight,
-            border: Border(
-              top: BorderSide(color: SariwaColors.colorLineSubtle),
-            ),
-          ),
+          color: _canvasColor,
           padding: EdgeInsets.symmetric(
-            vertical: isMobile ? 64.0 : 80.0,
-            horizontal: isMobile ? 20.0 : 24.0,
+            vertical: isMobile ? 56.0 : 80.0,
+            horizontal: 24.0,
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 960.0),
+              constraints: const BoxConstraints(maxWidth: 1040.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Semantics(
-                    header: true,
-                    child: StaggeredReveal(
-                      revealOnScroll: true,
-                      staggerIndex: 0,
-                      child: Text(
-                        'Common Questions',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: isMobile ? 28.0 : 36.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.7,
-                          height: 1.15,
-                          color: SariwaColors.textPrimaryDark,
+                  BlurFade(
+                    triggerOnVisible: true,
+                    delay: Duration.zero,
+                    child: Column(
+                      children: [
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            'Common Questions',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: isMobile ? 28.0 : 36.0,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: isMobile ? -0.7 : -0.9,
+                              height: 1.15,
+                              color: _inkPrimary,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 520),
+                            child: const Text(
+                              'Answers about photo guidelines, confidence scores, and how your scans are stored.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                height: 1.6,
+                                color: _inkMuted,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  StaggeredReveal(
-                    revealOnScroll: true,
-                    staggerIndex: 1,
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 560),
-                        child: const Text(
-                          'How to read freshness results, photo guidelines, and how your scans are stored.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            letterSpacing: -0.15,
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w300,
-                            height: 1.5,
-                            color: SariwaColors.inkSlateSecondary,
+                  SizedBox(height: isMobile ? 32 : 44),
+
+                  // 1. Unified FAQ Accordion (max-w-3xl = 768px centered)
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 768.0),
+                      child: BlurFade(
+                        triggerOnVisible: true,
+                        delay: const Duration(milliseconds: 80),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: _hairline),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            children: [
+                              for (var index = 0;
+                                  index < _faqList.length;
+                                  index++) ...[
+                                _buildAccordionRow(
+                                  index: index,
+                                  item: _faqList[index],
+                                  isExpanded: _expandedIndices.contains(index),
+                                  isMobile: isMobile,
+                                ),
+                                if (index < _faqList.length - 1)
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: isMobile ? 12 : 20,
+                                    ),
+                                    child: const Divider(
+                                      height: 1,
+                                      color: _dividerColor,
+                                    ),
+                                  ),
+                              ],
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: isMobile ? 32 : 48),
-
-                  // Flat Hairline-Divided "How to Read the Results" Comparison
-                  StaggeredReveal(
-                    revealOnScroll: true,
-                    staggerIndex: 1,
-                    child: _buildResultsGuide(isMobile: isMobile),
-                  ),
-
-                  SizedBox(height: isMobile ? 36 : 48),
-
-                  // Crisp Hairline-Separated FAQ Rows (no card-stacking)
-                  const Divider(height: 1, color: SariwaColors.colorLine),
-                  for (var index = 0; index < _faqList.length; index++) ...[
-                    _buildAccordionRow(
-                      index: index,
-                      item: _faqList[index],
-                      isExpanded: _expandedIndices.contains(index),
-                    ),
-                    const Divider(height: 1, color: SariwaColors.colorLine),
-                  ],
 
                   SizedBox(height: isMobile ? 48 : 64),
 
+                  // 2. Existing Final CTA Banner (UNTOUCHED)
                   StaggeredReveal(
                     revealOnScroll: true,
                     staggerIndex: 1,
@@ -155,12 +190,12 @@ class _FaqSectionState extends State<FaqSection> {
     );
   }
 
-  /// Flat hairline-separated visual reading guide (zero outer shadow / nested cards)
-  Widget _buildResultsGuide({required bool isMobile}) {
+  /// 2-column Fresh vs. Not Fresh comparison rendered inside the expanded FAQ row
+  Widget _buildResultsComparisonBody({required bool isMobile}) {
     const freshCol = _GuideColumn(
       title: 'Fresh (Sariwa)',
-      dotColor: SariwaColors.statusFresh,
-      titleColor: SariwaColors.freshText,
+      dotColor: SariwaColors.brandPrimary,
+      titleColor: _inkPrimary,
       cues: [
         (label: 'Eyes', detail: 'Clear, rounded cornea with dark pupils.'),
         (label: 'Gills', detail: 'Bright red to crimson with clear mucus.'),
@@ -170,93 +205,67 @@ class _FaqSectionState extends State<FaqSection> {
     const notFreshCol = _GuideColumn(
       title: 'Not Fresh (Hindi Sariwa)',
       dotColor: SariwaColors.statusSpoiled,
-      titleColor: SariwaColors.notFreshText,
+      titleColor: _inkPrimary,
       cues: [
         (label: 'Eyes', detail: 'Cloudy, milky, or sunken pupils.'),
         (label: 'Gills', detail: 'Pale, grey, or brown with sticky slime.'),
       ],
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: SariwaColors.colorWorkspace,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.colorLine),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              isMobile ? 20 : 28,
-              20,
-              isMobile ? 20 : 28,
-              16,
-            ),
-            child: const Text(
-              'How to Read the Results',
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                letterSpacing: -0.2,
-                color: SariwaColors.textPrimaryDark,
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFAFAFB),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _hairline),
           ),
-          const Divider(height: 1, color: SariwaColors.colorLine),
-          if (!isMobile)
-            const IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: freshCol,
-                    ),
+          child: !isMobile
+              ? const IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(18),
+                          child: freshCol,
+                        ),
+                      ),
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: _dividerColor,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(18),
+                          child: notFreshCol,
+                        ),
+                      ),
+                    ],
                   ),
-                  VerticalDivider(
-                    width: 1,
-                    thickness: 1,
-                    color: SariwaColors.colorLine,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: notFreshCol,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(padding: EdgeInsets.all(20), child: freshCol),
-                Divider(height: 1, color: SariwaColors.colorLine),
-                Padding(padding: EdgeInsets.all(20), child: notFreshCol),
-              ],
-            ),
-          const Divider(height: 1, color: SariwaColors.colorLine),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 20 : 28,
-              vertical: 12,
-            ),
-            child: const Text(
-              'Visual estimate only — always pair with smell and texture checks.',
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
-                color: SariwaColors.inkSlateMuted,
-              ),
-            ),
+                )
+              : const Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(padding: EdgeInsets.all(16), child: freshCol),
+                    Divider(height: 1, color: _dividerColor),
+                    Padding(padding: EdgeInsets.all(16), child: notFreshCol),
+                  ],
+                ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Visual estimate only — always pair with smell and texture checks.',
+          style: TextStyle(
+            fontFamily: AppTypography.fontFamily,
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: _inkMuted,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -264,7 +273,10 @@ class _FaqSectionState extends State<FaqSection> {
     required int index,
     required FaqItem item,
     required bool isExpanded,
+    required bool isMobile,
   }) {
+    final rowHorizontalPadding = isMobile ? 12.0 : 20.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -272,42 +284,48 @@ class _FaqSectionState extends State<FaqSection> {
           button: true,
           toggled: isExpanded,
           label: item.question,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _toggleIndex(index),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.question,
-                        style: TextStyle(
-                          fontFamily: AppTypography.fontFamily,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: -0.2,
-                          color: isExpanded
-                              ? SariwaColors.brandPrimary
-                              : SariwaColors.textPrimaryDark,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _toggleIndex(index),
+                borderRadius: BorderRadius.circular(12),
+                hoverColor: Colors.black.withValues(alpha: 0.025),
+                highlightColor: Colors.black.withValues(alpha: 0.04),
+                splashColor: Colors.black.withValues(alpha: 0.04),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: rowHorizontalPadding,
+                    vertical: 18,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.question,
+                          style: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.15,
+                            color: _inkPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    AnimatedRotation(
-                      turns: isExpanded ? 0.5 : 0.0,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOutCubic,
-                      child: Icon(
-                        CupertinoIcons.chevron_down,
-                        size: 16,
-                        color: isExpanded
-                            ? SariwaColors.brandPrimary
-                            : SariwaColors.inkSlateMuted,
+                      const SizedBox(width: 16),
+                      AnimatedRotation(
+                        turns: isExpanded ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOutCubic,
+                        child: Icon(
+                          CupertinoIcons.chevron_down,
+                          size: 16,
+                          color: isExpanded ? _inkPrimary : _inkMuted,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -316,18 +334,24 @@ class _FaqSectionState extends State<FaqSection> {
         AnimatedCrossFade(
           firstChild: const SizedBox(width: double.infinity, height: 0),
           secondChild: Padding(
-            padding: const EdgeInsets.only(bottom: 20, right: 32),
-            child: Text(
-              item.answer,
-              style: const TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
-                height: 1.55,
-                letterSpacing: -0.1,
-                color: SariwaColors.inkSlateSecondary,
-              ),
+            padding: EdgeInsets.fromLTRB(
+              rowHorizontalPadding,
+              0,
+              rowHorizontalPadding,
+              18,
             ),
+            child: item.isResultsGuide
+                ? _buildResultsComparisonBody(isMobile: isMobile)
+                : Text(
+                    item.answer,
+                    style: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 1.6,
+                      color: _inkMuted,
+                    ),
+                  ),
           ),
           crossFadeState: isExpanded
               ? CrossFadeState.showSecond
@@ -475,45 +499,49 @@ class _GuideColumn extends StatelessWidget {
               style: TextStyle(
                 fontFamily: AppTypography.fontFamily,
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 color: titleColor,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         for (var i = 0; i < cues.length; i++) ...[
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 44,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _FaqSectionState._pillBg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(
                   cues[i].label,
                   style: const TextStyle(
                     fontFamily: AppTypography.fontFamily,
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: SariwaColors.textPrimaryDark,
+                    color: _FaqSectionState._pillText,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   cues[i].detail,
                   style: const TextStyle(
                     fontFamily: AppTypography.fontFamily,
                     fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                    height: 1.45,
-                    color: SariwaColors.inkSlateSecondary,
+                    fontWeight: FontWeight.w400,
+                    height: 1.5,
+                    color: _FaqSectionState._inkMuted,
                   ),
                 ),
               ),
             ],
           ),
-          if (i < cues.length - 1) const SizedBox(height: 8),
+          if (i < cues.length - 1) const SizedBox(height: 10),
         ],
       ],
     );

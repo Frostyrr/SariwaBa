@@ -52,6 +52,7 @@ class GuestHistoryCache {
       regionVerified: result.regionVerified,
       validatorVersion: result.validatorVersion,
       imageUrl: result.imageUrl,
+      thumbnailBase64: result.thumbnailBase64,
       createdAt: result.createdAt ?? DateTime.now(),
     );
 

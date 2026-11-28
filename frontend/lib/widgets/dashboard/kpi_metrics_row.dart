@@ -1,11 +1,13 @@
 import 'dart:ui' as ui;
+
 import 'package:material_ui/material_ui.dart';
-import '../../models/classification/classification_result.dart';
+
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
+import '../../models/classification/classification_result.dart';
 
-/// Compact, minimal KPI strip showing Total, Fresh, Not Fresh, and Avg. Confidence
-/// in one clean bordered surface with minimal vertical footprint.
+/// Four crisp white mini-KPI cards (`grid-cols-2 lg:grid-cols-4 gap-4`)
+/// showing Total, Fresh, Not Fresh, and Avg. Conf with bold Geist numbers.
 class KpiMetricsRow extends StatelessWidget {
   final List<ClassificationResult> history;
 
@@ -13,6 +15,10 @@ class KpiMetricsRow extends StatelessWidget {
     super.key,
     required this.history,
   });
+
+  static const Color _inkPrimary = Color(0xFF111111);
+  static const Color _inkMuted = Color(0xFF737373);
+  static const Color _border = Color(0x14171717);
 
   @override
   Widget build(BuildContext context) {
@@ -23,124 +29,83 @@ class KpiMetricsRow extends StatelessWidget {
         ? (history.fold(0.0, (acc, s) => acc + s.confidence) / total) * 100
         : 0.0;
 
-    final items = [
-      (
+    final cards = [
+      _buildMiniKpiCard(
         label: 'Total',
         value: total.toString(),
-        dotColor: SariwaColors.brandPrimary,
+        dotColor: const Color(0xFF737373),
       ),
-      (
+      _buildMiniKpiCard(
         label: 'Fresh',
         value: freshCount.toString(),
-        dotColor: SariwaColors.statusFresh,
+        dotColor: SariwaColors.brandPrimary,
       ),
-      (
+      _buildMiniKpiCard(
         label: 'Not Fresh',
         value: notFreshCount.toString(),
         dotColor: SariwaColors.statusSpoiled,
       ),
-      (
-        label: 'Avg. Conf.',
+      _buildMiniKpiCard(
+        label: 'Avg. Conf',
         value: total > 0 ? '${avgConfidence.toStringAsFixed(0)}%' : '—',
-        dotColor: SariwaColors.statusInfo,
+        dotColor: const Color(0xFF737373),
       ),
     ];
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.colorLine),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth >= 560;
-          if (isWide) {
-            return IntrinsicHeight(
-              child: Row(
-                children: [
-                  for (var i = 0; i < items.length; i++) ...[
-                    Expanded(
-                      child: _buildCompactCell(
-                        label: items[i].label,
-                        value: items[i].value,
-                        dotColor: items[i].dotColor,
-                      ),
-                    ),
-                    if (i < items.length - 1)
-                      const VerticalDivider(
-                        width: 16,
-                        thickness: 1,
-                        color: SariwaColors.colorLineSubtle,
-                      ),
-                  ],
-                ],
-              ),
-            );
-          }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 680;
+        const gap = 16.0;
 
-          // Compact 2x2 grid on narrow mobile screens
-          return Column(
+        if (isWide) {
+          return Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildCompactCell(
-                      label: items[0].label,
-                      value: items[0].value,
-                      dotColor: items[0].dotColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildCompactCell(
-                      label: items[1].label,
-                      value: items[1].value,
-                      dotColor: items[1].dotColor,
-                    ),
-                  ),
-                ],
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Divider(height: 1, color: SariwaColors.colorLineSubtle),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildCompactCell(
-                      label: items[2].label,
-                      value: items[2].value,
-                      dotColor: items[2].dotColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildCompactCell(
-                      label: items[3].label,
-                      value: items[3].value,
-                      dotColor: items[3].dotColor,
-                    ),
-                  ),
-                ],
-              ),
+              for (var i = 0; i < cards.length; i++) ...[
+                Expanded(child: cards[i]),
+                if (i < cards.length - 1) const SizedBox(width: gap),
+              ],
             ],
           );
-        },
-      ),
+        }
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: cards[0]),
+                const SizedBox(width: gap),
+                Expanded(child: cards[1]),
+              ],
+            ),
+            const SizedBox(height: gap),
+            Row(
+              children: [
+                Expanded(child: cards[2]),
+                const SizedBox(width: gap),
+                Expanded(child: cards[3]),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildCompactCell({
+  Widget _buildMiniKpiCard({
     required String label,
     required String value,
     required Color dotColor,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -153,28 +118,29 @@ class KpiMetricsRow extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Text(
                 label,
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
                   fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: SariwaColors.inkSlateMuted,
+                  fontWeight: FontWeight.w500,
+                  color: _inkMuted,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Text(
             value,
             style: const TextStyle(
               fontFamily: AppTypography.fontFamily,
-              fontSize: 20,
-              fontWeight: FontWeight.w400,
-              height: 1.0,
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              height: 1.05,
               fontFeatures: [ui.FontFeature.tabularFigures()],
-              letterSpacing: -0.4,
-              color: SariwaColors.textPrimaryDark,
+              letterSpacing: -0.65,
+              color: _inkPrimary,
             ),
           ),
         ],

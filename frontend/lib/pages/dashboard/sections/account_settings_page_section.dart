@@ -316,7 +316,7 @@ class _AccountSettingsPageSectionState
           horizontalPadding,
           widget.isDesktop ? 24 : 16,
           horizontalPadding,
-          widget.isDesktop ? 32 : 104,
+          widget.isDesktop ? 32 : 112,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -430,9 +430,9 @@ class _AccountSettingsPageSectionState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: SariwaColors.colorLine),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
@@ -447,8 +447,8 @@ class _AccountSettingsPageSectionState
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: SariwaColors.textPrimaryDark,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111111),
                   ),
                 ),
                 SizedBox(height: 4),
@@ -457,8 +457,8 @@ class _AccountSettingsPageSectionState
                   style: TextStyle(
                     fontFamily: 'Geist',
                     fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                    color: SariwaColors.inkSlateSecondary,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF737373),
                   ),
                 ),
               ],
@@ -468,10 +468,10 @@ class _AccountSettingsPageSectionState
           ElevatedButton(
             onPressed: widget.onSignIn,
             style: ElevatedButton.styleFrom(
-              backgroundColor: SariwaColors.brandPrimary,
-              foregroundColor: SariwaColors.cardSurfaceLight,
+              backgroundColor: const Color(0xFF111111),
+              foregroundColor: Colors.white,
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
               shape: const StadiumBorder(),
             ),
             child: const Text('Sign In'),
@@ -495,7 +495,7 @@ class _AccountSettingsPageSectionState
 
     return FrostedGlassCard(
       padding: const EdgeInsets.all(20),
-      borderRadius: 20,
+      borderRadius: 16,
       child: Row(
         children: [
           UserAvatar(user: widget.user, radius: 24),
@@ -598,14 +598,13 @@ class _AccountSettingsPageSectionState
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: (iconColor ?? SariwaColors.brandPrimary)
-                        .withValues(alpha: 0.10),
+                    color: const Color(0xFFF5F5F7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     icon,
                     size: 16,
-                    color: iconColor ?? SariwaColors.brandPrimary,
+                    color: iconColor ?? const Color(0xFF111111),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -676,7 +675,7 @@ class _AccountSettingsPageSectionState
 
     return FrostedGlassCard(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      borderRadius: 20,
+      borderRadius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -723,13 +722,13 @@ class _AccountSettingsPageSectionState
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: SariwaColors.brandPrimary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(12),
+                color: const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
                 size: 18,
-                color: SariwaColors.brandPrimary,
+                color: const Color(0xFF111111),
               ),
             ),
             const SizedBox(width: 12),
@@ -743,7 +742,7 @@ class _AccountSettingsPageSectionState
                       fontFamily: 'Geist',
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: SariwaColors.textPrimaryDark,
+                      color: Color(0xFF111111),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -752,8 +751,8 @@ class _AccountSettingsPageSectionState
                     style: const TextStyle(
                       fontFamily: 'Geist',
                       fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      color: SariwaColors.inkSlateMuted,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF737373),
                     ),
                   ),
                 ],
@@ -761,7 +760,7 @@ class _AccountSettingsPageSectionState
             ),
             CupertinoSwitch(
               value: value,
-              activeTrackColor: SariwaColors.brandPrimary,
+              activeTrackColor: const Color(0xFF111111),
               onChanged: (next) async {
                 HapticFeedback.selectionClick();
                 onChanged(next);
@@ -774,7 +773,7 @@ class _AccountSettingsPageSectionState
 
     return FrostedGlassCard(
       padding: const EdgeInsets.all(20),
-      borderRadius: 20,
+      borderRadius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -818,7 +817,7 @@ class _AccountSettingsPageSectionState
   Widget _buildSavedScansCard() {
     return FrostedGlassCard(
       padding: const EdgeInsets.all(20),
-      borderRadius: 20,
+      borderRadius: 16,
       child: Row(
         children: [
           Container(
@@ -890,7 +889,7 @@ class _AccountSettingsPageSectionState
   Widget _buildAccountAccessCard() {
     return FrostedGlassCard(
       padding: const EdgeInsets.all(20),
-      borderRadius: 20,
+      borderRadius: 16,
       child: Column(
         children: [
           Row(

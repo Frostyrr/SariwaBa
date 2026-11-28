@@ -5,7 +5,6 @@ import '../../constants/config/app_breakpoints.dart';
 import '../../constants/theme/app_colors.dart';
 import '../../constants/theme/app_typography.dart';
 import '../../models/auth/user_model.dart';
-import '../common/app_button.dart';
 
 class WebNavbar extends StatelessWidget {
   final VoidCallback onGetStarted;
@@ -46,69 +45,37 @@ class WebNavbar extends StatelessWidget {
         builder: (context, constraints) {
           final isDesktop = AppBreakpoints.isDesktop(constraints.maxWidth);
           final linkColor = isLight
-              ? SariwaColors.textSecondaryDark
+              ? const Color(0xFF737373)
               : SariwaColors.textSecondaryLight;
 
           return SelectionContainer.disabled(
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isDesktop ? 24.0 : 12.0,
-                  12.0,
-                  isDesktop ? 24.0 : 12.0,
-                  8.0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: isScrolled ? 12 : 0,
+                  sigmaY: isScrolled ? 12 : 0,
                 ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1140.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
-                        boxShadow: isScrolled
-                            ? const [
-                                BoxShadow(
-                                  color: SariwaColors.shadowSubtle,
-                                  blurRadius: 20,
-                                  offset: Offset(0, 6),
-                                  spreadRadius: -2,
-                                ),
-                              ]
-                            : const [
-                                BoxShadow(
-                                  color: SariwaColors.shadowHairline,
-                                  blurRadius: 12,
-                                  offset: Offset(0, 3),
-                                ),
-                              ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutCubic,
-                            height: 56,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isDesktop ? 20.0 : 12.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isLight
-                                  ? SariwaColors.cardSurfaceLight.withValues(
-                                      alpha: isScrolled ? 0.88 : 0.80,
-                                    )
-                                  : SariwaColors.bgAbyssDark.withValues(
-                                      alpha: isScrolled ? 0.88 : 0.74,
-                                    ),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: isLight
-                                    ? SariwaColors.colorLine
-                                    : SariwaColors.borderGlass,
-                                width: 1.0,
-                              ),
-                            ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: isScrolled
+                        ? (isLight
+                            ? const Color(0xCCF5F5F7)
+                            : SariwaColors.bgAbyssDark.withValues(alpha: 0.85))
+                        : Colors.transparent,
+                  ),
+                  child: SafeArea(
+                    bottom: false,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1180.0),
+                        child: Container(
+                          height: 64,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? 24.0 : 16.0,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -227,47 +194,59 @@ class WebNavbar extends StatelessWidget {
                                 children: [
                                   if (user != null)
                                     _buildUserMenu(context, isDesktop)
-                                  else ...[
-                                    TextButton(
+                                  else if (isDesktop) ...[
+                                    OutlinedButton(
                                       onPressed: onLogIn,
-                                      style: TextButton.styleFrom(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: isDesktop ? 12 : 8,
-                                          vertical: 8,
+                                      style: OutlinedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor:
+                                            const Color(0xFF111111),
+                                        side: const BorderSide(
+                                          color: Color(0x1A171717),
                                         ),
-                                        minimumSize: const Size(44, 40),
-                                        foregroundColor: isLight
-                                            ? SariwaColors.brandPrimary
-                                            : SariwaColors.brandLight,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                        elevation: 0,
+                                        minimumSize: const Size(0, 40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 18,
+                                          vertical: 10,
                                         ),
-                                      ),
-                                      child: Text(
-                                        'Log in',
-                                        style: AppTypography.navLink.copyWith(
-                                          color: isLight
-                                              ? SariwaColors.textPrimaryDark
-                                              : SariwaColors.textPrimaryLight,
-                                          fontWeight: FontWeight.w400,
+                                        shape: const StadiumBorder(),
+                                        textStyle: const TextStyle(
+                                          fontFamily: AppTypography.fontFamily,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: -0.1,
                                         ),
                                       ),
+                                      child: const Text('Log in'),
                                     ),
-                                    if (isDesktop) ...[
-                                      const SizedBox(width: 8),
-                                      AppButton.primary(
-                                        label: 'Download App',
-                                        height: 36,
-                                        width: 136,
-                                        borderRadius: 999,
-                                        onPressed: onDownloads ?? onGetStarted,
+                                    const SizedBox(width: 8),
+                                    FilledButton(
+                                      onPressed: onDownloads ?? onGetStarted,
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xFF111111),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        minimumSize: const Size(0, 40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 18,
+                                          vertical: 10,
+                                        ),
+                                        shape: const StadiumBorder(),
+                                        textStyle: const TextStyle(
+                                          fontFamily: AppTypography.fontFamily,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: -0.1,
+                                        ),
                                       ),
-                                    ],
+                                      child: const Text('Download App'),
+                                    ),
                                   ],
                                   if (!isDesktop) ...[
                                     const SizedBox(width: 4),
-                                    _buildMobileSectionMenu(),
+                                    _buildMobileMenuTrigger(context),
                                   ],
                                 ],
                               ),
@@ -275,7 +254,6 @@ class WebNavbar extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ),
                     ),
                   ),
                 ),
@@ -287,92 +265,188 @@ class WebNavbar extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileSectionMenu() {
-    return PopupMenuButton<String>(
-      tooltip: 'Navigation menu',
-      offset: const Offset(0, 48),
-      color: SariwaColors.cardSurfaceLight,
-      surfaceTintColor: Colors.transparent,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: SariwaColors.colorLine),
+  /// Clean menu button opening a slide-down mobile nav drawer on `< md`.
+  Widget _buildMobileMenuTrigger(BuildContext context) {
+    return IconButton(
+      tooltip: 'Open navigation menu',
+      onPressed: () => _openMobileNavDrawer(context),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF111111),
+        side: const BorderSide(color: Color(0x14171717)),
+        shape: const CircleBorder(),
+        minimumSize: const Size(40, 40),
       ),
-      icon: Icon(
-        CupertinoIcons.bars,
-        size: 20,
-        color: isLight
-            ? SariwaColors.textPrimaryDark
-            : SariwaColors.textPrimaryLight,
-      ),
-      onSelected: (value) {
-        switch (value) {
-          case 'home':
-            onHome?.call();
-            break;
-          case 'features':
-            onFeatures?.call();
-            break;
-          case 'how':
-            onHowItWorks?.call();
-            break;
-          case 'faq':
-            onFaq?.call();
-            break;
-          case 'downloads':
-            (onDownloads ?? onGetStarted).call();
-            break;
-          case 'dashboard':
-            onDashboard?.call();
-            break;
-        }
-      },
-      itemBuilder: (context) => [
-        _buildMobileMenuItem('home', 'Home', activeTab == 'Home'),
-        if (onFeatures != null)
-          _buildMobileMenuItem('features', 'Features', activeTab == 'Features'),
-        if (onHowItWorks != null)
-          _buildMobileMenuItem(
-            'how',
-            'How it Works',
-            activeTab == 'How it Works',
-          ),
-        if (onFaq != null)
-          _buildMobileMenuItem('faq', 'FAQ', activeTab == 'FAQ'),
-        _buildMobileMenuItem(
-          'downloads',
-          'Downloads',
-          activeTab == 'Downloads',
-        ),
-        if (user != null && onDashboard != null)
-          _buildMobileMenuItem(
-            'dashboard',
-            'Dashboard',
-            activeTab == 'Dashboard',
-          ),
-      ],
+      icon: const Icon(CupertinoIcons.bars, size: 18),
     );
   }
 
-  PopupMenuItem<String> _buildMobileMenuItem(
-    String value,
-    String label,
-    bool isActive,
-  ) {
-    return PopupMenuItem<String>(
-      value: value,
-      height: 44,
-      child: Text(
-        label,
-        style: TextStyle(
-          fontFamily: AppTypography.fontFamily,
-          fontSize: 14,
-          fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-          color: isActive
-              ? SariwaColors.brandPrimary
-              : SariwaColors.textPrimaryDark,
-        ),
-      ),
+  void _openMobileNavDrawer(BuildContext context) {
+    showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close navigation menu',
+      barrierColor: Colors.black.withValues(alpha: 0.28),
+      transitionDuration: const Duration(milliseconds: 240),
+      pageBuilder: (dialogContext, _, _) {
+        void runAndClose(VoidCallback? action) {
+          Navigator.of(dialogContext).pop();
+          action?.call();
+        }
+
+        Widget navRow(String label, VoidCallback? action) {
+          final isCurrent = activeTab == label;
+          return InkWell(
+            onTap: () => runAndClose(action),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 15,
+                      fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
+                      color: isCurrent
+                          ? const Color(0xFF111111)
+                          : const Color(0xFF525252),
+                    ),
+                  ),
+                  if (isCurrent)
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: SariwaColors.brandPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(24),
+            ),
+            elevation: 12,
+            shadowColor: const Color(0x22000000),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/SariwaBa logo.png',
+                              height: 26,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'SariwaBa',
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.25,
+                                color: Color(0xFF111111),
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          tooltip: 'Close menu',
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          icon: const Icon(
+                            CupertinoIcons.xmark,
+                            size: 18,
+                            color: Color(0xFF111111),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Divider(height: 1, color: Color(0x12171717)),
+                    const SizedBox(height: 8),
+                    navRow('Home', onHome),
+                    navRow('Features', onFeatures),
+                    navRow('How it Works', onHowItWorks),
+                    if (onFaq != null) navRow('FAQ', onFaq),
+                    navRow('Downloads', onDownloads ?? onGetStarted),
+                    if (user != null) navRow('Dashboard', onDashboard),
+                    const SizedBox(height: 16),
+                    if (user == null)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => runAndClose(onLogIn),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF111111),
+                                side: const BorderSide(
+                                  color: Color(0x1A171717),
+                                ),
+                                minimumSize: const Size(0, 44),
+                                shape: const StadiumBorder(),
+                              ),
+                              child: const Text('Log in'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () =>
+                                  runAndClose(onDownloads ?? onGetStarted),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF111111),
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(0, 44),
+                                shape: const StadiumBorder(),
+                              ),
+                              child: const Text('Download App'),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, _, child) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, -1),
+            end: Offset.zero,
+          ).animate(curved),
+          child: FadeTransition(opacity: curved, child: child),
+        );
+      },
     );
   }
 
@@ -666,25 +740,11 @@ class _NavLinkItemState extends State<_NavLinkItem> {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = widget.isLight
-        ? SariwaColors.brandPrimary
-        : SariwaColors.brandLight;
-    final hoverColor = widget.isLight
-        ? SariwaColors.textPrimaryDark
-        : Colors.white;
+    final activeColor = widget.isLight ? const Color(0xFF111111) : Colors.white;
+    final hoverColor = widget.isLight ? const Color(0xFF111111) : Colors.white;
     final effectiveTextColor = widget.isActive
         ? activeColor
         : (_isHovered ? hoverColor : widget.linkColor);
-
-    final pillBgColor = widget.isActive
-        ? (widget.isLight
-              ? SariwaColors.colorPale
-              : SariwaColors.brandLight.withValues(alpha: 0.12))
-        : (_isHovered
-              ? (widget.isLight
-                    ? SariwaColors.colorSurface
-                    : SariwaColors.cardSurfaceLight.withValues(alpha: 0.08))
-              : Colors.transparent);
 
     return SelectionContainer.disabled(
       child: Semantics(
@@ -699,24 +759,29 @@ class _NavLinkItemState extends State<_NavLinkItem> {
             color: Colors.transparent,
             child: InkWell(
               onTap: widget.onTap,
-              borderRadius: BorderRadius.circular(999),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOutCubic,
+              borderRadius: BorderRadius.circular(8),
+              hoverColor: widget.isLight
+                  ? Colors.black.withValues(alpha: 0.04)
+                  : Colors.white.withValues(alpha: 0.08),
+              splashColor: widget.isLight
+                  ? Colors.black.withValues(alpha: 0.06)
+                  : Colors.white.withValues(alpha: 0.12),
+              highlightColor: Colors.transparent,
+              child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
-                decoration: BoxDecoration(
-                  color: pillBgColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
                 child: Text(
                   widget.label,
-                  style: (widget.isActive
-                          ? AppTypography.navLinkActive
-                          : AppTypography.navLink)
-                      .copyWith(color: effectiveTextColor),
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 14,
+                    fontWeight:
+                        widget.isActive ? FontWeight.w500 : FontWeight.w400,
+                    letterSpacing: -0.1,
+                    color: effectiveTextColor,
+                  ),
                 ),
               ),
             ),

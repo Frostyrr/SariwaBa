@@ -9,7 +9,6 @@ import 'sections/faq_section.dart';
 import 'sections/features_section.dart';
 import 'sections/how_it_works_section.dart';
 import 'sections/landing_section.dart';
-import '../../constants/theme/app_colors.dart';
 
 /// Unified Home Page
 /// Imports modular sections for Landing, Features, How It Works, FAQ, and Footer,
@@ -113,7 +112,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isGuest = authState.isGuest;
 
     return Scaffold(
-      backgroundColor: SariwaColors.colorWorkspace,
+      backgroundColor: const Color(0xFFF5F5F7),
       body: Stack(
         children: [
           // Scrollable Page Sections with 60/120fps smooth mouse-wheel inertia on Web
