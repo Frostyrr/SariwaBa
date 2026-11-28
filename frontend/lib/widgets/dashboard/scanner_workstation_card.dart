@@ -260,170 +260,193 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
           ),
           const SizedBox(height: 12),
         ],
-        // Edge-to-edge full-bleed viewport on mobile (BoxFit.cover); contained on desktop
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            height: isMobileScreen ? 290 : 320,
-            width: double.infinity,
-            color: isMobileScreen
-                ? const Color(0xFF111111)
-                : const Color(0xFF0A1926),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final containerSize = Size(
-                  constraints.maxWidth,
-                  constraints.maxHeight,
-                );
-                final displayedRect = isMobileScreen
-                    ? _computeCoveredImageRect(
-                        containerSize,
-                        _decodedImage,
-                        state.sourceImageSize,
-                      )
-                    : _computeContainedImageRect(
-                        containerSize,
-                        _decodedImage,
-                        state.sourceImageSize,
-                      );
+        // Full-frame BoxFit.contain viewport (clamped 3:4..4:3 with soft #F4F4F5 surface on mobile)
+        Builder(
+          builder: (context) {
+            double clampedMobileAspect = 4 / 3;
+            if (isMobileScreen) {
+              double? rawAspect;
+              if (_decodedImage != null &&
+                  _decodedImage!.width > 0 &&
+                  _decodedImage!.height > 0) {
+                rawAspect = _decodedImage!.width / _decodedImage!.height;
+              } else if (state.sourceImageSize != null &&
+                  state.sourceImageSize!.width > 0 &&
+                  state.sourceImageSize!.height > 0) {
+                rawAspect =
+                    state.sourceImageSize!.width / state.sourceImageSize!.height;
+              }
+              if (rawAspect != null) {
+                clampedMobileAspect = rawAspect.clamp(3 / 4, 4 / 3);
+              }
+            }
 
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.memory(
-                      bytes,
-                      fit: isMobileScreen ? BoxFit.cover : BoxFit.contain,
-                      width: containerSize.width,
-                      height: containerSize.height,
-                    ),
-                    if (state.eyeProposals.isNotEmpty)
-                      for (int i = 0; i < state.eyeProposals.length; i++)
-                        _buildProposalMarker(
-                          index: i,
-                          proposal: state.eyeProposals[i],
-                          displayedRect: displayedRect,
-                          isSelected: state.selectedEyeProposalIndex == i,
-                          isHovered: _hoveredEyeMarkerIndex == i,
-                          onHoverChanged: (hovered) {
-                            setState(
-                              () => _hoveredEyeMarkerIndex = hovered ? i : null,
-                            );
-                          },
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            if (state.selectedEyeProposalIndex == i) {
-                              _openEyeZoomModal(state, controller, i);
-                            } else {
-                              controller.selectEyeProposal(i);
-                            }
-                          },
-                        ),
-                    if (isMobileScreen)
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildOverlayPillButton(
-                              key: const Key('scanner_adjust_crop_button'),
-                              tooltip: 'Adjust crop',
-                              icon: CupertinoIcons.crop,
-                              onTap: state.isClassifying
-                                  ? null
-                                  : () {
-                                      controller.editCrop();
-                                      widget.onOpenCropModal();
-                                    },
-                            ),
-                            const SizedBox(width: 8),
-                            _buildOverlayPillButton(
-                              tooltip: 'Remove photo',
-                              icon: CupertinoIcons.xmark,
-                              onTap: state.isClassifying
-                                  ? null
-                                  : controller.clearSelection,
-                            ),
-                          ],
-                        ),
+            final viewportContent = Container(
+              height: isMobileScreen ? null : 320,
+              width: double.infinity,
+              color: isMobileScreen
+                  ? const Color(0xFFF4F4F5)
+                  : const Color(0xFF0A1926),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final containerSize = Size(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
+                  final displayedRect = _computeContainedImageRect(
+                    containerSize,
+                    _decodedImage,
+                    state.sourceImageSize,
+                  );
+
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.memory(
+                        bytes,
+                        fit: BoxFit.contain,
+                        width: containerSize.width,
+                        height: containerSize.height,
                       ),
-                    if (state.eyeProposals.length > 1) ...[
-                      // Previous Eye Arrow (<)
-                      Positioned(
-                        left: 12,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: _buildCarouselArrowButton(
-                            icon: CupertinoIcons.chevron_left,
-                            tooltip: 'Previous eye',
+                      if (state.eyeProposals.isNotEmpty)
+                        for (int i = 0; i < state.eyeProposals.length; i++)
+                          _buildProposalMarker(
+                            index: i,
+                            proposal: state.eyeProposals[i],
+                            displayedRect: displayedRect,
+                            isSelected: state.selectedEyeProposalIndex == i,
+                            isHovered: _hoveredEyeMarkerIndex == i,
+                            onHoverChanged: (hovered) {
+                              setState(
+                                () => _hoveredEyeMarkerIndex = hovered ? i : null,
+                              );
+                            },
                             onTap: () {
-                              final current =
-                                  state.selectedEyeProposalIndex ?? 0;
-                              final prev =
-                                  (current - 1 + state.eyeProposals.length) %
-                                  state.eyeProposals.length;
                               HapticFeedback.selectionClick();
-                              controller.selectEyeProposal(prev);
+                              if (state.selectedEyeProposalIndex == i) {
+                                _openEyeZoomModal(state, controller, i);
+                              } else {
+                                controller.selectEyeProposal(i);
+                              }
                             },
                           ),
-                        ),
-                      ),
-                      // Next Eye Arrow (>)
-                      Positioned(
-                        right: 12,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: _buildCarouselArrowButton(
-                            icon: CupertinoIcons.chevron_right,
-                            tooltip: 'Next eye',
-                            onTap: () {
-                              final current =
-                                  state.selectedEyeProposalIndex ?? -1;
-                              final next =
-                                  (current + 1) % state.eyeProposals.length;
-                              HapticFeedback.selectionClick();
-                              controller.selectEyeProposal(next);
-                            },
+                      if (isMobileScreen)
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildOverlayPillButton(
+                                key: const Key('scanner_adjust_crop_button'),
+                                tooltip: 'Adjust crop',
+                                icon: CupertinoIcons.crop,
+                                onTap: state.isClassifying
+                                    ? null
+                                    : () {
+                                        controller.editCrop();
+                                        widget.onOpenCropModal();
+                                      },
+                              ),
+                              const SizedBox(width: 8),
+                              _buildOverlayPillButton(
+                                tooltip: 'Remove photo',
+                                icon: CupertinoIcons.xmark,
+                                onTap: state.isClassifying
+                                    ? null
+                                    : controller.clearSelection,
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      // Counter pill (e.g., "1 / 4")
-                      Positioned(
-                        right: 12,
-                        bottom: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xCC0A1926),
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.22),
+                      if (state.eyeProposals.length > 1) ...[
+                        // Previous Eye Arrow (<)
+                        Positioned(
+                          left: 12,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: _buildCarouselArrowButton(
+                              icon: CupertinoIcons.chevron_left,
+                              tooltip: 'Previous eye',
+                              onTap: () {
+                                final current =
+                                    state.selectedEyeProposalIndex ?? 0;
+                                final prev =
+                                    (current - 1 + state.eyeProposals.length) %
+                                    state.eyeProposals.length;
+                                HapticFeedback.selectionClick();
+                                controller.selectEyeProposal(prev);
+                              },
                             ),
                           ),
-                          child: Text(
-                            state.selectedEyeProposalIndex != null
-                                ? '${state.selectedEyeProposalIndex! + 1} / ${state.eyeProposals.length}'
-                                : '${state.eyeProposals.length} eyes',
-                            style: const TextStyle(
-                              fontFamily: 'Geist',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
+                        ),
+                        // Next Eye Arrow (>)
+                        Positioned(
+                          right: 12,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: _buildCarouselArrowButton(
+                              icon: CupertinoIcons.chevron_right,
+                              tooltip: 'Next eye',
+                              onTap: () {
+                                final current =
+                                    state.selectedEyeProposalIndex ?? -1;
+                                final next =
+                                    (current + 1) % state.eyeProposals.length;
+                                HapticFeedback.selectionClick();
+                                controller.selectEyeProposal(next);
+                              },
                             ),
                           ),
                         ),
-                      ),
+                        // Counter pill (e.g., "1 / 4")
+                        Positioned(
+                          right: 12,
+                          bottom: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xCC0A1926),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: SariwaColors.cardSurfaceLight.withValues(alpha: 0.22),
+                              ),
+                            ),
+                            child: Text(
+                              state.selectedEyeProposalIndex != null
+                                  ? '${state.selectedEyeProposalIndex! + 1} / ${state.eyeProposals.length}'
+                                  : '${state.eyeProposals.length} eyes',
+                              style: const TextStyle(
+                                fontFamily: 'Geist',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                );
-              },
-            ),
-          ),
+                  );
+                },
+              ),
+            );
+
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: isMobileScreen
+                  ? AspectRatio(
+                      aspectRatio: clampedMobileAspect,
+                      child: viewportContent,
+                    )
+                  : viewportContent,
+            );
+          },
         ),
         if (state.eyeProposals.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -934,39 +957,6 @@ class _ScannerWorkstationCardState extends State<ScannerWorkstationCard> {
         ),
       ),
     );
-  }
-
-  Rect _computeCoveredImageRect(
-    Size containerSize,
-    ui.Image? image,
-    Size? fallbackSize,
-  ) {
-    final double imgWidth;
-    final double imgHeight;
-    if (image != null && image.width > 0 && image.height > 0) {
-      imgWidth = image.width.toDouble();
-      imgHeight = image.height.toDouble();
-    } else if (fallbackSize != null &&
-        fallbackSize.width > 0 &&
-        fallbackSize.height > 0) {
-      imgWidth = fallbackSize.width;
-      imgHeight = fallbackSize.height;
-    } else {
-      return Offset.zero & containerSize;
-    }
-    final imageAspect = imgWidth / imgHeight;
-    final containerAspect = containerSize.width / containerSize.height;
-    if (imageAspect > containerAspect) {
-      final height = containerSize.height;
-      final width = height * imageAspect;
-      final dx = (containerSize.width - width) / 2;
-      return Rect.fromLTWH(dx, 0, width, height);
-    } else {
-      final width = containerSize.width;
-      final height = width / imageAspect;
-      final dy = (containerSize.height - height) / 2;
-      return Rect.fromLTWH(0, dy, width, height);
-    }
   }
 
   Rect _computeContainedImageRect(

@@ -30,7 +30,7 @@ class HowItWorksDashboardSection extends StatelessWidget {
           horizontalPadding,
           isDesktop ? 24 : 56,
           horizontalPadding,
-          isDesktop ? 32 : 104,
+          isDesktop ? 32 : 112,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -131,8 +131,9 @@ class HowItWorksDashboardSection extends StatelessWidget {
                         icon: const Icon(CupertinoIcons.camera, size: 16),
                         label: const Text('Start New Inspection'),
                         style: FilledButton.styleFrom(
-                          backgroundColor: SariwaColors.brandPrimary,
-                          foregroundColor: SariwaColors.cardSurfaceLight,
+                          backgroundColor: const Color(0xFF111111),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 12,
@@ -191,8 +192,8 @@ class HowItWorksDashboardSection extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: SariwaColors.colorPale,
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFFF5F5F7),
+              borderRadius: BorderRadius.circular(10),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -200,8 +201,8 @@ class HowItWorksDashboardSection extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'Geist Mono',
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: SariwaColors.brandPrimary,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111111),
               ),
             ),
           ),

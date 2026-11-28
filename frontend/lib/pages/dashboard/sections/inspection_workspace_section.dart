@@ -32,6 +32,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
   final VoidCallback? onViewMore;
   final VoidCallback? onViewAnalytics;
   final VoidCallback? onOpenSettings;
+  final VoidCallback? onOpenGuide;
   final ScrollController? scrollController;
   final Future<bool> Function(ImageSource source)? onRequestPermission;
 
@@ -49,6 +50,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
     this.onViewMore,
     this.onViewAnalytics,
     this.onOpenSettings,
+    this.onOpenGuide,
     this.scrollController,
     this.onRequestPermission,
   });
@@ -59,9 +61,6 @@ class InspectionWorkspaceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalScans = classState.history.length;
-    final freshScans = classState.history.where((s) => s.isFresh).length;
-
     return SafeArea(
       top: !isDesktop,
       bottom: false,
@@ -97,10 +96,7 @@ class InspectionWorkspaceSection extends StatelessWidget {
                   ] else
                     StaggeredReveal(
                       staggerIndex: 0,
-                      child: _buildMobileHeader(
-                        totalScans: totalScans,
-                        freshScans: freshScans,
-                      ),
+                      child: _buildMobileHeader(),
                     ),
                   Padding(
                     padding: EdgeInsets.symmetric(
@@ -213,27 +209,23 @@ class InspectionWorkspaceSection extends StatelessWidget {
     );
   }
 
-  /// Native mobile header: status eyebrow + concise `Inspect` title + scan summary + 36x36 avatar
-  Widget _buildMobileHeader({
-    required int totalScans,
-    required int freshScans,
-  }) {
-    final freshPct =
-        totalScans > 0 ? ((freshScans / totalScans) * 100).round() : 0;
+  /// Unified iOS Large Title + Utility Row header for Mobile Inspect
+  Widget _buildMobileHeader() {
     final typedUser = user is UserModel ? user as UserModel : null;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+          SizedBox(
+            height: 36,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Borderless status indicator eyebrow
+                // Left: borderless status indicator
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -259,58 +251,82 @@ class InspectionWorkspaceSection extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Inspect',
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    height: 1.15,
-                    color: _inkPrimary,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  totalScans > 0
-                      ? '$totalScans ${totalScans == 1 ? 'scan' : 'scans'} · $freshPct% fresh'
-                      : 'Snap or upload an eye or gill photo.',
-                  style: const TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    height: 1.4,
-                    color: _inkMuted,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                // Right: Help/Guide (?) + Account Avatar (36x36 white circles, 8px gap)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onOpenGuide != null) ...[
+                      Semantics(
+                        button: true,
+                        label: 'Freshness Guide',
+                        child: Tooltip(
+                          message: 'Freshness Guide',
+                          child: Material(
+                            color: Colors.white,
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                color: Colors.black.withValues(alpha: 0.08),
+                              ),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                onOpenGuide!();
+                              },
+                              customBorder: const CircleBorder(),
+                              child: const SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: Icon(
+                                  CupertinoIcons.question,
+                                  size: 16,
+                                  color: _inkPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Semantics(
+                      button: true,
+                      label: 'Account settings',
+                      child: Material(
+                        color: Colors.white,
+                        shape: CircleBorder(
+                          side: BorderSide(
+                            color: Colors.black.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: onOpenSettings,
+                          customBorder: const CircleBorder(),
+                          child: SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: ClipOval(
+                              child: UserAvatar(user: typedUser, radius: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Semantics(
-            button: true,
-            label: 'Account settings',
-            child: InkWell(
-              onTap: onOpenSettings,
-              customBorder: const CircleBorder(),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFF5F5F7),
-                  border: Border.all(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    width: 1,
-                  ),
-                ),
-                child: ClipOval(
-                  child: UserAvatar(user: typedUser, radius: 18),
-                ),
-              ),
+          const SizedBox(height: 12),
+          const Text(
+            'Inspect',
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.6,
+              height: 1.15,
+              color: _inkPrimary,
             ),
           ),
         ],

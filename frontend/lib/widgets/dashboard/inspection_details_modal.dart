@@ -43,7 +43,11 @@ class InspectionDetailsModal {
     return '$m $d, $y · $hour:$min $ampm';
   }
 
-  static void show(BuildContext context, ClassificationResult scan) {
+  static void show(
+    BuildContext context,
+    ClassificationResult scan, {
+    VoidCallback? onDelete,
+  }) {
     final isMobile = AppBreakpoints.isMobile(MediaQuery.of(context).size.width);
     final scanId = scan.scanId;
     final headerTitle =
@@ -138,27 +142,57 @@ class InspectionDetailsModal {
           const Divider(height: 16, color: _divider),
           _buildModalDetailRow('Date', formatDateTime(scan.createdAt)),
           const SizedBox(height: 22),
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.white,
-                shape: const StadiumBorder(),
-                side: BorderSide(color: Colors.black.withValues(alpha: 0.12)),
-                foregroundColor: _inkPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 10,
+          Row(
+            mainAxisAlignment: onDelete != null
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.end,
+            children: [
+              if (onDelete != null)
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    onDelete();
+                  },
+                  icon: const Icon(
+                    CupertinoIcons.trash,
+                    size: 15,
+                    color: Color(0xFFDC2626),
+                  ),
+                  label: const Text('Delete'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFDC2626),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    shape: const StadiumBorder(),
+                    textStyle: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-                textStyle: const TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              OutlinedButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: const StadiumBorder(),
+                  side: BorderSide(color: Colors.black.withValues(alpha: 0.12)),
+                  foregroundColor: _inkPrimary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  textStyle: const TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                child: const Text('Done'),
               ),
-              child: const Text('Done'),
-            ),
+            ],
           ),
         ],
       );

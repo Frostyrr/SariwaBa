@@ -70,12 +70,12 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: SariwaColors.colorPale,
-                      borderRadius: BorderRadius.circular(12),
+                      color: const Color(0xFFF5F5F7),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       CupertinoIcons.checkmark_shield,
-                      color: SariwaColors.brandPrimary,
+                      color: Color(0xFF111111),
                       size: 18,
                     ),
                   ),
@@ -180,8 +180,8 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: FilledButton.styleFrom(
-                    backgroundColor: SariwaColors.brandPrimary,
-                    foregroundColor: SariwaColors.cardSurfaceLight,
+                    backgroundColor: const Color(0xFF111111),
+                    foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -249,25 +249,33 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SariwaColors.cardSurfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SariwaColors.colorLine),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: SariwaColors.brandPrimary),
-              const SizedBox(width: 8),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 15, color: const Color(0xFF111111)),
+              ),
+              const SizedBox(width: 10),
               Text(
                 title,
                 style: const TextStyle(
                   fontFamily: AppTypography.fontFamily,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
                   letterSpacing: -0.2,
-                  color: SariwaColors.textPrimaryDark,
+                  color: Color(0xFF111111),
                 ),
               ),
             ],
@@ -279,18 +287,12 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
               final freshBox = _buildComparisonColumn(
                 label: 'Fresh',
                 description: freshDesc,
-                accentColor: SariwaColors.freshText,
-                dotColor: SariwaColors.statusFresh,
-                bgColor: SariwaColors.freshIconBg,
-                borderColor: SariwaColors.freshBorder,
+                dotColor: SariwaColors.brandPrimary,
               );
               final spoiledBox = _buildComparisonColumn(
                 label: 'Not Fresh',
                 description: spoiledDesc,
-                accentColor: SariwaColors.notFreshText,
-                dotColor: SariwaColors.statusSpoiled,
-                bgColor: SariwaColors.notFreshIconBg,
-                borderColor: SariwaColors.notFreshBorder,
+                dotColor: const Color(0xFFDC2626),
               );
 
               if (isSideBySide) {
@@ -299,7 +301,11 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(child: freshBox),
-                      const SizedBox(width: 12),
+                      const VerticalDivider(
+                        width: 24,
+                        thickness: 1,
+                        color: Color(0xFFE5E5E7),
+                      ),
                       Expanded(child: spoiledBox),
                     ],
                   ),
@@ -309,7 +315,7 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   freshBox,
-                  const SizedBox(height: 8),
+                  const Divider(height: 20, color: Color(0xFFE5E5E7)),
                   spoiledBox,
                 ],
               );
@@ -323,56 +329,45 @@ class OrganolepticGuidelinesDialog extends StatelessWidget {
   Widget _buildComparisonColumn({
     required String label,
     required String description,
-    required Color accentColor,
     required Color dotColor,
-    required Color bgColor,
-    required Color borderColor,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: bgColor.withValues(alpha: 0.65),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: accentColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-              height: 1.4,
-              color: SariwaColors.colorInk,
             ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111111),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          description,
+          style: const TextStyle(
+            fontFamily: AppTypography.fontFamily,
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            height: 1.45,
+            color: Color(0xFF525252),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -310,51 +310,65 @@ class _AccountSettingsPageSectionState
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SingleChildScrollView(
-        controller: widget.scrollController,
-        padding: EdgeInsets.fromLTRB(
-          horizontalPadding,
-          widget.isDesktop ? 24 : 16,
-          horizontalPadding,
-          widget.isDesktop ? 32 : 112,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 16),
+      body: SafeArea(
+        top: !widget.isDesktop,
+        bottom: false,
+        child: SingleChildScrollView(
+          controller: widget.scrollController,
+          padding: EdgeInsets.fromLTRB(
+            widget.isDesktop ? horizontalPadding : 0,
+            widget.isDesktop ? 24 : 0,
+            widget.isDesktop ? horizontalPadding : 0,
+            widget.isDesktop ? 32 : 112,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  if (widget.isDesktop) const SizedBox(height: 16),
 
-                if (_statusBannerMessage != null) ...[
-                  _buildStatusBanner(),
-                  const SizedBox(height: 16),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: widget.isDesktop ? 0 : 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_statusBannerMessage != null) ...[
+                          _buildStatusBanner(),
+                          const SizedBox(height: 16),
+                        ],
+
+                        if (widget.isGuestUser)
+                          _buildGuestCallout()
+                        else
+                          _buildProfileInfoCard(),
+                        const SizedBox(height: 16),
+
+                        _buildAppResourcesCard(),
+                        const SizedBox(height: 16),
+
+                        if (!widget.isDesktop) ...[
+                          _buildPermissionsCard(),
+                          const SizedBox(height: 16),
+                        ],
+
+                        _buildSavedScansCard(),
+
+                        if (!widget.isGuestUser) ...[
+                          const SizedBox(height: 16),
+                          _buildAccountAccessCard(),
+                          const SizedBox(height: 16),
+                          _buildDangerZoneCard(),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
-
-                if (widget.isGuestUser)
-                  _buildGuestCallout()
-                else
-                  _buildProfileInfoCard(),
-                const SizedBox(height: 16),
-
-                _buildAppResourcesCard(),
-                const SizedBox(height: 16),
-
-                if (!widget.isDesktop) ...[
-                  _buildPermissionsCard(),
-                  const SizedBox(height: 16),
-                ],
-
-                _buildSavedScansCard(),
-
-                if (!widget.isGuestUser) ...[
-                  const SizedBox(height: 16),
-                  _buildAccountAccessCard(),
-                  const SizedBox(height: 16),
-                  _buildDangerZoneCard(),
-                ],
-              ],
+              ),
             ),
           ),
         ),
@@ -363,14 +377,69 @@ class _AccountSettingsPageSectionState
   }
 
   Widget _buildHeader() {
-    return Text(
-      'Account Settings',
-      style: TextStyle(
-        fontFamily: 'Geist',
-        fontSize: widget.isDesktop ? 28 : 24,
-        fontWeight: FontWeight.w500,
-        letterSpacing: AppTypography.defaultLetterSpacing,
-        color: SariwaColors.textPrimaryDark,
+    if (widget.isDesktop) {
+      return Text(
+        'Account Settings',
+        style: TextStyle(
+          fontFamily: 'Geist',
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.6,
+          color: const Color(0xFF111111),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 36,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.isGuestUser
+                          ? const Color(0xFF737373)
+                          : SariwaColors.brandPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    widget.isGuestUser ? 'Guest Mode' : 'Synced',
+                    style: const TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF737373),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Settings',
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.6,
+              height: 1.15,
+              color: Color(0xFF111111),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -760,7 +829,7 @@ class _AccountSettingsPageSectionState
             ),
             CupertinoSwitch(
               value: value,
-              activeTrackColor: const Color(0xFF111111),
+              activeTrackColor: SariwaColors.brandPrimary,
               onChanged: (next) async {
                 HapticFeedback.selectionClick();
                 onChanged(next);

@@ -69,7 +69,7 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
           horizontalPadding,
           widget.isDesktop ? 24 : 56,
           horizontalPadding,
-          widget.isDesktop ? 32 : 104,
+          widget.isDesktop ? 32 : 112,
         ),
         child: Center(
           child: ConstrainedBox(
@@ -211,16 +211,16 @@ class _HelpFaqDashboardSectionState extends State<HelpFaqDashboardSection> {
                         ? FontWeight.w500
                         : FontWeight.w400,
                     color: _selectedCategory == cat
-                        ? SariwaColors.cardSurfaceLight
-                        : SariwaColors.inkSlateSecondary,
+                        ? Colors.white
+                        : const Color(0xFF525252),
                   ),
-                  selectedColor: SariwaColors.brandPrimary,
-                  backgroundColor: SariwaColors.cardSurfaceLight,
+                  selectedColor: const Color(0xFF111111),
+                  backgroundColor: Colors.white,
                   shape: StadiumBorder(
                     side: BorderSide(
                       color: _selectedCategory == cat
-                          ? SariwaColors.brandPrimary
-                          : SariwaColors.colorLine,
+                          ? const Color(0xFF111111)
+                          : Colors.black.withValues(alpha: 0.08),
                     ),
                   ),
                   showCheckmark: false,

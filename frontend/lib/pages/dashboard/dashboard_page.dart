@@ -50,6 +50,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   bool _isNavIdle = false;
   bool _hasInputFocus = false;
   Timer? _navIdleTimer;
+  OverlayEntry? _topToastEntry;
+  Timer? _topToastTimer;
   BuildContext? _cropModalContext;
 
   int _navOrder(String nav) {
@@ -274,6 +276,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   @override
   void dispose() {
     _navIdleTimer?.cancel();
+    _topToastTimer?.cancel();
+    _topToastEntry?.remove();
+    _topToastEntry = null;
     FocusManager.instance.removeListener(_handleFocusManagerChange);
     _inspectionScrollController.dispose();
     _historyScrollController.dispose();
@@ -308,48 +313,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         final msg = next.successMessage!;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.checkmark_circle_fill,
-                      color: Color(0xFF6EE7B7),
-                      size: 18,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        msg,
-                        style: const TextStyle(
-                          fontFamily: 'Geist',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: const Color(0xFF111111),
-                elevation: 8,
-                duration: const Duration(seconds: 3),
-                width: AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width)
-                    ? null
-                    : 360,
-                margin: AppBreakpoints.isMobile(MediaQuery.sizeOf(context).width)
-                    ? const EdgeInsets.fromLTRB(24, 0, 24, 24)
-                    : null,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                shape: const StadiumBorder(),
-              ),
-            );
+          _showTopScanToast(msg);
           ref.read(classificationControllerProvider.notifier).clearNotification();
         });
       }
@@ -451,6 +415,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       onViewMore: () => _navigateTo('History'),
                       onViewAnalytics: () => _navigateTo('History'),
                       onOpenSettings: () => _navigateTo('Settings'),
+                      onOpenGuide: () =>
+                          OrganolepticGuidelinesDialog.show(context),
                       scrollController: controller,
                       onRequestPermission: (isNativeMobileDevice || isMobile)
                           ? _checkMobileMediaPermission
@@ -755,7 +721,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               const Icon(
                 CupertinoIcons.chevron_left,
                 size: 16,
-                color: SariwaColors.brandPrimary,
+                color: Color(0xFF111111),
               ),
               const SizedBox(width: 4),
               Text(
@@ -869,147 +835,277 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
   }
 
+  void _showTopScanToast(String message) {
+    _topToastTimer?.cancel();
+    _topToastEntry?.remove();
+    _topToastEntry = null;
+
+    final overlay = Overlay.maybeOf(context);
+    if (overlay == null) return;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (ctx) => Positioned(
+        top: MediaQuery.paddingOf(ctx).top + 12,
+        left: 16,
+        right: 16,
+        child: IgnorePointer(
+          ignoring: true,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 380),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) => Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, -10 * (1 - value)),
+                    child: child,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 11,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF111111),
+                      borderRadius: BorderRadius.circular(999),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.checkmark_circle_fill,
+                          color: Color(0xFF6EE7B7),
+                          size: 17,
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            message,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    _topToastEntry = entry;
+    overlay.insert(entry);
+    _topToastTimer = Timer(const Duration(seconds: 3), () {
+      if (_topToastEntry == entry) {
+        entry.remove();
+        _topToastEntry = null;
+      }
+    });
+  }
+
   Future<void> _showMobileVerdictSheet({
     required dynamic result,
     required Uint8List? cropBytes,
     required ClassificationController controller,
   }) async {
+    final currentState = ref.read(classificationControllerProvider);
+    final totalEyes = currentState.eyeProposals.length;
+    final currentEyeIdx = currentState.selectedEyeProposalIndex ?? 0;
+    final hasNextEye = totalEyes > 1 && (currentEyeIdx + 1) < totalEyes;
+    final nextEyeIdx = currentEyeIdx + 1;
+
     final isFresh = result.isFresh == true;
-    final primaryColor =
-        isFresh ? SariwaColors.statusFresh : SariwaColors.notFreshPrimary;
-    final bgColor =
-        isFresh ? SariwaColors.freshIconBg : SariwaColors.notFreshIconBg;
-    final borderColor =
-        isFresh ? SariwaColors.freshBorder : SariwaColors.notFreshBorder;
+    final verdictColor =
+        isFresh ? SariwaColors.brandPrimary : const Color(0xFFDC2626);
 
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      showDragHandle: true,
+      showDragHandle: false,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (sheetCtx) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: borderColor, width: 1.4),
+      builder: (sheetCtx) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Neutral drag handle (36x4)
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4D4D8),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              const SizedBox(height: 18),
+              // Flattened content directly on pure white sheet (no mint inner box)
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      if (cropBytes != null) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.memory(
-                            cropBytes,
-                            width: 56,
-                            height: 56,
-                            fit: BoxFit.cover,
+                  if (cropBytes != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.memory(
+                        cropBytes,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          result.label as String,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                            color: verdictColor,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                      ],
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              result.label as String,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: primaryColor,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Model confidence: ${result.formattedConfidence}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: SariwaColors.textPrimaryDark,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(height: 2),
+                        Text(
+                          'Confidence · ${result.formattedConfidence}',
+                          style: const TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF111111),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: (result.confidence as double).clamp(0.0, 1.0),
-                      minHeight: 7,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Model confidence reflects the classifier prediction score, not a freshness percentage or food-safety guarantee.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.35,
-                      color: SariwaColors.textSecondaryDark,
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
+              const SizedBox(height: 14),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: (result.confidence as double).clamp(0.0, 1.0),
+                  minHeight: 7,
+                  backgroundColor: const Color(0xFFF4F4F5),
+                  valueColor: AlwaysStoppedAnimation<Color>(verdictColor),
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Visual freshness estimate — not a food-safety guarantee.',
+                style: TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  height: 1.4,
+                  color: Color(0xFF737373),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.of(sheetCtx).pop();
+                        if (hasNextEye) {
+                          controller.selectEyeProposal(nextEyeIdx);
+                        } else {
+                          controller.clearSelection();
+                        }
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF111111),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        minimumSize: const Size(0, 48),
+                        shape: const StadiumBorder(),
+                        textStyle: const TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      child: hasNextEye
+                          ? Text('Next Eye (${nextEyeIdx + 1}/$totalEyes) →')
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.camera_viewfinder,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 8),
+                                Text('Scan Another'),
+                              ],
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  OutlinedButton(
                     onPressed: () {
                       Navigator.of(sheetCtx).pop();
-                      controller.clearSelection();
+                      controller.editCrop();
+                      _showRoiCropperModal();
                     },
-                    icon: const Icon(Icons.camera_alt_rounded, size: 17),
-                    label: const Text('Scan Another'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: SariwaColors.brandPrimary,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(0, 46),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF111111),
+                      side: BorderSide(
+                        color: Colors.black.withValues(alpha: 0.12),
+                      ),
+                      minimumSize: const Size(0, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      shape: const StadiumBorder(),
+                      textStyle: const TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                    child: const Text('Adjust crop'),
                   ),
-                ),
-                const SizedBox(width: 12),
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(sheetCtx).pop();
-                    controller.editCrop();
-                    _showRoiCropperModal();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: SariwaColors.textPrimaryDark,
-                    side: const BorderSide(color: SariwaColors.lineSlate),
-                    minimumSize: const Size(0, 46),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Adjust crop'),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
